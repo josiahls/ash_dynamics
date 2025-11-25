@@ -62,7 +62,7 @@ jobs:
     - name: Build, tag, and push image
       run: |
         export DOCKER_BUILDKIT=1
-        export COMPOSE_PROFILES=build_${PLATFORM}_${DEVICE}
+        export COMPOSE_PROFILES=build_${DEVICE}_${PLATFORM}
         echo ${PASSWORD} | docker login -u $USERNAME --password-stdin
 
         if docker compose pull; then
@@ -117,7 +117,7 @@ jobs:
       run: |
         export DOCKER_BUILDKIT=1
         # Github doesn't have any gpu runners.
-        export COMPOSE_PROFILES=${PLATFORM}_cpu
+        export COMPOSE_PROFILES=cpu_${PLATFORM}
         echo ${PASSWORD} | docker login -u $USERNAME --password-stdin
 
         if docker compose pull; then
