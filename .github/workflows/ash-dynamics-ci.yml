@@ -5,10 +5,10 @@ on:
   workflow_dispatch: #allows you to trigger manually
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
   check-changes:
