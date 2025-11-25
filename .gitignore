@@ -1,0 +1,17 @@
+.env
+# pixi environments
+.pixi
+*.egg-info
+# vscode / cursor
+.vscode/settings.json
+
+# Build Artifacts
+*.mojopkg
+
+# Submodules
+firehose
+modular
+EmberJson
+
+# Stdlib build artifacts
+kgen.trace*

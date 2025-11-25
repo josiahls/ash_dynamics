@@ -1,0 +1,6 @@
+
+[submodule "modular"]
+    path = modular
+    url = https://github.com/josiahls/modular.git
+    branch = main
+    ignore = all
