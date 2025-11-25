@@ -10,7 +10,7 @@ x-ash_dynamics_base: &ash_dynamics_base
   tty: true
   shm_size: 16000000000
   ports:
-    - "5900:5900"
+    - "5910:5910"
   volumes:
     - .:/home/mojo_user/ash_dynamics/
     - ~/.ssh:/home/mojo_user/.ssh:rw
