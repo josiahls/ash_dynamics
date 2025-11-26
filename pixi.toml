@@ -17,7 +17,7 @@ repository = "https://github.com/josiahls/ash_dynamics"
 stdlib-dev = {features = ["stdlib-dev"]}
 
 [dependencies]
-mojo = "==0.25.7.0,<0.26"
+mojo = ">=0.26.1.0.dev2025112405,<0.27"
 pre-commit = ">=4.3.0,<5"
 
 [activation.env]
