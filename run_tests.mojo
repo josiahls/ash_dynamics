@@ -10,13 +10,16 @@ comptime TEST_DIR = Path("tests")
 
 def test_file(file: Path) -> TestReport:
     # Lol this is rough
+    var start = perf_counter_ns()
     var result = run("pixi run test " + String(file))
+    var end = perf_counter_ns()
+    var duration_ns = end - start
     if "Unhandled exception caught during execution" in result:
         return TestReport.failed(
-            name=file.name(), duration_ns=0, error=Error(result)
+            name=file.name(), duration_ns=duration_ns, error=Error(result)
         )
 
-    return TestReport.passed(name=file.name(), duration_ns=0)
+    return TestReport.passed(name=file.name(), duration_ns=duration_ns)
 
 
 def walk_tests(path: Path, mut test_results: List[TestReport]):
