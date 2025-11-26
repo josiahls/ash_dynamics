@@ -1,0 +1,9 @@
+trait VisualizationBackendable:
+    fn setup(mut self) raises:
+        ...
+
+    fn run(mut self) raises:
+        ...
+
+    fn teardown(mut self) raises:
+        ...

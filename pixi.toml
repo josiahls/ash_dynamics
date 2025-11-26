@@ -17,11 +17,11 @@ repository = "https://github.com/josiahls/ash_dynamics"
 stdlib-dev = {features = ["stdlib-dev"]}
 
 [dependencies]
-mojo = ">=0.26.1.0.dev2025112405,<0.27"
-pre-commit = ">=4.3.0,<5"
+mojo = ">=0.26.1.0.dev2025113005,<0.27"
+pre-commit = ">=4.5.0,<5"
 
 [activation.env]
-ASH_DYNAMICS_INCLUDES = " -I ."
+ASH_DYNAMICS_INCLUDES = " -I . -I lightbug_http"
 
 [tasks]
 ########################## Pre-commit Configuration ###########################
@@ -43,6 +43,14 @@ package = { cmd = [
 
 format = { cmd = [
     "mojo", "format", "ash_dynamics"
+]}
+
+test = { cmd = [
+    "pixi", "run","mojo","run","-D","ASSERT=all", "$ASH_DYNAMICS_INCLUDES", "{{ file }}"
+], args = [{ arg = "file" }]}
+
+test_all = { cmd = [
+    "pixi", "run","mojo","run","run_tests.mojo"
 ]}
 
 ############################ Git Ops ##########################################
