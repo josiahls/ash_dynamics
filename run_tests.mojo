@@ -9,19 +9,14 @@ comptime TEST_DIR = Path("tests")
 
 
 def test_file(file: Path) -> TestReport:
-    var result = String()
     # Lol this is rough
-    var name_as_bytes = file.name().as_bytes().copy()
-    var ptr = UnsafePointer(to=name_as_bytes)
+    var result = run("pixi run test " + String(file))
+    if "Unhandled exception caught during execution" in result:
+        return TestReport.failed(
+            name=file.name(), duration_ns=0, error=Error(result)
+        )
 
-    var test_result = TestReport(
-        name=StringSlice[mut=False, origin = origin_of(name_as_bytes)](
-            unsafe_from_utf8_ptr=ptr
-        ),  # Lol this is rough
-        duration_ns=0,
-        result=TestResult.PASS,
-    )
-    return test_result^
+    return TestReport.passed(name=file.name(), duration_ns=0)
 
 
 def walk_tests(path: Path, mut test_results: List[TestReport]):
