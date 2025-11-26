@@ -1,4 +1,4 @@
-[project]
+[workspace]
 authors = ["Josiah Laivins <jklaivins@gmail.com>"]
 channels = [
     "https://conda.modular.com/max-nightly", 
@@ -21,13 +21,9 @@ mojo = "==0.25.7.0,<0.26"
 pre-commit = ">=4.3.0,<5"
 
 [activation.env]
-LD_LIBRARY_PATH="$PIXI_PROJECT_ROOT/tests/test_c_project/build:$LD_LIBRARY_PATH"
-GEM_HOME="$HOME/.local/share/gem"
-PATH="$HOME/.local/share/gem/ruby/3.0.0/bin:$HOME/.local/share/gem/bin:${PATH}"
 ASH_DYNAMICS_INCLUDES = " -I ."
 
 [tasks]
-
 ########################## Pre-commit Configuration ###########################
 install_pre_commit_hooks = { cmd = [
     "pre-commit", "install"
@@ -48,10 +44,6 @@ package = { cmd = [
 format = { cmd = [
     "mojo", "format", "ash_dynamics"
 ]}
-
-docs = { cmd = [
-    "cd", "docs", "&&", "bundle", "exec", "jekyll", "serve", "--livereload"
-], depends-on = [ "build_docs" ]}
 
 ############################ Git Ops ##########################################
 push = "git push --force-with-lease"
