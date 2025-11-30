@@ -10,7 +10,7 @@ comptime TEST_DIR = Path("tests")
 
 def test_file(file: Path) -> TestReport:
     var start = perf_counter_ns()
-    var result = run("pixi run test " + String(file))
+    var result = run("pixi run test_no_config " + String(file))
     var end = perf_counter_ns()
     var duration_ns = end - start
     if "Unhandled exception caught during execution" in result:

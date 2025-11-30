@@ -46,13 +46,18 @@ cmd = "pixi run mojo package $ASH_DYNAMICS_INCLUDES ash_dynamics"
 depends-on = [ "configure" ]
 
 [tasks.format]
-cmd = "pixi run mojo format $ASH_DYNAMICS_INCLUDES ash_dynamics"
-depends-on = [ "configure" ]
+cmd = "pixi run mojo format ash_dynamics"
+
+[tasks.test_no_config]
+cmd = "pixi run mojo run -D ASSERT=all $ASH_DYNAMICS_INCLUDES {{ file }}"
+args = ["file"]
 
 [tasks.test]
-cmd = "pixi run mojo run -D ASSERT=all $ASH_DYNAMICS_INCLUDES {{ file }}"
-args = [{ arg = "file" }]
-depends-on = [ "configure" ]
+args = ["file"]
+depends-on = [ 
+    "configure",  
+    { task = "test_no_config", args = ["{{ file }}"] }
+]
 
 [tasks.test_all]
 cmd = "pixi run mojo run run_tests.mojo"
