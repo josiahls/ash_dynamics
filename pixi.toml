@@ -29,53 +29,43 @@ install_pre_commit_hooks = { cmd = [
     "pre-commit", "install"
 ], outputs = [".git/hooks/pre-commit"]}
 
-############################### Core API ######################################
-# NOTE: If we want to use the stdlib, we need to run the update_stdlib during 
-# configure to make dev work convenient. Pixi supports overriding the default 
-# task, but then the user gets prompted on which task they are to run every time.
-configure = { cmd = [
-    "bash", "-c", 
-    "echo 'configuring' && if [ \"$PIXI_ENVIRONMENT_NAME\" = \"stdlib-dev\" ]; then echo 'Running in stdlib-dev environment, updating stdlib...'; pixi run update_stdlib; fi"
-], depends-on = [ "install_pre_commit_hooks" ] }
-
-package = { cmd = [
-    "mojo", "package", "$ASH_DYNAMICS_INCLUDES", "ash_dynamics",
-], depends-on = [ "configure" ]}
-
-format = { cmd = [
-    "mojo", "format", "ash_dynamics"
-]}
-
-test = { cmd = [
-    "pixi", "run","mojo","run","-D","ASSERT=all", "$ASH_DYNAMICS_INCLUDES", "{{ file }}"
-], args = [{ arg = "file" }]}
-
-test_all = { cmd = [
-    "pixi", "run","mojo","run","run_tests.mojo"
-]}
-
 ############################ Git Ops ##########################################
 push = "git push --force-with-lease"
 
-rebase = { cmd = [
-    "git", "rebase", "-i", "HEAD~{{ n_commits}}"
-], args = [{ arg = "n_commits", default = "1" }]}
+[tasks.rebase]
+cmd = "git rebase -i HEAD~{{ n_commits }}"
+args = [{ arg = "n_commits", default = "1" }]
+
+############################### Core API ######################################
+[tasks.configure]
+cmd = "bash tools/configure.sh"
+depends-on = [ "install_pre_commit_hooks" ]
+
+[tasks.package]
+cmd = "pixi run mojo package $ASH_DYNAMICS_INCLUDES ash_dynamics"
+depends-on = [ "configure" ]
+
+[tasks.format]
+cmd = "pixi run mojo format $ASH_DYNAMICS_INCLUDES ash_dynamics"
+depends-on = [ "configure" ]
+
+[tasks.test]
+cmd = "pixi run mojo run -D ASSERT=all $ASH_DYNAMICS_INCLUDES {{ file }}"
+args = [{ arg = "file" }]
+depends-on = [ "configure" ]
+
+[tasks.test_all]
+cmd = "pixi run mojo run run_tests.mojo"
 
 [feature.stdlib-dev.activation.env]
-MODULAR_MOJO_MAX_IMPORT_PATH="$PIXI_PROJECT_ROOT/modular/bazel-bin"
+MODULAR_MOJO_MAX_IMPORT_PATH="$PIXI_PROJECT_ROOT/third_party/modular/bazel-bin"
 # MOJO_ENABLE_STACK_TRACE_ON_ERROR="1"
 
 [feature.stdlib-dev.tasks]
 ########################## Mojo Standard Library ##############################
-clone_stdlib = { cmd = [
-    "bash", "-c", 
-    "if [ ! -d third_party/modular ] && [ ! -L modular ]; then cd third_party && git clone https://github.com/modular/modular.git; else echo 'Modular directory already exists.'; fi"
-]}
+clone_stdlib = "bash tools/clone_stdlib.sh"
 
-sym_link_stdlib = { cmd = [
-    "bash", "-c", 
-    "if [ ! -L third_party/modular ] && [ -d $PIXI_PROJECT_ROOT/../modular ]; then ln -s $PIXI_PROJECT_ROOT/../modular third_party/modular; else echo 'Modular directory already exists.'; fi"
-]}
+sym_link_stdlib = "bash tools/sym_link_stdlib.sh"
 
 update_stdlib = { cmd = [
     "cd", "third_party/modular", "&&",
