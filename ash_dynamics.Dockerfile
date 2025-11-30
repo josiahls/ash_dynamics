@@ -49,6 +49,7 @@ RUN apt-get update && apt-get install -y \
     x11-apps \
     ruby-full zlib1g-dev \ 
     gnupg \ 
+    ffmpeg \
     xauth \
     ninja-build meson \
     && apt-get clean \
