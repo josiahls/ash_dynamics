@@ -24,26 +24,34 @@ pre-commit = ">=4.5.0,<5"
 ASH_DYNAMICS_INCLUDES = " -I . -I third_party/lightbug_http"
 
 [tasks]
-########################## Pre-commit Configuration ###########################
+########################## Pre-commit Configuration ############################
 install_pre_commit_hooks = { cmd = [
     "pre-commit", "install"
 ], outputs = [".git/hooks/pre-commit"]}
 
-############################ Git Ops ##########################################
+############################ Git Ops ###########################################
 push = "git push --force-with-lease"
 
 [tasks.rebase]
 cmd = "git rebase -i HEAD~{{ n_commits }}"
 args = [{ arg = "n_commits", default = "1" }]
 
-############################### Core API ######################################
+######################### Third Party Setup API ################################
+[tasks.clone_lightbug_http]
+cmd = "bash tools/clone_lightbug_http.sh"
+
+[tasks.clone_ffmpeg]
+cmd = "bash tools/clone_ffmpeg.sh"
+
+
+############################### Core API #######################################
 [tasks.configure]
 cmd = "bash tools/configure.sh"
 depends-on = [ "install_pre_commit_hooks" ]
 
 [tasks.package]
 cmd = "pixi run mojo package $ASH_DYNAMICS_INCLUDES ash_dynamics"
-depends-on = [ "configure" ]
+depends-on = [ "configure", "clone_lightbug_http", "clone_ffmpeg" ]
 
 [tasks.format]
 cmd = "pixi run mojo format ash_dynamics"
@@ -62,12 +70,15 @@ depends-on = [
 [tasks.test_all]
 cmd = "pixi run mojo run run_tests.mojo"
 
+
+
+
+########################## Mojo Standard Library ###############################
 [feature.stdlib-dev.activation.env]
 MODULAR_MOJO_MAX_IMPORT_PATH="$PIXI_PROJECT_ROOT/third_party/modular/bazel-bin"
 # MOJO_ENABLE_STACK_TRACE_ON_ERROR="1"
 
 [feature.stdlib-dev.tasks]
-########################## Mojo Standard Library ##############################
 clone_stdlib = "bash tools/clone_stdlib.sh"
 
 sym_link_stdlib = "bash tools/sym_link_stdlib.sh"
