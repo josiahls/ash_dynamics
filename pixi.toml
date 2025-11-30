@@ -21,7 +21,7 @@ mojo = ">=0.26.1.0.dev2025113005,<0.27"
 pre-commit = ">=4.5.0,<5"
 
 [activation.env]
-ASH_DYNAMICS_INCLUDES = " -I . -I lightbug_http"
+ASH_DYNAMICS_INCLUDES = " -I . -I third_party/lightbug_http"
 
 [tasks]
 ########################## Pre-commit Configuration ###########################
@@ -69,21 +69,21 @@ MODULAR_MOJO_MAX_IMPORT_PATH="$PIXI_PROJECT_ROOT/modular/bazel-bin"
 ########################## Mojo Standard Library ##############################
 clone_stdlib = { cmd = [
     "bash", "-c", 
-    "if [ ! -d modular ] && [ ! -L modular ]; then git clone https://github.com/modular/modular.git; else echo 'Modular directory already exists.'; fi"
+    "if [ ! -d third_party/modular ] && [ ! -L modular ]; then cd third_party && git clone https://github.com/modular/modular.git; else echo 'Modular directory already exists.'; fi"
 ]}
 
 sym_link_stdlib = { cmd = [
     "bash", "-c", 
-    "if [ ! -L modular ] && [ -d $PIXI_PROJECT_ROOT/../modular ]; then ln -s $PIXI_PROJECT_ROOT/../modular modular; else echo 'Modular directory already exists.'; fi"
+    "if [ ! -L third_party/modular ] && [ -d $PIXI_PROJECT_ROOT/../modular ]; then ln -s $PIXI_PROJECT_ROOT/../modular third_party/modular; else echo 'Modular directory already exists.'; fi"
 ]}
 
 update_stdlib = { cmd = [
-    "cd", "modular", "&&",
+    "cd", "third_party/modular", "&&",
     "./bazelw", "build", "//mojo/stdlib/stdlib"
 ], depends-on = [ "sym_link_stdlib", "clone_stdlib" ]}
 
 clean_update_stdlib = { cmd = [
-    "cd", "modular", "&&",
+    "cd", "third_party/modular", "&&",
     "git", "switch", "main", "&&",
     "git", "fetch", "origin", "&&",
     "git", "reset", "--hard", "origin/main", "&&",

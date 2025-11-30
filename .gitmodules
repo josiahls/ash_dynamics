@@ -1,13 +1,13 @@
 
 [submodule "modular"]
-    path = modular
+    path = third_party/modular
     url = https://github.com/josiahls/modular.git
     branch = main
     ignore = all
 
 
 [submodule "lightbug_http"]
-    path = lightbug_http
+    path = third_party/lightbug_http
     url = https://github.com/josiahls/lightbug_http.git
     branch = nightly
     ignore = all

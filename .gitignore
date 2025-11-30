@@ -9,10 +9,11 @@
 *.mojopkg
 
 # Submodules
-firehose
-modular
-modular/bazel-modular
-EmberJson
+third_party/modular
+third_party/modular/bazel-modular
 
 # Stdlib build artifacts
 kgen.trace*
+
+# Test Data
+test_data/
