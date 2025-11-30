@@ -57,7 +57,7 @@ test_all = { cmd = [
 ############################ Git Ops ##########################################
 push = "git push --force-with-lease"
 
-i_rebase = { cmd = [
+rebase = { cmd = [
     "git", "rebase", "-i", "HEAD~{{ n_commits}}"
 ], args = [{ arg = "n_commits", default = "1" }]}
 
