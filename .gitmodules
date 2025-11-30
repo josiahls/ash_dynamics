@@ -15,6 +15,6 @@
 
 [submodule "ffmpeg"]
     path = third_party/ffmpeg
-    url = https://github.com/FFmpeg/FFmpeg/tree/master
+    url = https://github.com/FFmpeg/FFmpeg.git
     branch = release/8.0
     ignore = all
