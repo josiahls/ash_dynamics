@@ -11,3 +11,10 @@
     url = https://github.com/josiahls/lightbug_http.git
     branch = nightly
     ignore = all
+
+
+[submodule "ffmpeg"]
+    path = third_party/ffmpeg
+    url = https://github.com/FFmpeg/FFmpeg/tree/master
+    branch = release/8.0
+    ignore = all
