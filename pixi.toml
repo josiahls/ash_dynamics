@@ -24,6 +24,7 @@ pre-commit = ">=4.5.0,<5"
 #ASH_DYNAMICS_INCLUDES = " -I . -I third_party/lightbug_http"
 ASH_DYNAMICS_INCLUDES = " -I ."
 LD_LIBRARY_PATH = "/home/mojo_user/ash_dynamics/third_party/ffmpeg/build/lib:$LD_LIBRARY_PATH"
+MOJO_ENABLE_STACK_TRACE_ON_ERROR="1"
 
 [tasks]
 ########################## Pre-commit Configuration ############################
@@ -67,6 +68,10 @@ cmd = "pixi run mojo format ash_dynamics"
 
 [tasks.test_no_config]
 cmd = "pixi run mojo run -D ASSERT=all $ASH_DYNAMICS_INCLUDES {{ file }}"
+args = ["file"]
+
+[tasks.debug]
+cmd = "pixi run mojo debug -D ASSERT=all --debug-level=line-tables $ASH_DYNAMICS_INCLUDES {{ file }}"
 args = ["file"]
 
 [tasks.test]
