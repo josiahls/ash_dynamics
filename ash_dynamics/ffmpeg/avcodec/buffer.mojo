@@ -5,6 +5,7 @@ from ash_dynamics.ffmpeg.avcodec.buffer_internal import AVBuffer
 
 
 @fieldwise_init
+@register_passable("trivial")
 struct AVBufferRef(ImplicitlyCopyable, Movable):
     """Represents a reference to a data buffer.
 

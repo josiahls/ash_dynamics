@@ -1,15 +1,18 @@
+from testing.suite import TestSuite
+from sys.ffi import c_uchar
+
 from ash_dynamics.ffmpeg.avcodec.packet import AVPacket
 from ash_dynamics.ffmpeg.avcodec.rational import AVRational
 from ash_dynamics.ffmpeg.avcodec.buffer import AVBufferRef
 from ash_dynamics.ffmpeg.avcodec.buffer_internal import AVBuffer
-from sys.ffi import c_uchar
 from ash_dynamics.ffmpeg.avcodec.packet import (
     AVPacketSideData,
     AVPacketSideDataType,
 )
+from ash_dynamics.ffmpeg.avcodec import avcodec
 
 
-def main():
+def test_AVPacket():
     var data = InlineArray[c_uchar, 4](uninitialized=True)
     data[0] = 104
     data[1] = 101
@@ -52,7 +55,7 @@ def main():
         data=buffer.data,
         size=buffer.size,
     )
-    var packet = AVPacket(
+    _ = AVPacket(
         buf=UnsafePointer(to=buffer_ref).unsafe_origin_cast[
             MutOrigin.external
         ](),
@@ -74,3 +77,16 @@ def main():
         ](),
         time_base=AVRational(num=1, den=1),
     )
+
+
+def test_av_packet_alloc():
+    var avcodec = avcodec()
+    print("calling")
+    var packet = avcodec.av_packet_alloc()
+    print("called")
+    print(packet)
+    _ = avcodec  # Need this to keep the ffi bind alive
+
+
+def main():
+    TestSuite.discover_tests[__functions_in_module()]().run()

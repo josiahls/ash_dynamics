@@ -3,6 +3,7 @@ from sys.ffi import c_uchar, c_uint, c_int, c_long_long
 from os.atomic import Atomic
 from ash_dynamics.ffmpeg.avcodec.buffer import AVBufferRef
 from ash_dynamics.ffmpeg.avcodec.rational import AVRational
+from ash_dynamics.ffmpeg._clib import ExternalFunction
 
 
 @fieldwise_init("implicit")
@@ -84,13 +85,15 @@ struct AVPacketSideDataType:
 
 
 @fieldwise_init
+@register_passable("trivial")
 struct AVPacketSideData:
-    var data: UnsafePointer[c_uchar, origin = MutOrigin.external]
+    var data: UnsafePointer[c_uchar, MutAnyOrigin]
     var size: c_uint
     var type: c_int  # AVPacketSideDataType
 
 
 @fieldwise_init
+@register_passable("trivial")
 struct AVPacket:
     var buf: UnsafePointer[AVBufferRef, origin = MutOrigin.external]
     "A reference to the reference-counted buffer where the packet data is stored."
@@ -118,3 +121,8 @@ struct AVPacket:
     "AVBufferRef for free use by the API user. FFmpeg will never check the contents of the buffer ref. FFmpeg calls av_buffer_unref() on it when the packet is unreferenced. av_packet_copy_props() calls create a new reference with av_buffer_ref() for the target packet's opaque_ref field."
     var time_base: AVRational
     "Time base of the packet's timestamps."
+
+
+comptime _av_packet_alloc = ExternalFunction[
+    "av_packet_alloc", fn () -> UnsafePointer[AVPacket, MutOrigin.external]
+]

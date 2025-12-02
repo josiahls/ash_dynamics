@@ -4,6 +4,7 @@ from os.atomic import Atomic, Consistency, fence
 
 
 @fieldwise_init
+@register_passable("trivial")
 struct AVBuffer(Movable):
     """Represents a buffer.
 

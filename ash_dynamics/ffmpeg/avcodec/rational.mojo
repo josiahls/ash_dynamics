@@ -3,6 +3,7 @@ from sys.ffi import c_int
 
 
 @fieldwise_init
+@register_passable("trivial")
 struct AVRational(Movable):
     """Represents a rational number.
 
