@@ -23,12 +23,21 @@ pre-commit = ">=4.5.0,<5"
 [activation.env]
 #ASH_DYNAMICS_INCLUDES = " -I . -I third_party/lightbug_http"
 ASH_DYNAMICS_INCLUDES = " -I ."
+LD_LIBRARY_PATH = "/home/mojo_user/ash_dynamics/third_party/ffmpeg/build/lib:$LD_LIBRARY_PATH"
 
 [tasks]
 ########################## Pre-commit Configuration ############################
 install_pre_commit_hooks = { cmd = [
     "pre-commit", "install"
 ], outputs = [".git/hooks/pre-commit"]}
+
+# Note: This should be in the third_party setup directory, but pixi's support
+# for outputs in its written out form isn't supported.
+build_ffmpeg = { cmd = "bash tools/build_ffmpeg.sh", inputs = [
+    "tools/build_ffmpeg.sh",
+], outputs = [
+    "third_party/ffmpeg/build/lib/*.so"
+], depends-on = [ "clone_ffmpeg" ] }
 
 ############################ Git Ops ###########################################
 push = "git push --force-with-lease"
@@ -44,13 +53,10 @@ cmd = "bash tools/clone_lightbug_http.sh"
 [tasks.clone_ffmpeg]
 cmd = "bash tools/clone_ffmpeg.sh"
 
-[tasks.build_ffmpeg]
-cmd = "bash tools/build_ffmpeg.sh"
-
 ############################### Core API #######################################
 [tasks.configure]
 cmd = "bash tools/configure.sh"
-depends-on = [ "install_pre_commit_hooks" ]
+depends-on = [ "install_pre_commit_hooks", "clone_lightbug_http", "build_ffmpeg" ]
 
 [tasks.package]
 cmd = "pixi run mojo package $ASH_DYNAMICS_INCLUDES ash_dynamics"
