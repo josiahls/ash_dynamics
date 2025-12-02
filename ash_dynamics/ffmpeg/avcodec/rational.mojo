@@ -2,7 +2,8 @@
 from sys.ffi import c_int
 
 
-struct AVRational:
+@fieldwise_init
+struct AVRational(Movable):
     """Represents a rational number.
 
     References:

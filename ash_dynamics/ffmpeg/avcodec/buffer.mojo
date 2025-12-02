@@ -4,7 +4,8 @@ from os.atomic import Atomic
 from ash_dynamics.ffmpeg.avcodec.buffer_internal import AVBuffer
 
 
-struct AVBufferRef:
+@fieldwise_init
+struct AVBufferRef(ImplicitlyCopyable, Movable):
     """Represents a reference to a data buffer.
 
     References:
