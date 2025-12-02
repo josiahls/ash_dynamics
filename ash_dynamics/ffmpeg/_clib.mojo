@@ -1,0 +1,2 @@
+struct FFmpeg:
+    pass
