@@ -43,6 +43,8 @@ cmd = "bash tools/clone_lightbug_http.sh"
 [tasks.clone_ffmpeg]
 cmd = "bash tools/clone_ffmpeg.sh"
 
+[tasks.build_ffmpeg]
+cmd = "bash tools/build_ffmpeg.sh"
 
 ############################### Core API #######################################
 [tasks.configure]
