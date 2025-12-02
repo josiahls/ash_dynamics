@@ -21,7 +21,8 @@ mojo = ">=0.26.1.0.dev2025113005,<0.27"
 pre-commit = ">=4.5.0,<5"
 
 [activation.env]
-ASH_DYNAMICS_INCLUDES = " -I . -I third_party/lightbug_http"
+#ASH_DYNAMICS_INCLUDES = " -I . -I third_party/lightbug_http"
+ASH_DYNAMICS_INCLUDES = " -I ."
 
 [tasks]
 ########################## Pre-commit Configuration ############################
