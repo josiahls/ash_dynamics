@@ -15,5 +15,8 @@ third_party/modular/bazel-modular
 # Stdlib build artifacts
 kgen.trace*
 
+# Build artifacts
+third_party/ffmpeg/build
+
 # Test Data
 test_data/
