@@ -447,11 +447,11 @@ struct AVCodecID:
 
     # AMR
     comptime AV_CODEC_ID_AMR_NB = Self(0x12000)
-    comptime AV_CODEC_ID_AMR_WB = Self(Self.AV_CODEC_ID_AMR_NB._value + 1)
+    comptime AV_CODEC_ID_AMR_WB = Self.AV_CODEC_ID_AMR_NB.inc()
 
     # RealAudio codecs
     comptime AV_CODEC_ID_RA_144 = Self(0x13000)
-    comptime AV_CODEC_ID_RA_288 = Self(Self.AV_CODEC_ID_RA_144._value + 1)
+    comptime AV_CODEC_ID_RA_288 = Self.AV_CODEC_ID_RA_144.inc()
 
     # various DPCM codecs
     comptime AV_CODEC_ID_ROQ_DPCM = Self(0x14000)
