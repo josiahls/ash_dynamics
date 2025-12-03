@@ -38,7 +38,7 @@ struct AVCodecID:
     comptime AV_CODEC_ID_MPEG1VIDEO = Self.AV_CODEC_ID_NONE.inc()
     # Below preferred ID for MPEG-1/2 video decoding
     comptime AV_CODEC_ID_MPEG2VIDEO = Self.AV_CODEC_ID_MPEG1VIDEO.inc()
-    comptime AV_CODEC_ID_H261 = Self(Self.AV_CODEC_ID_MPEG2VIDEO._value + 1)
+    comptime AV_CODEC_ID_H261 = Self.AV_CODEC_ID_MPEG2VIDEO.inc()
     comptime AV_CODEC_ID_H263 = Self.AV_CODEC_ID_H261.inc()
     comptime AV_CODEC_ID_RV10 = Self.AV_CODEC_ID_H263.inc()
     comptime AV_CODEC_ID_RV20 = Self.AV_CODEC_ID_RV10.inc()
@@ -629,30 +629,26 @@ struct AVCodecID:
     comptime AV_CODEC_ID_LCEVC = Self.AV_CODEC_ID_SMPTE_2038.inc()
     comptime AV_CODEC_ID_SMPTE_436M_ANC = Self.AV_CODEC_ID_LCEVC.inc()
 
-    comptime AV_CODEC_ID_PROBE = Self(
-        0x19000
-    )  # < codec_id is not known (like AV_CODEC_ID_NONE) but lavf should attempt to identify it
+    # < codec_id is not known (like AV_CODEC_ID_NONE) but lavf should attempt to identify it
+    comptime AV_CODEC_ID_PROBE = Self(0x19000)
 
-    comptime AV_CODEC_ID_MPEG2TS = Self(
-        0x20000
-    )  # < _FAKE_ codec to indicate a raw MPEG-2 TS
-    # * stream (only used by libavformat) */
-    comptime AV_CODEC_ID_MPEG4SYSTEMS = Self(
-        0x20001
-    )  # < _FAKE_ codec to indicate a MPEG-4 Systems stream (only used by libavformat)
-    comptime AV_CODEC_ID_FFMETADATA = Self(
-        0x21000
-    )  # < Dummy codec for streams containing only metadata information.
-    comptime AV_CODEC_ID_WRAPPED_AVFRAME = Self(
-        0x21001
-    )  # < Passthrough codec, AVFrames wrapped in AVPacket
+    # _FAKE_ codec to indicate a raw MPEG-2 TS
+    # stream (only used by libavformat)
+    comptime AV_CODEC_ID_MPEG2TS = Self(0x20000)
+
+    # < _FAKE_ codec to indicate a MPEG-4 Systems stream (only used by libavformat)
+    comptime AV_CODEC_ID_MPEG4SYSTEMS = Self(0x20001)
+
+    # < Dummy codec for streams containing only metadata information.
+    comptime AV_CODEC_ID_FFMETADATA = Self(0x21000)
+
+    # < Passthrough codec, AVFrames wrapped in AVPacket
+    comptime AV_CODEC_ID_WRAPPED_AVFRAME = Self(0x21001)
 
     # Dummy null video codec, useful mainly for development and debugging.
     # Null encoder/decoder discard all input and never return any output.
-
     comptime AV_CODEC_ID_VNULL = Self.AV_CODEC_ID_WRAPPED_AVFRAME.inc()
 
     # Dummy null audio codec, useful mainly for development and debugging.
     # Null encoder/decoder discard all input and never return any output.
-
     comptime AV_CODEC_ID_ANULL = Self.AV_CODEC_ID_VNULL.inc()
