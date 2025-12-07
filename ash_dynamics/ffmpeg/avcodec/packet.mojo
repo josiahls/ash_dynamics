@@ -97,11 +97,29 @@ struct AVPacketSideData:
 @register_passable("trivial")
 struct AVPacket(StructWritable):
     var buf: UnsafePointer[AVBufferRef, origin = MutOrigin.external]
-    "A reference to the reference-counted buffer where the packet data is stored."
+    """A reference to the reference-counted buffer where the packet data is stored.
+    
+    May be NULL, then the packet data is not reference-counted.
+    """
     var pts: c_long_long
-    "Presentation timestamp in AVStream->time_base units; the time at which the decompressed packet will be presented to the user."
+    """Presentation timestamp in AVStream->time_base units; the time at which 
+    the decompressed packet will be presented to the user.
+    
+    Can be AV_NOPTS_VALUE if it is not stored in the file.
+    pts MUST be larger or equal to dts as presentation cannot happen before 
+    decompression, unless one wants to view hex dumps. Some formats misuse the 
+    terms dts and pts/cts to mean something different. Such timestamps must be 
+    converted to true pts/dts before they are stored in AVPacket.
+
+    Note: Default values of -9223372036854775808 is expected.
+    """
     var dts: c_long_long
-    "Decompression timestamp in AVStream->time_base units; the time at which the packet is decompressed."
+    """Decompression timestamp in AVStream->time_base units; the time at which the packet is decompressed.
+    
+    Can be AV_NOPTS_VALUE if it is not stored in the file.
+
+    Note: Default values of -9223372036854775808 is expected.
+    """
     var data: UnsafePointer[c_uchar, origin = MutOrigin.external]
     "The data of the packet."
     var size: c_int
