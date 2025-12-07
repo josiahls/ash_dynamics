@@ -2,8 +2,8 @@
 from sys.ffi import c_uchar, c_uint, c_int, c_long_long
 from os.atomic import Atomic
 from ash_dynamics.ffmpeg.avcodec.buffer import AVBufferRef
-from ash_dynamics.ffmpeg.avcodec.rational import AVRational
-from ash_dynamics.ffmpeg._clib import ExternalFunction
+from ash_dynamics.ffmpeg.avutil.rational import AVRational
+from ash_dynamics.primitives._clib import ExternalFunction
 
 
 @fieldwise_init("implicit")

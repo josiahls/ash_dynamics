@@ -20,11 +20,15 @@ struct AVCodecID:
      - https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html
     """
 
-    var _value: c_int
+    comptime ENUM_DTYPE = c_int
+
+    var _value: Self.ENUM_DTYPE
 
     @staticmethod
     fn xor(
-        value_if_true: c_int, value_if_false: c_int, condition: Bool
+        value_if_true: Self.ENUM_DTYPE,
+        value_if_false: Self.ENUM_DTYPE,
+        condition: Bool,
     ) -> Self:
         return Self(value_if_true if condition else value_if_false)
 

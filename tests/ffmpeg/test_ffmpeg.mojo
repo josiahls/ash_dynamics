@@ -4,7 +4,7 @@ from memory import memset
 from sys.ffi import c_uchar, c_int
 
 from ash_dynamics.ffmpeg.avcodec.packet import AVPacket
-from ash_dynamics.ffmpeg.avcodec.rational import AVRational
+from ash_dynamics.ffmpeg.avutil.rational import AVRational
 from ash_dynamics.ffmpeg.avcodec.buffer import AVBufferRef
 from ash_dynamics.ffmpeg.avcodec.buffer_internal import AVBuffer
 from ash_dynamics.ffmpeg.avcodec.packet import (
@@ -154,9 +154,7 @@ def test_codec_id():
 
 
 def test_av_decode_video_example():
-    """
-    From: https://www.ffmpeg.org/doxygen/8.0/decode_video_8c-example.html
-    """
+    """From: https://www.ffmpeg.org/doxygen/8.0/decode_video_8c-example.html."""
     comptime INBUF_SIZE = c_int(4096)
 
     var input_buffer = InlineArray[
@@ -172,9 +170,12 @@ def test_av_decode_video_example():
         Int(AV_INPUT_BUFFER_PADDING_SIZE),
     )
     var packet = avcodec.av_packet_alloc()
+    print("packet: ", packet)
 
-    var enum_call = avcodec.get_AV_CODEC_ID_MPEG1VIDEO()
-    print("AV_CODEC_ID_MPEG1VIDEO: ", enum_call)
+    var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264._value)
+    print(codec[])
+    # print("codec: ", codec[].name)
+    _ = codec
 
     _ = avcodec  # Need this to keep the ffi bind alive
 
