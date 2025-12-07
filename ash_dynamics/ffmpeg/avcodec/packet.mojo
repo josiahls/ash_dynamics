@@ -4,6 +4,7 @@ from os.atomic import Atomic
 from ash_dynamics.ffmpeg.avcodec.buffer import AVBufferRef
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
 from ash_dynamics.primitives._clib import ExternalFunction
+from ash_dynamics.primitives._clib import StructWritable, StructWriter
 
 
 @fieldwise_init("implicit")
@@ -94,7 +95,7 @@ struct AVPacketSideData:
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVPacket:
+struct AVPacket(StructWritable):
     var buf: UnsafePointer[AVBufferRef, origin = MutOrigin.external]
     "A reference to the reference-counted buffer where the packet data is stored."
     var pts: c_long_long
@@ -121,6 +122,23 @@ struct AVPacket:
     "AVBufferRef for free use by the API user. FFmpeg will never check the contents of the buffer ref. FFmpeg calls av_buffer_unref() on it when the packet is unreferenced. av_packet_copy_props() calls create a new reference with av_buffer_ref() for the target packet's opaque_ref field."
     var time_base: AVRational
     "Time base of the packet's timestamps."
+
+    fn write_to(self, mut writer: Some[Writer], indent: Int):
+        var struct_writer = StructWriter[Self](writer, indent=indent)
+        struct_writer.write_field["buf"](self.buf)
+        struct_writer.write_field["pts"](self.pts)
+        struct_writer.write_field["dts"](self.dts)
+        struct_writer.write_field["data"](self.data)
+        struct_writer.write_field["size"](self.size)
+        struct_writer.write_field["stream_index"](self.stream_index)
+        struct_writer.write_field["flags"](self.flags)
+        struct_writer.write_field["side_data"](self.side_data)
+        struct_writer.write_field["side_data_elems"](self.side_data_elems)
+        struct_writer.write_field["duration"](self.duration)
+        struct_writer.write_field["pos"](self.pos)
+        struct_writer.write_field["opaque"](self.opaque)
+        struct_writer.write_field["opaque_ref"](self.opaque_ref)
+        struct_writer.write_field["time_base"](self.time_base)
 
 
 comptime _av_packet_alloc = ExternalFunction[

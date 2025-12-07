@@ -170,7 +170,7 @@ def test_av_decode_video_example():
         Int(AV_INPUT_BUFFER_PADDING_SIZE),
     )
     var packet = avcodec.av_packet_alloc()
-    print("packet: ", packet)
+    print(packet[])
 
     var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264._value)
     print(codec[])

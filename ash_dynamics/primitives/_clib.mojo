@@ -123,6 +123,8 @@ struct StructWriter[
 
             @parameter
             if conforms_to(T, StructWritable):
+                comptime struct_message: StaticString = name + " (struct)"
+                self._fmt(StringSlice(struct_message), "")
                 trait_downcast[StructWritable](value[]).write_to(
                     self.writer[], indent=self.indent + 1
                 )
@@ -133,7 +135,15 @@ struct StructWriter[
                 self._fmt(name, null_pointer_message + " (deprecated)")
 
     fn write_field[name: StaticString, T: Writable](mut self, value: T):
-        self._fmt(name, value)
+        @parameter
+        if conforms_to(T, StructWritable):
+            comptime struct_message: StaticString = name + " (struct)"
+            self._fmt(StringSlice(struct_message), "")
+            trait_downcast[StructWritable](value).write_to(
+                self.writer[], indent=self.indent + 1
+            )
+        else:
+            self._fmt(name, value)
 
     fn _fmt(
         ref [MutAnyOrigin]self,

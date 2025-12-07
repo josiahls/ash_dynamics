@@ -3,9 +3,9 @@ from sys.ffi import c_uchar, c_uint, c_int
 from os.atomic import Atomic, Consistency, fence
 
 
-@fieldwise_init
 @register_passable("trivial")
-struct AVBuffer(Movable):
+@fieldwise_init
+struct AVBuffer:
     """Represents a buffer.
 
     References:
