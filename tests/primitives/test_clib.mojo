@@ -1,6 +1,6 @@
 from testing.suite import TestSuite
 from testing.testing import assert_equal
-from ash_dynamics.primitives._clib import C_Union
+from ash_dynamics.primitives._clib import C_Union, TrivialOptionalField
 from sys import size_of
 
 
@@ -35,6 +35,26 @@ def test_c_union():
     # what is contained in it.
     assert_equal(size_of[UnionUnion](), size_of[UInt32MLIRUnion]() - 6)
     _ = union_union_instance
+
+
+@fieldwise_init
+struct ContainsActiveField:
+    var active_field: TrivialOptionalField[True, Int64]
+
+
+@fieldwise_init
+struct ContainsInactiveField:
+    var inactive_field: TrivialOptionalField[False, Int64]
+
+
+def test_trivial_optional_field():
+    # Test it can be used as a field and value can be accessed when active
+    var with_active = ContainsActiveField(TrivialOptionalField[True, Int64](42))
+    assert_equal(with_active.active_field[], 42)
+
+    # Test inactive field struct has smaller size than active field struct
+    assert_equal(size_of[ContainsActiveField](), size_of[Int64]())
+    assert_equal(size_of[ContainsInactiveField](), 0)
 
 
 def main():

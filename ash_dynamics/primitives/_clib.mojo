@@ -157,3 +157,39 @@ struct StructWriter[
         for _ in range(self.indent):
             self.writer[].write("\t")
         self.writer[].write(class_name, ".", name, ": ", value, "\n")
+
+
+@register_passable("trivial")
+struct TrivialOptionalField[active: Bool, ElementType: AnyTrivialRegType](
+    Copyable, Movable
+):
+    comptime OptionalElementType = StaticTuple[
+        Self.ElementType, 1 if Self.active else 0
+    ]
+    var field: Self.OptionalElementType
+
+    fn __init__(out self):
+        constrained[
+            not Self.active, "Constructor only available with no active field"
+        ]()
+        self.field = Self.OptionalElementType()
+
+    fn __init__(out self, var value: Self.ElementType):
+        constrained[
+            Self.active, "Constructor only available with active field"
+        ]()
+        self.field = Self.OptionalElementType(value)
+
+    fn __init__(out self, var value: Optional[Self.ElementType]):
+        @parameter
+        if Self.active:
+            self.field = Self.OptionalElementType(value.take())
+        else:
+            self.field = Self.OptionalElementType()
+
+    @always_inline
+    fn __getitem__(ref self) -> Self.ElementType:
+        constrained[
+            Self.active, "Field is not active, you should not access it."
+        ]()
+        return self.field[0]
