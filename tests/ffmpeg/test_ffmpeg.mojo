@@ -174,9 +174,12 @@ def test_av_decode_video_example():
 
     var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264._value)
     print(codec[])
-    # print("codec: ", codec[].name)
+
     var parser = avcodec.av_parser_init(codec[].id)
     print(parser[])
+
+    var context = avcodec.avcodec_alloc_context3(codec)
+    print(context[])
     _ = codec
 
     _ = avcodec  # Need this to keep the ffi bind alive

@@ -1,9 +1,36 @@
 from sys.ffi import c_int, c_float, c_char
-from ash_dynamics.primitives._clib import StructWritable, StructWriter
+from ash_dynamics.primitives._clib import (
+    StructWritable,
+    StructWriter,
+    ExternalFunction,
+)
 from compile.reflection import get_type_name
 from ash_dynamics.ffmpeg.avutil.avutil import AVMediaType
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 from ash_dynamics.ffmpeg.avutil.pixfmt import AVPixelFormat
+from ash_dynamics.ffmpeg.avcodec.codec import AVCodec
+from ash_dynamics.ffmpeg.avcodec.av_codec_parser import AVCodecContext
+
+
+comptime _avcodec_alloc_context3 = ExternalFunction[
+    "avcodec_alloc_context3",
+    fn (
+        codec: UnsafePointer[AVCodec, ImmutOrigin.external]
+    ) -> UnsafePointer[AVCodecContext, MutOrigin.external],
+]
+"""
+Allocate an AVCodecContext and set its fields to default values. The
+resulting struct should be freed with avcodec_free_context().
+
+@param codec if non-NULL, allocate private data and initialize defaults
+for the given codec. It is illegal to then call avcodec_open2()
+with a different codec.
+If NULL, then the codec-specific defaults won't be initialized,
+which may result in suboptimal default settings (this is
+important mainly for encoders, e.g. libx264).
+
+@return An AVCodecContext filled with default values or NULL on failure.
+"""
 
 
 @fieldwise_init

@@ -10,6 +10,7 @@ from ash_dynamics.ffmpeg.avcodec.packet import AVPacket, _av_packet_alloc
 from ash_dynamics.ffmpeg.avcodec.allcodecs import _avcodec_find_decoder
 from ash_dynamics.ffmpeg.avcodec.av_codec_parser import _av_parser_init
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
+from ash_dynamics.ffmpeg.avcodec.avcodec_header import _avcodec_alloc_context3
 from os.env import setenv
 from ash_dynamics.primitives._clib import StructWritable, StructWriter
 
@@ -30,6 +31,8 @@ struct avcodec:
 
     var av_parser_init: _av_parser_init.type
 
+    var avcodec_alloc_context3: _avcodec_alloc_context3.type
+
     fn __init__(out self) raises:
         self.lib = OwnedDLHandle(
             "/home/mojo_user/ash_dynamics/third_party/ffmpeg/build/lib/libavcodec.so"
@@ -37,3 +40,4 @@ struct avcodec:
         self.av_packet_alloc = _av_packet_alloc.load(self.lib)
         self.avcodec_find_decoder = _avcodec_find_decoder.load(self.lib)
         self.av_parser_init = _av_parser_init.load(self.lib)
+        self.avcodec_alloc_context3 = _avcodec_alloc_context3.load(self.lib)
