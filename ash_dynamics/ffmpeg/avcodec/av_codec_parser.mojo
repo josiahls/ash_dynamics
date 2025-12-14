@@ -1,16 +1,59 @@
 from ash_dynamics.primitives._clib import ExternalFunction
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
+from ash_dynamics.ffmpeg.avcodec.avcodec_header import (
+    RcOverride,
+    AVPictureStructure,
+)
 from ash_dynamics.primitives._clib import StructWritable, TrivialOptionalField
+from ash_dynamics.ffmpeg.avutil.pixfmt import (
+    AVPixelFormat,
+    AVColorRange,
+    AVColorPrimaries,
+    AVColorTransferCharacteristic,
+    AVColorSpace,
+    AVChromaLocation,
+)
+from ash_dynamics.ffmpeg.avcodec.defs import (
+    AVFieldOrder,
+    AVAudioServiceType,
+    AVDiscard,
+)
 from ash_dynamics.ffmpeg.avutil.avutil import AVMediaType
+from ash_dynamics.ffmpeg.avutil.frame import AVFrame
 from ash_dynamics.ffmpeg.avcodec.codec import AVCodec
-from ash_dynamics.ffmpeg.avcodec.buffer import AVBufferRef
+from ash_dynamics.ffmpeg.avutil.buffer import AVBufferRef
+from ash_dynamics.ffmpeg.avutil.frame import AVFrame
+from ash_dynamics.ffmpeg.avutil.samplefmt import AVSampleFormat
+from ash_dynamics.ffmpeg.avutil.channel_layout import AVChannelLayout
+
+# from ash_dynamics.ffmpeg.avcodec.internal import AVCodecInternal
+from ash_dynamics.ffmpeg.avcodec.packet import AVPacket, AVPacketSideData
+from ash_dynamics.ffmpeg.avutil.frame import AVFrameSideData
 from ash_dynamics.ffmpeg.avutil.log import AVClass
+from ash_dynamics.ffmpeg.avcodec.codec_desc import AVCodecDescriptor
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
-from sys.ffi import c_char, c_long_long, c_float, c_ushort, c_uchar, c_uint
+from ash_dynamics.ffmpeg.avcodec.avcodec_header import AVHWAccel
+from sys.ffi import (
+    c_char,
+    c_long_long,
+    c_float,
+    c_ushort,
+    c_uchar,
+    c_uint,
+    c_ulong_long,
+)
 from utils import StaticTuple
 
 
 comptime FF_API_CODEC_PROPS = False
+
+
+comptime AVCodecInternal = OpaquePointer[MutOrigin.external]
+"""Private context used for internal data.
+
+Unlike priv_data, this is not codec-specific. It is used in general
+libavcodec functions.
+"""
 
 
 @fieldwise_init
@@ -202,7 +245,7 @@ struct AVCodecContext(StructWritable):
     var sw_pix_fmt: AVPixelFormat.ENUM_DTYPE
     """Nominal unaccelerated pixel format, see AV_PIX_FMT_xxx.
     - encoding: unused.
-    - decoding: Set by libavcodec before calling get_format()
+    - decoding: Set by libavcodec before calling get_format().
     """
     var color_primaries: AVColorPrimaries.ENUM_DTYPE
     """Chromaticity coordinates of the source primaries.
@@ -262,7 +305,7 @@ struct AVCodecContext(StructWritable):
     var draw_horiz_band: fn (
         s: UnsafePointer[Self, MutOrigin.external],
         src: UnsafePointer[AVFrame, ImmutOrigin.external],
-        offset: StaticTuple[c_int, AV_NUM_DATA_POINTERS],
+        offset: StaticTuple[c_int, AVFrame.AV_NUM_DATA_POINTERS],
         y: c_int,
         type: c_int,
         height: c_int,
@@ -271,10 +314,12 @@ struct AVCodecContext(StructWritable):
     decoder to draw a horizontal band. It improves cache usage. Not
     all codecs can do that. You must check the codec capabilities
     beforehand.
+
     When multithreading is used, it may be called from multiple threads
     at the same time; threads might draw different parts of the same AVFrame,
     or multiple AVFrames, and there is no guarantee that slices will be drawn
     in order.
+
     The function is also used by hardware acceleration APIs.
     It is called at least once during frame decoding to pass
     the data needed for hardware render.
@@ -282,12 +327,17 @@ struct AVCodecContext(StructWritable):
     a structure specific to the acceleration API. The application
     reads the structure and can change some fields to indicate progress
     or mark state.
+
     - encoding: unused
     - decoding: Set by user.
-    @param height the height of the slice
-    @param y the y position of the slice
-    @param type 1->top field, 2->bottom field, 3->frame
-    @param offset offset into the AVFrame.data from which the slice should be read
+
+    Args:
+        s: the codec context.
+        src: the frame to draw the slice on.
+        offset: the offset into the AVFrame.data from which the slice should be read.
+        y: the y position of the slice.
+        type: the type of the slice. type 1->top field, 2->bottom field, 3->frame
+        height: the height of the slice.
     """
     var get_format: fn (
         s: UnsafePointer[Self, MutOrigin.external],
@@ -638,7 +688,7 @@ struct AVCodecContext(StructWritable):
       av_frame_unref().
       Decoders will generally initialize the whole buffer before it is output
       but it can in rare error conditions happen that uninitialized data is passed
-      through. \important The buffers returned by get_buffer* should thus not contain sensitive
+      through. Important: The buffers returned by get_buffer* should thus not contain sensitive
       data.
 
     If AV_CODEC_CAP_DR1 is not set then get_buffer2() must call
@@ -705,9 +755,9 @@ struct AVCodecContext(StructWritable):
     """
     comptime FF_COMPRESSION_DEFAULT = Int(-1)
     var qcompress: c_float
-    "Amount of qscale change between easy & hard scenes (0.0-1.0)"
+    "Amount of qscale change between easy & hard scenes (0.0-1.0)."
     var qblur: c_float
-    "Amount of qscale smoothing over time (0.0-1.0)"
+    "Amount of qscale smoothing over time (0.0-1.0)."
     var qmin: c_int
     """Minimum quantizer
     - encoding: Set by user.
@@ -929,7 +979,7 @@ struct AVCodecContext(StructWritable):
     decoding (if active).
     - encoding: unused
     - decoding: Set by user (either before avcodec_open2(), or in the
-                AVCodecContext.get_format callback)
+                AVCodecContext.get_format callback).
     """
     var extra_hw_frames: c_int
     """Video decoding only.  Sets the number of extra hardware frames which
@@ -943,13 +993,13 @@ struct AVCodecContext(StructWritable):
     needs internally in order to operate normally (for example, frames
     used as reference pictures).
     """
-    var error: StaticTuple[c_ulong_long, AV_NUM_DATA_POINTERS]
-    """Error
+    var error: StaticTuple[c_ulong_long, AVFrame.AV_NUM_DATA_POINTERS]
+    """Error.
     - encoding: Set by libavcodec if flags & AV_CODEC_FLAG_PSNR.
-    - decoding: unused
+    - decoding: unused.
     """
     var dct_algo: c_int
-    """DCT algorithm, see FF_DCT_* below
+    """DCT algorithm, see FF_DCT_* below.
     - encoding: Set by user.
     - decoding: unused.
     """
@@ -994,7 +1044,7 @@ struct AVCodecContext(StructWritable):
     """
 
     var thread_count: c_int
-    """thread count
+    """Thread count.
     - encoding: Set by user.
     - decoding: Set by user.
     """
@@ -1118,8 +1168,8 @@ struct AVCodecContext(StructWritable):
     However for formats that do not use pre-multiplied alpha
     there might be serious artefacts (though e.g. libswscale currently
     assumes pre-multiplied alpha anyway).
-    - decoding: set by user
-    - encoding: unused
+    - decoding: set by user.
+    - encoding: unused.
     """
 
     var skip_top: c_int
@@ -1145,15 +1195,15 @@ struct AVCodecContext(StructWritable):
 
     var sub_charenc: UnsafePointer[c_char, MutOrigin.external]
     """Character encoding of the input subtitles file.
-    - decoding: set by user
-    - encoding: unused
+    - decoding: set by user.
+    - encoding: unused.
     """
 
     var sub_charenc_mode: c_int
-    """Subtitles character encoding mode. Formats or codecs might be adjusting
+    """Subtitles character encoding mode. Formats or codecs might be adjusting.
     this setting (if they are doing the conversion themselves for instance).
-    - decoding: set by libavcodec
-    - encoding: unused
+    - decoding: set by libavcodec.
+    - encoding: unused.
     """
     comptime FF_SUB_CHARENC_MODE_DO_NOTHING = Int(-1)
     "do nothing (demuxer outputs a stream supposed to be already in UTF-8, or the codec is bitmap for instance)"
@@ -1178,16 +1228,16 @@ struct AVCodecContext(StructWritable):
     """Header containing style information for text subtitles."""
 
     var dump_separator: UnsafePointer[c_uchar, MutOrigin.external]
-    """dump format separator.
+    """Dump format separator.
     can be ", " or "\n      " or anything else
     - encoding: Set by user.
     - decoding: Set by user.
     """
     var codec_whitelist: UnsafePointer[c_char, MutOrigin.external]
-    """',' separated list of allowed decoders.
+    """A comma (',') separated list of allowed decoders.
     If NULL then all are allowed
-    - encoding: unused
-    - decoding: set by user
+    - encoding: unused.
+    - decoding: set by user.
     """
 
     var coded_side_data: UnsafePointer[AVPacketSideData, MutOrigin.external]
@@ -1203,14 +1253,14 @@ struct AVCodecContext(StructWritable):
     metadata exported in frame, packet, or coded stream side data by
     decoders and encoders.
 
-    - decoding: set by user
-    - encoding: set by user
+    - decoding: set by user.
+    - encoding: set by user.
     """
 
     var max_pixels: c_long_long
     """The number of pixels per image to maximally accept.
-    - decoding: set by user
-    - encoding: set by user
+    - decoding: set by user.
+    - encoding: set by user.
     """
 
     var apply_cropping: c_int
@@ -1243,14 +1293,14 @@ struct AVCodecContext(StructWritable):
 
     var discard_damaged_percentage: c_int
     """The percentage of damaged samples to discard a frame.
-    - decoding: set by user
-    - encoding: unused
+    - decoding: set by user.
+    - encoding: unused.
     """
 
     var max_samples: c_long_long
     """The number of samples per frame to maximally accept.
-    - decoding: set by user
-    - encoding: set by user
+    - decoding: set by user.
+    - encoding: set by user.
     """
 
     var get_encode_buffer: fn (
@@ -1350,6 +1400,83 @@ struct AVCodecContext(StructWritable):
     """
     var nb_decoded_side_data: c_int
     """Number of entries in decoded_side_data."""
+
+    fn write_to(self, mut writer: Some[Writer], indent: Int):
+        var struct_writer = StructWriter[Self](writer, indent=indent)
+        struct_writer.write_field["coded_side_data"](self.coded_side_data)
+        struct_writer.write_field["nb_coded_side_data"](self.nb_coded_side_data)
+        struct_writer.write_field["export_side_data"](self.export_side_data)
+        struct_writer.write_field["max_pixels"](self.max_pixels)
+        struct_writer.write_field["apply_cropping"](self.apply_cropping)
+        struct_writer.write_field["discard_damaged_percentage"](
+            self.discard_damaged_percentage
+        )
+        struct_writer.write_field["max_samples"](self.max_samples)
+        struct_writer.write_field["get_encode_buffer"]("function pointer")
+        struct_writer.write_field["frame_num"](self.frame_num)
+        struct_writer.write_field["side_data_prefer_packet"](
+            self.side_data_prefer_packet
+        )
+        struct_writer.write_field["nb_side_data_prefer_packet"](
+            self.nb_side_data_prefer_packet
+        )
+        struct_writer.write_field["decoded_side_data"](self.decoded_side_data)
+        struct_writer.write_field["nb_decoded_side_data"](
+            self.nb_decoded_side_data
+        )
+        struct_writer.write_field["get_format"]("function pointer")
+        struct_writer.write_field["qcompress"](self.qcompress)
+        struct_writer.write_field["qblur"](self.qblur)
+        struct_writer.write_field["qmin"](self.qmin)
+        struct_writer.write_field["qmax"](self.qmax)
+        struct_writer.write_field["qblur"](self.qblur)
+        struct_writer.write_field["qmin"](self.qmin)
+        struct_writer.write_field["qmax"](self.qmax)
+        struct_writer.write_field["max_b_frames"](self.max_b_frames)
+        struct_writer.write_field["b_quant_factor"](self.b_quant_factor)
+        struct_writer.write_field["b_quant_offset"](self.b_quant_offset)
+        struct_writer.write_field["i_quant_factor"](self.i_quant_factor)
+        struct_writer.write_field["i_quant_offset"](self.i_quant_offset)
+        struct_writer.write_field["lumi_masking"](self.lumi_masking)
+        struct_writer.write_field["skip_idct"](self.skip_idct)
+        struct_writer.write_field["skip_loop_filter"](self.skip_loop_filter)
+        struct_writer.write_field["skip_frame"](self.skip_frame)
+        struct_writer.write_field["skip_idct"](self.skip_idct)
+        struct_writer.write_field["skip_loop_filter"](self.skip_loop_filter)
+        struct_writer.write_field["temporal_cplx_masking"](
+            self.temporal_cplx_masking
+        )
+        struct_writer.write_field["spatial_cplx_masking"](
+            self.spatial_cplx_masking
+        )
+        struct_writer.write_field["p_masking"](self.p_masking)
+        struct_writer.write_field["dark_masking"](self.dark_masking)
+        struct_writer.write_field["nsse_weight"](self.nsse_weight)
+        struct_writer.write_field["me_cmp"](self.me_cmp)
+        struct_writer.write_field["me_sub_cmp"](self.me_sub_cmp)
+        struct_writer.write_field["mb_cmp"](self.mb_cmp)
+        struct_writer.write_field["ildct_cmp"](self.ildct_cmp)
+        struct_writer.write_field["dia_size"](self.dia_size)
+        struct_writer.write_field["last_predictor_count"](
+            self.last_predictor_count
+        )
+        struct_writer.write_field["pre_dia_size"](self.pre_dia_size)
+        struct_writer.write_field["me_subpel_quality"](self.me_subpel_quality)
+        struct_writer.write_field["me_range"](self.me_range)
+        struct_writer.write_field["mb_decision"](self.mb_decision)
+        struct_writer.write_field["intra_matrix"](self.intra_matrix)
+        struct_writer.write_field["inter_matrix"](self.inter_matrix)
+        struct_writer.write_field["chroma_intra_matrix"](
+            self.chroma_intra_matrix
+        )
+        struct_writer.write_field["intra_dc_precision"](self.intra_dc_precision)
+        struct_writer.write_field["extra_hw_frames"](self.extra_hw_frames)
+        struct_writer.write_field["error"](
+            "StaticTuple[c_ulong_long, AVFrame.AV_NUM_DATA_POINTERS]"
+        )
+        struct_writer.write_field["dct_algo"](self.dct_algo)
+        struct_writer.write_field["thread_count"](self.thread_count)
+        struct_writer.write_field["idct_algo"](self.idct_algo)
 
 
 @fieldwise_init
@@ -1503,6 +1630,40 @@ struct AVCodecParserContext(StructWritable):
     one returned by a decoder.
     """
 
+    fn write_to(self, mut writer: Some[Writer], indent: Int):
+        var struct_writer = StructWriter[Self](writer, indent=indent)
+        struct_writer.write_field["priv_data"](self.priv_data)
+        struct_writer.write_field["parser"](self.parser)
+        struct_writer.write_field["frame_offset"](self.frame_offset)
+        struct_writer.write_field["cur_offset"](self.cur_offset)
+        struct_writer.write_field["next_frame_offset"](self.next_frame_offset)
+        struct_writer.write_field["pict_type"](self.pict_type)
+        struct_writer.write_field["repeat_pict"](self.repeat_pict)
+        struct_writer.write_field["pts"](self.pts)
+        struct_writer.write_field["dts"](self.dts)
+        struct_writer.write_field["last_pts"](self.last_pts)
+        struct_writer.write_field["last_dts"](self.last_dts)
+        struct_writer.write_field["cur_frame_start_index"](
+            self.cur_frame_start_index
+        )
+        struct_writer.write_field["cur_frame_offset"](
+            "StaticTuple[c_long_long, Self.AV_PARSER_PTS_NB]"
+        )
+        struct_writer.write_field["cur_frame_pts"](
+            "StaticTuple[c_long_long, Self.AV_PARSER_PTS_NB]"
+        )
+        struct_writer.write_field["cur_frame_dts"](
+            "StaticTuple[c_long_long, Self.AV_PARSER_PTS_NB]"
+        )
+        struct_writer.write_field["flags"](self.flags)
+        struct_writer.write_field["offset"](self.offset)
+        struct_writer.write_field["cur_frame_end"](
+            "StaticTuple[c_long_long, Self.AV_PARSER_PTS_NB]"
+        )
+        struct_writer.write_field["key_frame"](self.key_frame)
+        struct_writer.write_field["dts_sync_point"](self.dts_sync_point)
+        struct_writer.write_field["dts_ref_dts_delta"](self.dts_ref_dts_delta)
+
 
 @fieldwise_init
 @register_passable("trivial")
@@ -1538,6 +1699,15 @@ struct AVCodecParser(StructWritable):
         buf_size: c_int,
     ) -> c_int
     "Parser split function."
+
+    fn write_to(self, mut writer: Some[Writer], indent: Int):
+        var struct_writer = StructWriter[Self](writer, indent=indent)
+        struct_writer.write_field["codec_ids"]("StaticTuple[c_int, 7]")
+        struct_writer.write_field["priv_data_size"](self.priv_data_size)
+        struct_writer.write_field["parser_init"]("function pointer")
+        struct_writer.write_field["parser_parse"]("function pointer")
+        struct_writer.write_field["parser_close"]("function pointer")
+        struct_writer.write_field["split"]("function pointer")
 
 
 comptime _av_parser_init = ExternalFunction[

@@ -5,12 +5,13 @@ Symbols present can be listed via:
 nm -D /home/mojo_user/ash_dynamics/third_party/ffmpeg/build/lib/libavcodec.so
 """
 
-from sys.ffi import OwnedDLHandle, c_int
+from sys.ffi import OwnedDLHandle, c_int, c_float
 from ash_dynamics.ffmpeg.avcodec.packet import AVPacket, _av_packet_alloc
 from ash_dynamics.ffmpeg.avcodec.allcodecs import _avcodec_find_decoder
 from ash_dynamics.ffmpeg.avcodec.av_codec_parser import _av_parser_init
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 from os.env import setenv
+from ash_dynamics.primitives._clib import StructWritable, StructWriter
 
 
 @fieldwise_init

@@ -1,7 +1,7 @@
 """Bindings for https://www.ffmpeg.org/doxygen/8.0/buffer_8h_source.html"""
 from sys.ffi import c_uchar, c_uint, c_int
 from os.atomic import Atomic
-from ash_dynamics.ffmpeg.avcodec.buffer_internal import AVBuffer
+from ash_dynamics.ffmpeg.avutil.buffer_internal import AVBuffer
 from ash_dynamics.primitives._clib import StructWritable, StructWriter
 
 

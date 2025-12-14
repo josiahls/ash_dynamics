@@ -5,8 +5,8 @@ from sys.ffi import c_uchar, c_int
 
 from ash_dynamics.ffmpeg.avcodec.packet import AVPacket
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
-from ash_dynamics.ffmpeg.avcodec.buffer import AVBufferRef
-from ash_dynamics.ffmpeg.avcodec.buffer_internal import AVBuffer
+from ash_dynamics.ffmpeg.avutil.buffer import AVBufferRef
+from ash_dynamics.ffmpeg.avutil.buffer_internal import AVBuffer
 from ash_dynamics.ffmpeg.avcodec.packet import (
     AVPacketSideData,
     AVPacketSideDataType,
@@ -175,7 +175,8 @@ def test_av_decode_video_example():
     var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264._value)
     print(codec[])
     # print("codec: ", codec[].name)
-    var parser = avcodec.av_parser_init(codec.id)
+    var parser = avcodec.av_parser_init(codec[].id)
+    print(parser[])
     _ = codec
 
     _ = avcodec  # Need this to keep the ffi bind alive

@@ -3,8 +3,8 @@ from sys.ffi import c_uchar, c_uint, c_int
 from os.atomic import Atomic, Consistency, fence
 
 
-@register_passable("trivial")
 @fieldwise_init
+@register_passable("trivial")
 struct AVBuffer:
     """Represents a buffer.
 
