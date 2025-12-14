@@ -37,12 +37,12 @@ struct AVHWAccel(StructWritable):
 
     var type: AVMediaType.ENUM_DTYPE
     """Type of codec implemented by the hardware accelerator.
-    See AVMEDIA_TYPE_xxx
+    See AVMEDIA_TYPE_xxx.
     """
 
     var id: AVCodecID.ENUM_DTYPE
     """Codec implemented by the hardware accelerator.
-    See AV_CODEC_ID_xxx
+    See AV_CODEC_ID_xxx.
     """
 
     var pix_fmt: AVPixelFormat.ENUM_DTYPE
@@ -52,7 +52,7 @@ struct AVHWAccel(StructWritable):
 
     var capabilities: c_int
     """Hardware accelerated codec capabilities.
-    see AV_HWACCEL_CODEC_CAP_*
+    see AV_HWACCEL_CODEC_CAP_*.
     """
 
     fn write_to(self, mut writer: Some[Writer], indent: Int):

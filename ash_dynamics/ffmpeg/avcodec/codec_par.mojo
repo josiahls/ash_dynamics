@@ -70,7 +70,7 @@ struct AVCodecParameters(StructWritable):
     To get the original sample use "(int32_t)sample >> 8"."
 
     For ADPCM this might be 12 or 16 or similar
-    Can be 0
+    Can be 0.
     """
 
     var profile: c_int
@@ -140,3 +140,32 @@ struct AVCodecParameters(StructWritable):
     """
     var seek_preroll: c_int
     """Audio only. Number of samples to skip after a discontinuity."""
+
+    fn write_to(self, mut writer: Some[Writer], indent: Int):
+        var struct_writer = StructWriter[Self](writer, indent=indent)
+        struct_writer.write_field["codec_type"](self.codec_type)
+        struct_writer.write_field["codec_id"](self.codec_id)
+        struct_writer.write_field["codec_tag"](self.codec_tag)
+        struct_writer.write_field["extradata"](self.extradata)
+        struct_writer.write_field["extradata_size"](self.extradata_size)
+        struct_writer.write_field["coded_side_data"](self.coded_side_data)
+        struct_writer.write_field["nb_coded_side_data"](self.nb_coded_side_data)
+        struct_writer.write_field["format"](self.format)
+        struct_writer.write_field["bit_rate"](self.bit_rate)
+        struct_writer.write_field["bits_per_coded_sample"](
+            self.bits_per_coded_sample
+        )
+        struct_writer.write_field["bits_per_raw_sample"](
+            self.bits_per_raw_sample
+        )
+        struct_writer.write_field["profile"](self.profile)
+        struct_writer.write_field["level"](self.level)
+        struct_writer.write_field["width"](self.width)
+        struct_writer.write_field["height"](self.height)
+        struct_writer.write_field["sample_aspect_ratio"](
+            self.sample_aspect_ratio
+        )
+        struct_writer.write_field["framerate"](self.framerate)
+        struct_writer.write_field["field_order"](self.field_order)
+        struct_writer.write_field["color_range"](self.color_range)
+        struct_writer.write_field["color_primaries"](self.color_primaries)
