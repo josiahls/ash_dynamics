@@ -1,4 +1,12 @@
-from sys.ffi import c_int
+from sys.ffi import c_int, c_long_long, c_ulong_long
+
+
+comptime AV_NOPTS_VALUE = c_long_long(c_ulong_long(0x8000000000000000))
+"""Undefined timestamp value
+
+Usually reported by demuxer that work on containers that do not provide
+either pts or dts.
+"""
 
 
 @fieldwise_init("implicit")

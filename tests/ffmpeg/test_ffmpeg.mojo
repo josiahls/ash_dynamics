@@ -1,12 +1,15 @@
 from testing.suite import TestSuite
 from testing.testing import assert_equal
 from memory import memset
+import sys
 from sys.ffi import c_uchar, c_int
 
 from ash_dynamics.ffmpeg.avcodec.packet import AVPacket
+from ash_dynamics.ffmpeg.avutil import AV_NOPTS_VALUE
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
 from ash_dynamics.ffmpeg.avutil.buffer import AVBufferRef
 from ash_dynamics.ffmpeg.avutil.buffer_internal import AVBuffer
+from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
 from ash_dynamics.ffmpeg.avcodec.packet import (
     AVPacketSideData,
     AVPacketSideDataType,
@@ -157,15 +160,15 @@ def test_av_decode_video_example():
     """From: https://www.ffmpeg.org/doxygen/8.0/decode_video_8c-example.html."""
     comptime INBUF_SIZE = c_int(4096)
 
-    var input_buffer = InlineArray[
-        c_uchar, Int(INBUF_SIZE + AV_INPUT_BUFFER_PADDING_SIZE)
-    ](uninitialized=True)
+    var input_buffer = alloc[c_uchar](
+        Int(INBUF_SIZE + AV_INPUT_BUFFER_PADDING_SIZE)
+    )
 
     var avcodec = avcodec()
 
     # Set the padding portion of the input_buffer to zero.
     memset(
-        input_buffer.unsafe_ptr() + INBUF_SIZE,
+        input_buffer + INBUF_SIZE,
         0,
         Int(AV_INPUT_BUFFER_PADDING_SIZE),
     )
@@ -180,6 +183,52 @@ def test_av_decode_video_example():
 
     var context = avcodec.avcodec_alloc_context3(codec)
     print(context[])
+
+    ptr = alloc[AVDictionary](0)
+    if avcodec.avcodec_open2(context, codec, ptr) < 0:
+        print("Failed to open codec")
+        sys.exit(1)
+    else:
+        print("Opened codec")
+
+    with open(
+        "/home/mojo_user/ash_dynamics/test_data/akiyo_qcif.y4m", "r"
+    ) as f:
+        while True:
+            var data_size = c_int(
+                f.read[c_uchar.dtype](
+                    Span(ptr=input_buffer, length=Int(INBUF_SIZE))
+                )
+            )
+
+            if data_size == 0:
+                break
+
+            var data = input_buffer
+            while data_size > 0:
+                var ret = avcodec.av_parser_parse2(
+                    parser,
+                    context,
+                    UnsafePointer(to=packet[].data),
+                    UnsafePointer(to=packet[].size),
+                    data,
+                    data_size,
+                    AV_NOPTS_VALUE,
+                    AV_NOPTS_VALUE,
+                    0,
+                )
+                if ret < 0:
+                    print("Failed to parse data")
+                    sys.exit(1)
+                else:
+                    print("Parsed data")
+                data += ret
+                data_size -= ret
+
+                if packet[].size > 0:
+                    pass
+                    # TODO: `decode()`...
+
     _ = codec
 
     _ = avcodec  # Need this to keep the ffi bind alive
