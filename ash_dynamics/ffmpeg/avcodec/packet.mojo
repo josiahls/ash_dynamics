@@ -125,6 +125,26 @@ struct AVPacket(StructWritable):
     var size: c_int
     "The size of the packet data."
     var stream_index: c_int
+
+    comptime AV_PKT_FLAG_KEY: c_int = 0x0001
+    "The packet contains a keyframe."
+    comptime AV_PKT_FLAG_CORRUPT: c_int = 0x0002
+    "The packet content is corrupted."
+    comptime AV_PKT_FLAG_DISCARD: c_int = 0x0004
+    """Flaf is used to discard packets which are required to maintain valid
+    decoder state but are not required for output and should be dropped
+    after decoding.
+    """
+    comptime AV_PKT_FLAG_TRUSTED: c_int = 0x0008
+    """The packet comes from a trusted source.
+    
+    Otherwise-unsafe constructs such as arbitrary pointers to data
+    outside the packet may be followed.
+    """
+    comptime AV_PKT_FLAG_DISPOSABLE: c_int = 0x0010
+    """Flag is used to indicate packets that contain frames that can be 
+    discarded by the decoder. I.e. Non-reference frames."""
+
     var flags: c_int
     "A combination of AV_PKT_FLAG values."
     var side_data: UnsafePointer[AVPacketSideData, origin = MutOrigin.external]
