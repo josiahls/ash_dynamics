@@ -185,14 +185,15 @@ def test_av_decode_video_example():
     print(context[])
 
     ptr = alloc[AVDictionary](0)
-    if avcodec.avcodec_open2(context, codec, ptr) < 0:
+    try_open = avcodec.avcodec_open2(context, codec, ptr)
+    if try_open < 0:
         print("Failed to open codec")
         sys.exit(1)
     else:
         print("Opened codec")
 
     with open(
-        "/home/mojo_user/ash_dynamics/test_data/akiyo_qcif.y4m", "r"
+        "/home/mojo_user/ash_dynamics/test_data/akiyo_qcif.h264", "r"
     ) as f:
         while True:
             var data_size = c_int(
@@ -220,13 +221,15 @@ def test_av_decode_video_example():
                 if ret < 0:
                     print("Failed to parse data")
                     sys.exit(1)
+                elif parser[].flags & AVPacket.AV_PKT_FLAG_CORRUPT:
+                    print("Parsed data is corrupted")
                 else:
-                    print("Parsed data")
+                    print("Parsed data is valid")
                 data += ret
                 data_size -= ret
 
                 if packet[].size > 0:
-                    pass
+                    print("Packet size: ", packet[].size)
                     # TODO: `decode()`...
 
     _ = codec
