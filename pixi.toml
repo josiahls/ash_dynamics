@@ -23,6 +23,7 @@ pre-commit = ">=4.5.0,<5"
 [activation.env]
 #ASH_DYNAMICS_INCLUDES = " -I . -I third_party/lightbug_http"
 ASH_DYNAMICS_INCLUDES = " -I ."
+ASH_DYNAMICS_SO_INSTALL_PREFIX = "$PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib"
 LD_LIBRARY_PATH = "$PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib:$LD_LIBRARY_PATH"
 MOJO_ENABLE_STACK_TRACE_ON_ERROR="1"
 

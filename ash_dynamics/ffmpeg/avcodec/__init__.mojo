@@ -2,10 +2,12 @@
 
 Symbols present can be listed via:
 
-nm -D /home/mojo_user/ash_dynamics/third_party/ffmpeg/build/lib/libavcodec.so
+nm -D $ASH_DYNAMICS_SO_INSTALL_PREFIX/libavcodec.so
 """
 
 from sys.ffi import OwnedDLHandle, c_int, c_float
+from os.env import getenv
+import os
 from ash_dynamics.ffmpeg.avcodec.packet import AVPacket, _av_packet_alloc
 from ash_dynamics.ffmpeg.avcodec.allcodecs import _avcodec_find_decoder
 from ash_dynamics.ffmpeg.avcodec.av_codec_parser import _av_parser_init
@@ -20,6 +22,10 @@ from ash_dynamics.ffmpeg.avcodec.avcodec_header import (
 )
 from os.env import setenv
 from ash_dynamics.primitives._clib import StructWritable, StructWriter
+from logger import Logger
+
+
+comptime _logger = Logger()
 
 
 @fieldwise_init
@@ -51,9 +57,15 @@ struct avcodec:
     var avcodec_receive_frame: avcodec_receive_frame.type
 
     fn __init__(out self) raises:
-        self.lib = OwnedDLHandle(
-            "/home/mojo_user/ash_dynamics/third_party/ffmpeg/build/lib/libavcodec.so"
-        )
+        var so_install_prefix = getenv("ASH_DYNAMICS_SO_INSTALL_PREFIX")
+        if so_install_prefix == "":
+            os.abort(
+                "ASH_DYNAMICS_SO_INSTALL_PREFIX env var is not set. "
+                "Expecting a path like:\n"
+                "$PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib\n"
+                "Where `libavcodec.so` is expected to exist."
+            )
+        self.lib = OwnedDLHandle("{}/libavcodec.so".format(so_install_prefix))
         self.av_packet_alloc = _av_packet_alloc.load(self.lib)
         self.avcodec_find_decoder = _avcodec_find_decoder.load(self.lib)
         self.av_parser_init = _av_parser_init.load(self.lib)
