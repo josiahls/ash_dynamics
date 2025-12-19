@@ -30,7 +30,7 @@ fn build_union_mlir_type[*Ts: Copyable & Movable]() -> Int:
 
     @parameter
     for i in range(len(VariadicList(Ts))):
-        alias current_size = size_of[Ts[i]]()
+        comptime current_size = size_of[Ts[i]]()
         if current_size > max_size:
             max_size = current_size
     return max_size

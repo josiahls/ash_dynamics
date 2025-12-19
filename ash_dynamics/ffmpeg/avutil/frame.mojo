@@ -14,7 +14,11 @@ from ash_dynamics.ffmpeg.avutil.pixfmt import (
 )
 from sys.ffi import c_uchar, c_int, c_long_long, c_ulong_long
 from utils import StaticTuple
-from ash_dynamics.primitives._clib import StructWritable, StructWriter
+from ash_dynamics.primitives._clib import (
+    StructWritable,
+    StructWriter,
+    ExternalFunction,
+)
 
 
 @fieldwise_init("implicit")
@@ -291,7 +295,9 @@ struct AVFrame(StructWritable):
     comptime AV_NUM_DATA_POINTERS = Int(8)
     """Number of pointers in data and extended_data."""
 
-    var data: StaticTuple[c_uchar, Self.AV_NUM_DATA_POINTERS]
+    var data: StaticTuple[
+        UnsafePointer[c_uchar, MutOrigin.external], Self.AV_NUM_DATA_POINTERS
+    ]
     """Pointer to the picture/channel planes.
 
     This might be different from the first allocated byte. For video,
@@ -631,3 +637,17 @@ struct AVFrameSideData(StructWritable):
         struct_writer.write_field["size"](self.size)
         struct_writer.write_field["metadata"](self.metadata)
         struct_writer.write_field["buf"](self.buf)
+
+
+comptime _av_frame_alloc = ExternalFunction[
+    "av_frame_alloc", fn () -> UnsafePointer[AVFrame, MutOrigin.external]
+]
+"""Allocate an AVFrame and set its fields to default values. The
+resulting struct must be freed using av_frame_free().
+
+@return An AVFrame filled with default values or NULL on failure.
+
+@note this only allocates the AVFrame itself, not the data buffers. Those
+must be allocated through other means, e.g. with av_frame_get_buffer() or
+manually.
+"""

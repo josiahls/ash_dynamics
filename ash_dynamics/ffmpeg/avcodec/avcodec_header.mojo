@@ -10,6 +10,7 @@ from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 from ash_dynamics.ffmpeg.avutil.pixfmt import AVPixelFormat
 from ash_dynamics.ffmpeg.avcodec.codec import AVCodec
 from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
+from ash_dynamics.ffmpeg.avutil.frame import AVFrame
 from ash_dynamics.ffmpeg.avcodec.av_codec_parser import (
     AVCodecContext,
     AVCodecParserContext,
@@ -151,6 +152,86 @@ while(in_len){
         decode_frame(data, size);
 }
 @endcode
+"""
+
+comptime avcodec_send_packet = ExternalFunction[
+    "avcodec_send_packet",
+    fn (
+        avctx: UnsafePointer[AVCodecContext, MutOrigin.external],
+        avpkt: UnsafePointer[AVPacket, ImmutOrigin.external],
+    ) -> c_int,
+]
+"""Supply raw packet data as input to a decoder.
+
+Internally, this call will copy relevant AVCodecContext fields, which can
+influence decoding per-packet, and apply them when the packet is actually
+decoded. (For example AVCodecContext.skip_frame, which might direct the
+decoder to drop the frame contained by the packet sent with this function.)
+
+@warning The input buffer, avpkt->data must be AV_INPUT_BUFFER_PADDING_SIZE
+         larger than the actual read bytes because some optimized bitstream
+         readers read 32 or 64 bits at once and could read over the end.
+
+@note The AVCodecContext MUST have been opened with @ref avcodec_open2()
+      before packets may be fed to the decoder.
+
+@param avctx codec context
+@param[in] avpkt The input AVPacket. Usually, this will be a single video
+                frame, or several complete audio frames.
+                Ownership of the packet remains with the caller, and the
+                decoder will not write to the packet. The decoder may create
+                a reference to the packet data (or copy it if the packet is
+                not reference-counted).
+                Unlike with older APIs, the packet is always fully consumed,
+                and if it contains multiple frames (e.g. some audio codecs),
+                will require you to call avcodec_receive_frame() multiple
+                times afterwards before you can send a new packet.
+                It can be NULL (or an AVPacket with data set to NULL and
+                size set to 0); in this case, it is considered a flush
+                packet, which signals the end of the stream. Sending the
+                first flush packet will return success. Subsequent ones are
+                unnecessary and will return AVERROR_EOF. If the decoder
+                still has frames buffered, it will return them after sending
+                a flush packet.
+
+@retval 0                 success
+@retval AVERROR(EAGAIN)   input is not accepted in the current state - user
+                          must read output with avcodec_receive_frame() (once
+                          all output is read, the packet should be resent,
+                          and the call will not fail with EAGAIN).
+@retval AVERROR_EOF       the decoder has been flushed, and no new packets can be
+                          sent to it (also returned if more than 1 flush
+                          packet is sent)
+@retval AVERROR(EINVAL)   codec not opened, it is an encoder, or requires flush
+@retval AVERROR(ENOMEM)   failed to add packet to internal queue, or similar
+@retval "another negative error code" legitimate decoding errors
+"""
+
+
+comptime avcodec_receive_frame = ExternalFunction[
+    "avcodec_receive_frame",
+    fn (
+        avctx: UnsafePointer[AVCodecContext, MutOrigin.external],
+        frame: UnsafePointer[AVFrame, MutOrigin.external],
+    ) -> c_int,
+]
+"""Return decoded output data from a decoder or encoder (when the
+@ref AV_CODEC_FLAG_RECON_FRAME flag is used).
+ *
+@param avctx codec context
+@param frame This will be set to a reference-counted video or audio
+            frame (depending on the decoder type) allocated by the
+            codec. Note that the function will always call
+            av_frame_unref(frame) before doing anything else.
+
+@retval 0                success, a frame was returned
+@retval AVERROR(EAGAIN)  output is not available in this state - user must
+                        try to send new input
+@retval AVERROR_EOF      the codec has been fully flushed, and there will be
+                        no more output frames
+@retval AVERROR(EINVAL)  codec not opened, or it is an encoder without the
+                        @ref AV_CODEC_FLAG_RECON_FRAME flag enabled
+@retval "other negative error code" legitimate decoding errors
 """
 
 
