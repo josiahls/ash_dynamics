@@ -81,7 +81,6 @@ fn decode(
 def test_av_decode_video_example():
     """From: https://www.ffmpeg.org/doxygen/8.0/decode_video_8c-example.html."""
     comptime INBUF_SIZE = c_int(4096)
-    raise Error("Not implemented")
 
     var input_buffer = alloc[c_uchar](
         Int(INBUF_SIZE + AV_INPUT_BUFFER_PADDING_SIZE)

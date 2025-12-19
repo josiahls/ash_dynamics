@@ -148,11 +148,11 @@ jobs:
         # Github doesn't have any gpu runners.
         COMPOSE_PROFILES: cpu_${{ matrix.runner.PLATFORM }} 
 
-    # - name: Run Tests
-    #   run: |
-    #     docker compose run --rm ash_dynamics_${COMPOSE_PROFILES} bash -l -c "pixi run test_all"
-    #   env:
-    #     # Github doesn't have any gpu runners.
-    #     COMPOSE_PROFILES: cpu_${{ matrix.runner.PLATFORM }} 
+    - name: Run Tests
+      run: |
+        docker compose run --rm ash_dynamics_${COMPOSE_PROFILES} bash -l -c "pixi run test_all"
+      env:
+        # Github doesn't have any gpu runners.
+        COMPOSE_PROFILES: cpu_${{ matrix.runner.PLATFORM }} 
         # Toggle if there is a need to build the stdlib
         # export PIXI_ENVIRONMENT_NAME=stdlib_dev
