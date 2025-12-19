@@ -20,7 +20,7 @@ from ash_dynamics.ffmpeg.avcodec.packet import (
 )
 from ash_dynamics.ffmpeg.avcodec.defs import AV_INPUT_BUFFER_PADDING_SIZE
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
-from ash_dynamics.ffmpeg.avcodec import avcodec
+from ash_dynamics.ffmpeg.avcodec import Avcodec
 from ash_dynamics.ffmpeg.avutil.error import AVERROR, AVERROR_EOF
 
 
@@ -40,20 +40,20 @@ def pgm_save(
 
 
 fn decode(
-    mut avcodec_: avcodec,
+    mut avcodec: Avcodec,
     dec_ctx: UnsafePointer[AVCodecContext, origin = MutOrigin.external],
     frame: UnsafePointer[AVFrame, origin = MutOrigin.external],
     pkt: UnsafePointer[AVPacket, origin = MutOrigin.external],
     filename: String,
 ):
-    var ret: c_int = avcodec_.avcodec_send_packet(dec_ctx, pkt)
+    var ret: c_int = avcodec.avcodec_send_packet(dec_ctx, pkt)
     if ret < 0:
         os.abort("Error sending a packaet for decoding.")
     else:
         print("Packet sent successfully.")
 
     while ret >= 0:
-        ret = avcodec_.avcodec_receive_frame(dec_ctx, frame)
+        ret = avcodec.avcodec_receive_frame(dec_ctx, frame)
         if ret == AVERROR(ErrNo.EAGAIN.value) or ret == AVERROR_EOF:
             break
         elif ret < 0:
@@ -86,7 +86,7 @@ def test_av_decode_video_example():
         Int(INBUF_SIZE + AV_INPUT_BUFFER_PADDING_SIZE)
     )
 
-    var avcodec = avcodec()
+    var avcodec = Avcodec()
 
     # Set the padding portion of the input_buffer to zero.
     memset(

@@ -20,7 +20,6 @@ from ash_dynamics.ffmpeg.avcodec.packet import (
 )
 from ash_dynamics.ffmpeg.avcodec.defs import AV_INPUT_BUFFER_PADDING_SIZE
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
-from ash_dynamics.ffmpeg.avcodec import avcodec
 from ash_dynamics.ffmpeg.avutil.error import AVERROR, AVERROR_EOF
 
 

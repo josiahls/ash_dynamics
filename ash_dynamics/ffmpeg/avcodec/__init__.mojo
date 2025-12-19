@@ -29,7 +29,7 @@ comptime _logger = Logger()
 
 
 @fieldwise_init
-struct avcodec:
+struct Avcodec:
     var lib: OwnedDLHandle
 
     # ===--------------------------------------------------===
