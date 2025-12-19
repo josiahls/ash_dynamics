@@ -6,9 +6,10 @@ Robotics simulation and training.
 ## Installation
 
 ### Ubuntu
-
+Note, this will attempt to build ffmpeg from source. 
+This project is build to be binded against ffmpeg 8.0 which has not been released
+yet as an installable deb package.
 ```
-sudo apt install ffmpeg
 pixi run configure
 ```
 
