@@ -55,10 +55,14 @@ cmd = "bash tools/clone_lightbug_http.sh"
 [tasks.clone_ffmpeg]
 cmd = "bash tools/clone_ffmpeg.sh"
 
+######################## Test Data Generation API ##############################
+[tasks.generate_test_videos]
+cmd = "bash tools/generate_test_videos.sh"
+
 ############################### Core API #######################################
 [tasks.configure]
 cmd = "bash tools/configure.sh"
-depends-on = [ "install_pre_commit_hooks", "clone_lightbug_http", "build_ffmpeg" ]
+depends-on = [ "install_pre_commit_hooks", "clone_lightbug_http", "build_ffmpeg", "generate_test_videos" ]
 
 [tasks.package]
 cmd = "pixi run mojo package $ASH_DYNAMICS_INCLUDES ash_dynamics"
