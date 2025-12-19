@@ -13,28 +13,35 @@
 
 cd ./third_party/ffmpeg
 
-# For put the built dir in the same directory. Eventually change to the default
-# location on linux.
-./configure \
-    --prefix=$(pwd)/build \
-    --enable-shared \
-    --disable-avdevice \
-    --disable-avfilter \
-    --disable-pthreads \
-    --disable-w32threads \
-    --disable-os2threads \
-    --disable-network \
-    --disable-dwt \
-    --disable-error-resilience \
-    --disable-lsp \
-    --disable-faan \
-    --disable-iamf \
-    --disable-pixelutils \
-    # We want to leave these enabled.
-    # --disable-avcodec 
-    # --disable-swresample
-    # --disable-swscale
-    # --disable-avformat
+BUILD_PATH=$(pwd)/build
 
-make
-make install
+if [ ! -d ${BUILD_PATH} ]; then
+    echo "Building ffmpeg in ${BUILD_PATH}"
+    # For put the built dir in the same directory. Eventually change to the default
+    # location on linux.
+    ./configure \
+        --prefix=${BUILD_PATH} \
+        --enable-shared \
+        --disable-avdevice \
+        --disable-avfilter \
+        --disable-pthreads \
+        --disable-w32threads \
+        --disable-os2threads \
+        --disable-network \
+        --disable-dwt \
+        --disable-error-resilience \
+        --disable-lsp \
+        --disable-faan \
+        --disable-iamf \
+        --disable-pixelutils \
+        # We want to leave these enabled.
+        # --disable-avcodec 
+        # --disable-swresample
+        # --disable-swscale
+        # --disable-avformat
+
+    make
+    make install
+else
+    echo "FFmpeg already built in ${BUILD_PATH}"
+fi
