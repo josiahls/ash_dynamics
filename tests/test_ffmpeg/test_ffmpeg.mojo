@@ -46,10 +46,7 @@ fn decode(
     pkt: UnsafePointer[AVPacket, origin = MutOrigin.external],
     filename: String,
 ):
-    var out_filename = String(capacity=1024)
-    var ret: c_int = 0
-
-    ret = avcodec_.avcodec_send_packet(dec_ctx, pkt)
+    var ret: c_int = avcodec_.avcodec_send_packet(dec_ctx, pkt)
     if ret < 0:
         os.abort("Error sending a packaet for decoding.")
     else:
