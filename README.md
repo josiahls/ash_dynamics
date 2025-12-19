@@ -11,7 +11,5 @@ This project is build to be binded against ffmpeg 8.0 which has not been release
 yet as an installable deb package.
 ```
 pixi run configure
+pixi run test_all
 ```
-
-## Testing
-Example videos for the ffmpeg encode / decode pipeline come from [here](https://media.xiph.org/video/derf/y4m/akiyo_qcif.y4m)
