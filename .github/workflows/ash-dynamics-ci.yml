@@ -102,7 +102,7 @@ jobs:
     - name: Cache Modular repository
       uses: actions/cache@v4
       with:
-        path: modular
+        path: third_party/modular
         key: modular-repo-${{ matrix.runner.PLATFORM }}-${{ hashFiles('pixi.toml', 'pixi.lock') }}-${{ github.sha }}
         restore-keys: |
           modular-repo-${{ matrix.runner.PLATFORM }}-${{ hashFiles('pixi.toml', 'pixi.lock') }}-

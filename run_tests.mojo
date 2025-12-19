@@ -1,4 +1,5 @@
 from subprocess import run
+import os
 from testing.suite import TestSuiteReport, TestReport, TestResult
 from builtin._location import __call_location
 from pathlib import Path
@@ -38,3 +39,5 @@ def main():
         reports=test_results^, location=__call_location[inline_count=0]()
     )
     print(report)
+    if report.failures > 0:
+        os.abort("Tests failed")
