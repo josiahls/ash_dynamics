@@ -114,14 +114,15 @@ def test_av_decode_video_example():
     else:
         print("Opened codec")
 
+    var test_data_root = os.getenv("PIXI_PROJECT_ROOT")
     var out_filename: String = (
-        "/home/mojo_user/ash_dynamics/test_data/akiyo_qcif_decoded"
+        "{}/test_data/testsrc_320x180_30fps_2s_decoded".format(test_data_root)
     )
 
     var frame = avcodec.av_frame_alloc()
 
     with open(
-        "/home/mojo_user/ash_dynamics/test_data/akiyo_qcif.h264", "r"
+        "{}/test_data/testsrc_320x180_30fps_2s.h264".format(test_data_root), "r"
     ) as f:
         while True:
             var data_size = c_int(
