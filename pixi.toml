@@ -17,7 +17,7 @@ repository = "https://github.com/josiahls/ash_dynamics"
 stdlib-dev = {features = ["stdlib-dev"]}
 
 [dependencies]
-mojo = ">=0.26.1.0.dev2025120205,<0.27"
+mojo = ">=0.26.1.0.dev2025121805,<0.27"
 pre-commit = ">=4.5.0,<5"
 
 [activation.env]
@@ -99,7 +99,7 @@ sym_link_stdlib = "bash tools/sym_link_stdlib.sh"
 
 update_stdlib = { cmd = [
     "cd", "third_party/modular", "&&",
-    "./bazelw", "build", "//mojo/stdlib/stdlib"
+    "./bazelw", "build", "//mojo/stdlib/std"
 ], depends-on = [ "sym_link_stdlib", "clone_stdlib" ]}
 
 clean_update_stdlib = { cmd = [
