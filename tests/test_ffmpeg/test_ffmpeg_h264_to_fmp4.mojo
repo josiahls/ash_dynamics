@@ -22,6 +22,13 @@ from ash_dynamics.ffmpeg.avcodec.defs import AV_INPUT_BUFFER_PADDING_SIZE
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 from ash_dynamics.ffmpeg.avcodec import Avcodec
 from ash_dynamics.ffmpeg.avutil.error import AVERROR, AVERROR_EOF
+from ash_dynamics.ffmpeg.avformat.avformat import AVFormatContext, AVStream
+from ash_dynamics.ffmpeg.avformat.avio import AVIOContext
+from ash_dynamics.ffmpeg.avutil.frame import AVFrame
+from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
+from ash_dynamics.ffmpeg.avcodec.codec_par import AVCodecParameters
+from ash_dynamics.ffmpeg.avcodec.packet import AVPacket
+from ash_dynamics.ffmpeg.swscale.swscale import SwsContext
 
 
 @fieldwise_init
@@ -40,8 +47,8 @@ struct OutputStream:
     var sws_ctx: UnsafePointer[SwsContext, origin = MutOrigin.external]
 
 
-def test_av_mux_example():
-    """From: https://www.ffmpeg.org/doxygen/8.0/decode_video_8c-example.html."""
+# def test_av_mux_example():
+# """From: https://www.ffmpeg.org/doxygen/8.0/decode_video_8c-example.html."""
 
 
 def main():
