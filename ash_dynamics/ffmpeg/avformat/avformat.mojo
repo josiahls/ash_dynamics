@@ -9,7 +9,7 @@ I/O and Muxing/Demuxing Library
 from sys.ffi import c_int, c_char, c_uchar, c_long_long, c_uint, c_size_t
 from sys._libc import dup, fclose, fdopen, fflush, FILE_ptr
 from utils import StaticTuple
-from ash_dynamics.primitives._clib import C_Union
+from ash_dynamics.primitives._clib import C_Union, ExternalFunction
 from ash_dynamics.ffmpeg.avutil.frame import AVFrame
 from ash_dynamics.ffmpeg.avcodec.codec import AVCodec
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
@@ -1595,24 +1595,33 @@ comptime av_new_program = fn (
     id: c_int,
 ) -> UnsafePointer[AVProgram, MutOrigin.external]
 
-comptime avformat_alloc_output_context2 = fn (
-    ctx: UnsafePointer[
-        UnsafePointer[AVFormatContext, MutOrigin.external], MutOrigin.external
-    ],
-    oformat: UnsafePointer[AVOutputFormat, ImmutOrigin.external],
-    format_name: UnsafePointer[c_char, ImmutOrigin.external],
-    filename: UnsafePointer[c_char, ImmutOrigin.external],
-) -> c_int
+comptime avformat_alloc_output_context2 = ExternalFunction[
+    "avformat_alloc_output_context2",
+    fn (
+        ctx: UnsafePointer[
+            UnsafePointer[AVFormatContext, MutOrigin.external],
+            MutOrigin.external,
+        ],
+        # oformat: UnsafePointer[AVOutputFormat, ImmutOrigin.external],
+        # format_name: UnsafePointer[c_char, ImmutOrigin.external],
+        # filename: UnsafePointer[c_char, ImmutOrigin.external],
+        oformat: UnsafePointer[AVOutputFormat, ImmutAnyOrigin],
+        format_name: UnsafePointer[c_char, ImmutAnyOrigin],
+        filename: UnsafePointer[c_char, ImmutAnyOrigin],
+    ) -> c_int,
+]
 """Allocate an AVFormatContext for an output format.
 avformat_free_context() can be used to free the context and everything
 allocated by the framework within it.
 
-Arguments:
-- ctx: pointee is set to the created format context, or to NULL in case of failure
-- oformat: format to use for allocating the context, if NULL format_name and filename are used instead
-- format_name: the name of output format to use for allocating the context, if NULL filename is used instead
-- filename: the name of the filename to use for allocating the context, may be NULL
-- return: >= 0 in case of success, a negative AVERROR code in case of failure.
+Args:
+    ctx: Pointee is set to the created format context, or to NULL in case of failure.
+    oformat: format to use for allocating the context, if NULL format_name and filename are used instead.
+    format_name: the name of output format to use for allocating the context, if NULL filename is used instead.
+    filename: The name of the filename to use for allocating the context, may be NULL.
+
+Returns: 
+    >= 0 in case of success, a negative AVERROR code in case of failure.
 """
 
 comptime av_find_input_format = fn (

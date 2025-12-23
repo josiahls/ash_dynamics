@@ -14,7 +14,7 @@ def test_file(file: Path) -> TestReport:
     var result = run("pixi run test_no_config " + String(file))
     var end = perf_counter_ns()
     var duration_ns = end - start
-    if "Unhandled exception caught during execution" in result:
+    if "exception" in result or "error" in result:
         return TestReport.failed(
             name=file.name(), duration_ns=duration_ns, error=Error(result)
         )
