@@ -3,11 +3,12 @@ from testing.testing import assert_equal
 from memory import memset
 import sys
 import os
-from sys.ffi import c_uchar, c_int, c_char, c_long_long, c_float
+from sys.ffi import c_uchar, c_int, c_char, c_long_long, c_float, c_uint
 from sys._libc_errno import ErrNo
 
 from ash_dynamics.ffmpeg.avcodec.packet import AVPacket
 from ash_dynamics.ffmpeg.avutil import AV_NOPTS_VALUE
+from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
 from ash_dynamics.ffmpeg.avutil.buffer import AVBufferRef
 from ash_dynamics.ffmpeg.avutil.buffer_internal import AVBuffer
@@ -72,7 +73,8 @@ def test_av_mux_example():
     # NOTE: Not interested in audio at the moment.
     # var audio_st = OutputStream()
     var fmt = UnsafePointer(to=alloc[AVOutputFormat](1))
-    var oc = alloc[UnsafePointer[AVFormatContext, MutOrigin.external]](1)
+    var oc = alloc[UnsafePointer[AVFormatContext, MutAnyOrigin]](1)
+    # var oc = UnsafePointer[AVFormatContext, MutAnyOrigin]()
     # NOTE: Not interested in audio at the moment.
     # var audio_codec = AVCodec()
     var video_codec = UnsafePointer(to=alloc[AVCodec](1))
@@ -97,16 +99,63 @@ def test_av_mux_example():
 
     # FIXME: Tryout without any flags, just h264 to mp4.
     # ret = avformat.alloc_output_context(oc, output_filename)
-    ret = avformat._alloc_output_context(
+
+    ret = avformat.alloc_output_context(
         ctx=oc,
-        oformat=UnsafePointer[AVOutputFormat, ImmutAnyOrigin](),
-        format_name=UnsafePointer[c_char, ImmutAnyOrigin](),
-        filename=output_filename.as_c_string_slice().unsafe_ptr(),
+        filename=output_filename,
     )
-    if not ret:
+    if not oc or ret < 0:
         os.abort("Failed to allocate output context")
+        # Note: The example: mux.c will switch to 'mpeg' on failure. In our case
+        # however, we want to be strict about the expected behavior.
+
+    var fmt2 = UnsafePointer(to=oc[][].oformat)
+
+    # Debug: Check pointer fields - user reports name=97, mime_type=0x100000128
+    print("Pointer field values (as reported by user):")
+    print("  fmt[][].name (user sees 97 - ASCII 'a')")
+    print("  fmt[][].long_name (user sees NULL)")
+    print("  fmt[][].mime_type (user sees 0x100000128)")
+    print("  This suggests struct field access is misaligned!")
+    print()
+
+    # Debug: Print the raw value
+    # Try accessing directly through oc as well (oformat is already a pointer)
+    print(
+        "Direct access via oc[][].oformat[].video_codec:",
+        oc[][].oformat[].video_codec,
+    )
+    var video_codec_raw = fmt[][].video_codec
+    print("video_codec raw value (as c_uint):", video_codec_raw)
+    print("video_codec as int (signed):", c_int(video_codec_raw))
+    print("video_codec as uint (unsigned):", c_uint(video_codec_raw))
+    print("AV_CODEC_ID_NONE._value:", AVCodecID.AV_CODEC_ID_NONE._value)
+    print("AV_CODEC_ID_H264._value:", AVCodecID.AV_CODEC_ID_H264._value)
+    print("AV_CODEC_ID_MPEG4._value:", AVCodecID.AV_CODEC_ID_MPEG4._value)
+    print("audio_codec raw value:", fmt2[][].audio_codec)
+    print("subtitle_codec raw value:", fmt2[][].subtitle_codec)
+    print("flags value:", fmt2[][].flags)
+    print()
+    print("Expected: video_codec should be 27 (H264) or 12 (MPEG4)")
+    print("Actual: video_codec =", video_codec_raw)
+    print("This suggests we're reading from the wrong memory offset!")
+
+    if fmt2[][].video_codec != AVCodecID.AV_CODEC_ID_NONE._value:
+        print("video codec is not none")
+
+    else:
+        print("video codec is none")
+    # if fmt[].audio_codec != AV_CODEC_ID_NONE:
+    #     print("audio codec is not none")
+    # else:
+    #     print("audio codec is none")
+
+    print("hi")
+
     _ = ret
+    _ = fmt
     _ = oc
+    _ = avformat
 
 
 def main():

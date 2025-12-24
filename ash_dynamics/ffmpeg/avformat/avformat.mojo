@@ -88,8 +88,8 @@ Returns:
 # struct AVCodecTag;
 
 
-@fieldwise_init
 @register_passable("trivial")
+@fieldwise_init
 struct AVProbeData:
     """This structure contains the data a format has to probe a file."""
 
@@ -159,8 +159,8 @@ comptime AVFMT_SEEK_TO_PTS = 0x4000000
 "Seeking is based on PTS."
 
 
-@fieldwise_init
 @register_passable("trivial")
+@fieldwise_init
 struct AVOutputFormat:
     var name: UnsafePointer[c_char, origin = ImmutOrigin.external]
     "Short name for the format."
@@ -196,8 +196,8 @@ struct AVOutputFormat:
     "Private class for the private context."
 
 
-@fieldwise_init
 @register_passable("trivial")
+@fieldwise_init
 struct AVInputFormat:
     var name: UnsafePointer[c_char, origin = ImmutOrigin.external]
     """A comma separated list of short names for the format. New names
@@ -227,8 +227,8 @@ struct AVInputFormat:
     @see av_probe_input_format2."""
 
 
-@fieldwise_init
 @register_passable("trivial")
+@fieldwise_init
 struct AVStreamParseType:
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
@@ -249,8 +249,8 @@ struct AVStreamParseType:
     just codec level data, otherwise position generation would fail."""
 
 
-@fieldwise_init
 @register_passable("trivial")
+@fieldwise_init
 struct AVIndexEntry:
     var pos: c_long_long
     "Position of the index entry in the stream."
@@ -377,8 +377,8 @@ comptime AV_PTS_WRAP_SUB_OFFSET = -1
 """Subtract the format specific offset on wrap detection."""
 
 
-@fieldwise_init
 @register_passable("trivial")
+@fieldwise_init
 struct AVStream:
     """Stream structure.
 
@@ -513,8 +513,8 @@ struct AVStream:
     """
 
 
-@fieldwise_init
 @register_passable("trivial")
+@fieldwise_init
 struct _AVStreamGroupTileGrid_offsets:
     """Binding note: In the original header this is a anonymous struct.
     Mojo does not support this, so we define this as a private, name spaced
@@ -542,8 +542,8 @@ struct _AVStreamGroupTileGrid_offsets:
     """
 
 
-@fieldwise_init
 @register_passable("trivial")
+@fieldwise_init
 struct AVStreamGroupTileGrid:
     """
     AVStreamGroupTileGrid holds information on how to combine several
@@ -666,8 +666,8 @@ struct AVStreamGroupTileGrid:
     """
 
 
-@fieldwise_init
 @register_passable("trivial")
+@fieldwise_init
 struct AVStreamGroupLCEVC:
     """
     AVStreamGroupLCEVC is meant to define the relation between video streams
@@ -688,8 +688,8 @@ struct AVStreamGroupLCEVC:
     "Height of the final stream for presentation."
 
 
-@fieldwise_init
 @register_passable("trivial")
+@fieldwise_init
 struct AVStreamGroupParamsType:
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
@@ -706,8 +706,8 @@ struct AVStreamGroupParamsType:
 # struct AVIAMFMixPresentation;
 
 
-@fieldwise_init
 @register_passable("trivial")
+@fieldwise_init
 struct AVStreamGroup:
     """
     AVStreamGroup is a container for a group of streams.
@@ -784,8 +784,8 @@ comptime AV_PROGRAM_RUNNING = 1
 "Program is running."
 
 
-@fieldwise_init
 @register_passable("trivial")
+@fieldwise_init
 struct AVProgram:
     """
     AVProgram is a container for a program.
@@ -833,8 +833,8 @@ seek function will fail. For some network protocols (e.g. HLS), this can
 change dynamically at runtime."""
 
 
-@fieldwise_init
 @register_passable("trivial")
+@fieldwise_init
 struct AVChapter:
     var id: c_long_long
     "Unique ID to identify the chapter."
@@ -871,8 +871,8 @@ comptime AVOpenCallback = fn (
 ) -> c_int
 
 
-@fieldwise_init
 @register_passable("trivial")
+@fieldwise_init
 struct AVDurationEstimationMethod:
     """The duration of a video can be estimated through various ways, and this
     enum can be used to know how the duration was estimated.
@@ -889,8 +889,8 @@ struct AVDurationEstimationMethod:
     """Duration estimated from bitrate (less accurate)."""
 
 
+# @register_passable("trivial")
 @fieldwise_init
-@register_passable("trivial")
 struct AVFormatContext:
     """Format I/O context.
     New fields can be added to the end with minor version bumps.
@@ -1484,8 +1484,9 @@ comptime avformat_free_context = fn (
 @param s context to free.
 """
 
-comptime avformat_get_class = fn () -> UnsafePointer[
-    AVClass, ImmutOrigin.external
+comptime avformat_get_class = ExternalFunction[
+    "avformat_get_class",
+    fn () -> UnsafePointer[AVClass, ImmutOrigin.external],
 ]
 """Get the AVClass for AVFormatContext. It can be used in combination with
 AV_OPT_SEARCH_FAKE_OBJ for examining options.
@@ -1600,13 +1601,10 @@ comptime avformat_alloc_output_context2 = ExternalFunction[
     fn (
         ctx: UnsafePointer[
             UnsafePointer[AVFormatContext, MutOrigin.external],
-            MutOrigin.external,
+            MutAnyOrigin,
         ],
-        # oformat: UnsafePointer[AVOutputFormat, ImmutOrigin.external],
-        # format_name: UnsafePointer[c_char, ImmutOrigin.external],
-        # filename: UnsafePointer[c_char, ImmutOrigin.external],
-        oformat: UnsafePointer[AVOutputFormat, ImmutAnyOrigin],
-        format_name: UnsafePointer[c_char, ImmutAnyOrigin],
+        oformat: UnsafePointer[AVOutputFormat, ImmutOrigin.external],
+        format_name: UnsafePointer[c_char, ImmutOrigin.external],
         filename: UnsafePointer[c_char, ImmutAnyOrigin],
     ) -> c_int,
 ]
@@ -2195,11 +2193,14 @@ Returns:
 """
 
 
-comptime av_guess_format = fn (
-    short_name: UnsafePointer[c_char, ImmutOrigin.external],
-    filename: UnsafePointer[c_char, ImmutOrigin.external],
-    mime_type: UnsafePointer[c_char, ImmutOrigin.external],
-) -> UnsafePointer[AVOutputFormat, ImmutOrigin.external]
+comptime av_guess_format = ExternalFunction[
+    "av_guess_format",
+    fn (
+        short_name: UnsafePointer[c_char, ImmutAnyOrigin],
+        filename: UnsafePointer[c_char, ImmutAnyOrigin],
+        mime_type: UnsafePointer[c_char, ImmutAnyOrigin],
+    ) -> UnsafePointer[AVOutputFormat, ImmutOrigin.external],
+]
 """Return the output format in the list of registered output formats which best 
 matches the provided parameters, or return NULL if there is no match.
 

@@ -260,8 +260,10 @@ nm -D $ASH_DYNAMICS_SO_INSTALL_PREFIX/libavformat.so
 from sys.ffi import OwnedDLHandle, c_int, c_float, c_char
 from os.env import getenv
 import os
-from ash_dynamics.ffmpeg.avformat.avformat import avformat_alloc_output_context2
 from ash_dynamics.ffmpeg.avformat.avformat import (
+    avformat_alloc_output_context2,
+    avformat_get_class,
+    av_guess_format,
     AVOutputFormat,
     AVFormatContext,
 )
@@ -281,6 +283,10 @@ struct Avformat:
     # ===--------------------------------------------------===
     var _alloc_output_context: avformat_alloc_output_context2.type
     "Shadows avformat_alloc_output_context2."
+    var av_guess_format: av_guess_format.type
+    "Shadows av_guess_format."
+    var avformat_get_class: avformat_get_class.type
+    "Shadows avformat_get_class."
 
     fn __init__(out self) raises:
         var so_install_prefix = getenv("ASH_DYNAMICS_SO_INSTALL_PREFIX")
@@ -295,40 +301,46 @@ struct Avformat:
         self._alloc_output_context = avformat_alloc_output_context2.load(
             self.lib
         )
+        self.av_guess_format = av_guess_format.load(self.lib)
+        self.avformat_get_class = avformat_get_class.load(self.lib)
 
-    # fn alloc_output_context(
-    # 	self,
-    # 	ctx: UnsafePointer[AVFormatContext, MutOrigin.external],
-    # 	oformat: UnsafePointer[AVOutputFormat, ImmutOrigin.external],
-    # 	format_name: UnsafePointer[c_char, ImmutOrigin.external],
-    # 	mut filename: String,
-    # ) -> c_int:
-    # 	return self._alloc_output_context(
-    # 		ctx = UnsafePointer(to=ctx),
-    # 		oformat = oformat,
-    # 		format_name = format_name,
-    # 		filename = filename.as_c_string_slice().unsafe_ptr().as_immutable()
-    # 	)
+    fn alloc_output_context(
+        self,
+        mut ctx: UnsafePointer[
+            UnsafePointer[AVFormatContext, MutOrigin.external], MutAnyOrigin
+        ],
+        oformat: UnsafePointer[AVOutputFormat, ImmutOrigin.external],
+        format_name: UnsafePointer[c_char, ImmutOrigin.external],
+        mut filename: String,
+    ) -> c_int:
+        return self._alloc_output_context(
+            ctx=ctx,
+            oformat=oformat,
+            format_name=format_name,
+            filename=filename.as_c_string_slice().unsafe_ptr().as_immutable(),
+        )
 
-    # fn alloc_output_context(
-    # 	self,
-    # 	mut ctx: UnsafePointer[AVFormatContext, MutOrigin.external],
-    # 	mut filename: String,
-    # ) -> c_int:
-    # 	"""Allocate an AVFormatContext for an output format.
+    fn alloc_output_context(
+        self,
+        ctx: UnsafePointer[
+            UnsafePointer[AVFormatContext, MutOrigin.external], MutAnyOrigin
+        ],
+        mut filename: String,
+    ) -> c_int:
+        """Allocate an AVFormatContext for an output format.
 
-    # 	Note: Null pointers for oformat and format_name will use the filename to guess the format.
+        Note: Null pointers for oformat and format_name will use the filename to guess the format.
 
-    # 	Args:
-    # 		ctx: Pointee is set to the created format context, or to NULL in case of failure.
-    # 		filename: The name of the filename to use for allocating the context, may be NULL.
+        Args:
+                ctx: Pointee is set to the created format context, or to NULL in case of failure.
+                filename: The name of the filename to use for allocating the context, may be NULL.
 
-    # 	Returns:
-    # 		>= 0 in case of success, a negative AVERROR code in case of failure.
-    # 	"""
-    # 	return self._alloc_output_context(
-    # 		ctx = UnsafePointer(to=ctx),
-    # 		oformat = UnsafePointer[AVOutputFormat, ImmutOrigin.external](),
-    # 		format_name = UnsafePointer[c_char, ImmutOrigin.external](),
-    # 		filename = filename.as_c_string_slice().unsafe_ptr().as_immutable()
-    # 	)
+        Returns:
+                >= 0 in case of success, a negative AVERROR code in case of failure.
+        """
+        return self._alloc_output_context(
+            ctx=ctx,
+            oformat=UnsafePointer[AVOutputFormat, ImmutOrigin.external](),
+            format_name=UnsafePointer[c_char, ImmutOrigin.external](),
+            filename=filename.as_c_string_slice().unsafe_ptr().as_immutable(),
+        )
