@@ -264,6 +264,7 @@ from ash_dynamics.ffmpeg.avformat.avformat import (
     avformat_alloc_output_context2,
     avformat_get_class,
     av_guess_format,
+    avformat_new_stream,
     AVOutputFormat,
     AVFormatContext,
 )
@@ -287,6 +288,8 @@ struct Avformat:
     "Shadows av_guess_format."
     var avformat_get_class: avformat_get_class.type
     "Shadows avformat_get_class."
+    # var avformat_new_stream: avformat_new_stream.type
+    # "Shadows avformat_new_stream."
 
     fn __init__(out self) raises:
         var so_install_prefix = getenv("ASH_DYNAMICS_SO_INSTALL_PREFIX")
@@ -303,6 +306,7 @@ struct Avformat:
         )
         self.av_guess_format = av_guess_format.load(self.lib)
         self.avformat_get_class = avformat_get_class.load(self.lib)
+        # self.avformat_new_stream = avformat_new_stream.load(self.lib)
 
     fn alloc_output_context(
         self,

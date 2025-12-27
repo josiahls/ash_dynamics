@@ -20,6 +20,7 @@ from ash_dynamics.ffmpeg.avcodec.avcodec import (
     avcodec_send_packet,
     avcodec_receive_frame,
 )
+from ash_dynamics.ffmpeg.avcodec.codec import avcodec_find_encoder
 from os.env import setenv
 from ash_dynamics.primitives._clib import StructWritable, StructWriter
 from logger import Logger
@@ -41,20 +42,14 @@ struct Avcodec:
     # We should change this from a filed to function that validates
     # and raises an error.
     var avcodec_find_decoder: _avcodec_find_decoder.type
-
     var av_parser_init: av_parser_init.type
-
     var avcodec_alloc_context3: avcodec_alloc_context3.type
-
     var avcodec_open2: avcodec_open2.type
-
     var av_parser_parse2: av_parser_parse2.type
-
     var avcodec_send_packet: avcodec_send_packet.type
-
     var av_frame_alloc: _av_frame_alloc.type
-
     var avcodec_receive_frame: avcodec_receive_frame.type
+    var avcodec_find_encoder: avcodec_find_encoder.type
 
     fn __init__(out self) raises:
         var so_install_prefix = getenv("ASH_DYNAMICS_SO_INSTALL_PREFIX")
@@ -75,3 +70,4 @@ struct Avcodec:
         self.avcodec_send_packet = avcodec_send_packet.load(self.lib)
         self.av_frame_alloc = _av_frame_alloc.load(self.lib)
         self.avcodec_receive_frame = avcodec_receive_frame.load(self.lib)
+        self.avcodec_find_encoder = avcodec_find_encoder.load(self.lib)

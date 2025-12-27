@@ -98,7 +98,7 @@ fn open_video(
 def add_stream(
     avformat: Avformat,
     avcodec: Avcodec,
-    ost: OutputStream,
+    mut ost: OutputStream,
     oc: UnsafePointer[AVFormatContext, MutOrigin.external],
     video_codec: UnsafePointer[
         UnsafePointer[AVCodec, ImmutOrigin.external], MutOrigin.external
@@ -108,9 +108,25 @@ def add_stream(
     var i: c_int = 0
     var c = alloc[AVCodecContext](1)
 
-    # var codec = avcodec.avcodec_find_encoder(video_codec_id)
-    # if not codec:
-    #     os.abort("Failed to find encoder")
+    var codec = avcodec.avcodec_find_encoder(video_codec_id)
+    if not codec:
+        os.abort("Failed to find encoder")
+
+    ost.tmp_pkt = avcodec.av_packet_alloc()
+    if not ost.tmp_pkt:
+        os.abort("Failed to allocate AVPacket")
+
+    # var st = avformat.avformat_new_stream(oc, None)
+    # if not st:
+    #     os.abort("Failed to allocate stream")
+
+    # st[][].id = oc[][].nb_streams - 1
+
+    # var ret = avcodec.avcodec_alloc_context3(codec)
+    # if ret < 0:
+    #     os.abort("Failed to allocate encoding context")
+
+    # ost.enc = ret
 
 
 def test_av_mux_example():
