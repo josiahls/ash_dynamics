@@ -67,17 +67,63 @@ struct OutputStream:
         self.sws_ctx = alloc[SwsContext](1)
 
 
+fn open_video(
+    avformat: Avformat,
+    avcodec: Avcodec,
+    oc: UnsafePointer[AVFormatContext, MutOrigin.external],
+    video_codec: UnsafePointer[AVCodec, ImmutOrigin.external],
+    ost: OutputStream,
+    opt_arg: UnsafePointer[AVDictionary, ImmutOrigin.external],
+):
+    var ret: c_int = 0
+    var c = ost.enc
+    # NOTE: We need to add an override to avcodec_open2 that makes
+    # an internal null pointer. Debug mode otherwise fails on this.
+    var opt = alloc[AVDictionary](0)
+    print("im opening a video")
+
+    # TODO: Add later. Right now we are not using any options.
+    # avformat.av_dict_copy(opt, opt_arg, 0)
+
+    ret = avcodec.avcodec_open2(c, video_codec, opt)
+    # TODO: Add later. Right now we are not using any options.
+    # avformat.av_dict_free(opt)
+    _ = c
+    # _ = opt
+
+    if ret < 0:
+        os.abort("Failed to open video codec")
+
+
+def add_stream(
+    avformat: Avformat,
+    avcodec: Avcodec,
+    ost: OutputStream,
+    oc: UnsafePointer[AVFormatContext, MutOrigin.external],
+    video_codec: UnsafePointer[
+        UnsafePointer[AVCodec, ImmutOrigin.external], MutOrigin.external
+    ],
+    video_codec_id: AVCodecID.ENUM_DTYPE,
+):
+    var i: c_int = 0
+    var c = alloc[AVCodecContext](1)
+
+    # var codec = avcodec.avcodec_find_encoder(video_codec_id)
+    # if not codec:
+    #     os.abort("Failed to find encoder")
+
+
 def test_av_mux_example():
     """From: https://www.ffmpeg.org/doxygen/8.0/mux_8c-example.html."""
     var video_st = OutputStream()
     # NOTE: Not interested in audio at the moment.
     # var audio_st = OutputStream()
-    var fmt = UnsafePointer(to=alloc[AVOutputFormat](1))
-    var oc = alloc[UnsafePointer[AVFormatContext, MutAnyOrigin]](1)
+    var fmt = alloc[UnsafePointer[AVOutputFormat, ImmutOrigin.external]](1)
+    var oc = alloc[UnsafePointer[AVFormatContext, MutOrigin.external]](1)
     # var oc = UnsafePointer[AVFormatContext, MutAnyOrigin]()
     # NOTE: Not interested in audio at the moment.
     # var audio_codec = AVCodec()
-    var video_codec = UnsafePointer(to=alloc[AVCodec](1))
+    var video_codec = alloc[UnsafePointer[AVCodec, ImmutOrigin.external]](1)
     var ret = c_int(0)
     var have_video = c_int(0)
     # NOTE: Not interested in audio at the moment.
@@ -88,6 +134,7 @@ def test_av_mux_example():
     var i = c_int(0)
 
     var avformat = Avformat()
+    var avcodec = Avcodec()
 
     var test_data_root = os.getenv("PIXI_PROJECT_ROOT")
     var input_filename: String = (
@@ -109,40 +156,16 @@ def test_av_mux_example():
         # Note: The example: mux.c will switch to 'mpeg' on failure. In our case
         # however, we want to be strict about the expected behavior.
 
-    var fmt2 = UnsafePointer(to=oc[][].oformat)
+    fmt = UnsafePointer(to=oc[][].oformat)
+    video_codec = UnsafePointer(to=oc[][].video_codec)
 
-    # Debug: Check pointer fields - user reports name=97, mime_type=0x100000128
-    print("Pointer field values (as reported by user):")
-    print("  fmt[][].name (user sees 97 - ASCII 'a')")
-    print("  fmt[][].long_name (user sees NULL)")
-    print("  fmt[][].mime_type (user sees 0x100000128)")
-    print("  This suggests struct field access is misaligned!")
-    print()
-
-    # Debug: Print the raw value
-    # Try accessing directly through oc as well (oformat is already a pointer)
-    print(
-        "Direct access via oc[][].oformat[].video_codec:",
-        oc[][].oformat[].video_codec,
-    )
-    var video_codec_raw = fmt[][].video_codec
-    print("video_codec raw value (as c_uint):", video_codec_raw)
-    print("video_codec as int (signed):", c_int(video_codec_raw))
-    print("video_codec as uint (unsigned):", c_uint(video_codec_raw))
-    print("AV_CODEC_ID_NONE._value:", AVCodecID.AV_CODEC_ID_NONE._value)
-    print("AV_CODEC_ID_H264._value:", AVCodecID.AV_CODEC_ID_H264._value)
-    print("AV_CODEC_ID_MPEG4._value:", AVCodecID.AV_CODEC_ID_MPEG4._value)
-    print("audio_codec raw value:", fmt2[][].audio_codec)
-    print("subtitle_codec raw value:", fmt2[][].subtitle_codec)
-    print("flags value:", fmt2[][].flags)
-    print()
-    print("Expected: video_codec should be 27 (H264) or 12 (MPEG4)")
-    print("Actual: video_codec =", video_codec_raw)
-    print("This suggests we're reading from the wrong memory offset!")
-
-    if fmt2[][].video_codec != AVCodecID.AV_CODEC_ID_NONE._value:
-        print("video codec is not none")
-
+    if fmt[][].video_codec != AVCodecID.AV_CODEC_ID_NONE._value:
+        print("video codec is not none: ", fmt[][].video_codec)
+        add_stream(
+            avformat, avcodec, video_st, oc[], video_codec, fmt[][].video_codec
+        )
+        have_video = 1
+        encode_video = 1
     else:
         print("video codec is none")
     # if fmt[].audio_codec != AV_CODEC_ID_NONE:
@@ -150,12 +173,14 @@ def test_av_mux_example():
     # else:
     #     print("audio codec is none")
 
-    print("hi")
+    # if have_video:
+    #     open_video(avformat, avcodec, oc[], video_codec[], video_st, opt[])
 
     _ = ret
     _ = fmt
     _ = oc
     _ = avformat
+    _ = avcodec
 
 
 def main():

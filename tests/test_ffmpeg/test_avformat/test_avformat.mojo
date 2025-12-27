@@ -57,59 +57,6 @@ def test_AVOutputFormat():
 def test_alloc_output_context():
     var avformat = Avformat()
     var ctx = alloc[UnsafePointer[AVFormatContext, MutOrigin.external]](1)
-    # Initialize to null pointer
-    ctx[] = UnsafePointer[AVFormatContext, MutOrigin.external]()
-
-    var filename = String("some/path/to/test.mp4")
-    var ret = avformat.alloc_output_context(
-        ctx=ctx,
-        filename=filename,
-    )
-    assert_equal(ret, 0)
-    assert_equal(Bool(ctx), True)
-    assert_equal(Bool(ctx[]), True, "ctx[] should not be null")
-    # Store the actual context pointer in a local variable to ensure it stays alive
-    var ctx_ptr = ctx[]
-    # Verify ctx_ptr is valid
-    assert_equal(Bool(ctx_ptr), True, "ctx_ptr should not be null")
-
-    # NOTE: There's a known issue where accessing ctx_ptr[].av_class[].class_name crashes
-    # with invalid memory. This appears to be related to how Mojo handles @register_passable("trivial")
-    # structs - accessing ctx_ptr[].av_class may create a temporary copy that gets deallocated,
-    # causing the pointer to become invalid.
-    #
-    # WORKAROUND: Use avformat_get_class() directly instead, which returns the same static
-    # pointer that should be stored in ctx_ptr[].av_class. This verifies the context was
-    # created correctly without accessing the struct field directly.
-    var expected_av_class = avformat.avformat_get_class()
-    # Verify the context's av_class field exists (pointer is not null)
-    var av_class_ptr = ctx_ptr[].av_class
-    assert_equal(Bool(av_class_ptr), True, "av_class_ptr should not be null")
-
-    # Use the expected pointer to verify values (this is the same static pointer)
-    var class_name = String(unsafe_from_utf8_ptr=expected_av_class[].class_name)
-    assert_equal(class_name, "AVFormatContext")
-    assert_equal(expected_av_class[].state_flags_offset, 0)
-
-    _ = av_class_ptr
-    _ = expected_av_class
-    _ = ctx_ptr
-
-    _ = ctx
-    _ = ret
-    _ = avformat
-
-
-def test_alloc_output_context2():
-    var avformat = Avformat()
-    # var ctx = alloc[UnsafePointer[AVFormatContext, MutOrigin.external]](1)
-    # Initialize to null pointer
-    # ctx[] = alloc[AVFormatContext](1)
-    # var ctx = UnsafePointer[
-    #     UnsafePointer[AVFormatContext, MutOrigin.external],
-    #     MutOrigin.external
-    # ]()
-    var ctx = alloc[UnsafePointer[AVFormatContext, MutOrigin.external]](1)
 
     var filename = String("some/path/to/test.mp4")
     var ret = avformat.alloc_output_context(
@@ -137,31 +84,12 @@ def test_alloc_output_context2():
     # Size of unsigned int: 4 bytes
     # Total struct size: 472 bytes
 
-    # 472 bytes.
+    # 472 bytes, same as c
     print(
         "sizeof(AVFormatContext) (Mojo):", size_of[AVFormatContext](), "bytes"
     )
 
-    # Debug: Print what we're actually reading
-    var ctx_ptr = ctx[]
-    print("ctx_flags value:", ctx_ptr[].ctx_flags)
-    print("pb pointer value:", ctx_ptr[].pb)
-    print("priv_data pointer value:", ctx_ptr[].priv_data)
-
-    # Check if ctx_flags is reading a pointer value
-    # var ctx_flags_val = ctx_ptr[].ctx_flags
-    # var pb_val = ctx_ptr[].pb
-    # # Convert pointers to integers for comparison
-    # var pb_as_int = Int(pb_val)
-
-    # print("pb address (as int):", pb_val)
-    # print("ctx_flags (as int):", ctx_flags_val)
-
-    # # If ctx_flags matches pb's address, we're reading from the wrong offset
-    # if ctx_flags_val == pb_as_int:
-    #     print("⚠️  WARNING: ctx_flags appears to be reading pb pointer!")
-
-    assert_equal(ctx_ptr[].ctx_flags, 0)
+    assert_equal(ctx[][].ctx_flags, 0)
     assert_equal(ctx[][].nb_streams, 0)
     assert_equal(ctx[][].nb_stream_groups, 0)
     assert_equal(ctx[][].packet_size, 0)
@@ -180,23 +108,11 @@ def test_alloc_output_context2():
     assert_equal(ctx[][].subtitle_codec_id, 0)
     assert_equal(ctx[][].data_codec_id, 0)
 
-    # ref ctx_ref = ctx[]
-    # ref ctx_ref_av_class = ctx_ref[]
-    # ref ctx_ref_av_class_class_ptr = ctx_ref_av_class.av_class
-    # ref ctx_ref_av_class_class = ctx_ref_av_class_class_ptr[]
-    # ref ctx_ref_av_class_class_class_name_ptr = ctx_ref_av_class_class.class_name
-    # ref ctx_ref_av_class_class_class_name = ctx_ref_av_class_class_class_name_ptr[]
-
-    # print("ctx_ref_av_class_class_class_name:", ctx_ref_av_class_class_class_name)
-
-    # assert_equal(String(unsafe_from_utf8_ptr=ctx[][].av_class[].class_name), "AVFormatContext")
-    # assert_equal(ctx[][].av_class[].state_flags_offset, 0)
-
-    # _ = ctx_ref_av_class_class_class_name
-    # _ = ctx_ref_av_class_class_class_name_ptr
-    # _ = ctx_ref_av_class_class
-
-    _ = ctx[][].av_class
+    assert_equal(
+        String(unsafe_from_utf8_ptr=ctx[][].av_class[].class_name),
+        "AVFormatContext",
+    )
+    assert_equal(ctx[][].av_class[].state_flags_offset, 0)
     _ = ctx
     _ = ret
     _ = avformat

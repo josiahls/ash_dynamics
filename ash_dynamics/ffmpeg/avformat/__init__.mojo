@@ -306,7 +306,7 @@ struct Avformat:
 
     fn alloc_output_context(
         self,
-        mut ctx: UnsafePointer[
+        ctx: UnsafePointer[
             UnsafePointer[AVFormatContext, MutOrigin.external], MutAnyOrigin
         ],
         oformat: UnsafePointer[AVOutputFormat, ImmutOrigin.external],

@@ -13,7 +13,7 @@ from ash_dynamics.ffmpeg.avcodec.allcodecs import _avcodec_find_decoder
 from ash_dynamics.ffmpeg.avcodec.av_codec_parser import _av_parser_init
 from ash_dynamics.ffmpeg.avutil.frame import _av_frame_alloc
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
-from ash_dynamics.ffmpeg.avcodec.avcodec_header import (
+from ash_dynamics.ffmpeg.avcodec.avcodec import (
     _avcodec_alloc_context3,
     _avcodec_open2,
     av_parser_parse2,

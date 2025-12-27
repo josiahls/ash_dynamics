@@ -17,7 +17,7 @@ from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 from ash_dynamics.ffmpeg.avcodec.packet import AVPacket, AVPacketSideData
 from ash_dynamics.ffmpeg.avcodec.codec_par import AVCodecParameters
 from ash_dynamics.ffmpeg.avcodec.defs import AVDiscard
-from ash_dynamics.ffmpeg.avcodec.avcodec_header import AVCodecParserContext
+from ash_dynamics.ffmpeg.avcodec.avcodec import AVCodecParserContext
 
 from ash_dynamics.ffmpeg.avutil.log import AVClass
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
