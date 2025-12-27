@@ -7,6 +7,7 @@ from sys.ffi import (
     c_ushort,
     c_ulong_long,
     c_uint,
+    c_size_t,
 )
 from ash_dynamics.primitives._clib import (
     StructWritable,
@@ -21,9 +22,10 @@ from ash_dynamics.ffmpeg.avutil.pixfmt import AVPixelFormat
 from ash_dynamics.ffmpeg.avcodec.codec import AVCodec
 from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
 from ash_dynamics.ffmpeg.avutil.frame import AVFrame
-from ash_dynamics.ffmpeg.avcodec.av_codec_parser import (
-    AVCodecParserContext,
-)
+
+# from ash_dynamics.ffmpeg.avcodec.av_codec_parser import (
+#     AVCodecParserContext,
+# )
 from ash_dynamics.ffmpeg.avutil.log import AVClass
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
 from ash_dynamics.ffmpeg.avutil.pixfmt import (
@@ -46,6 +48,7 @@ from ash_dynamics.ffmpeg.avcodec.packet import AVPacket, AVPacketSideData
 from ash_dynamics.ffmpeg.avutil.frame import AVFrameSideData
 from ash_dynamics.ffmpeg.avcodec.codec_desc import AVCodecDescriptor
 from utils import StaticTuple
+from ash_dynamics.ffmpeg.avcodec.codec_par import AVCodecParameters
 
 
 @fieldwise_init
@@ -1664,7 +1667,209 @@ struct AVCodecContext(StructWritable):
         struct_writer.write_field["idct_algo"](self.idct_algo)
 
 
-comptime _avcodec_alloc_context3 = ExternalFunction[
+@fieldwise_init
+@register_passable("trivial")
+struct AVHWAccel(StructWritable):
+    """Note: Nothing in this structure should be accessed by the user. At some
+    point in future it will not be externally visible at all.
+    """
+
+    var name: UnsafePointer[c_char, ImmutOrigin.external]
+    """Name of the hardware accelerated codec.
+    The name is globally unique among encoders and among decoders (but an
+    encoder and a decoder can share the same name).
+    """
+
+    var type: AVMediaType.ENUM_DTYPE
+    """Type of codec implemented by the hardware accelerator.
+    See AVMEDIA_TYPE_xxx.
+    """
+
+    var id: AVCodecID.ENUM_DTYPE
+    """Codec implemented by the hardware accelerator.
+    See AV_CODEC_ID_xxx.
+    """
+
+    var pix_fmt: AVPixelFormat.ENUM_DTYPE
+    """Supported pixel format.
+    Only hardware accelerated formats are supported here.
+    """
+
+    var capabilities: c_int
+    """Hardware accelerated codec capabilities.
+    see AV_HWACCEL_CODEC_CAP_*.
+    """
+
+    fn write_to(self, mut writer: Some[Writer], indent: Int):
+        var struct_writer = StructWriter[Self](writer, indent=indent)
+        struct_writer.write_field["name"](self.name)
+        struct_writer.write_field["type"](self.type)
+        struct_writer.write_field["id"](self.id)
+        struct_writer.write_field["pix_fmt"](self.pix_fmt)
+        struct_writer.write_field["capabilities"](self.capabilities)
+
+
+comptime AV_HWACCEL_CODEC_CAP_EXPERIMENTAL = c_int(0x0200)
+"""HWAccel is experimental and is thus avoided in favor of non experimental
+codecs"""
+comptime AV_HWACCEL_FLAG_IGNORE_LEVEL = c_int(1 << 0)
+"""Hardware acceleration should be used for decoding even if the codec level
+used is unknown or higher than the maximum supported level reported by the
+hardware driver.
+
+It's generally a good idea to pass this flag unless you have a specific
+reason not to, as hardware tends to under-report supported levels.
+"""
+
+comptime AV_HWACCEL_FLAG_ALLOW_HIGH_DEPTH = c_int(1 << 1)
+"""Hardware acceleration can output YUV pixel formats with a different chroma
+sampling than 4:2:0 and/or other than 8 bits per component.
+"""
+
+comptime AV_HWACCEL_FLAG_ALLOW_PROFILE_MISMATCH = c_int(1 << 2)
+"""Hardware acceleration should still be attempted for decoding when the
+codec profile does not match the reported capabilities of the hardware.
+
+For example, this can be used to try to decode baseline profile H.264
+streams in hardware - it will often succeed, because many streams marked
+as baseline profile actually conform to constrained baseline profile.
+
+@warning If the stream is actually not supported then the behaviour is
+          undefined, and may include returning entirely incorrect output
+          while indicating success.
+"""
+
+comptime AV_HWACCEL_FLAG_UNSAFE_OUTPUT = c_int(1 << 3)
+"""Some hardware decoders (namely nvdec) can either output direct decoder
+surfaces, or make an on-device copy and return said copy.
+There is a hard limit on how many decoder surfaces there can be, and it
+cannot be accurately guessed ahead of time.
+For some processing chains, this can be okay, but others will run into the
+limit and in turn produce very confusing errors that require fine tuning of
+more or less obscure options by the user, or in extreme cases cannot be
+resolved at all without inserting an avfilter that forces a copy.
+
+Thus, the hwaccel will by default make a copy for safety and resilience.
+If a users really wants to minimize the amount of copies, they can set this
+flag and ensure their processing chain does not exhaust the surface pool.
+"""
+
+
+@fieldwise_init
+@register_passable("trivial")
+struct AVSubtitleType(StructWritable):
+    comptime ENUM_DTYPE = c_int
+    var value: Self.ENUM_DTYPE
+
+    comptime SUBTITLE_NONE = Self(0)
+    comptime SUBTITLE_BITMAP = Self(1)
+    """A bitmap, pict will be set"""
+    comptime SUBTITLE_TEXT = Self(2)
+    """Plain text, the text field must be set by the decoder and is
+    authoritative. ass and pict fields may contain approximations."""
+    comptime SUBTITLE_ASS = Self(3)
+    """Formatted text, the ass field must be set by the decoder and is
+    authoritative. pict and text fields may contain approximations."""
+
+    fn write_to(self, mut writer: Some[Writer], indent: Int):
+        var struct_writer = StructWriter[Self](writer, indent=indent)
+        struct_writer.write_field["value"](self.value)
+
+
+comptime AV_SUBTITLE_FLAG_FORCED = c_int(0x00000001)
+
+
+@fieldwise_init
+@register_passable("trivial")
+struct AVSubtitleRect(StructWritable):
+    var x: c_int
+    """Top left corner  of pict, undefined when pict is not set."""
+    var y: c_int
+    """Top left corner  of pict, undefined when pict is not set."""
+    var w: c_int
+    """Width            of pict, undefined when pict is not set."""
+    var h: c_int
+    """Height           of pict, undefined when pict is not set."""
+    var nb_colors: c_int
+    """Number of colors in pict, undefined when pict is not set."""
+    var data: UnsafePointer[c_uchar, MutOrigin.external]
+    """Data+linesize for the bitmap of this subtitle. Can be set for text/ass 
+    as well once they are rendered."""
+    var linesize: StaticTuple[c_int, 4]
+    """Linesize for the bitmap of this subtitle."""
+    var flags: c_int
+    """Flags for the subtitle. See AV_SUBTITLE_FLAG_FORCED."""
+    var type: AVSubtitleType.ENUM_DTYPE
+    """Type of the subtitle. See AVSubtitleType."""
+
+    var text: UnsafePointer[c_char, MutOrigin.external]
+    """0 terminated plain UTF-8 text."""
+    var ass: UnsafePointer[c_char, MutOrigin.external]
+    """0 terminated ASS/SSA compatible event line. The presentation of this
+    is unaffected by the other values in this struct."""
+
+    fn write_to(self, mut writer: Some[Writer], indent: Int):
+        var struct_writer = StructWriter[Self](writer, indent=indent)
+        struct_writer.write_field["x"](self.x)
+        struct_writer.write_field["y"](self.y)
+        struct_writer.write_field["w"](self.w)
+        struct_writer.write_field["h"](self.h)
+        struct_writer.write_field["nb_colors"](self.nb_colors)
+        struct_writer.write_field["data"](self.data)
+        struct_writer.write_field["linesize"]("StaticTuple[c_int, 4]")
+        struct_writer.write_field["flags"](self.flags)
+        struct_writer.write_field["type"](self.type)
+        struct_writer.write_field["text"](self.text)
+        struct_writer.write_field["ass"](self.ass)
+
+
+@fieldwise_init
+@register_passable("trivial")
+struct AVSubtitle(StructWritable):
+    var format: c_ushort
+    """0 = graphics."""
+    var start_display_time: c_uint
+    """Relative to packet pts, in ms."""
+    var end_display_time: c_uint
+    """Relative to packet pts, in ms."""
+    var num_rects: c_uint
+    """Number of rectangles in the subtitle."""
+    var rects: UnsafePointer[
+        UnsafePointer[AVSubtitleRect, MutOrigin.external], MutOrigin.external
+    ]
+    """Rectangles in the subtitle. Must be freed with avsubtitle_free() by the caller."""
+    var pts: c_long_long
+    """Same as packet pts, in AV_TIME_BASE."""
+
+    fn write_to(self, mut writer: Some[Writer], indent: Int):
+        var struct_writer = StructWriter[Self](writer, indent=indent)
+        struct_writer.write_field["format"](self.format)
+        struct_writer.write_field["start_display_time"](self.start_display_time)
+        struct_writer.write_field["end_display_time"](self.end_display_time)
+        struct_writer.write_field["num_rects"](self.num_rects)
+        struct_writer.write_field["rects"](self.rects)
+        struct_writer.write_field["pts"](self.pts)
+
+
+comptime avcodec_version = ExternalFunction[
+    "avcodec_version",
+    fn () -> c_int,
+]
+"""Return the LIBAVCODEC_VERSION_INT constant."""
+
+comptime avcodec_configuration = ExternalFunction[
+    "avcodec_configuration",
+    fn () -> UnsafePointer[c_char, ImmutOrigin.external],
+]
+"""Return the libavcodec build-time configuration."""
+
+comptime avcodec_license = ExternalFunction[
+    "avcodec_license",
+    fn () -> UnsafePointer[c_char, ImmutOrigin.external],
+]
+"""Return the libavcodec license."""
+
+comptime avcodec_alloc_context3 = ExternalFunction[
     "avcodec_alloc_context3",
     fn (
         codec: UnsafePointer[AVCodec, ImmutOrigin.external]
@@ -1685,7 +1890,71 @@ important mainly for encoders, e.g. libx264).
 """
 
 
-comptime _avcodec_open2 = ExternalFunction[
+comptime avcodec_free_context = ExternalFunction[
+    "avcodec_free_context",
+    fn (
+        avctx: UnsafePointer[
+            UnsafePointer[AVCodecContext, MutOrigin.external],
+            MutOrigin.external,
+        ],
+    ),
+]
+"""Free the codec context and everything associated with it and write NULL to
+the provided pointer."""
+
+
+comptime avcodec_get_class = ExternalFunction[
+    "avcodec_get_class",
+    fn () -> UnsafePointer[AVClass, ImmutOrigin.external],
+]
+"""Get the AVClass for AVCodecContext. It can be used in combination with
+AV_OPT_SEARCH_FAKE_OBJ for examining options.
+
+@see av_opt_find().
+"""
+
+comptime avcodec_get_subtitle_rect_class = ExternalFunction[
+    "avcodec_get_subtitle_rect_class",
+    fn () -> UnsafePointer[AVClass, ImmutOrigin.external],
+]
+"""Get the AVClass for AVSubtitleRect. It can be used in combination with
+AV_OPT_SEARCH_FAKE_OBJ for examining options.
+
+@see av_opt_find().
+"""
+
+
+comptime avcodec_parameters_from_context = ExternalFunction[
+    "avcodec_parameters_from_context",
+    fn (
+        par: UnsafePointer[AVCodecParameters, MutOrigin.external],
+        codec: UnsafePointer[AVCodecContext, ImmutOrigin.external],
+    ) -> c_int,
+]
+"""Fill the parameters struct based on the values from the supplied codec 
+context. Any allocated fields in par are freed and replaced with duplicates 
+of the corresponding fields in codec.
+
+@return >= 0 on success, a negative AVERROR code on failure.
+@see avcodec_parameters_to_context()
+"""
+
+comptime avcodec_parameters_to_context = ExternalFunction[
+    "avcodec_parameters_to_context",
+    fn (
+        codec: UnsafePointer[AVCodecContext, MutOrigin.external],
+        par: UnsafePointer[AVCodecParameters, ImmutOrigin.external],
+    ) -> c_int,
+]
+"""Fill the codec context based on the values from the supplied codec parameters. 
+Any allocated fields in codec are freed and replaced with duplicates of the 
+corresponding fields in par.
+
+@return >= 0 on success, a negative AVERROR code on failure.
+@see avcodec_parameters_from_context()
+"""
+
+comptime avcodec_open2 = ExternalFunction[
     "avcodec_open2",
     fn (
         context: UnsafePointer[AVCodecContext, MutOrigin.external],
@@ -1753,52 +2022,111 @@ av_dict_set(), av_opt_set(), av_opt_find(), avcodec_parameters_to_context()
 """
 
 
-comptime av_parser_parse2 = ExternalFunction[
-    "av_parser_parse2",
+comptime avsubtitle_free = ExternalFunction[
+    "avsubtitle_free",
+    fn (sub: UnsafePointer[AVSubtitle, MutOrigin.external],),
+]
+"""Free all allocated data in the given subtitle struct."""
+
+
+comptime avcodec_default_get_buffer2 = ExternalFunction[
+    "avcodec_default_get_buffer2",
     fn (
-        s: UnsafePointer[AVCodecParserContext, MutOrigin.external],
-        avctx: UnsafePointer[AVCodecContext, MutOrigin.external],
-        poutbuf: UnsafePointer[
-            UnsafePointer[c_uchar, MutOrigin.external], MutOrigin.external
-        ],
-        poutbuf_size: UnsafePointer[c_int, MutOrigin.external],
-        buf: UnsafePointer[c_uchar, ImmutOrigin.external],
-        buf_size: c_int,
-        pts: c_long_long,
-        dts: c_long_long,
-        pos: c_long_long,
+        s: UnsafePointer[AVCodecContext, MutOrigin.external],
+        frame: UnsafePointer[AVFrame, MutOrigin.external],
+        flags: c_int,
     ) -> c_int,
 ]
+"""The default callback for AVCodecContext.get_buffer2(). It is made public so
+it can be called by custom get_buffer2() implementations for decoders without 
+AV_CODEC_CAP_DR1 set."""
+
+
+comptime avcodec_default_get_encode_buffer = ExternalFunction[
+    "avcodec_default_get_encode_buffer",
+    fn (
+        s: UnsafePointer[AVCodecContext, MutOrigin.external],
+        pkt: UnsafePointer[AVPacket, MutOrigin.external],
+        flags: c_int,
+    ) -> c_int,
+]
+"""The default callback for AVCodecContext.get_encode_buffer(). It is made public so
+it can be called by custom get_encode_buffer() implementations for encoders without 
+AV_CODEC_CAP_DR1 set."""
+
+
+comptime avcodec_align_dimensions = ExternalFunction[
+    "avcodec_align_dimensions",
+    fn (
+        s: UnsafePointer[AVCodecContext, MutOrigin.external],
+        width: UnsafePointer[c_int, MutOrigin.external],
+        height: UnsafePointer[c_int, MutOrigin.external],
+    ) -> c_int,
+]
+"""Modify width and height values so that they will result in a memory buffer 
+that is acceptable for the codec if you do not use any horizontal padding.
+
+May only be used if a codec with AV_CODEC_CAP_DR1 has been opened.
 """
-Parse a packet.
 
-@param s             parser context.
-@param avctx         codec context.
-@param poutbuf       set to pointer to parsed buffer or NULL if not yet finished.
-@param poutbuf_size  set to size of parsed buffer or zero if not yet finished.
-@param buf           input buffer.
-@param buf_size      buffer size in bytes without the padding. I.e. the full buffer
-                    size is assumed to be buf_size + AV_INPUT_BUFFER_PADDING_SIZE.
-                    To signal EOF, this should be 0 (so that the last frame
-                    can be output).
-@param pts           input presentation timestamp.
-@param dts           input decoding timestamp.
-@param pos           input byte position in stream.
+
+comptime avcodec_align_dimensions2 = ExternalFunction[
+    "avcodec_align_dimensions2",
+    fn (
+        s: UnsafePointer[AVCodecContext, MutOrigin.external],
+        width: UnsafePointer[c_int, MutOrigin.external],
+        height: UnsafePointer[c_int, MutOrigin.external],
+        # TODO: linesize_align should be a StaticTuple[AV_NUM_DATA_POINTERS]
+        # I think? Not sure how this plays
+        # with passed in parameters.
+        linesize_align: UnsafePointer[c_int, MutOrigin.external],
+    ) -> c_int,
+]
+"""Modify width and height values so that they will result in a memory buffer 
+that is acceptable for the codec if you also ensure that all line sizes are a 
+multiple of the respective linesize_align[i].
+
+May only be used if a codec with AV_CODEC_CAP_DR1 has been opened.
+"""
+
+
+comptime avcodec_decode_subtitle2 = ExternalFunction[
+    "avcodec_decode_subtitle2",
+    fn (
+        avctx: UnsafePointer[AVCodecContext, MutOrigin.external],
+        sub: UnsafePointer[AVSubtitle, MutOrigin.external],
+        got_sub_ptr: UnsafePointer[c_int, MutOrigin.external],
+        avpkt: UnsafePointer[AVPacket, ImmutOrigin.external],
+    ) -> c_int,
+]
+"""Decode a subtitle message.
+
+Return a negative value on error, otherwise return the number of bytes used.
+If no subtitle could be decompressed, got_sub_ptr is zero.
+Otherwise, the subtitle is stored in *sub.
+
+Note that AV_CODEC_CAP_DR1 is not available for subtitle codecs. This is for
+simplicity, because the performance difference is expected to be negligible
+and reusing a get_buffer written for video codecs would probably perform badly
+due to a potentially very different allocation pattern.
+
+Some decoders (those marked with AV_CODEC_CAP_DELAY) have a delay between input
+and output. This means that for some packets they will not immediately
+produce decoded output and need to be flushed at the end of decoding to get
+all the decoded data. Flushing is done by calling this function with packets
+with avpkt->data set to NULL and avpkt->size set to 0 until it stops
+returning subtitles. It is safe to flush even those decoders that are not
+marked with AV_CODEC_CAP_DELAY, then no subtitles will be returned.
+
+@note The AVCodecContext MUST have been opened with @ref avcodec_open2()
+before packets may be fed to the decoder.
+
+@param avctx the codec context
+@param[out] sub The preallocated AVSubtitle in which the decoded subtitle will be stored,
+                 must be freed with avsubtitle_free if *got_sub_ptr is set.
+@param[in,out] got_sub_ptr Zero if no subtitle could be decompressed, otherwise, it is nonzero.
+@param[in] avpkt The input AVPacket containing the input buffer.
 @return the number of bytes of the input bitstream used.
-
-Example:
-@code
-while(in_len){
-    len = av_parser_parse2(myparser, AVCodecContext, &data, &size,
-                                        in_data, in_len,
-                                        pts, dts, pos);
-    in_data += len;
-    in_len  -= len;
-
-    if(size)
-        decode_frame(data, size);
-}
-@endcode
 """
 
 comptime avcodec_send_packet = ExternalFunction[
@@ -1864,7 +2192,7 @@ comptime avcodec_receive_frame = ExternalFunction[
 ]
 """Return decoded output data from a decoder or encoder (when the
 @ref AV_CODEC_FLAG_RECON_FRAME flag is used).
- *
+
 @param avctx codec context
 @param frame This will be set to a reference-counted video or audio
             frame (depending on the decoder type) allocated by the
@@ -1882,46 +2210,190 @@ comptime avcodec_receive_frame = ExternalFunction[
 """
 
 
+comptime avcodec_receive_packet = ExternalFunction[
+    "avcodec_receive_packet",
+    fn (
+        avctx: UnsafePointer[AVCodecContext, MutOrigin.external],
+        pkt: UnsafePointer[AVPacket, MutOrigin.external],
+    ) -> c_int,
+]
+"""Read encoded data from the encoder.
+
+@param avctx codec context
+@param pkt This will be set to a reference-counted packet allocated by the
+            codec. Note that the function will always call
+            av_packet_unref(pkt) before doing anything else.
+
+@retval 0               success
+@retval AVERROR(EAGAIN) output is not available in the current state - user must
+                        try to send input
+@retval AVERROR_EOF     the encoder has been fully flushed, and there will be no
+                        more output packets
+@retval AVERROR(EINVAL) codec not opened, or it is a decoder
+@retval "another negative error code" legitimate encoding errors
+"""
+
+
+comptime avcodec_get_hw_frames_parameters = ExternalFunction[
+    "avcodec_get_hw_frames_parameters",
+    fn (
+        avctx: UnsafePointer[AVCodecContext, MutOrigin.external],
+        device_ref: UnsafePointer[AVBufferRef, ImmutOrigin.external],
+        hw_pix_fmt: AVPixelFormat.ENUM_DTYPE,
+        out_frames_ref: UnsafePointer[
+            UnsafePointer[AVBufferRef, MutOrigin.external], MutOrigin.external
+        ],
+    ) -> c_int,
+]
+"""Create and return a AVHWFramesContext with values adequate for hardware
+decoding. This is meant to get called from the get_format callback, and is
+a helper for preparing a AVHWFramesContext for AVCodecContext.hw_frames_ctx.
+This API is for decoding with certain hardware acceleration modes/APIs only.
+
+The returned AVHWFramesContext is not initialized. The caller must do this
+with av_hwframe_ctx_init().
+
+Calling this function is not a requirement, but makes it simpler to avoid
+codec or hardware API specific details when manually allocating frames.
+
+Alternatively to this, an API user can set AVCodecContext.hw_device_ctx,
+which sets up AVCodecContext.hw_frames_ctx fully automatically, and makes
+it unnecessary to call this function or having to care about
+AVHWFramesContext initialization at all.
+
+There are a number of requirements for calling this function:
+
+- It must be called from get_format with the same avctx parameter that was
+passed to get_format. Calling it outside of get_format is not allowed, and
+can trigger undefined behavior.
+- The function is not always supported (see description of return values).
+Even if this function returns successfully, hwaccel initialization could
+fail later. (The degree to which implementations check whether the stream
+is actually supported varies. Some do this check only after the user's
+get_format callback returns.)
+- The hw_pix_fmt must be one of the choices suggested by get_format. If the
+user decides to use a AVHWFramesContext prepared with this API function,
+the user must return the same hw_pix_fmt from get_format.
+- The device_ref passed to this function must support the given hw_pix_fmt.
+- After calling this API function, it is the user's responsibility to
+initialize the AVHWFramesContext (returned by the out_frames_ref parameter),
+and to set AVCodecContext.hw_frames_ctx to it. If done, this must be done
+before returning from get_format (this is implied by the normal
+AVCodecContext.hw_frames_ctx API rules).
+- The AVHWFramesContext parameters may change every time time get_format is
+called. Also, AVCodecContext.hw_frames_ctx is reset before get_format. So
+you are inherently required to go through this process again on every
+get_format call.
+- It is perfectly possible to call this function without actually using
+the resulting AVHWFramesContext. One use-case might be trying to reuse a
+previously initialized AVHWFramesContext, and calling this API function
+only to test whether the required frame parameters have changed.
+- Fields that use dynamically allocated values of any kind must not be set
+by the user unless setting them is explicitly allowed by the documentation.
+If the user sets AVHWFramesContext.free and AVHWFramesContext.user_opaque,
+the new free callback must call the potentially set previous free callback.
+This API call may set any dynamically allocated fields, including the free
+callback.
+
+The function will set at least the following fields on AVHWFramesContext
+(potentially more, depending on hwaccel API):
+
+- All fields set by av_hwframe_ctx_alloc().
+- Set the format field to hw_pix_fmt.
+- Set the sw_format field to the most suited and most versatile format. (An
+implication is that this will prefer generic formats over opaque formats
+with arbitrary restrictions, if possible.)
+- Set the width/height fields to the coded frame size, rounded up to the
+API-specific minimum alignment.
+- Only _if_ the hwaccel requires a pre-allocated pool: set the initial_pool_size
+field to the number of maximum reference surfaces possible with the codec,
+plus 1 surface for the user to work (meaning the user can safely reference
+at most 1 decoded surface at a time), plus additional buffering introduced
+by frame threading. If the hwaccel does not require pre-allocation, the
+field is left to 0, and the decoder will allocate new surfaces on demand
+during decoding.
+- Possibly AVHWFramesContext.hwctx fields, depending on the underlying
+hardware API.
+
+Essentially, out_frames_ref returns the same as av_hwframe_ctx_alloc(), but
+with basic frame parameters set.
+
+The function is stateless, and does not change the AVCodecContext or the
+device_ref AVHWDeviceContext.
+
+@param avctx The context which is currently calling get_format, and which
+            implicitly contains all state needed for filling the returned
+            AVHWFramesContext properly.
+@param device_ref A reference to the AVHWDeviceContext describing the device
+                which will be used by the hardware decoder.
+@param hw_pix_fmt The hwaccel format you are going to return from get_format.
+@param out_frames_ref On success, set to a reference to an _uninitialized_
+                    AVHWFramesContext, created from the given device_ref.
+                    Fields will be set to values required for decoding.
+                    Not changed if an error is returned.
+@return zero on success, a negative value on error. The following error codes
+        have special semantics:
+    AVERROR(ENOENT): the decoder does not support this functionality. Setup
+                    is always manual, or it is a decoder which does not
+                    support setting AVCodecContext.hw_frames_ctx at all,
+                    or it is a software format.
+    AVERROR(EINVAL): it is known that hardware decoding is not supported for
+                    this configuration, or the device_ref is not supported
+                    for the hwaccel referenced by hw_pix_fmt.
+"""
+
+
 @fieldwise_init
 @register_passable("trivial")
-struct AVHWAccel(StructWritable):
-    """Note: Nothing in this structure should be accessed by the user. At some
-    point in future it will not be externally visible at all.
-    """
+struct AVCodecConfig(StructWritable):
+    comptime ENUM_DTYPE = c_int
+    var _value: Self.ENUM_DTYPE
 
-    var name: UnsafePointer[c_char, ImmutOrigin.external]
-    """Name of the hardware accelerated codec.
-    The name is globally unique among encoders and among decoders (but an
-    encoder and a decoder can share the same name).
-    """
-
-    var type: AVMediaType.ENUM_DTYPE
-    """Type of codec implemented by the hardware accelerator.
-    See AVMEDIA_TYPE_xxx.
-    """
-
-    var id: AVCodecID.ENUM_DTYPE
-    """Codec implemented by the hardware accelerator.
-    See AV_CODEC_ID_xxx.
-    """
-
-    var pix_fmt: AVPixelFormat.ENUM_DTYPE
-    """Supported pixel format.
-    Only hardware accelerated formats are supported here.
-    """
-
-    var capabilities: c_int
-    """Hardware accelerated codec capabilities.
-    see AV_HWACCEL_CODEC_CAP_*.
-    """
+    comptime AV_CODEC_CONFIG_PIX_FORMAT = Self(0)
+    """AVPixelFormat, terminated by AV_PIX_FMT_NONE."""
+    comptime AV_CODEC_CONFIG_FRAME_RATE = Self(1)
+    """AVRational, terminated by {0, 0}."""
+    comptime AV_CODEC_CONFIG_SAMPLE_RATE = Self(2)
+    """Int, terminated by 0."""
+    comptime AV_CODEC_CONFIG_SAMPLE_FORMAT = Self(3)
+    """AVSampleFormat, terminated by AV_SAMPLE_FMT_NONE."""
+    comptime AV_CODEC_CONFIG_CHANNEL_LAYOUT = Self(4)
+    """AVChannelLayout, terminated by {0}."""
+    comptime AV_CODEC_CONFIG_COLOR_RANGE = Self(5)
+    """AVColorRange, terminated by AVCOL_RANGE_UNSPECIFIED."""
+    comptime AV_CODEC_CONFIG_COLOR_SPACE = Self(6)
+    """AVColorSpace, terminated by AVCOL_SPC_UNSPECIFIED."""
 
     fn write_to(self, mut writer: Some[Writer], indent: Int):
         var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["name"](self.name)
-        struct_writer.write_field["type"](self.type)
-        struct_writer.write_field["id"](self.id)
-        struct_writer.write_field["pix_fmt"](self.pix_fmt)
-        struct_writer.write_field["capabilities"](self.capabilities)
+        struct_writer.write_field["value"](self._value)
+
+
+comptime avcodec_get_supported_config = ExternalFunction[
+    "avcodec_get_supported_config",
+    fn (
+        avctx: UnsafePointer[AVCodecContext, ImmutOrigin.external],
+        codec: UnsafePointer[AVCodec, ImmutOrigin.external],
+        config: AVCodecConfig.ENUM_DTYPE,
+    ) -> c_int,
+]
+"""Retrieve a list of all supported values for a given configuration type.
+
+@param avctx An optional context to use. Values such as
+              `strict_std_compliance` may affect the result. If NULL,
+              default values are used.
+@param codec The codec to query, or NULL to use avctx->codec.
+@param config The configuration to query.
+@param flags Currently unused; should be set to zero.
+@param out_configs On success, set to a list of configurations, terminated
+                    by a config-specific terminator, or NULL if all
+                    possible values are supported.
+
+
+@param out_num_configs On success, set to the number of elements in
+                          *out_configs, excluding the terminator. Optional.
+@return >= 0 on success, a negative AVERROR code on failure.
+"""
 
 
 @fieldwise_init
@@ -1942,3 +2414,523 @@ struct AVPictureStructure(StructWritable):
     fn write_to(self, mut writer: Some[Writer], indent: Int):
         var struct_writer = StructWriter[Self](writer, indent=indent)
         struct_writer.write_field["value"](self._value)
+
+
+@fieldwise_init
+@register_passable("trivial")
+struct AVCodecParserContext(StructWritable):
+    comptime AV_PARSER_PTS_NB = Int(4)
+    comptime PARSER_FLAG_COMPLETE_FRAMES = Int(0x0001)
+    comptime PARSER_FLAG_ONCE = Int(0x0002)
+    comptime PARSER_FLAG_FETCHED_OFFSET = Int(0x0004)
+    comptime PARSER_FLAG_USE_CODEC_TS = Int(0x1000)
+
+    var priv_data: OpaquePointer[MutOrigin.external]
+    "Private data for use by the parser."
+    var parser: UnsafePointer[AVCodecParser, origin = ImmutOrigin.external]
+    "The parser."
+    var frame_offset: c_long_long
+    "Offset of the current frame."
+    var cur_offset: c_long_long
+    "Current offset. (incremented by each av_parser_parse())."
+    var next_frame_offset: c_long_long
+    "Offset of the next frame."
+    # Video info
+
+    # NOTE: This is a note in the original codebase taking about moving this
+    # field back to AVCodecContext.
+    #  XXX: Put it back in AVCodecContext
+    var pict_type: c_int
+    """This field is used for proper frame duration computation in lavf.
+    It signals, how much longer the frame duration of the current frame
+    is compared to normal frame duration.
+
+    frame_duration = (1 + repeat_pict) * time_base
+
+    It is used by codecs like H.264 to display telecined material.
+    """
+    # XXX: Put it back in AVCodecContext
+    var repeat_pict: c_int
+    "Unclear what this field is for."
+    var pts: c_long_long
+    "PTS of the current frame."
+    var dts: c_long_long
+    "DTS of the current frame."
+    # Private data
+    var last_pts: c_long_long
+    "Last PTS."
+    var last_dts: c_long_long
+    "Last DTS."
+
+    var cur_frame_start_index: c_int
+    "Index of the current frame start."
+    var cur_frame_offset: StaticTuple[c_long_long, Self.AV_PARSER_PTS_NB]
+    "Offset of the current frame."
+    var cur_frame_pts: StaticTuple[c_long_long, Self.AV_PARSER_PTS_NB]
+    "PTS of the current frame."
+    var cur_frame_dts: StaticTuple[c_long_long, Self.AV_PARSER_PTS_NB]
+    "DTS of the current frame."
+    var flags: c_int
+    "Flags."
+    var offset: c_long_long
+    "Byte offset from starting packet start."
+    var cur_frame_end: StaticTuple[c_long_long, Self.AV_PARSER_PTS_NB]
+    "Byte position of currently parsed frame in stream."
+    var key_frame: c_int
+    """Set by parser to 1 for key frames and 0 for non-key frames.
+
+    It is initialized to -1, so if the parser doesn't set this flag,
+    old-style fallback using AV_PICTURE_TYPE_I picture type as key frames
+    will be used.
+    """
+    # Timestamp generation support:
+    var dts_sync_point: c_int
+    """Synchronization point for start of timestamp generation.
+
+    Set to >0 for sync point, 0 for no sync point and <0 for undefined
+    (default).
+
+    For example, this corresponds to presence of H.264 buffering period
+    SEI message.
+    """
+    var dts_ref_dts_delta: c_int
+    """Offset of the current timestamp against last timestamp sync point in
+    units of AVCodecContext.time_base.
+
+    Set to INT_MIN when dts_sync_point unused. Otherwise, it must
+    contain a valid timestamp offset.
+
+    Note that the timestamp of sync point has usually a nonzero
+    dts_ref_dts_delta, which refers to the previous sync point. Offset of
+    the next frame after timestamp sync point will be usually 1.
+
+    For example, this corresponds to H.264 cpb_removal_delay.
+    """
+    var pts_dts_delta: c_int
+    """Presentation delay of current frame in units of AVCodecContext.time_base.
+
+    Set to INT_MIN when dts_sync_point unused. Otherwise, it must
+    contain valid non-negative timestamp delta (presentation time of a frame
+    must not lie in the past).
+
+    This delay represents the difference between decoding and presentation
+    time of the frame.
+
+    For example, this corresponds to H.264 dpb_output_delay.
+    """
+    var cur_frame_pos: StaticTuple[c_long_long, Self.AV_PARSER_PTS_NB]
+    """Position of the packet in file.
+
+    Analogous to cur_frame_pts/dts
+    """
+    var pos: c_long_long
+    """Byte position of currently parsed frame in stream."""
+    var last_pos: c_long_long
+    """Previous frame byte position."""
+    var duration: c_int
+    """Duration of the current frame.
+
+    For audio, this is in units of 1 / AVCodecContext.sample_rate.
+    For all other types, this is in units of AVCodecContext.time_base.
+    """
+    var field_order: AVFieldOrder.ENUM_DTYPE
+
+    var picture_structure: AVPictureStructure.ENUM_DTYPE
+    """Indicate whether a picture is coded as a frame, top field or bottom field.
+
+    For example, H.264 field_pic_flag equal to 0 corresponds to
+    AV_PICTURE_STRUCTURE_FRAME. An H.264 picture with field_pic_flag
+    equal to 1 and bottom_field_flag equal to 0 corresponds to
+    AV_PICTURE_STRUCTURE_TOP_FIELD.
+    """
+    var output_picture_number: c_int
+    """Picture number incremented in presentation or output order.
+    This field may be reinitialized at the first picture of a new sequence.
+
+    For example, this corresponds to H.264 PicOrderCnt.
+    """
+    var width: c_int
+    "Dimensions of the decoded video intended for presentation."
+    var height: c_int
+    "Dimensions of the decoded video intended for presentation."
+
+    var coded_width: c_int
+    "Dimensions of the coded video."
+    var coded_height: c_int
+    "Dimensions of the coded video."
+    var format: c_int
+    """The format of the coded data, corresponds to enum AVPixelFormat for video
+    and for enum AVSampleFormat for audio.
+
+    Note that a decoder can have considerable freedom in how exactly it
+    decodes the data, so the format reported here might be different from the
+    one returned by a decoder.
+    """
+
+    fn write_to(self, mut writer: Some[Writer], indent: Int):
+        var struct_writer = StructWriter[Self](writer, indent=indent)
+        struct_writer.write_field["priv_data"](self.priv_data)
+        struct_writer.write_field["parser"](self.parser)
+        struct_writer.write_field["frame_offset"](self.frame_offset)
+        struct_writer.write_field["cur_offset"](self.cur_offset)
+        struct_writer.write_field["next_frame_offset"](self.next_frame_offset)
+        struct_writer.write_field["pict_type"](self.pict_type)
+        struct_writer.write_field["repeat_pict"](self.repeat_pict)
+        struct_writer.write_field["pts"](self.pts)
+        struct_writer.write_field["dts"](self.dts)
+        struct_writer.write_field["last_pts"](self.last_pts)
+        struct_writer.write_field["last_dts"](self.last_dts)
+        struct_writer.write_field["cur_frame_start_index"](
+            self.cur_frame_start_index
+        )
+        struct_writer.write_field["cur_frame_offset"](
+            "StaticTuple[c_long_long, Self.AV_PARSER_PTS_NB]"
+        )
+        struct_writer.write_field["cur_frame_pts"](
+            "StaticTuple[c_long_long, Self.AV_PARSER_PTS_NB]"
+        )
+        struct_writer.write_field["cur_frame_dts"](
+            "StaticTuple[c_long_long, Self.AV_PARSER_PTS_NB]"
+        )
+        struct_writer.write_field["flags"](self.flags)
+        struct_writer.write_field["offset"](self.offset)
+        struct_writer.write_field["cur_frame_end"](
+            "StaticTuple[c_long_long, Self.AV_PARSER_PTS_NB]"
+        )
+        struct_writer.write_field["key_frame"](self.key_frame)
+        struct_writer.write_field["dts_sync_point"](self.dts_sync_point)
+        struct_writer.write_field["dts_ref_dts_delta"](self.dts_ref_dts_delta)
+
+
+@fieldwise_init
+@register_passable("trivial")
+struct AVCodecParser(StructWritable):
+    var codec_ids: StaticTuple[c_int, 7]
+    "Several codec IDs are permitted."
+    var priv_data_size: c_int
+    "Size of the private data."
+    var parser_init: fn (
+        s: UnsafePointer[AVCodecParserContext, MutOrigin.external]
+    ) -> c_int
+    "Parser initialization function."
+    var parser_parse: fn (
+        s: UnsafePointer[AVCodecParserContext, MutOrigin.external],
+        avctx: UnsafePointer[AVCodecContext, MutOrigin.external],
+        poutbuf: UnsafePointer[
+            UnsafePointer[c_char, ImmutOrigin.external], ImmutOrigin.external
+        ],
+        poutbuf_size: UnsafePointer[c_int, ImmutOrigin.external],
+        buf: UnsafePointer[c_char, ImmutOrigin.external],
+        buf_size: c_int,
+    ) -> c_int
+    """This callback never returns an error, a negative value means that
+    the frame start was in a previous packet.
+    """
+    var parser_close: fn (
+        s: UnsafePointer[AVCodecParserContext, MutOrigin.external]
+    ) -> NoneType
+    "Parser close function."
+    var split: fn (
+        avctx: UnsafePointer[AVCodecContext, MutOrigin.external],
+        buf: UnsafePointer[c_char, ImmutOrigin.external],
+        buf_size: c_int,
+    ) -> c_int
+    "Parser split function."
+
+    fn write_to(self, mut writer: Some[Writer], indent: Int):
+        var struct_writer = StructWriter[Self](writer, indent=indent)
+        struct_writer.write_field["codec_ids"]("StaticTuple[c_int, 7]")
+        struct_writer.write_field["priv_data_size"](self.priv_data_size)
+        struct_writer.write_field["parser_init"]("function pointer")
+        struct_writer.write_field["parser_parse"]("function pointer")
+        struct_writer.write_field["parser_close"]("function pointer")
+        struct_writer.write_field["split"]("function pointer")
+
+
+comptime av_parser_iterate = ExternalFunction[
+    "av_parser_iterate",
+    fn (
+        opaque: OpaquePointer[MutOrigin.external],
+    ) -> UnsafePointer[AVCodecParser, ImmutOrigin.external],
+]
+"""Iterate over all registered codec parsers.
+
+@param opaque a pointer where libavcodec will store the iteration state. Must
+              point to NULL to start the iteration.
+@return the next registered codec parser or NULL when the iteration is
+        finished
+"""
+
+
+comptime av_parser_init = ExternalFunction[
+    "av_parser_init",
+    fn (
+        codec_id: AVCodecID.ENUM_DTYPE,
+    ) -> UnsafePointer[AVCodecParserContext, MutOrigin.external],
+]
+
+
+comptime av_parser_parse2 = ExternalFunction[
+    "av_parser_parse2",
+    fn (
+        s: UnsafePointer[AVCodecParserContext, MutOrigin.external],
+        avctx: UnsafePointer[AVCodecContext, MutOrigin.external],
+        poutbuf: UnsafePointer[
+            UnsafePointer[c_uchar, MutOrigin.external], MutOrigin.external
+        ],
+        poutbuf_size: UnsafePointer[c_int, MutOrigin.external],
+        buf: UnsafePointer[c_uchar, ImmutOrigin.external],
+        buf_size: c_int,
+        pts: c_long_long,
+        dts: c_long_long,
+        pos: c_long_long,
+    ) -> c_int,
+]
+"""
+Parse a packet.
+
+@param s             parser context.
+@param avctx         codec context.
+@param poutbuf       set to pointer to parsed buffer or NULL if not yet finished.
+@param poutbuf_size  set to size of parsed buffer or zero if not yet finished.
+@param buf           input buffer.
+@param buf_size      buffer size in bytes without the padding. I.e. the full buffer
+                    size is assumed to be buf_size + AV_INPUT_BUFFER_PADDING_SIZE.
+                    To signal EOF, this should be 0 (so that the last frame
+                    can be output).
+@param pts           input presentation timestamp.
+@param dts           input decoding timestamp.
+@param pos           input byte position in stream.
+@return the number of bytes of the input bitstream used.
+
+Example:
+@code
+while(in_len){
+    len = av_parser_parse2(myparser, AVCodecContext, &data, &size,
+                                        in_data, in_len,
+                                        pts, dts, pos);
+    in_data += len;
+    in_len  -= len;
+
+    if(size)
+        decode_frame(data, size);
+}
+@endcode
+"""
+
+
+comptime av_parser_close = ExternalFunction[
+    "av_parser_close",
+    fn (
+        s: UnsafePointer[AVCodecParserContext, MutOrigin.external],
+    ) -> NoneType,
+]
+"""Close a parser."""
+
+
+comptime avcodec_encode_subtitle = ExternalFunction[
+    "avcodec_encode_subtitle",
+    fn (
+        avctx: UnsafePointer[AVCodecContext, MutOrigin.external],
+        buf: UnsafePointer[c_uchar, MutOrigin.external],
+        buf_size: c_int,
+        sub: UnsafePointer[AVSubtitle, ImmutOrigin.external],
+    ) -> c_int,
+]
+"""Encode a subtitle message."""
+
+
+comptime avcodec_pix_fmt_to_codec_tag = ExternalFunction[
+    "avcodec_pix_fmt_to_codec_tag",
+    fn (pix_fmt: AVPixelFormat.ENUM_DTYPE,) -> c_int,
+]
+"""Return a value representing the fourCC code associated to the
+pixel format pix_fmt, or 0 if no associated fourCC code can be found."""
+
+
+comptime avcodec_find_best_pix_fmt_of_list = ExternalFunction[
+    "avcodec_find_best_pix_fmt_of_list",
+    fn (
+        pix_fmt_list: UnsafePointer[
+            AVPixelFormat.ENUM_DTYPE, ImmutOrigin.external
+        ],
+        src_pix_fmt: AVPixelFormat.ENUM_DTYPE,
+        has_alpha: c_int,
+        loss_ptr: UnsafePointer[c_int, MutOrigin.external],
+    ) -> AVPixelFormat.ENUM_DTYPE,
+]
+"""Find the best pixel format to convert to given a certain source pixel format.
+When converting from one pixel format to another, information loss may occur.
+For example, when converting from RGB24 to GRAY, the color information will
+be lost. Similarly, other losses occur when converting from some formats to
+other formats. This function finds which of the given pixel formats should be
+used to suffer the least amount of loss.
+The pixel formats from which it chooses one, are determined by the
+pix_fmt_list parameter.
+
+@param pix_fmt_list AV_PIX_FMT_NONE terminated array of pixel formats to choose from
+@param src_pix_fmt source pixel format
+@param has_alpha Whether the source pixel format alpha channel is used.
+@param loss_ptr Combination of flags informing you what kind of losses will occur.
+@return The best pixel format to convert to or -1 if none was found.
+"""
+
+
+comptime avcodec_default_get_format = ExternalFunction[
+    "avcodec_default_get_format",
+    fn (
+        s: UnsafePointer[AVCodecContext, MutOrigin.external],
+        fmt: UnsafePointer[AVPixelFormat.ENUM_DTYPE, ImmutOrigin.external],
+    ) -> AVPixelFormat.ENUM_DTYPE,
+]
+
+
+comptime avcodec_string = ExternalFunction[
+    "avcodec_string",
+    fn (
+        buf: UnsafePointer[c_char, MutOrigin.external],
+        buf_size: c_int,
+        enc: UnsafePointer[AVCodecContext, ImmutOrigin.external],
+        encode: c_int,
+    ),
+]
+
+
+comptime avcodec_default_execute = ExternalFunction[
+    "avcodec_default_execute",
+    fn (
+        c: UnsafePointer[AVCodecContext, MutOrigin.external],
+        func: fn (
+            UnsafePointer[AVCodecContext, MutOrigin.external],
+            OpaquePointer[MutOrigin.external],
+        ) -> c_int,
+        arg: OpaquePointer[MutOrigin.external],
+        ret: UnsafePointer[c_int, MutOrigin.external],
+        count: c_int,
+        size: c_int,
+    ) -> c_int,
+]
+comptime avcodec_default_execute2 = ExternalFunction[
+    "avcodec_default_execute2",
+    fn (
+        c: UnsafePointer[AVCodecContext, MutOrigin.external],
+        func: fn (
+            UnsafePointer[AVCodecContext, MutOrigin.external],
+            OpaquePointer[MutOrigin.external],
+            c_int,
+            c_int,
+        ) -> c_int,
+        arg: OpaquePointer[MutOrigin.external],
+        ret: UnsafePointer[c_int, MutOrigin.external],
+        count: c_int,
+    ) -> c_int,
+]
+
+
+comptime avcodec_fill_audio_frame = ExternalFunction[
+    "avcodec_fill_audio_frame",
+    fn (
+        frame: UnsafePointer[AVFrame, MutOrigin.external],
+        nb_channels: c_int,
+        sample_fmt: AVSampleFormat.ENUM_DTYPE,
+        buf: UnsafePointer[c_uchar, MutOrigin.external],
+        buf_size: c_int,
+        align: c_int,
+    ) -> c_int,
+]
+"""Fill audio frame data and linesize pointers.
+
+The buffer buf must be a preallocated buffer with a size big enough
+to contain the specified samples amount. The filled AVFrame data
+pointers will point to this buffer.
+
+AVFrame extended_data channel pointers are allocated if necessary for
+planar audio.
+
+@param frame       the AVFrame
+                    frame->nb_samples must be set prior to calling the
+                    function. This function fills in frame->data,
+                    frame->extended_data, frame->linesize[0].
+@param nb_channels channel count
+@param sample_fmt  sample format
+@param buf         buffer to use for frame data
+@param buf_size    size of buffer
+@param align       plane size sample alignment (0 = default)
+@return            >=0 on success, negative error code on failure
+@todo return the size in bytes required to store the samples in
+case of success, at the next libavutil bump
+"""
+
+
+comptime avcodec_flush_buffers = ExternalFunction[
+    "avcodec_flush_buffers",
+    fn (avctx: UnsafePointer[AVCodecContext, MutOrigin.external],) -> NoneType,
+]
+"""Reset the internal codec state / flush internal buffers. Should be called
+e.g. when seeking or when switching to a different stream.
+
+@note for decoders, this function just releases any references the decoder
+might keep internally, but the caller's references remain valid.
+
+@note for encoders, this function will only do something if the encoder
+declares support for AV_CODEC_CAP_ENCODER_FLUSH. When called, the encoder
+will drain any remaining packets, and can then be reused for a different
+stream (as opposed to sending a null frame which will leave the encoder
+in a permanent EOF state after draining). This can be desirable if the
+cost of tearing down and replacing the encoder instance is high.
+"""
+
+comptime av_get_audio_frame_duration = ExternalFunction[
+    "av_get_audio_frame_duration",
+    fn (
+        avctx: UnsafePointer[AVCodecContext, ImmutOrigin.external],
+        frame_bytes: c_int,
+    ) -> c_int,
+]
+"""Return audio frame duration.
+
+@param avctx        codec context
+@param frame_bytes  size of the frame, or 0 if unknown
+@return             frame duration, in samples, if known. 0 if not able to
+                    determine.
+"""
+
+
+comptime av_fast_padded_malloc = ExternalFunction[
+    "av_fast_padded_malloc",
+    fn (
+        ptr: OpaquePointer[MutOrigin.external],
+        size: UnsafePointer[c_int, MutOrigin.external],
+        min_size: c_size_t,
+    ) -> NoneType,
+]
+"""Same behaviour av_fast_malloc but the buffer has additional 
+AV_INPUT_BUFFER_PADDING_SIZE at the end which will always be 0.
+In addition the whole buffer will initially and after resizes be 0-initialized 
+so that no uninitialized data will ever appear.
+
+@param ptr pointer to a pointer to allocate, may be NULL
+@param size pointer to size of allocation, updated to reflect the size of the 
+allocated buffer
+@param min_size minimum size to allocate
+@return 0 on success, a negative error code on failure
+"""
+
+
+comptime av_fast_padded_mallocz = ExternalFunction[
+    "av_fast_padded_mallocz",
+    fn (
+        ptr: OpaquePointer[MutOrigin.external],
+        size: UnsafePointer[c_int, MutOrigin.external],
+        min_size: c_size_t,
+    ) -> NoneType,
+]
+"""Same behaviour av_fast_padded_malloc except that buffer will always be 
+0-initialized after call."""
+
+
+comptime avcodec_is_open = ExternalFunction[
+    "avcodec_is_open",
+    fn (avctx: UnsafePointer[AVCodecContext, ImmutOrigin.external],) -> c_int,
+]
+"""Return a positive value if s is open (i.e. avcodec_open2() was called on it), 0 otherwise."""

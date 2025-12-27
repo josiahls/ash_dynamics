@@ -10,12 +10,12 @@ from os.env import getenv
 import os
 from ash_dynamics.ffmpeg.avcodec.packet import AVPacket, _av_packet_alloc
 from ash_dynamics.ffmpeg.avcodec.allcodecs import _avcodec_find_decoder
-from ash_dynamics.ffmpeg.avcodec.av_codec_parser import _av_parser_init
 from ash_dynamics.ffmpeg.avutil.frame import _av_frame_alloc
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 from ash_dynamics.ffmpeg.avcodec.avcodec import (
-    _avcodec_alloc_context3,
-    _avcodec_open2,
+    avcodec_alloc_context3,
+    av_parser_init,
+    avcodec_open2,
     av_parser_parse2,
     avcodec_send_packet,
     avcodec_receive_frame,
@@ -42,11 +42,11 @@ struct Avcodec:
     # and raises an error.
     var avcodec_find_decoder: _avcodec_find_decoder.type
 
-    var av_parser_init: _av_parser_init.type
+    var av_parser_init: av_parser_init.type
 
-    var avcodec_alloc_context3: _avcodec_alloc_context3.type
+    var avcodec_alloc_context3: avcodec_alloc_context3.type
 
-    var avcodec_open2: _avcodec_open2.type
+    var avcodec_open2: avcodec_open2.type
 
     var av_parser_parse2: av_parser_parse2.type
 
@@ -68,9 +68,9 @@ struct Avcodec:
         self.lib = OwnedDLHandle("{}/libavcodec.so".format(so_install_prefix))
         self.av_packet_alloc = _av_packet_alloc.load(self.lib)
         self.avcodec_find_decoder = _avcodec_find_decoder.load(self.lib)
-        self.av_parser_init = _av_parser_init.load(self.lib)
-        self.avcodec_alloc_context3 = _avcodec_alloc_context3.load(self.lib)
-        self.avcodec_open2 = _avcodec_open2.load(self.lib)
+        self.av_parser_init = av_parser_init.load(self.lib)
+        self.avcodec_alloc_context3 = avcodec_alloc_context3.load(self.lib)
+        self.avcodec_open2 = avcodec_open2.load(self.lib)
         self.av_parser_parse2 = av_parser_parse2.load(self.lib)
         self.avcodec_send_packet = avcodec_send_packet.load(self.lib)
         self.av_frame_alloc = _av_frame_alloc.load(self.lib)
