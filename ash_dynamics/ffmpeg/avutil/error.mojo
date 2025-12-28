@@ -2,6 +2,7 @@ from sys.ffi import c_int
 from ash_dynamics.ffmpeg.avutil import avconfig
 from ash_dynamics.ffmpeg.avutil.macros import MKTAG
 from utils import Variant
+from ash_dynamics.primitives._clib import ExternalFunction
 
 
 # NOTE: There is a macro conditional: EDOM > 0. Not sure if we need to do this.
@@ -26,7 +27,7 @@ __extension Variant:
 
 @always_inline
 fn FFERRTAG(a: IntOrStr, b: IntOrStr, c: IntOrStr, d: IntOrStr) -> Int:
-    return -MKTAG(a.get_int(), b.get_int(), d.get_int(), c.get_int())
+    return -MKTAG(a.get_int(), b.get_int(), c.get_int(), d.get_int())
 
 
 comptime AVERROR_BSF_NOT_FOUND = FFERRTAG(0xF8, "B", "S", "F")
@@ -119,3 +120,13 @@ comptime AVERROR_HTTP_SERVER_ERROR = FFERRTAG(0xF8, "5", "X", "X")
 "HTTP/1.1 5XX Server Error reply"
 
 comptime AV_ERROR_MAX_STRING_SIZE = 64
+
+
+comptime av_strerror = ExternalFunction[
+    "av_strerror",
+    fn (
+        err: c_int,
+        errbuf: UnsafePointer[c_char, MutAnyOrigin],
+        errbuf_size: c_int,
+    ) -> c_int,
+]

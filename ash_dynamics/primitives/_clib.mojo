@@ -4,6 +4,15 @@ from utils import StaticTuple
 from sys.intrinsics import _type_is_eq
 from builtin.rebind import downcast
 from compile.reflection import get_type_name
+from compile.reflection import (
+    get_struct_field_count,
+    get_struct_field_types,
+    get_struct_field_names,
+    struct_field_types,
+)
+
+
+comptime c_ptrdiff_t = c_long_long
 
 
 struct ExternalFunction[
@@ -117,14 +126,18 @@ struct StructWriter[
         T: Writable,
         deprecated: Bool = False,
     ](mut self, value: UnsafePointer[T, _]):
-        comptime not_conform_message: StaticString = name + " does not conform to StructWritable"
-        comptime null_pointer_message: StaticString = "None"
+        comptime not_conform_message: StaticString = rebind[StaticString](
+            name + " does not conform to StructWritable"
+        )
+        comptime null_pointer_message: StaticString = "Null Ptr"
         if value:
 
             @parameter
             if conforms_to(T, StructWritable):
-                comptime struct_message: StaticString = name + " (struct)"
-                self._fmt(StringSlice(struct_message), "")
+                comptime struct_message: StaticString = rebind[StaticString](
+                    name + " (struct)"
+                )
+                self._fmt(StringSlice(struct_message), String(value))
                 trait_downcast[StructWritable](value[]).write_to(
                     self.writer[], indent=self.indent + 1
                 )
@@ -133,12 +146,16 @@ struct StructWriter[
         else:
             if deprecated:
                 self._fmt(name, null_pointer_message + " (deprecated)")
+            else:
+                self._fmt(name, null_pointer_message)
 
     fn write_field[name: StaticString, T: Writable](mut self, value: T):
         @parameter
         if conforms_to(T, StructWritable):
-            comptime struct_message: StaticString = name + " (struct)"
-            self._fmt(StringSlice(struct_message), "")
+            comptime msg: StaticString = rebind[StaticString](
+                name + " (struct)"
+            )
+            self._fmt(StringSlice(msg), "")
             trait_downcast[StructWritable](value).write_to(
                 self.writer[], indent=self.indent + 1
             )
@@ -193,3 +210,25 @@ struct TrivialOptionalField[active: Bool, ElementType: AnyTrivialRegType](
             Self.active, "Field is not active, you should not access it."
         ]()
         return self.field[0]
+
+
+trait Debug:
+    fn debug(self):
+        print(get_type_name[Self]() + ":")
+
+        @parameter
+        for i in range(get_struct_field_count[Self]()):
+            comptime field_type = struct_field_types[Self]()[i]
+            comptime field_name = get_struct_field_names[Self]()[i]
+            if conforms_to(field_type, Stringable):
+                var field_ref = __mlir_op.`kgen.struct.extract`[
+                    _type=field_type,
+                    index = __mlir_attr[i._mlir_value, `:index`],
+                ](self)
+
+                print(
+                    "\t"
+                    + field_name
+                    + ": "
+                    + trait_downcast[Stringable](field_ref).__str__()
+                )

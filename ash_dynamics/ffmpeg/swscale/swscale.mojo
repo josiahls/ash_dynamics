@@ -10,7 +10,7 @@ from sys.ffi import (
 )
 from sys._libc import dup, fclose, fdopen, fflush, FILE_ptr
 from utils import StaticTuple
-from ash_dynamics.primitives._clib import C_Union
+from ash_dynamics.primitives._clib import C_Union, ExternalFunction
 from ash_dynamics.ffmpeg.avutil.frame import AVFrame
 from ash_dynamics.ffmpeg.avcodec.codec import AVCodec
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
@@ -46,15 +46,16 @@ from ash_dynamics.ffmpeg.avutil.iamf import (
 )
 
 
-comptime swscale_version = fn () -> c_uint
+comptime swscale_version = ExternalFunction["swscale_version", fn () -> c_uint]
 """Return the libswscale version.
 
 Returns:
 - Return the LIBSWSCALE_VERSION_INT constant.
 """
 
-comptime swscale_configuration = fn () -> UnsafePointer[
-    c_char, ImmutOrigin.external
+comptime swscale_configuration = ExternalFunction[
+    "swscale_configuration",
+    fn () -> UnsafePointer[c_char, ImmutOrigin.external],
 ]
 """Return the libswscale build-time configuration.
 
@@ -62,14 +63,18 @@ Returns:
 - Return the FFMPEG_CONFIGURATION constant.
 """
 
-comptime swscale_license = fn () -> UnsafePointer[c_char, ImmutOrigin.external]
+comptime swscale_license = ExternalFunction[
+    "swscale_license", fn () -> UnsafePointer[c_char, ImmutOrigin.external]
+]
 """Return the libswscale license.
 
 Returns:
 - Return the FFMPEG_LICENSE constant.
 """
 
-comptime sws_get_class = fn () -> UnsafePointer[AVClass, ImmutOrigin.external]
+comptime sws_get_class = ExternalFunction[
+    "sws_get_class", fn () -> UnsafePointer[AVClass, ImmutOrigin.external]
+]
 """Get the AVClass for SwsContext. It can be used in combination with
 AV_OPT_SEARCH_FAKE_OBJ for examining options.
 
@@ -267,10 +272,13 @@ struct SwsContext:
 ####################################################
 
 
-comptime sws_test_format = fn (
-    format: AVPixelFormat.ENUM_DTYPE,
-    output: c_int,
-) -> c_int
+comptime sws_test_format = ExternalFunction[
+    "sws_test_format",
+    fn (
+        format: AVPixelFormat.ENUM_DTYPE,
+        output: c_int,
+    ) -> c_int,
+]
 """Test if a given pixel format is supported.
 
 Arguments:
@@ -282,10 +290,13 @@ Returns:
 - A positive integer if supported, 0 otherwise.
 """
 
-comptime sws_test_colorspace = fn (
-    colorspace: AVColorSpace.ENUM_DTYPE,
-    output: c_int,
-) -> c_int
+comptime sws_test_colorspace = ExternalFunction[
+    "sws_test_colorspace",
+    fn (
+        colorspace: AVColorSpace.ENUM_DTYPE,
+        output: c_int,
+    ) -> c_int,
+]
 """Test if a given color space is supported.
 
 Arguments:
@@ -297,10 +308,13 @@ Returns:
 - A positive integer if supported, 0 otherwise.
 """
 
-comptime sws_test_primaries = fn (
-    primaries: AVColorPrimaries.ENUM_DTYPE,
-    output: c_int,
-) -> c_int
+comptime sws_test_primaries = ExternalFunction[
+    "sws_test_primaries",
+    fn (
+        primaries: AVColorPrimaries.ENUM_DTYPE,
+        output: c_int,
+    ) -> c_int,
+]
 """Test if a given set of color primaries is supported.
 
 Arguments:
@@ -312,10 +326,13 @@ Returns:
 - A positive integer if supported, 0 otherwise.
 """
 
-comptime sws_test_transfer = fn (
-    transfer: AVColorTransferCharacteristic.ENUM_DTYPE,
-    output: c_int,
-) -> c_int
+comptime sws_test_transfer = ExternalFunction[
+    "sws_test_transfer",
+    fn (
+        transfer: AVColorTransferCharacteristic.ENUM_DTYPE,
+        output: c_int,
+    ) -> c_int,
+]
 """Test if a given color transfer function is supported.
 
 Arguments:
@@ -327,20 +344,26 @@ Returns:
 - A positive integer if supported, 0 otherwise.
 """
 
-comptime sws_test_frame = fn (
-    frame: UnsafePointer[AVFrame, ImmutOrigin.external],
-    output: c_int,
-) -> c_int
+comptime sws_test_frame = ExternalFunction[
+    "sws_test_frame",
+    fn (
+        frame: UnsafePointer[AVFrame, ImmutOrigin.external],
+        output: c_int,
+    ) -> c_int,
+]
 """Helper function to run all sws_test_* against a frame, as well as testing
 the basic frame properties for sanity. Ignores irrelevant properties - for
 example, AVColorSpace is not checked for RGB frames.
 """
 
-comptime sws_frame_setup = fn (
-    ctx: UnsafePointer[SwsContext, MutOrigin.external],
-    dst: UnsafePointer[AVFrame, ImmutOrigin.external],
-    src: UnsafePointer[AVFrame, ImmutOrigin.external],
-) -> c_int
+comptime sws_frame_setup = ExternalFunction[
+    "sws_frame_setup",
+    fn (
+        ctx: UnsafePointer[SwsContext, MutOrigin.external],
+        dst: UnsafePointer[AVFrame, ImmutOrigin.external],
+        src: UnsafePointer[AVFrame, ImmutOrigin.external],
+    ) -> c_int,
+]
 """Like `sws_scale_frame`, but without actually scaling. It will instead
 merely initialize internal state that *would* be required to perform the
 operation, as well as returning the correct error code for unsupported
@@ -359,19 +382,25 @@ Returns:
 # Main scaling API #
 ####################################################
 
-comptime sws_is_noop = fn (
-    dst: UnsafePointer[AVFrame, ImmutOrigin.external],
-    src: UnsafePointer[AVFrame, ImmutOrigin.external],
-) -> c_int
+comptime sws_is_noop = ExternalFunction[
+    "sws_is_noop",
+    fn (
+        dst: UnsafePointer[AVFrame, ImmutOrigin.external],
+        src: UnsafePointer[AVFrame, ImmutOrigin.external],
+    ) -> c_int,
+]
 """Check if a given conversion is a noop. Returns a positive integer if
 no operation needs to be performed, 0 otherwise.
 """
 
-comptime sws_scale_frame = fn (
-    ctx: UnsafePointer[SwsContext, MutOrigin.external],
-    dst: UnsafePointer[AVFrame, MutOrigin.external],
-    src: UnsafePointer[AVFrame, ImmutOrigin.external],
-) -> c_int
+comptime sws_scale_frame = ExternalFunction[
+    "sws_scale_frame",
+    fn (
+        ctx: UnsafePointer[SwsContext, MutOrigin.external],
+        dst: UnsafePointer[AVFrame, MutOrigin.external],
+        src: UnsafePointer[AVFrame, ImmutOrigin.external],
+    ) -> c_int,
+]
 """Scale source data from `src` and write the output to `dst`.
 
 This function can be used directly on an allocated context, without setting
@@ -416,8 +445,9 @@ comptime SWS_CS_SMPTE240M = 7
 comptime SWS_CS_DEFAULT = 5
 comptime SWS_CS_BT2020 = 9
 
-comptime sws_get_coefficients = fn (colorspace: c_int,) -> UnsafePointer[
-    c_int, ImmutOrigin.external
+comptime sws_get_coefficients = ExternalFunction[
+    "sws_get_coefficients",
+    fn (colorspace: c_int,) -> UnsafePointer[c_int, ImmutOrigin.external],
 ]
 """Return a pointer to yuv<->rgb coefficients for the given colorspace
 suitable for sws_setColorspaceDetails().
@@ -454,23 +484,24 @@ struct SwsFilter:
     var chrV: UnsafePointer[SwsVector, ImmutOrigin.external]
 
 
-comptime sws_is_supported_input = fn (
-    pix_fmt: AVPixelFormat.ENUM_DTYPE,
-) -> c_int
+comptime sws_is_supported_input = ExternalFunction[
+    "sws_is_supported_input", fn (pix_fmt: AVPixelFormat.ENUM_DTYPE,) -> c_int
+]
 """Return a positive value if pix_fmt is a supported input format, 0
 otherwise.
 """
 
-comptime sws_is_supported_output = fn (
-    pix_fmt: AVPixelFormat.ENUM_DTYPE,
-) -> c_int
+comptime sws_is_supported_output = ExternalFunction[
+    "sws_is_supported_output", fn (pix_fmt: AVPixelFormat.ENUM_DTYPE,) -> c_int
+]
 """Return a positive value if pix_fmt is a supported output format, 0
 otherwise.
 """
 
-comptime sws_isSupportedEndiannessConversion = fn (
-    pix_fmt: AVPixelFormat.ENUM_DTYPE,
-) -> c_int
+comptime sws_isSupportedEndiannessConversion = ExternalFunction[
+    "sws_isSupportedEndiannessConversion",
+    fn (pix_fmt: AVPixelFormat.ENUM_DTYPE,) -> c_int,
+]
 """
 Arguments:
 - pix_fmt: The pixel format to check.
@@ -479,11 +510,14 @@ Returns:
 - A positive integer if an endianness conversion for pix_fmt is supported, 0 otherwise.
 """
 
-comptime sws_init_context = fn (
-    ctx: UnsafePointer[SwsContext, MutOrigin.external],
-    srcFilter: UnsafePointer[SwsFilter, MutOrigin.external],
-    dstFilter: UnsafePointer[SwsFilter, MutOrigin.external],
-) -> c_int
+comptime sws_init_context = ExternalFunction[
+    "sws_init_context",
+    fn (
+        ctx: UnsafePointer[SwsContext, MutOrigin.external],
+        srcFilter: UnsafePointer[SwsFilter, MutOrigin.external],
+        dstFilter: UnsafePointer[SwsFilter, MutOrigin.external],
+    ) -> c_int,
+]
 """Initialize the scaling context.
 
 This function is considered deprecated, and provided only for backwards
@@ -500,9 +534,9 @@ Returns:
 - 0 on success, a negative AVERROR code on failure.
 """
 
-comptime sws_free_context = fn (
-    ctx: UnsafePointer[SwsContext, MutOrigin.external],
-)
+comptime sws_free_context = ExternalFunction[
+    "sws_free_context", fn (ctx: UnsafePointer[SwsContext, MutOrigin.external],)
+]
 """Free the scaling context.
 
 If ctx is NULL, then does nothing.
@@ -511,18 +545,21 @@ Arguments:
 - ctx: The scaling context.
 """
 
-comptime sws_getContext = fn (
-    srcW: c_int,
-    srcH: c_int,
-    srcFormat: AVPixelFormat.ENUM_DTYPE,
-    dstW: c_int,
-    dstH: c_int,
-    dstFormat: AVPixelFormat.ENUM_DTYPE,
-    flags: c_int,
-    srcFilter: UnsafePointer[SwsFilter, MutOrigin.external],
-    dstFilter: UnsafePointer[SwsFilter, MutOrigin.external],
-    param: UnsafePointer[c_double, ImmutOrigin.external],
-) -> UnsafePointer[SwsContext, ImmutOrigin.external]
+comptime sws_getContext = ExternalFunction[
+    "sws_getContext",
+    fn (
+        srcW: c_int,
+        srcH: c_int,
+        srcFormat: AVPixelFormat.ENUM_DTYPE,
+        dstW: c_int,
+        dstH: c_int,
+        dstFormat: AVPixelFormat.ENUM_DTYPE,
+        flags: c_int,
+        srcFilter: UnsafePointer[SwsFilter, MutOrigin.external],
+        dstFilter: UnsafePointer[SwsFilter, MutOrigin.external],
+        param: UnsafePointer[c_double, ImmutOrigin.external],
+    ) -> UnsafePointer[SwsContext, MutOrigin.external],
+]
 """Allocate and return an SwsContext. You need it to perform
 scaling/conversion operations using sws_scale().
 
@@ -547,23 +584,26 @@ Returns:
       written
 """
 
-comptime sws_scale = fn (
-    ctx: UnsafePointer[SwsContext, MutOrigin.external],
-    # NOTE: This is a const pointer to an array. I think this is "ok"
-    srcSlice: UnsafePointer[
-        UnsafePointer[c_uchar, ImmutOrigin.external], ImmutOrigin.external
-    ],
-    # NOTE: This is a const pointer to an array. I think this is "ok"
-    srcStride: UnsafePointer[c_int, ImmutOrigin.external],
-    srcSliceY: c_int,
-    srcSliceH: c_int,
-    # NOTE: This is a pointer to an array. I think this is "ok"
-    dst: UnsafePointer[
-        UnsafePointer[c_uchar, MutOrigin.external], MutOrigin.external
-    ],
-    # NOTE: This is a const pointer to an array. I think this is "ok"
-    dstStride: UnsafePointer[c_int, ImmutOrigin.external],
-) -> c_int
+comptime sws_scale = ExternalFunction[
+    "sws_scale",
+    fn (
+        ctx: UnsafePointer[SwsContext, MutOrigin.external],
+        # NOTE: This is a const pointer to an array. I think this is "ok"
+        srcSlice: UnsafePointer[
+            UnsafePointer[c_uchar, ImmutOrigin.external], ImmutOrigin.external
+        ],
+        # NOTE: This is a const pointer to an array. I think this is "ok"
+        srcStride: UnsafePointer[c_int, ImmutOrigin.external],
+        srcSliceY: c_int,
+        srcSliceH: c_int,
+        # NOTE: This is a pointer to an array. I think this is "ok"
+        dst: UnsafePointer[
+            UnsafePointer[c_uchar, MutOrigin.external], MutOrigin.external
+        ],
+        # NOTE: This is a const pointer to an array. I think this is "ok"
+        dstStride: UnsafePointer[c_int, ImmutOrigin.external],
+    ) -> c_int,
+]
 """Scale the image slice in srcSlice and put the resulting scaled
 slice in the image in dst. A slice is a sequence of consecutive
 rows in an image. Requires a context that has been previously
@@ -586,11 +626,14 @@ Returns:
 - The height of the output slice.
 """
 
-comptime sws_frame_start = fn (
-    ctx: UnsafePointer[SwsContext, MutOrigin.external],
-    dst: UnsafePointer[AVFrame, MutOrigin.external],
-    src: UnsafePointer[AVFrame, ImmutOrigin.external],
-) -> c_int
+comptime sws_frame_start = ExternalFunction[
+    "sws_frame_start",
+    fn (
+        ctx: UnsafePointer[SwsContext, MutOrigin.external],
+        dst: UnsafePointer[AVFrame, MutOrigin.external],
+        src: UnsafePointer[AVFrame, ImmutOrigin.external],
+    ) -> c_int,
+]
 """Initialize the scaling process for a given pair of source/destination frames.
 Must be called before any calls to sws_send_slice() and sws_receive_slice().
 Requires a context that has been previously been initialized with
@@ -612,9 +655,9 @@ Returns:
 @see sws_frame_end()
 """
 
-comptime sws_frame_end = fn (
-    ctx: UnsafePointer[SwsContext, MutOrigin.external],
-)
+comptime sws_frame_end = ExternalFunction[
+    "sws_frame_end", fn (ctx: UnsafePointer[SwsContext, MutOrigin.external],)
+]
 """Finish the scaling process for a pair of source/destination frames previously
 submitted with sws_frame_start(). Must be called after all sws_send_slice()
 and sws_receive_slice() calls are done, before any new sws_frame_start()
@@ -624,11 +667,14 @@ Arguments:
 - ctx: The scaling context.
 """
 
-comptime sws_send_slice = fn (
-    ctx: UnsafePointer[SwsContext, MutOrigin.external],
-    slice_start: c_uint,
-    slice_height: c_uint,
-) -> c_int
+comptime sws_send_slice = ExternalFunction[
+    "sws_send_slice",
+    fn (
+        ctx: UnsafePointer[SwsContext, MutOrigin.external],
+        slice_start: c_uint,
+        slice_height: c_uint,
+    ) -> c_int,
+]
 """Indicate that a horizontal slice of input data is available in the source
 frame previously provided to sws_frame_start(). The slices may be provided in
 any order, but may not overlap. For vertically subsampled pixel formats, the
@@ -643,11 +689,14 @@ Returns:
 - A non-negative number on success, a negative AVERROR code on failure.
 """
 
-comptime sws_receive_slice = fn (
-    ctx: UnsafePointer[SwsContext, MutOrigin.external],
-    slice_start: c_uint,
-    slice_height: c_uint,
-) -> c_int
+comptime sws_receive_slice = ExternalFunction[
+    "sws_receive_slice",
+    fn (
+        ctx: UnsafePointer[SwsContext, MutOrigin.external],
+        slice_start: c_uint,
+        slice_height: c_uint,
+    ) -> c_int,
+]
 """Request a horizontal slice of the output data to be written into the frame
 previously provided to sws_frame_start().
 
@@ -664,9 +713,10 @@ Returns:
   a negative AVERROR code on other kinds of scaling failure.
 """
 
-comptime sws_receive_slice_alignment = fn (
-    ctx: UnsafePointer[SwsContext, ImmutOrigin.external],
-) -> c_uint
+comptime sws_receive_slice_alignment = ExternalFunction[
+    "sws_receive_slice_alignment",
+    fn (ctx: UnsafePointer[SwsContext, ImmutOrigin.external],) -> c_uint,
+]
 """Get the alignment required for slices. Requires a context that has been 
 previously been initialized with sws_init_context().
 
@@ -679,16 +729,19 @@ Returns:
   multiples of the value returned from this function.
 """
 
-comptime sws_setColorspaceDetails = fn (
-    ctx: UnsafePointer[SwsContext, MutOrigin.external],
-    inv_table: UnsafePointer[c_int, ImmutOrigin.external],
-    srcRange: c_int,
-    table: UnsafePointer[c_int, ImmutOrigin.external],
-    dstRange: c_int,
-    brightness: c_int,
-    contrast: c_int,
-    saturation: c_int,
-) -> c_int
+comptime sws_setColorspaceDetails = ExternalFunction[
+    "sws_setColorspaceDetails",
+    fn (
+        ctx: UnsafePointer[SwsContext, MutOrigin.external],
+        inv_table: UnsafePointer[c_int, ImmutOrigin.external],
+        srcRange: c_int,
+        table: UnsafePointer[c_int, ImmutOrigin.external],
+        dstRange: c_int,
+        brightness: c_int,
+        contrast: c_int,
+        saturation: c_int,
+    ) -> c_int,
+]
 """Set the colorspace details for the scaling context.
 
 Arguments:
@@ -708,70 +761,88 @@ Returns:
 """
 
 
-comptime sws_allocVec = fn (length: c_int,) -> UnsafePointer[
-    SwsVector, MutOrigin.external
+comptime sws_allocVec = ExternalFunction[
+    "sws_allocVec",
+    fn (length: c_int,) -> UnsafePointer[SwsVector, MutOrigin.external],
 ]
 """Allocate and return an uninitialized vector with length coefficients.
 """
 
 
-comptime sws_getGaussianVec = fn (
-    variance: c_double,
-    quality: c_double,
-) -> UnsafePointer[SwsVector, ImmutOrigin.external]
+comptime sws_getGaussianVec = ExternalFunction[
+    "sws_getGaussianVec",
+    fn (
+        variance: c_double,
+        quality: c_double,
+    ) -> UnsafePointer[SwsVector, ImmutOrigin.external],
+]
 """Return a normalized Gaussian curve used to filter stuff
 quality = 3 is high quality, lower is lower quality.
 """
 
 
-comptime sws_scaleVec = fn (
-    a: UnsafePointer[SwsVector, MutOrigin.external],
-    scalar: c_double,
-)
+comptime sws_scaleVec = ExternalFunction[
+    "sws_scaleVec",
+    fn (
+        a: UnsafePointer[SwsVector, MutOrigin.external],
+        scalar: c_double,
+    ),
+]
 """Scale all the coefficients of a by the scalar value.
 """
 
-comptime sws_normalizeVec = fn (
-    a: UnsafePointer[SwsVector, MutOrigin.external],
-    height: c_double,
-)
+comptime sws_normalizeVec = ExternalFunction[
+    "sws_normalizeVec",
+    fn (
+        a: UnsafePointer[SwsVector, MutOrigin.external],
+        height: c_double,
+    ),
+]
 """Scale all the coefficients of a so that their sum equals height.
 """
 
-comptime sws_freeVec = fn (a: UnsafePointer[SwsVector, MutOrigin.external],)
+comptime sws_freeVec = ExternalFunction[
+    "sws_freeVec", fn (a: UnsafePointer[SwsVector, MutOrigin.external],)
+]
 """Free a vector."""
 
 
-comptime sws_getDefaultFilter = fn (
-    lumaGBlur: c_float,
-    chromaGBlur: c_float,
-    lumaSharpen: c_float,
-    chromaSharpen: c_float,
-    chromaHShift: c_float,
-    chromaVShift: c_float,
-    verbose: c_int,
-) -> UnsafePointer[SwsFilter, MutOrigin.external]
+comptime sws_getDefaultFilter = ExternalFunction[
+    "sws_getDefaultFilter",
+    fn (
+        lumaGBlur: c_float,
+        chromaGBlur: c_float,
+        lumaSharpen: c_float,
+        chromaSharpen: c_float,
+        chromaHShift: c_float,
+        chromaVShift: c_float,
+        verbose: c_int,
+    ) -> UnsafePointer[SwsFilter, MutOrigin.external],
+]
 """Return a default filter for the given parameters.
 """
 
-comptime sws_freeFilter = fn (
-    filter: UnsafePointer[SwsFilter, MutOrigin.external],
-)
+comptime sws_freeFilter = ExternalFunction[
+    "sws_freeFilter", fn (filter: UnsafePointer[SwsFilter, MutOrigin.external],)
+]
 """Free a filter."""
 
-comptime sws_getCachedContext = fn (
-    ctx: UnsafePointer[SwsContext, MutOrigin.external],
-    srcW: c_int,
-    srcH: c_int,
-    srcFormat: AVPixelFormat.ENUM_DTYPE,
-    dstW: c_int,
-    dstH: c_int,
-    dstFormat: AVPixelFormat.ENUM_DTYPE,
-    flags: c_int,
-    srcFilter: UnsafePointer[SwsFilter, MutOrigin.external],
-    dstFilter: UnsafePointer[SwsFilter, MutOrigin.external],
-    param: UnsafePointer[c_double, ImmutOrigin.external],
-) -> UnsafePointer[SwsContext, MutOrigin.external]
+comptime sws_getCachedContext = ExternalFunction[
+    "sws_getCachedContext",
+    fn (
+        ctx: UnsafePointer[SwsContext, MutOrigin.external],
+        srcW: c_int,
+        srcH: c_int,
+        srcFormat: AVPixelFormat.ENUM_DTYPE,
+        dstW: c_int,
+        dstH: c_int,
+        dstFormat: AVPixelFormat.ENUM_DTYPE,
+        flags: c_int,
+        srcFilter: UnsafePointer[SwsFilter, MutOrigin.external],
+        dstFilter: UnsafePointer[SwsFilter, MutOrigin.external],
+        param: UnsafePointer[c_double, ImmutOrigin.external],
+    ) -> UnsafePointer[SwsContext, ImmutOrigin.external],
+]
 """Check if context can be reused, otherwise reallocate a new one.
 
 If context is NULL, just calls sws_getContext() to get a new
@@ -802,12 +873,15 @@ Returns:
 """
 
 
-comptime sws_convertPalette8ToPacked32 = fn (
-    src: UnsafePointer[c_uchar, ImmutOrigin.external],
-    dst: UnsafePointer[c_uchar, MutOrigin.external],
-    num_pixels: c_int,
-    palette: UnsafePointer[c_uchar, ImmutOrigin.external],
-)
+comptime sws_convertPalette8ToPacked32 = ExternalFunction[
+    "sws_convertPalette8ToPacked32",
+    fn (
+        src: UnsafePointer[c_uchar, ImmutOrigin.external],
+        dst: UnsafePointer[c_uchar, MutOrigin.external],
+        num_pixels: c_int,
+        palette: UnsafePointer[c_uchar, ImmutOrigin.external],
+    ),
+]
 """Convert an 8-bit paletted frame into a frame with a color depth of 32 bits.
 
 The output frame will have the same packed format as the palette.
@@ -820,12 +894,15 @@ Arguments:
 """
 
 
-comptime sws_convertPalette8ToPacked24 = fn (
-    src: UnsafePointer[c_uchar, ImmutOrigin.external],
-    dst: UnsafePointer[c_uchar, MutOrigin.external],
-    num_pixels: c_int,
-    palette: UnsafePointer[c_uchar, ImmutOrigin.external],
-)
+comptime sws_convertPalette8ToPacked24 = ExternalFunction[
+    "sws_convertPalette8ToPacked24",
+    fn (
+        src: UnsafePointer[c_uchar, ImmutOrigin.external],
+        dst: UnsafePointer[c_uchar, MutOrigin.external],
+        num_pixels: c_int,
+        palette: UnsafePointer[c_uchar, ImmutOrigin.external],
+    ),
+]
 """Convert an 8-bit paletted frame into a frame with a color depth of 24 bits.
 
 With the palette format "ABCD", the destination frame ends up with the format "ABC".

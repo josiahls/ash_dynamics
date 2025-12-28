@@ -12,7 +12,7 @@ import os
 from utils import StaticTuple
 from ash_dynamics.ffmpeg.avutil.log import AVClass
 from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
-from ash_dynamics.primitives._clib import C_Union
+from ash_dynamics.primitives._clib import C_Union, ExternalFunction
 
 
 comptime AVIO_SEEKABLE_NORMAL = 1 << 0
@@ -759,13 +759,16 @@ avio_read and avio_write should if possible be satisfied directly
 instead of going through a buffer, and avio_seek will always
 call the underlying seek function directly.
 """
-comptime avio_open = fn (
-    s: UnsafePointer[
-        UnsafePointer[AVIOContext, MutOrigin.external], MutOrigin.external
-    ],
-    url: UnsafePointer[c_char, ImmutOrigin.external],
-    flags: c_int,
-) -> c_int
+comptime avio_open = ExternalFunction[
+    "avio_open",
+    fn (
+        s: UnsafePointer[
+            UnsafePointer[AVIOContext, MutOrigin.external], MutOrigin.external
+        ],
+        url: UnsafePointer[c_char, ImmutAnyOrigin],
+        flags: c_int,
+    ) -> c_int,
+]
 """Create and initialize a AVIOContext for accessing the
 resource indicated by url.
 

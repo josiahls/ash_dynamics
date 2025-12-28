@@ -265,9 +265,15 @@ from ash_dynamics.ffmpeg.avformat.avformat import (
     avformat_get_class,
     av_guess_format,
     avformat_new_stream,
+    avformat_free_context,
+    av_dump_format,
+    avformat_write_header,
+    av_interleaved_write_frame,
+    av_write_trailer,
     AVOutputFormat,
     AVFormatContext,
 )
+from ash_dynamics.ffmpeg.avformat.avio import avio_open, AVIO_FLAG_WRITE
 
 from logger import Logger
 
@@ -288,8 +294,18 @@ struct Avformat:
     "Shadows av_guess_format."
     var avformat_get_class: avformat_get_class.type
     "Shadows avformat_get_class."
-    # var avformat_new_stream: avformat_new_stream.type
-    # "Shadows avformat_new_stream."
+    var avformat_new_stream: avformat_new_stream.type
+    "Shadows avformat_new_stream."
+    var av_dump_format: av_dump_format.type
+    "Shadows av_dump_format."
+    var avio_open: avio_open.type
+    "Shadows avio_open."
+    var avformat_write_header: avformat_write_header.type
+    "Shadows avformat_write_header."
+    var av_interleaved_write_frame: av_interleaved_write_frame.type
+    "Shadows av_interleaved_write_frame."
+    var av_write_trailer: av_write_trailer.type
+    "Shadows av_write_trailer."
 
     fn __init__(out self) raises:
         var so_install_prefix = getenv("ASH_DYNAMICS_SO_INSTALL_PREFIX")
@@ -306,7 +322,14 @@ struct Avformat:
         )
         self.av_guess_format = av_guess_format.load(self.lib)
         self.avformat_get_class = avformat_get_class.load(self.lib)
-        # self.avformat_new_stream = avformat_new_stream.load(self.lib)
+        self.avformat_new_stream = avformat_new_stream.load(self.lib)
+        self.av_dump_format = av_dump_format.load(self.lib)
+        self.avio_open = avio_open.load(self.lib)
+        self.avformat_write_header = avformat_write_header.load(self.lib)
+        self.av_interleaved_write_frame = av_interleaved_write_frame.load(
+            self.lib
+        )
+        self.av_write_trailer = av_write_trailer.load(self.lib)
 
     fn alloc_output_context(
         self,

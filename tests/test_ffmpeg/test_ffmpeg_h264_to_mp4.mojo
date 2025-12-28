@@ -665,7 +665,9 @@ def test_av_mux_example():
         "{}/test_data/testsrc_320x180_30fps_2s.h264".format(test_data_root)
     )
     var output_filename: String = (
-        "{}/test_data/testsrc_320x180_30fps_2s.mp4".format(test_data_root)
+        "{}/test_data/dash_manual/testsrc_320x180_30fps_2s.mp4".format(
+            test_data_root
+        )
     )
 
     # FIXME: Tryout without any flags, just h264 to mp4.

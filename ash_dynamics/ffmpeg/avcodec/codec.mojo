@@ -161,13 +161,15 @@ struct AVCodec(StructWritable):
     var supported_framerates: UnsafePointer[AVRational, ImmutOrigin.external]
     "Supported framerates. Note: This field is deprecated. Use avcodec_get_supported_config() instead."
 
-    var pix_fmts: UnsafePointer[AVPixelFormat, MutOrigin.external]
+    var pix_fmts: UnsafePointer[AVPixelFormat.ENUM_DTYPE, MutOrigin.external]
     "Supported pixel formats. Note: This field is deprecated. Use avcodec_get_supported_config() instead."
 
     var supported_samplerates: UnsafePointer[c_int, ImmutOrigin.external]
     "Supported sample rates. Note: This field is deprecated. Use avcodec_get_supported_config() instead."
 
-    var sample_fmts: UnsafePointer[AVSampleFormat, MutOrigin.external]
+    var sample_fmts: UnsafePointer[
+        AVSampleFormat.ENUM_DTYPE, MutOrigin.external
+    ]
     "Supported sample formats. Note: This field is deprecated. Use avcodec_get_supported_config() instead."
 
     var priv_class: UnsafePointer[AVClass, ImmutOrigin.external]

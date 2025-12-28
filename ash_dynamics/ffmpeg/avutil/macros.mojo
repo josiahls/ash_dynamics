@@ -39,7 +39,8 @@ fn MKTAG(a: Int, b: Int, c: Int, d: Int) -> Int:
     @parameter
     if avconfig.AV_HAVE_BIGENDIAN:
         return (d) | ((c) << 8) | ((b) << 16) | Int(UInt(a) << 24)
-    return (a) | ((b) << 8) | ((c) << 16) | Int(UInt(d) << 24)
+
+    return Int((UInt(a) | (UInt(b) << 8) | (UInt(c) << 16) | UInt(d) << 24))
 
 
 # String manipulation macros

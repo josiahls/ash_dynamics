@@ -1,7 +1,7 @@
 from ash_dynamics.primitives._clib import StructWritable
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
 from ash_dynamics.ffmpeg.avutil.buffer import AVBufferRef
-from ash_dynamics.ffmpeg.avutil import AVPictureType
+from ash_dynamics.ffmpeg.avutil.avutil import AVPictureType
 from ash_dynamics.ffmpeg.avutil.channel_layout import AVChannelLayout
 from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
 from ash_dynamics.ffmpeg.avutil.pixfmt import (
@@ -12,7 +12,7 @@ from ash_dynamics.ffmpeg.avutil.pixfmt import (
     AVColorSpace,
     AVChromaLocation,
 )
-from sys.ffi import c_uchar, c_int, c_long_long, c_ulong_long
+from sys.ffi import c_uchar, c_int, c_long_long, c_ulong_long, c_size_t, c_uint
 from utils import StaticTuple
 from ash_dynamics.primitives._clib import (
     StructWritable,
@@ -210,6 +210,140 @@ struct AVFrameSideDataType:
 
 @fieldwise_init
 @register_passable("trivial")
+struct AVActiveFormatDescription:
+    comptime ENUM_DTYPE = c_int
+    var _value: Self.ENUM_DTYPE
+
+    comptime AV_AFD_SAME = Self(8)
+    comptime AV_AFD_4_3 = Self(9)
+    comptime AV_AFD_16_9 = Self(10)
+    comptime AV_AFD_14_9 = Self(11)
+    comptime AV_AFD_4_3_SP_14_9 = Self(13)
+    comptime AV_AFD_16_9_SP_14_9 = Self(14)
+    comptime AV_AFD_SP_4_3 = Self(15)
+
+
+@fieldwise_init
+@register_passable("trivial")
+struct AVFrameSideData(StructWritable):
+    """Structure to hold side data for an AVFrame.
+
+    sizeof(AVFrameSideData) is not a part of the public ABI, so new fields may be added
+    to the end with a minor bump.
+    """
+
+    var type: AVFrameSideDataType.ENUM_DTYPE
+    var data: UnsafePointer[c_uchar, MutOrigin.external]
+    var size: c_size_t
+    var metadata: UnsafePointer[AVDictionary, MutOrigin.external]
+    var buf: UnsafePointer[AVBufferRef, MutOrigin.external]
+
+    fn write_to(self, mut writer: Some[Writer], indent: Int):
+        var sw = StructWriter[Self](writer, indent=indent)
+        sw.write_field["type"](self.type)
+        sw.write_field["data"](self.data)
+        sw.write_field["size"](self.size)
+        sw.write_field["metadata"](self.metadata)
+        sw.write_field["buf"](self.buf)
+
+
+@fieldwise_init
+@register_passable("trivial")
+struct AVSideDataProps:
+    comptime ENUM_DTYPE = c_int
+    var _value: Self.ENUM_DTYPE
+
+    comptime AV_SIDE_DATA_PROP_GLOBAL = Self(1 << 0)
+    """The side data type can be used in stream-global structures.
+    Side data types without this property are only meaningful on per-frame
+    basis.
+    """
+    comptime AV_SIDE_DATA_PROP_MULTI = Self(1 << 1)
+    """Multiple instances of this side data type can be meaningfully present in
+    a single side data array.
+    """
+    comptime AV_SIDE_DATA_PROP_SIZE_DEPENDENT = Self(1 << 2)
+    """Side data depends on the video dimensions. Side data with this property
+    loses its meaning when rescaling or cropping the image, unless
+    either recomputed or adjusted to the new resolution.
+    """
+    comptime AV_SIDE_DATA_PROP_COLOR_DEPENDENT = Self(1 << 3)
+    """Side data depends on the video color space. Side data with this property
+    loses its meaning when changing the video color encoding, e.g. by
+    adapting to a different set of primaries or transfer characteristics.
+    """
+    comptime AV_SIDE_DATA_PROP_CHANNEL_DEPENDENT = Self(1 << 4)
+    """Side data depends on the channel layout. Side data with this property
+    loses its meaning when downmixing or upmixing, unless either recomputed
+    or adjusted to the new layout.
+    """
+
+
+@fieldwise_init
+@register_passable("trivial")
+struct AVSideDataDescriptor:
+    """This struct describes the properties of a side data type. Its instance
+    corresponding to a given type can be obtained from av_frame_side_data_desc().
+    """
+
+    var name: UnsafePointer[c_char, MutOrigin.external]
+    """Human-readable side data description."""
+    var props: AVSideDataProps.ENUM_DTYPE
+    """Side data property flags, a combination of AVSideDataProps values."""
+
+
+@fieldwise_init
+@register_passable("trivial")
+struct AVRegionOfInterest:
+    """Structure describing a single Region Of Interest.
+
+    When multiple regions are defined in a single side-data block, they
+    should be ordered from most to least important - some encoders are only
+    capable of supporting a limited number of distinct regions, so will have
+    to truncate the list.
+
+    When overlapping regions are defined, the first region containing a given
+    area of the frame applies.
+    """
+
+    var self_size: c_uint
+    """Must be set to the size of this data structure 
+    (that is, sizeof(AVRegionOfInterest))."""
+    var top: c_int
+    """Distance in pixels from the top edge of the frame to the top and
+    bottom edges and from the left edge of the frame to the left and
+    right edges of the rectangle defining this region of interest."""
+    var bottom: c_int
+    var left: c_int
+    var right: c_int
+
+    var qoffset: AVRational
+    """Quantisation offset.
+
+    Must be in the range -1 to +1. A value of zero indicates no quality
+    change. A negative value asks for better quality (less quantisation),
+    while a positive value asks for worse quality (greater quantisation).
+
+    The range is calibrated so that the extreme values indicate the
+    largest possible offset - if the rest of the frame is encoded with the
+    worst possible quality, an offset of -1 indicates that this region
+    should be encoded with the best possible quality anyway. Intermediate
+    values are then interpolated in some codec-dependent way.
+
+    For example, in 10-bit H.264 the quantisation parameter varies between
+    -12 and 51. A typical qoffset value of -1/10 therefore indicates that
+    this region should be encoded with a QP around one-tenth of the full
+    range better than the rest of the frame. So, if most of the frame
+    were to be encoded with a QP of around 30, this region would get a QP
+    of around 24 (an offset of approximately -1/10 * (51 - -12) = -6.3).
+    An extreme value of -1 would indicate that this region should be
+    encoded with the best possible quality regardless of the treatment of
+    the rest of the frame - that is, should be encoded at a QP of -12.
+    """
+
+
+@fieldwise_init
+@register_passable("trivial")
 struct AVFrame(StructWritable):
     """The frame structure.
     This structure describes decoded (raw) audio or video data.
@@ -387,11 +521,11 @@ struct AVFrame(StructWritable):
     """Sample aspect ratio for the video frame, 0/1 if unknown/unspecified.
     """
 
-    var pts: c_ulong_long
+    var pts: c_long_long
     """Presentation timestamp in time_base units (time when frame should be shown to user).
     """
 
-    var pkt_dts: c_ulong_long
+    var pkt_dts: c_long_long
     """DTS copied from the AVPacket that triggered returning this frame. (if frame threading isn't used)
     This is also the Presentation time of this AVFrame calculated from
     only AVPacket.dts values without pts values.
@@ -610,36 +744,7 @@ struct AVFrame(StructWritable):
     """
 
 
-@fieldwise_init
-@register_passable("trivial")
-struct AVFrameSideData(StructWritable):
-    """Structure to hold side data for an AVFrame.
-
-    sizeof(AVFrameSideData) is not a part of the public ABI, so new fields may be added
-    to the end with a minor bump.
-    """
-
-    var type: AVFrameSideDataType.ENUM_DTYPE
-    "Type of the side data."
-    var data: UnsafePointer[c_uchar, MutOrigin.external]
-    "Data of the side data."
-    var size: c_int
-    "Size of the side data."
-    var metadata: UnsafePointer[AVDictionary, MutOrigin.external]
-    "Metadata of the side data."
-    var buf: UnsafePointer[AVBufferRef, MutOrigin.external]
-    "Buffer of the side data."
-
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["type"](self.type)
-        struct_writer.write_field["data"](self.data)
-        struct_writer.write_field["size"](self.size)
-        struct_writer.write_field["metadata"](self.metadata)
-        struct_writer.write_field["buf"](self.buf)
-
-
-comptime _av_frame_alloc = ExternalFunction[
+comptime av_frame_alloc = ExternalFunction[
     "av_frame_alloc", fn () -> UnsafePointer[AVFrame, MutOrigin.external]
 ]
 """Allocate an AVFrame and set its fields to default values. The
@@ -650,4 +755,514 @@ resulting struct must be freed using av_frame_free().
 @note this only allocates the AVFrame itself, not the data buffers. Those
 must be allocated through other means, e.g. with av_frame_get_buffer() or
 manually.
+"""
+
+
+comptime av_frame_free = ExternalFunction[
+    "av_frame_free",
+    fn (frame: UnsafePointer[AVFrame, MutOrigin.external]),
+]
+"""Free the frame and any dynamically allocated objects in it,
+e.g. extended_data. If the frame is reference counted, it will be
+unreferenced first.
+
+@param frame frame to be freed. The pointer will be set to NULL.
+"""
+
+
+comptime av_frame_ref = ExternalFunction[
+    "av_frame_ref",
+    fn (
+        dst: UnsafePointer[AVFrame, MutOrigin.external],
+        src: UnsafePointer[AVFrame, ImmutOrigin.external],
+    ) -> c_int,
+]
+"""Set up a new reference to the data described by the source frame.
+
+Copy frame properties from src to dst and create a new reference for each
+AVBufferRef from src.
+
+If src is not reference counted, new buffers are allocated and the data is
+copied.
+
+@warning: dst MUST have been either unreferenced with av_frame_unref(dst),
+           or newly allocated with av_frame_alloc() before calling this
+           function, or undefined behavior will occur.
+
+@return 0 on success, a negative AVERROR on error. On error, dst is
+           unreferenced.
+"""
+
+
+comptime av_frame_replace = ExternalFunction[
+    "av_frame_replace",
+    fn (
+        dst: UnsafePointer[AVFrame, MutOrigin.external],
+        src: UnsafePointer[AVFrame, ImmutOrigin.external],
+    ) -> c_int,
+]
+"""Ensure the destination frame refers to the same data described by the source
+frame, either by creating a new reference for each AVBufferRef from src if
+they differ from those in dst, by allocating new buffers and copying data if
+src is not reference counted, or by unrefencing it if src is empty.
+
+Frame properties on dst will be replaced by those from src.
+
+@return 0 on success, a negative AVERROR on error. On error, dst is
+           unreferenced.
+"""
+
+
+comptime av_frame_clone = ExternalFunction[
+    "av_frame_clone",
+    fn (
+        src: UnsafePointer[AVFrame, ImmutOrigin.external]
+    ) -> UnsafePointer[AVFrame, MutOrigin.external],
+]
+"""Create a new frame that references the same data as src.
+
+This is a shortcut for av_frame_alloc()+av_frame_ref().
+
+@return newly created AVFrame on success, NULL on error.
+"""
+
+
+comptime av_frame_unref = ExternalFunction[
+    "av_frame_unref",
+    fn (frame: UnsafePointer[AVFrame, MutOrigin.external]),
+]
+"""Unreference all the buffers referenced by frame and reset the frame fields.
+"""
+
+
+comptime av_frame_move_ref = ExternalFunction[
+    "av_frame_move_ref",
+    fn (
+        dst: UnsafePointer[AVFrame, MutOrigin.external],
+        src: UnsafePointer[AVFrame, ImmutOrigin.external],
+    ),
+]
+"""Move everything contained in src to dst and reset src.
+
+@warning: dst is not unreferenced, but directly overwritten without reading
+           or deallocating its contents. Call av_frame_unref(dst) manually
+           before calling this function to ensure that no memory is leaked.
+"""
+
+
+comptime av_frame_get_buffer = ExternalFunction[
+    "av_frame_get_buffer",
+    fn (
+        frame: UnsafePointer[AVFrame, MutOrigin.external], align: c_int
+    ) -> c_int,
+]
+"""Allocate new buffers for audio or video data.
+
+The following fields must be set on frame before calling this function:
+- format (pixel format for video, sample format for audio)
+- width and height for video
+- nb_samples and ch_layout for audio
+
+This function will fill AVFrame.data and AVFrame.buf arrays and, if
+necessary, allocate and fill AVFrame.extended_data and AVFrame.extended_buf.
+For planar formats, one buffer will be allocated for each plane.
+
+@warning: if frame already has been allocated, calling this function will
+leak memory. In addition, undefined behavior can occur in certain cases.
+
+Args:
+- frame: The frame to allocate buffers for.
+- align: The alignment to use for the buffers.
+
+Returns:
+- 0 on success, a negative AVERROR on error.
+"""
+
+
+comptime av_frame_is_writable = ExternalFunction[
+    "av_frame_is_writable",
+    fn (frame: UnsafePointer[AVFrame, MutOrigin.external]) -> c_int,
+]
+"""Check if the frame can be written to.
+
+A frame is considered writable if only one reference to it exists. The code
+owning that reference it then allowed to modify the data.
+
+@return 1 if the frame can be written to, 0 otherwise.
+
+If 1 is returned the answer is valid until av_buffer_ref() is called on any
+of the underlying AVBufferRefs (e.g. through av_frame_ref() or directly).
+
+@see av_frame_make_writable(), av_buffer_is_writable()
+"""
+
+
+comptime av_frame_make_writable = ExternalFunction[
+    "av_frame_make_writable",
+    fn (frame: UnsafePointer[AVFrame, MutOrigin.external]) -> c_int,
+]
+"""Ensure that the frame data is writable, avoiding data copy if possible.
+
+Do nothing if the frame is writable, allocate new buffers and copy the data
+if it is not. Non-refcounted frames behave as non-writable, i.e. a copy
+is always made.
+
+@return 0 on success, a negative AVERROR on error.
+
+@see av_frame_is_writable(), av_buffer_is_writable(),
+av_buffer_make_writable()
+"""
+
+
+comptime av_frame_copy = ExternalFunction[
+    "av_frame_copy",
+    fn (
+        dst: UnsafePointer[AVFrame, MutOrigin.external],
+        src: UnsafePointer[AVFrame, ImmutOrigin.external],
+    ) -> c_int,
+]
+"""Copy the frame data from src to dst.
+
+This function does not allocate anything, dst must be already initialized and
+allocated with the same parameters as src.
+
+This function only copies the frame data (i.e. the contents of the data /
+extended data arrays), not any other properties.
+
+@return >= 0 on success, a negative AVERROR on error.
+
+@see av_frame_copy_props()
+"""
+
+
+comptime av_frame_copy_props = ExternalFunction[
+    "av_frame_copy_props",
+    fn (
+        dst: UnsafePointer[AVFrame, MutOrigin.external],
+        src: UnsafePointer[AVFrame, ImmutOrigin.external],
+    ) -> c_int,
+]
+"""Copy only "metadata" fields from src to dst.
+
+Metadata for the purpose of this function are those fields that do not affect
+the data layout in the buffers.  E.g. pts, sample rate (for audio) or sample
+aspect ratio (for video), but not width/height or channel layout.
+Side data is also copied.
+"""
+
+
+comptime av_frame_get_plane_buffer = ExternalFunction[
+    "av_frame_get_plane_buffer",
+    fn (
+        frame: UnsafePointer[AVFrame, ImmutOrigin.external], plane: c_int
+    ) -> UnsafePointer[AVBufferRef, MutOrigin.external],
+]
+"""Get the buffer reference a given data plane is stored in.
+
+@param frame the frame to get the plane's buffer from
+@param plane index of the data plane of interest in frame->extended_data.
+
+@return the buffer reference that contains the plane or NULL if the input
+frame is not valid.
+"""
+
+
+comptime av_frame_new_side_data = ExternalFunction[
+    "av_frame_new_side_data",
+    fn (
+        frame: UnsafePointer[AVFrame, MutOrigin.external],
+        type: AVFrameSideDataType.ENUM_DTYPE,
+        size: c_size_t,
+    ) -> UnsafePointer[AVFrameSideData, MutOrigin.external],
+]
+"""Add a new side data to a frame.
+
+@param frame a frame to which the side data should be added
+@param type type of the added side data
+@param size size of the side data
+
+@return newly added side data on success, NULL on error
+"""
+
+
+comptime av_frame_new_side_data_from_buf = ExternalFunction[
+    "av_frame_new_side_data_from_buf",
+    fn (
+        frame: UnsafePointer[AVFrame, MutOrigin.external],
+        type: AVFrameSideDataType.ENUM_DTYPE,
+        buf: UnsafePointer[AVBufferRef, MutOrigin.external],
+    ) -> UnsafePointer[AVFrameSideData, MutOrigin.external],
+]
+"""Add a new side data to a frame from an existing AVBufferRef
+
+@param frame a frame to which the side data should be added
+@param type type of the added side data
+@param buf an AVBufferRef to add as side data. The ownership of the reference 
+is transferred to the frame.
+
+@return newly added side data on success, NULL on error. On failure the frame is
+unchanged and the AVBufferRef remains owned by the caller.
+"""
+
+
+comptime av_frame_get_side_data = ExternalFunction[
+    "av_frame_get_side_data",
+    fn (
+        frame: UnsafePointer[AVFrame, ImmutOrigin.external],
+        type: AVFrameSideDataType.ENUM_DTYPE,
+    ) -> UnsafePointer[AVFrameSideData, MutOrigin.external],
+]
+"""Get the side data of a given type on success, NULL if there is no side data 
+with such type in this frame.
+"""
+
+
+comptime av_frame_remove_side_data = ExternalFunction[
+    "av_frame_remove_side_data",
+    fn (
+        frame: UnsafePointer[AVFrame, MutOrigin.external],
+        type: AVFrameSideDataType.ENUM_DTYPE,
+    ),
+]
+"""Remove and free all side data instances of the given type.
+"""
+
+########################################################
+# ===             Flags for frame cropping           ===
+########################################################
+
+comptime AV_FRAME_CROP_UNALIGNED = Int(1 << 0)
+"""Apply the maximum possible cropping, even if it requires setting the
+AVFrame.data[] entries to unaligned pointers. Passing unaligned data to FFmpeg
+API is generally not allowed, and causes undefined behavior (such as crashes).
+You can pass unaligned data only to FFmpeg APIs that are explicitly documented
+to accept it. Use this flag only if you absolutely know what you are doing."""
+
+
+comptime av_frame_apply_cropping = ExternalFunction[
+    "av_frame_apply_cropping",
+    fn (
+        frame: UnsafePointer[AVFrame, MutOrigin.external], flags: c_int
+    ) -> c_int,
+]
+"""Crop the given video AVFrame according to its crop_left/crop_top/crop_right/
+crop_bottom fields. If cropping is successful, the function will adjust the
+data pointers and the width/height fields, and set the crop fields to 0.
+
+In all cases, the cropping boundaries will be rounded to the inherent
+alignment of the pixel format. In some cases, such as for opaque hwaccel
+formats, the left/top cropping is ignored. The crop fields are set to 0 even
+if the cropping was rounded or ignored.
+
+@param frame the frame which should be cropped
+@param flags Some combination of AV_FRAME_CROP_* flags, or 0.
+
+@return >= 0 on success, a negative AVERROR on error. If the cropping fields 
+were invalid, AVERROR(ERANGE) is returned, and nothing is changed.
+"""
+
+
+comptime av_frame_side_data_name = ExternalFunction[
+    "av_frame_side_data_name",
+    fn (
+        type: AVFrameSideDataType.ENUM_DTYPE,
+    ) -> UnsafePointer[c_char, ImmutOrigin.external],
+]
+"""Return a string identifying the side data type.
+
+@param type the side data type
+
+@return a static string identifying the side data type
+"""
+
+
+comptime av_frame_side_data_desc = ExternalFunction[
+    "av_frame_side_data_desc",
+    fn (
+        type: AVFrameSideDataType.ENUM_DTYPE,
+    ) -> UnsafePointer[AVSideDataDescriptor, ImmutOrigin.external],
+]
+"""Return side data descriptor corresponding to a given side data type, NULL
+when not available.
+
+@param type the side data type
+
+@return side data descriptor corresponding to a given side data type, NULL
+when not available.
+"""
+
+
+comptime av_frame_side_data_free = ExternalFunction[
+    "av_frame_side_data_free",
+    fn (sd: UnsafePointer[AVFrameSideData, MutOrigin.external]),
+]
+"""Free all side data entries and their contents, then zeroes out the
+values which the pointers are pointing to.
+
+@param sd pointer to array of side data to free. Will be set to NULL
+upon return.
+@param nb_sd pointer to an integer containing the number of entries in
+the array. Will be set to 0 upon return.
+"""
+
+
+comptime AV_FRAME_SIDE_DATA_FLAG_UNIQUE = Int(1 << 0)
+"""Remove existing entries before adding new ones."""
+
+
+comptime AV_FRAME_SIDE_DATA_FLAG_REPLACE = Int(1 << 1)
+"""Don't add a new entry if another of the same type exists.
+Applies only for side data types without the AV_SIDE_DATA_PROP_MULTI prop."""
+
+
+comptime AV_FRAME_SIDE_DATA_FLAG_NEW_REF = Int(1 << 2)
+"""Create a new reference to the passed in buffer instead of taking ownership
+of it."""
+
+
+comptime av_frame_side_data_new = ExternalFunction[
+    "av_frame_side_data_new",
+    fn (
+        sd: UnsafePointer[AVFrameSideData, MutOrigin.external],
+        nb_sd: UnsafePointer[c_int, MutOrigin.external],
+        type: AVFrameSideDataType.ENUM_DTYPE,
+        size: c_size_t,
+        flags: c_int,
+    ) -> UnsafePointer[AVFrameSideData, MutOrigin.external],
+]
+"""Add a new side data entry to an array.
+
+@param sd pointer to array of side data to which to add another entry,
+or to NULL in order to start a new array.
+@param nb_sd pointer to an integer containing the number of entries in
+the array.
+@param type type of the added side data
+@param size size of the side data
+@param flags Some combination of AV_FRAME_SIDE_DATA_FLAG_* flags, or 0.
+
+@return newly added side data on success, NULL on error.
+@note In case of AV_FRAME_SIDE_DATA_FLAG_UNIQUE being set, entries of
+matching AVFrameSideDataType will be removed before the addition is attempted.
+@note In case of AV_FRAME_SIDE_DATA_FLAG_REPLACE being set, if an entry of the
+same type already exists, it will be replaced instead.
+"""
+
+
+comptime av_frame_side_data_add = ExternalFunction[
+    "av_frame_side_data_add",
+    fn (
+        sd: UnsafePointer[AVFrameSideData, MutOrigin.external],
+        nb_sd: UnsafePointer[c_int, MutOrigin.external],
+        type: AVFrameSideDataType.ENUM_DTYPE,
+        buf: UnsafePointer[AVBufferRef, MutOrigin.external],
+        flags: c_int,
+    ) -> UnsafePointer[AVFrameSideData, MutOrigin.external],
+]
+"""Add a new side data entry to an array from an existing AVBufferRef.
+
+@param sd pointer to array of side data to which to add another entry,
+or to NULL in order to start a new array.
+@param nb_sd pointer to an integer containing the number of entries in
+the array.
+@param type type of the added side data
+@param buf Pointer to AVBufferRef to add to the array. On success,
+the function takes ownership of the AVBufferRef and *buf is set to NULL, unless 
+AV_FRAME_SIDE_DATA_FLAG_NEW_REF is set in which case the ownership will remain 
+with the caller.
+@param flags Some combination of AV_FRAME_SIDE_DATA_FLAG_* flags, or 0.
+
+@return newly added side data on success, NULL on error.
+@note In case of AV_FRAME_SIDE_DATA_FLAG_UNIQUE being set, entries of
+matching AVFrameSideDataType will be removed before the addition is attempted.
+@note In case of AV_FRAME_SIDE_DATA_FLAG_REPLACE being set, if an entry of the
+same type already exists, it will be replaced instead.
+"""
+
+
+comptime av_frame_side_data_clone = ExternalFunction[
+    "av_frame_side_data_clone",
+    fn (
+        sd: UnsafePointer[AVFrameSideData, MutOrigin.external],
+        nb_sd: UnsafePointer[c_int, MutOrigin.external],
+        src: UnsafePointer[AVFrameSideData, ImmutOrigin.external],
+        flags: c_int,
+    ) -> UnsafePointer[AVFrameSideData, MutOrigin.external],
+]
+"""Add a new side data entry to an array based on existing side data, taking
+a reference towards the contained AVBufferRef.
+
+@param sd pointer to array of side data to which to add another entry,
+or to NULL in order to start a new array.
+@param nb_sd pointer to an integer containing the number of entries in
+the array.
+@param src side data to be cloned, with a new reference utilized for the buffer.
+@param flags Some combination of AV_FRAME_SIDE_DATA_FLAG_* flags, or 0.
+
+@return newly added side data on success, NULL on error.
+@note In case of AV_FRAME_SIDE_DATA_FLAG_UNIQUE being set, entries of
+matching AVFrameSideDataType will be removed before the addition is attempted.
+@note In case of AV_FRAME_SIDE_DATA_FLAG_REPLACE being set, if an entry of the
+same type already exists, it will be replaced instead.
+"""
+
+
+# TODO: This is an inline function and probably shouldn't be a
+# "external function". This needs to be handled in the dlhandle.
+comptime av_frame_side_data_get_c = ExternalFunction[
+    "av_frame_side_data_get_c",
+    fn (
+        sd: UnsafePointer[AVFrameSideData, ImmutOrigin.external],
+        nb_sd: c_int,
+        type: AVFrameSideDataType.ENUM_DTYPE,
+    ) -> UnsafePointer[AVFrameSideData, ImmutOrigin.external],
+]
+"""Get a side data entry of a specific type from an array.
+
+@param sd array of side data.
+@param nb_sd integer containing the number of entries in the array.
+@param type type of side data to be queried
+
+@return a pointer to the side data of a given type on success, NULL if there
+is no side data with such type in this set.
+"""
+
+# TODO: This is an inline function and probably shouldn't be a
+# "external function". This needs to be handled in the dlhandle.
+comptime av_frame_side_data_get = ExternalFunction[
+    "av_frame_side_data_get",
+    fn (
+        sd: UnsafePointer[AVFrameSideData, ImmutOrigin.external],
+        nb_sd: c_int,
+        type: AVFrameSideDataType.ENUM_DTYPE,
+    ) -> UnsafePointer[AVFrameSideData, ImmutOrigin.external],
+]
+"""Wrapper around av_frame_side_data_get_c() to workaround the limitation
+that for any type T the conversion from T * const * to const T * const *
+is not performed automatically in C.
+@see av_frame_side_data_get_c().
+"""
+
+
+comptime av_frame_side_data_remove = ExternalFunction[
+    "av_frame_side_data_remove",
+    fn (
+        sd: UnsafePointer[AVFrameSideData, MutOrigin.external],
+        nb_sd: UnsafePointer[c_int, MutOrigin.external],
+        type: AVFrameSideDataType.ENUM_DTYPE,
+    ),
+]
+"""Remove and free all side data instances of the given type from an array.
+"""
+
+
+comptime av_frame_side_data_remove_by_props = ExternalFunction[
+    "av_frame_side_data_remove_by_props",
+    fn (
+        sd: UnsafePointer[AVFrameSideData, MutOrigin.external],
+        nb_sd: UnsafePointer[c_int, MutOrigin.external],
+        props: c_int,
+    ),
+]
+"""Remove and free all side data instances that match any of the given
+side data properties. (See enum AVSideDataProps).
 """

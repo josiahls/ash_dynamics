@@ -408,7 +408,7 @@ struct AVStream:
     decoding: set by libavformat
     encoding: set by the user, replaced by libavformat if left unset
     """
-    var codecpar: UnsafePointer[AVCodecParameters, ImmutOrigin.external]
+    var codecpar: UnsafePointer[AVCodecParameters, MutOrigin.external]
     """Codec parameters associated with this stream. Allocated and freed by
     libavformat in avformat_new_stream() and avformat_free_context()
     respectively.
@@ -469,7 +469,7 @@ struct AVStream:
     - decoding: Set by libavformat.
     """
 
-    var metadata: UnsafePointer[AVDictionary, ImmutOrigin.external]
+    var metadata: UnsafePointer[AVDictionary, MutOrigin.external]
     """Metadata
     - decoding: Set by libavformat.
     - encoding: Set by the caller before avformat_write_header().
@@ -626,7 +626,7 @@ struct AVStreamGroupTileGrid:
     var coded_height: c_int
     "Height of the canvas. Must be > 0."
     var offsets: UnsafePointer[
-        _AVStreamGroupTileGrid_offsets, ImmutOrigin.external
+        _AVStreamGroupTileGrid_offsets, MutOrigin.external
     ]
 
     var background: StaticTuple[c_uchar, 4]
@@ -665,7 +665,7 @@ struct AVStreamGroupTileGrid:
     amount amount of pixels to be cropped from the bottom edge of the
     final image before presentation.
     """
-    var coded_side_data: UnsafePointer[AVPacketSideData, ImmutOrigin.external]
+    var coded_side_data: UnsafePointer[AVPacketSideData, MutOrigin.external]
     """Additional data associated with the grid.
 
     Should be allocated with av_packet_side_data_new() or
@@ -1369,7 +1369,7 @@ struct AVFormatContext:
     var output_ts_offset: c_long_long
     """Output timestamp offset, in microseconds.
     Muxing: set by user."""
-    var dump_separator: UnsafePointer[c_uchar, ImmutOrigin.external]
+    var dump_separator: UnsafePointer[c_uchar, MutOrigin.external]
     """Dump format separator.
     can be ", " or "\n      " or anything else
     - muxing: Set by user.
@@ -2672,7 +2672,7 @@ comptime av_dump_format = ExternalFunction[
     fn (
         ic: UnsafePointer[AVFormatContext, MutOrigin.external],
         index: c_int,
-        url: UnsafePointer[c_char, ImmutOrigin.external],
+        url: UnsafePointer[c_char, ImmutAnyOrigin],
         is_output: c_int,
     ),
 ]

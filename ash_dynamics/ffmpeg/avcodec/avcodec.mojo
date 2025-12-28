@@ -253,6 +253,8 @@ struct AVCodecContext(StructWritable):
     "AVMediaType. See AVMEDIA_TYPE_xxx for the list of possible values."
     var codec: UnsafePointer[AVCodec, origin = ImmutOrigin.external]
     "AVCodec. See AV_CODEC_ID_xxx for the list of possible values."
+    var codec_id: AVCodecID.ENUM_DTYPE
+    "See AV_CODEC_ID_xxx for the list of possible values."
 
     var codec_tag: c_ushort
     """FourCC (LSB first, so "ABCD" -> ('D'<<24) + ('C'<<16) + ('B'<<8) + 'A').
@@ -1496,6 +1498,7 @@ struct AVCodecContext(StructWritable):
         pkt: UnsafePointer[AVPacket, MutOrigin.external],
         flags: c_int,
     ) -> c_int
+
     """This callback is called at the beginning of each packet to get a data
     buffer for it.
 
@@ -1590,81 +1593,97 @@ struct AVCodecContext(StructWritable):
     """Number of entries in decoded_side_data."""
 
     fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["coded_side_data"](self.coded_side_data)
-        struct_writer.write_field["nb_coded_side_data"](self.nb_coded_side_data)
-        struct_writer.write_field["export_side_data"](self.export_side_data)
-        struct_writer.write_field["max_pixels"](self.max_pixels)
-        struct_writer.write_field["apply_cropping"](self.apply_cropping)
-        struct_writer.write_field["discard_damaged_percentage"](
+        var sw = StructWriter[Self](writer, indent=indent)
+        sw.write_field["av_class"](self.av_class)
+        sw.write_field["codec"](self.codec)
+        sw.write_field["priv_data"](self.priv_data)
+        sw.write_field["internal"](self.internal)
+        sw.write_field["opaque"](self.opaque)
+        sw.write_field["extradata"](self.extradata)
+        sw.write_field["draw_horiz_band"](
+            UnsafePointer(to=self.draw_horiz_band)
+        )
+        sw.write_field["intra_matrix"](self.intra_matrix)
+        sw.write_field["inter_matrix"](self.inter_matrix)
+        sw.write_field["chroma_intra_matrix"](self.chroma_intra_matrix)
+        sw.write_field["rc_override"](self.rc_override)
+        sw.write_field["stats_out"](self.stats_out)
+        sw.write_field["stats_in"](self.stats_in)
+        sw.write_field["hwaccel"](self.hwaccel)
+        sw.write_field["hwaccel_context"](self.hwaccel_context)
+        sw.write_field["hw_frames_ctx"](self.hw_frames_ctx)
+        sw.write_field["hw_device_ctx"](self.hw_device_ctx)
+        sw.write_field["execute"](UnsafePointer(to=self.execute))
+        sw.write_field["execute2"](UnsafePointer(to=self.execute2))
+        sw.write_field["codec_descriptor"](self.codec_descriptor)
+        sw.write_field["sub_charenc"](self.sub_charenc)
+        sw.write_field["sub_charenc_mode"](self.sub_charenc_mode)
+        sw.write_field["subtitle_header_size"](self.subtitle_header_size)
+        sw.write_field["subtitle_header"](self.subtitle_header)
+        sw.write_field["dump_separator"](self.dump_separator)
+        sw.write_field["codec_whitelist"](self.codec_whitelist)
+        sw.write_field["coded_side_data"](self.coded_side_data)
+        sw.write_field["nb_coded_side_data"](self.nb_coded_side_data)
+        sw.write_field["export_side_data"](self.export_side_data)
+        sw.write_field["max_pixels"](self.max_pixels)
+        sw.write_field["apply_cropping"](self.apply_cropping)
+        sw.write_field["discard_damaged_percentage"](
             self.discard_damaged_percentage
         )
-        struct_writer.write_field["max_samples"](self.max_samples)
-        struct_writer.write_field["get_encode_buffer"]("function pointer")
-        struct_writer.write_field["frame_num"](self.frame_num)
-        struct_writer.write_field["side_data_prefer_packet"](
-            self.side_data_prefer_packet
-        )
-        struct_writer.write_field["nb_side_data_prefer_packet"](
+        sw.write_field["max_samples"](self.max_samples)
+        # sw.write_field["get_encode_buffer"](self.get_encode_buffer)
+        sw.write_field["frame_num"](self.frame_num)
+        sw.write_field["side_data_prefer_packet"](self.side_data_prefer_packet)
+        sw.write_field["nb_side_data_prefer_packet"](
             self.nb_side_data_prefer_packet
         )
-        struct_writer.write_field["decoded_side_data"](self.decoded_side_data)
-        struct_writer.write_field["nb_decoded_side_data"](
-            self.nb_decoded_side_data
-        )
-        struct_writer.write_field["get_format"]("function pointer")
-        struct_writer.write_field["qcompress"](self.qcompress)
-        struct_writer.write_field["qblur"](self.qblur)
-        struct_writer.write_field["qmin"](self.qmin)
-        struct_writer.write_field["qmax"](self.qmax)
-        struct_writer.write_field["qblur"](self.qblur)
-        struct_writer.write_field["qmin"](self.qmin)
-        struct_writer.write_field["qmax"](self.qmax)
-        struct_writer.write_field["max_b_frames"](self.max_b_frames)
-        struct_writer.write_field["b_quant_factor"](self.b_quant_factor)
-        struct_writer.write_field["b_quant_offset"](self.b_quant_offset)
-        struct_writer.write_field["i_quant_factor"](self.i_quant_factor)
-        struct_writer.write_field["i_quant_offset"](self.i_quant_offset)
-        struct_writer.write_field["lumi_masking"](self.lumi_masking)
-        struct_writer.write_field["skip_idct"](self.skip_idct)
-        struct_writer.write_field["skip_loop_filter"](self.skip_loop_filter)
-        struct_writer.write_field["skip_frame"](self.skip_frame)
-        struct_writer.write_field["skip_idct"](self.skip_idct)
-        struct_writer.write_field["skip_loop_filter"](self.skip_loop_filter)
-        struct_writer.write_field["temporal_cplx_masking"](
-            self.temporal_cplx_masking
-        )
-        struct_writer.write_field["spatial_cplx_masking"](
-            self.spatial_cplx_masking
-        )
-        struct_writer.write_field["p_masking"](self.p_masking)
-        struct_writer.write_field["dark_masking"](self.dark_masking)
-        struct_writer.write_field["nsse_weight"](self.nsse_weight)
-        struct_writer.write_field["me_cmp"](self.me_cmp)
-        struct_writer.write_field["me_sub_cmp"](self.me_sub_cmp)
-        struct_writer.write_field["mb_cmp"](self.mb_cmp)
-        struct_writer.write_field["ildct_cmp"](self.ildct_cmp)
-        struct_writer.write_field["dia_size"](self.dia_size)
-        struct_writer.write_field["last_predictor_count"](
-            self.last_predictor_count
-        )
-        struct_writer.write_field["pre_dia_size"](self.pre_dia_size)
-        struct_writer.write_field["me_subpel_quality"](self.me_subpel_quality)
-        struct_writer.write_field["me_range"](self.me_range)
-        struct_writer.write_field["mb_decision"](self.mb_decision)
-        struct_writer.write_field["intra_matrix"](self.intra_matrix)
-        struct_writer.write_field["inter_matrix"](self.inter_matrix)
-        struct_writer.write_field["chroma_intra_matrix"](
-            self.chroma_intra_matrix
-        )
-        struct_writer.write_field["intra_dc_precision"](self.intra_dc_precision)
-        struct_writer.write_field["extra_hw_frames"](self.extra_hw_frames)
-        struct_writer.write_field["error"](
+        sw.write_field["decoded_side_data"](self.decoded_side_data)
+        sw.write_field["nb_decoded_side_data"](self.nb_decoded_side_data)
+        sw.write_field["qcompress"](self.qcompress)
+        sw.write_field["qblur"](self.qblur)
+        sw.write_field["qmin"](self.qmin)
+        sw.write_field["qmax"](self.qmax)
+        sw.write_field["qblur"](self.qblur)
+        sw.write_field["qmin"](self.qmin)
+        sw.write_field["qmax"](self.qmax)
+        sw.write_field["get_format"](UnsafePointer(to=self.get_format))
+        sw.write_field["max_b_frames"](self.max_b_frames)
+        sw.write_field["b_quant_factor"](self.b_quant_factor)
+        sw.write_field["b_quant_offset"](self.b_quant_offset)
+        sw.write_field["i_quant_factor"](self.i_quant_factor)
+        sw.write_field["i_quant_offset"](self.i_quant_offset)
+        sw.write_field["lumi_masking"](self.lumi_masking)
+        sw.write_field["skip_idct"](self.skip_idct)
+        sw.write_field["skip_loop_filter"](self.skip_loop_filter)
+        sw.write_field["skip_frame"](self.skip_frame)
+        sw.write_field["skip_idct"](self.skip_idct)
+        sw.write_field["skip_loop_filter"](self.skip_loop_filter)
+        sw.write_field["temporal_cplx_masking"](self.temporal_cplx_masking)
+        sw.write_field["spatial_cplx_masking"](self.spatial_cplx_masking)
+        sw.write_field["p_masking"](self.p_masking)
+        sw.write_field["dark_masking"](self.dark_masking)
+        sw.write_field["nsse_weight"](self.nsse_weight)
+        sw.write_field["me_cmp"](self.me_cmp)
+        sw.write_field["me_sub_cmp"](self.me_sub_cmp)
+        sw.write_field["mb_cmp"](self.mb_cmp)
+        sw.write_field["ildct_cmp"](self.ildct_cmp)
+        sw.write_field["dia_size"](self.dia_size)
+        sw.write_field["last_predictor_count"](self.last_predictor_count)
+        sw.write_field["pre_dia_size"](self.pre_dia_size)
+        sw.write_field["me_subpel_quality"](self.me_subpel_quality)
+        sw.write_field["me_range"](self.me_range)
+        sw.write_field["mb_decision"](self.mb_decision)
+        sw.write_field["intra_matrix"](self.intra_matrix)
+        sw.write_field["inter_matrix"](self.inter_matrix)
+        sw.write_field["chroma_intra_matrix"](self.chroma_intra_matrix)
+        sw.write_field["intra_dc_precision"](self.intra_dc_precision)
+        sw.write_field["extra_hw_frames"](self.extra_hw_frames)
+        sw.write_field["error"](
             "StaticTuple[c_ulong_long, AVFrame.AV_NUM_DATA_POINTERS]"
         )
-        struct_writer.write_field["dct_algo"](self.dct_algo)
-        struct_writer.write_field["thread_count"](self.thread_count)
-        struct_writer.write_field["idct_algo"](self.idct_algo)
+        sw.write_field["dct_algo"](self.dct_algo)
+        sw.write_field["thread_count"](self.thread_count)
+        sw.write_field["idct_algo"](self.idct_algo)
 
 
 @fieldwise_init
@@ -2207,6 +2226,42 @@ comptime avcodec_receive_frame = ExternalFunction[
 @retval AVERROR(EINVAL)  codec not opened, or it is an encoder without the
                         @ref AV_CODEC_FLAG_RECON_FRAME flag enabled
 @retval "other negative error code" legitimate decoding errors
+"""
+
+
+comptime avcodec_send_frame = ExternalFunction[
+    "avcodec_send_frame",
+    fn (
+        avctx: UnsafePointer[AVCodecContext, MutOrigin.external],
+        frame: UnsafePointer[AVFrame, ImmutOrigin.external],
+    ) -> c_int,
+]
+"""Supply a raw video or audio frame to the encoder. Use avcodec_receive_packet()
+to retrieve buffered output packets.
+
+@param avctx codec context
+@param frame AVFrame containing the raw audio or video frame to be encoded.
+            Ownership of the frame remains with the caller, and the
+            encoder will not write to the frame. The encoder may create
+            a reference to the frame data (or copy it if the frame is
+            not reference-counted).
+            It can be NULL, in which case it is considered a flush
+            packet.  This signals the end of the stream. If the encoder
+            still has packets buffered, it will return them after this
+            call. Once flushing mode has been entered, additional flush
+            packets are ignored, and sending frames will return
+            AVERROR_EOF.
+
+@retval 0                 success
+@retval AVERROR(EAGAIN)   input is not accepted in the current state - user must
+                           read output with avcodec_receive_packet() (once all
+                           output is read, the packet should be resent, and the
+                           call will not fail with EAGAIN).
+@retval AVERROR_EOF       the encoder has been flushed, and no new frames can
+                           be sent to it
+@retval AVERROR(EINVAL)   codec not opened, it is a decoder, or requires flush
+@retval AVERROR(ENOMEM)   failed to add packet to internal queue, or similar
+@retval "another negative error code" legitimate encoding errors
 """
 
 
