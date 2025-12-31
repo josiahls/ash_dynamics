@@ -18,6 +18,22 @@ yet as an installable deb package.
 # to use the encoder in commercial solutions.
 apt install libopenh264-dev
 
+pixi shell --environment stdlib-dev
 pixi run configure
 pixi run test_all
 ```
+
+## Demo Video
+Important: This video is just for current status / capability purposes. This is not
+UX friendly since the memory usage / origin API is very premature. 
+
+Additionally, this requires a version of mojo that implements:
+https://github.com/modular/modular/pull/5715
+
+```
+mkdir -p test_data/dash_mojo
+pixi run test tests/test_ffmpeg/test_ffmpeg_h264_to_fmp4.mojo
+python3 serve_dash.py 
+```
+
+https://github.com/user-attachments/assets/a7d5064c-a636-4130-b443-4dfde792f00a
