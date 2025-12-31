@@ -662,9 +662,10 @@ def test_av_mux_example():
     var swrsample = Swrsample()
 
     var test_data_root = os.getenv("PIXI_PROJECT_ROOT")
-    var input_filename: String = (
-        "{}/test_data/testsrc_320x180_30fps_2s.h264".format(test_data_root)
-    )
+    # Currently auto gens frames
+    # var input_filename: String = (
+    #     "{}/test_data/testsrc_320x180_30fps_2s.h264".format(test_data_root)
+    # )
     var output_filename: String = (
         "{}/test_data/dash_mojo/testsrc_320x180_30fps_2s.mpd".format(
             test_data_root
