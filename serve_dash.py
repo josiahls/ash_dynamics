@@ -16,7 +16,7 @@ import os
 
 
 # Change this to "dash" or "dash_from_c" to switch which set you serve.
-SERVE_SUBDIR = "dash"        # or "dash_from_c"
+SERVE_SUBDIR = "dash_mojo"        # or "dash_from_c"
 
 
 class DashRequestHandler(SimpleHTTPRequestHandler):
@@ -35,21 +35,26 @@ class DashRequestHandler(SimpleHTTPRequestHandler):
             # mpds = list(self.serve_root.glob("*.mpd"))
             # if mpds:
             #     return str(mpds[0])
-            mpds = list(self.serve_root.glob("testsrc_320x180_30fps_2s.mp4"))
-            print(mpds)
-            if mpds:
-                return str(mpds[0])
+            # mpds = list(self.serve_root.glob("*.mp4"))
+            # print(mpds)
+            # if mpds:
+            #     return str(mpds[0])
+            return str(self.repo_root / "test.html")
+
         return str(self.serve_root / rel)
 
     def guess_type(self, path: str) -> str:
         # Ensure .mpd gets the right DASH MIME type.
+        print('guess_type', path)
         if path.endswith(".mpd"):
             return "application/dash+xml"
-        elif path.endswith(".mp4"):
-            return "video/mp4"
+        # elif path.endswith(".mp4"):
+        #     return "video/mp4"
         # Let the default machinery handle everything else.
         base, ext = os.path.splitext(path)
         if ext in mimetypes.types_map:
+            print('ext', ext)
+            print('mimetypes.types_map[ext]', mimetypes.types_map[ext])
             return mimetypes.types_map[ext]
         return "application/octet-stream"
 
@@ -66,6 +71,7 @@ class DashRequestHandler(SimpleHTTPRequestHandler):
 
 
 def main() -> None:
+    # Make sure to run: Cmd + Shift + R in the browser to clear cache.
     host = "127.0.0.1"
     port = 8000
 

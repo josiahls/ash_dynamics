@@ -1,5 +1,6 @@
 from testing.suite import TestSuite
 from testing.testing import assert_equal
+from pathlib import Path
 from memory import memset
 from itertools import count
 import sys
@@ -665,7 +666,9 @@ def test_av_mux_example():
         "{}/test_data/testsrc_320x180_30fps_2s.h264".format(test_data_root)
     )
     var output_filename: String = (
-        "{}/test_data/testsrc_320x180_30fps_2s.mp4".format(test_data_root)
+        "{}/test_data/dash_mojo/testsrc_320x180_30fps_2s.mpd".format(
+            test_data_root
+        )
     )
 
     # FIXME: Tryout without any flags, just h264 to mp4.
