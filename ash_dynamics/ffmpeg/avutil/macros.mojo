@@ -1,3 +1,4 @@
+"https://www.ffmpeg.org/doxygen/8.0/macros_8h.html"
 from sys.ffi import c_int
 from ash_dynamics.ffmpeg.avutil import avconfig
 
@@ -11,15 +12,6 @@ fn AV_NE[T: ImplicitlyCopyable](be: T, le: T) -> T:
 
 @always_inline
 fn FFDIFFSIGN[T: Comparable](x: T, y: T) -> Bool:
-    """Comparator.
-
-    For two numerical expressions x and y, gives 1 if x > y, -1 if x < y, and 0
-    if x == y. This is useful for instance in a qsort comparator callback.
-    Furthermore, compilers are able to optimize this to branchless code, and
-    there is no risk of overflow with signed types.
-    As with many macros, this evaluates its argument multiple times, it thus
-    must not have a side-effect.
-    """
     return Bool(Int(x > y) - Int(x < y))
 
 
@@ -34,8 +26,6 @@ fn FFDIFFSIGN[T: Comparable](x: T, y: T) -> Bool:
 
 @always_inline
 fn MKTAG(a: Int, b: Int, c: Int, d: Int) -> Int:
-    """Note: Handles MKTAG and MKBETAG."""
-
     @parameter
     if avconfig.AV_HAVE_BIGENDIAN:
         return (d) | ((c) << 8) | ((b) << 16) | Int(UInt(a) << 24)

@@ -59,7 +59,7 @@ struct Avcodec:
     var avcodec_parameters_from_context: avcodec_parameters_from_context.type
     var avcodec_send_frame: avcodec_send_frame.type
     var avcodec_receive_packet: avcodec_receive_packet.type
-    var av_packet_rescale_ts: av_packet_rescale_ts.type
+    var _av_packet_rescale_ts: av_packet_rescale_ts.type
     var av_buffer_alloc: av_buffer_alloc.type
 
     fn __init__(out self) raises:
@@ -87,7 +87,7 @@ struct Avcodec:
         )
         self.avcodec_send_frame = avcodec_send_frame.load(self.lib)
         self.avcodec_receive_packet = avcodec_receive_packet.load(self.lib)
-        self.av_packet_rescale_ts = av_packet_rescale_ts.load(self.lib)
+        self._av_packet_rescale_ts = av_packet_rescale_ts.load(self.lib)
         self.av_buffer_alloc = av_buffer_alloc.load(self.lib)
 
     fn av_packet_rescale_ts(
@@ -96,6 +96,6 @@ struct Avcodec:
         tb_a: AVRational,
         tb_b: AVRational,
     ):
-        return self.av_packet_rescale_ts(
+        return self._av_packet_rescale_ts(
             pkt, tb_a.as_long_long(), tb_b.as_long_long()
         )

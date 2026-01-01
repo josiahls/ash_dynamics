@@ -16,6 +16,7 @@ cd ./third_party/ffmpeg
 BUILD_PATH=$(pwd)/build
 
 if [ ! -d ${BUILD_PATH} ]; then
+    echo $(ls -la)
     echo "Building ffmpeg in ${BUILD_PATH}"
     # For put the built dir in the same directory. Eventually change to the default
     # location on linux.

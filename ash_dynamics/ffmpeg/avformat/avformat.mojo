@@ -1,8 +1,6 @@
-"""
-Main libavformat public API header
+"""https://www.ffmpeg.org/doxygen/8.0/avformat_8h.html
 
-Reference:
- - https://www.ffmpeg.org/doxygen/8.0/avformat_8h_source.html
+Main libavformat public API header
 
 I/O and Muxing/Demuxing Library
 """

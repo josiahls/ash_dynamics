@@ -1,3 +1,4 @@
+"https://www.ffmpeg.org/doxygen/8.0/pixfmt_8h.html"
 from sys.ffi import c_int
 from ash_dynamics.primitives._clib import Debug
 
@@ -11,18 +12,11 @@ from ash_dynamics.primitives._clib import Debug
 @fieldwise_init("implicit")
 @register_passable("trivial")
 struct AVPixelFormat(Debug):
-    """Reference [0] for enum details.
-
-    Reference:
-     - https://www.ffmpeg.org/doxygen/8.0/group__lavu__pixfmt.html
-    """
-
     comptime ENUM_DTYPE = c_int
 
     var _value: Self.ENUM_DTYPE
 
     fn inc(self) -> Self:
-        "Returns a copy of self but with +1 added."
         return Self(self._value + 1)
 
     comptime AV_PIX_FMT_NONE = Self(-1)
@@ -165,10 +159,6 @@ struct AVPixelFormat(Debug):
     ).inc()  # packed BGR 5:5:5, 16bpp, (msb)1X 5B 5G 5R(lsb), little-endian, X=unused/undefined
 
     comptime AV_PIX_FMT_VAAPI = Self(Self.AV_PIX_FMT_BGR555LE._value).inc()
-    """
-    Hardware acceleration through VA-API, data[3] contains a
-    VASurfaceID.
-    """
 
     comptime AV_PIX_FMT_YUV420P16LE = Self(
         Self.AV_PIX_FMT_VAAPI._value
@@ -987,231 +977,119 @@ struct AVPixelFormat(Debug):
 @fieldwise_init
 @register_passable("trivial")
 struct AVColorRange(Debug):
-    """Color range."""
-
     comptime ENUM_DTYPE = c_int
 
     var _value: Self.ENUM_DTYPE
 
     fn inc(self) -> Self:
-        "Returns a copy of self but with +1 added."
         return Self(self._value + 1)
 
     comptime AVCOL_RANGE_UNSPECIFIED = Self(0)
 
     comptime AVCOL_RANGE_MPEG = Self(1)
-    """Narrow or limited range content.
-    
-    - For luma planes:
-
-          (219 * E + 16) * 2^(n-8)
-
-      F.ex. the range of 16-235 for 8 bits
-
-    - For chroma planes:
-
-          (224 * E + 128) * 2^(n-8)
-
-      F.ex. the range of 16-240 for 8 bits
-    """
 
     comptime AVCOL_RANGE_JPEG = Self(2)
-    """Full range content.
-    
-    - For RGB and luma planes:
-
-          (2^n - 1) * E
-
-      F.ex. the range of 0-255 for 8 bits
-
-    - For chroma planes:
-
-          (2^n - 1) * E + 2^(n - 1)
-
-      F.ex. the range of 1-255 for 8 bits
-    """
 
     comptime AVCOL_RANGE_NB = Self(3)
-    """Not part of ABI"""
 
 
 @fieldwise_init("implicit")
 @register_passable("trivial")
 struct AVColorPrimaries(Debug):
-    """Chromaticity coordinates of the source primaries.
-
-    These values match the ones defined by ISO/IEC 23091-2_2019 subclause 8.1 and ITU-T H.273.
-    """
-
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
     comptime AVCOL_PRI_RESERVED0 = Self(0)
     comptime AVCOL_PRI_BT709 = Self(1)
-    """Also ITU-R BT1361 / IEC 61966-2-4 / SMPTE RP 177 Annex B"""
     comptime AVCOL_PRI_UNSPECIFIED = Self(2)
     comptime AVCOL_PRI_RESERVED = Self(3)
     comptime AVCOL_PRI_BT470M = Self(4)
-    """also FCC Title 47 Code of Federal Regulations 73.682 (a)(20)"""
 
     comptime AVCOL_PRI_BT470BG = Self(5)
-    """also ITU-R BT601-6 625 / ITU-R BT1358 625 / ITU-R BT1700 625 PAL & SECAM"""
     comptime AVCOL_PRI_SMPTE170M = Self(6)
-    """also ITU-R BT601-6 525 / ITU-R BT1358 525 / ITU-R BT1700 NTSC"""
     comptime AVCOL_PRI_SMPTE240M = Self(7)
-    """identical to above, also called "SMPTE C" even though it uses D65"""
     comptime AVCOL_PRI_FILM = Self(8)
-    """colour filters using Illuminant C"""
     comptime AVCOL_PRI_BT2020 = Self(9)
-    """ITU-R BT2020"""
     comptime AVCOL_PRI_SMPTE428 = Self(10)
-    """SMPTE ST 428-1 (CIE 1931 XYZ)"""
     comptime AVCOL_PRI_SMPTEST428_1 = Self.AVCOL_PRI_SMPTE428
     comptime AVCOL_PRI_SMPTE431 = Self(11)
-    """SMPTE ST 431-2 (2011) / DCI P3"""
     comptime AVCOL_PRI_SMPTE432 = Self(12)
-    """SMPTE ST 432-1 (2010) / P3 D65 / Display P3"""
     comptime AVCOL_PRI_EBU3213 = Self(22)
-    """EBU Tech. 3213-E (nothing there) / one of JEDEC P22 group phosphors"""
     comptime AVCOL_PRI_JEDEC_P22 = Self(Self.AVCOL_PRI_EBU3213._value)
     comptime AVCOL_PRI_NB = Self(Self.AVCOL_PRI_JEDEC_P22._value + 1)
-    """Not part of ABI"""
 
 
 @fieldwise_init("implicit")
 @register_passable("trivial")
 struct AVColorTransferCharacteristic(Debug):
-    """Color Transfer Characteristic.
-
-    These values match the ones defined by ISO/IEC 23091-2_2019 subclause 8.2.
-    """
-
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
     comptime AVCOL_TRC_RESERVED0 = Self(0)
     comptime AVCOL_TRC_BT709 = Self(1)
-    """also ITU-R BT1361"""
     comptime AVCOL_TRC_UNSPECIFIED = Self(2)
     comptime AVCOL_TRC_RESERVED = Self(3)
     comptime AVCOL_TRC_GAMMA22 = Self(4)
-    """also ITU-R BT470M / ITU-R BT1700 625 PAL & SECAM"""
     comptime AVCOL_TRC_GAMMA28 = Self(5)
-    """also ITU-R BT470BG"""
     comptime AVCOL_TRC_SMPTE170M = Self(6)
-    """also ITU-R BT601-6 525 or 625 / ITU-R BT1358 525 or 625 / ITU-R BT1700 NTSC"""
     comptime AVCOL_TRC_SMPTE240M = Self(7)
     comptime AVCOL_TRC_LINEAR = Self(8)
-    """Linear transfer characteristics"""
     comptime AVCOL_TRC_LOG = Self(9)
-    """Logarithmic transfer characteristic (100:1 range)"""
     comptime AVCOL_TRC_LOG_SQRT = Self(10)
-    """Logarithmic transfer characteristic (100 * Sqrt(10) : 1 range)"""
     comptime AVCOL_TRC_IEC61966_2_4 = Self(11)
-    """IEC 61966-2-4"""
     comptime AVCOL_TRC_BT1361_ECG = Self(12)
-    """ITU-R BT1361 Extended Colour Gamut"""
     comptime AVCOL_TRC_IEC61966_2_1 = Self(13)
-    """IEC 61966-2-1 (sRGB or sYCC)"""
     comptime AVCOL_TRC_BT2020_10 = Self(14)
-    """ITU-R BT2020 for 10-bit system"""
     comptime AVCOL_TRC_BT2020_12 = Self(15)
-    """ITU-R BT2020 for 12-bit system"""
     comptime AVCOL_TRC_SMPTE2084 = Self(16)
-    """SMPTE ST 2084 for 10-, 12-, 14- and 16-bit systems"""
     comptime AVCOL_TRC_SMPTEST2084 = Self(Self.AVCOL_TRC_SMPTE2084._value)
     comptime AVCOL_TRC_SMPTE428 = Self(17)
-    """SMPTE ST 428-1"""
     comptime AVCOL_TRC_SMPTEST428_1 = Self(Self.AVCOL_TRC_SMPTE428._value)
     comptime AVCOL_TRC_ARIB_STD_B67 = Self(18)
-    """ARIB STD-B67, known as "Hybrid log-gamma"""
     comptime AVCOL_TRC_NB = Self(Self.AVCOL_TRC_ARIB_STD_B67._value + 1)
-    """Not part of ABI"""
 
 
 @fieldwise_init("implicit")
 @register_passable("trivial")
 struct AVColorSpace(Debug):
-    """YUV colorspace type.
-
-    These values match the ones defined by ISO/IEC 23091-2_2019 subclause 8.3.
-    """
-
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
     comptime AVCOL_SPC_RGB = Self(0)
-    """order of coefficients is actually GBR, also IEC 61966-2-1 (sRGB), YZX and ST 428-1"""
     comptime AVCOL_SPC_BT709 = Self(1)
-    """also ITU-R BT1361 / IEC 61966-2-4 xvYCC709 / derived in SMPTE RP 177 Annex B"""
     comptime AVCOL_SPC_UNSPECIFIED = Self(2)
 
     comptime AVCOL_SPC_RESERVED = Self(3)
-    """reserved for future use by ITU-T and ISO/IEC just like 15-255 are"""
     comptime AVCOL_SPC_FCC = Self(4)
-    """FCC Title 47 Code of Federal Regulations 73.682 (a)(20)"""
     comptime AVCOL_SPC_BT470BG = Self(5)
-    """also ITU-R BT601-6 625 / ITU-R BT1358 625 / ITU-R BT1700 625 PAL & SECAM / IEC 61966-2-4 xvYCC601"""
     comptime AVCOL_SPC_SMPTE170M = Self(6)
-    """also ITU-R BT601-6 525 / ITU-R BT1358 525 / ITU-R BT1700 NTSC / functionally identical to above"""
     comptime AVCOL_SPC_SMPTE240M = Self(7)
-    """derived from 170M primaries and D65 white point, 170M is derived from BT470 System M's primaries"""
     comptime AVCOL_SPC_YCGCO = Self(8)
-    """used by Dirac / VC-2 and H.264 FRext, see ITU-T SG16"""
     comptime AVCOL_SPC_YCOCG = Self(Self.AVCOL_SPC_YCGCO._value)
 
     comptime AVCOL_SPC_BT2020_NCL = Self(9)
-    """ITU-R BT2020 non-constant luminance system"""
     comptime AVCOL_SPC_BT2020_CL = Self(10)
-    """ITU-R BT2020 constant luminance system"""
     comptime AVCOL_SPC_SMPTE2085 = Self(11)
-    """SMPTE 2085, Y'D'zD'x"""
     comptime AVCOL_SPC_CHROMA_DERIVED_NCL = Self(12)
-    """Chromaticity-derived non-constant luminance system"""
     comptime AVCOL_SPC_CHROMA_DERIVED_CL = Self(13)
-    """Chromaticity-derived constant luminance system"""
     comptime AVCOL_SPC_ICTCP = Self(14)
-    """ITU-R BT.2100-0, ICtCp"""
     comptime AVCOL_SPC_IPT_C2 = Self(15)
-    """SMPTE ST 2128, IPT-C2"""
     comptime AVCOL_SPC_YCGCO_RE = Self(16)
-    """YCgCo-R, even addition of bits"""
     comptime AVCOL_SPC_YCGCO_RO = Self(17)
-    """YCgCo-R, odd addition of bits"""
     comptime AVCOL_SPC_NB = Self(Self.AVCOL_SPC_YCGCO_RO._value + 1)
-    """Not part of ABI"""
 
 
 @fieldwise_init("implicit")
 @register_passable("trivial")
 struct AVChromaLocation(Debug):
-    """Location of chroma samples.
-
-    Illustration showing the location of the first (top left) chroma sample of the
-    image, the left shows only luma, the right
-    shows the location of the chroma sample, the 2 could be imagined to overlay
-    each other but are drawn separately due to limitations of ASCII
-
-                    1st 2nd       1st 2nd horizontal luma sample positions
-                    v   v         v   v
-                    ______        ______
-    1st luma line > |X   X ...    |3 4 X ...     X are luma samples,
-                    |             |1 2           1-6 are possible chroma positions
-    2nd luma line > |X   X ...    |5 6 X ...     0 is undefined/unknown position
-    """
-
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
     comptime AVCHROMA_LOC_UNSPECIFIED = Self(0)
     comptime AVCHROMA_LOC_LEFT = Self(1)
-    """MPEG-2/4 4:2:0, H.264 default for 4:2:0"""
     comptime AVCHROMA_LOC_CENTER = Self(2)
-    """MPEG-1 4:2:0, JPEG 4:2:0, H.263 4:2:0"""
     comptime AVCHROMA_LOC_TOPLEFT = Self(3)
-    """ITU-R 601, SMPTE 274M 296M S314M(DV 4:1:1), mpeg2 4:2:2"""
     comptime AVCHROMA_LOC_TOP = Self(4)
     comptime AVCHROMA_LOC_BOTTOMLEFT = Self(5)
     comptime AVCHROMA_LOC_BOTTOM = Self(6)
     comptime AVCHROMA_LOC_NB = Self(Self.AVCHROMA_LOC_BOTTOM._value + 1)
-    """Not part of ABI"""

@@ -1,4 +1,4 @@
-"""Bindings for https://www.ffmpeg.org/doxygen/8.0/rational_8h_source.html"""
+"https://www.ffmpeg.org/doxygen/8.0/rational_8h.html"
 from sys.ffi import c_int, c_long_long
 from ash_dynamics.primitives._clib import Debug
 

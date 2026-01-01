@@ -2,6 +2,7 @@ from testing.suite import TestSuite
 from testing.testing import assert_equal
 from memory import memset
 from itertools import count
+from pathlib import Path
 import sys
 import os
 from sys.ffi import (
@@ -670,6 +671,9 @@ def test_av_mux_example():
         )
     )
 
+    var parent_path_parts = Path(output_filename).parts()[:-1]
+    var parent_path = Path(String(os.sep).join(parent_path_parts))
+    os.makedirs(parent_path, exist_ok=True)
     # FIXME: Tryout without any flags, just h264 to mp4.
     # ret = avformat.alloc_output_context(oc, output_filename)
 

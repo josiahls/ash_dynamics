@@ -671,6 +671,9 @@ def test_av_mux_example():
             test_data_root
         )
     )
+    var parent_path_parts = Path(output_filename).parts()[:-1]
+    var parent_path = Path(String(os.sep).join(parent_path_parts))
+    os.makedirs(parent_path, exist_ok=True)
 
     # FIXME: Tryout without any flags, just h264 to mp4.
     # ret = avformat.alloc_output_context(oc, output_filename)
