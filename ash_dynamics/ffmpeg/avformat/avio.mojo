@@ -12,7 +12,7 @@ import os
 from utils import StaticTuple
 from ash_dynamics.ffmpeg.avutil.log import AVClass
 from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
-from ash_dynamics.primitives._clib import C_Union, ExternalFunction
+from ash_dynamics.primitives._clib import C_Union, ExternalFunction, Debug
 
 
 comptime AVIO_SEEKABLE_NORMAL = 1 << 0
@@ -23,7 +23,7 @@ comptime AVIO_SEEKABLE_TIME = 1 << 1
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVIOInterruptCB:
+struct AVIOInterruptCB(Debug):
     """This structure contains a callback for checking whether to abort blocking functions.
     """
 
@@ -33,7 +33,7 @@ struct AVIOInterruptCB:
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVIODirEntryType:
+struct AVIODirEntryType(Debug):
     """This structure contains a directory entry type."""
 
     comptime ENUM_DTYPE = c_int
@@ -50,7 +50,7 @@ struct AVIODirEntryType:
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVIODirEntry:
+struct AVIODirEntry(Debug):
     """This structure contains a directory entry."""
 
     var name: UnsafePointer[c_char, MutOrigin.external]
@@ -85,7 +85,7 @@ struct AVIODirContext:
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVIODataMarkerType:
+struct AVIODataMarkerType(Debug):
     """This structure contains a data marker type."""
 
     comptime ENUM_DTYPE = c_int
@@ -118,7 +118,7 @@ struct AVIODataMarkerType:
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVIOContext:
+struct AVIOContext(Debug):
     """Bytestream IO Context.
 
     New public fields can be added with minor version bumps.

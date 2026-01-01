@@ -39,6 +39,7 @@ from ash_dynamics.primitives._clib import (
     StructWritable,
     StructWriter,
     ExternalFunction,
+    Debug,
 )
 
 
@@ -54,7 +55,7 @@ struct AVBuffer:
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVBufferRef(StructWritable):
+struct AVBufferRef(Debug):
     """Represents a reference to a data buffer.
 
     References:
@@ -69,12 +70,6 @@ struct AVBufferRef(StructWritable):
     av_buffer_is_writable() returns 1."""
     var size: c_uint
     "Size of data in bytes."
-
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["buffer"](self.buffer)
-        struct_writer.write_field["data"](self.data)
-        struct_writer.write_field["size"](self.size)
 
 
 comptime av_buffer_alloc = ExternalFunction[

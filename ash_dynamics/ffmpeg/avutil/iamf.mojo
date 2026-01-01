@@ -12,14 +12,14 @@ import os
 from utils import StaticTuple
 from ash_dynamics.ffmpeg.avutil.log import AVClass
 from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
-from ash_dynamics.primitives._clib import C_Union, ExternalFunction
+from ash_dynamics.primitives._clib import C_Union, ExternalFunction, Debug
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
 from ash_dynamics.ffmpeg.avutil.channel_layout import AVChannelLayout
 
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVIAMFAnimationType:
+struct AVIAMFAnimationType(Debug):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -30,7 +30,7 @@ struct AVIAMFAnimationType:
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVIAMFMixGain:
+struct AVIAMFMixGain(Debug):
     """Mix Gain Parameter Data as defined in section 3.8.1 of IAMF.
 
     @note This struct's size is not a part of the public ABI.
@@ -75,7 +75,7 @@ struct AVIAMFMixGain:
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVIAMFReconGain:
+struct AVIAMFReconGain(Debug):
     """Recon Gain Parameter Data as defined in section 3.8.3 of IAMF.
 
     @note This struct's size is not a part of the public ABI.
@@ -100,7 +100,7 @@ struct AVIAMFReconGain:
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVIAMFParamDefinitionType:
+struct AVIAMFParamDefinitionType(Debug):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -114,7 +114,7 @@ struct AVIAMFParamDefinitionType:
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVIAMFParamDefinition:
+struct AVIAMFParamDefinition(Debug):
     """Parameters as defined in section 3.6.1 of IAMF.
 
     The struct is allocated by av_iamf_param_definition_alloc() along with an
@@ -184,7 +184,7 @@ freed with a normal av_free() call.
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVIAMFAmbisonicsMode:
+struct AVIAMFAmbisonicsMode(Debug):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -197,7 +197,7 @@ comptime AV_IAMF_LAYER_FLAG_RECON_GAIN = c_uint(1 << 0)
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVIAMFLayer:
+struct AVIAMFLayer(Debug):
     """A layer defining a Channel Layout in the Audio Element.
 
     When @ref AVIAMFAudioElement.audio_element_type "the parent's Audio Element type"
@@ -250,7 +250,7 @@ struct AVIAMFLayer:
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVIAMFAudioElementType:
+struct AVIAMFAudioElementType(Debug):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -260,7 +260,7 @@ struct AVIAMFAudioElementType:
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVIAMFAudioElement:
+struct AVIAMFAudioElement(Debug):
     """Information on how to combine one or more audio streams, as defined in
     section 3.6 of IAMF.
 
@@ -347,7 +347,7 @@ upon return, *audio_element will be set to NULL.
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVIAMFHeadphonesMode:
+struct AVIAMFHeadphonesMode(Debug):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -359,7 +359,7 @@ struct AVIAMFHeadphonesMode:
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVIAMFSubmixElement:
+struct AVIAMFSubmixElement(Debug):
     """Submix element as defined in section 3.7 of IAMF.
 
     @note The struct should be allocated with av_iamf_submix_add_element()
@@ -404,7 +404,7 @@ struct AVIAMFSubmixElement:
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVIAMFSubmixLayoutType:
+struct AVIAMFSubmixLayoutType(Debug):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -419,7 +419,7 @@ struct AVIAMFSubmixLayoutType:
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVIAMFSubmixLayout:
+struct AVIAMFSubmixLayout(Debug):
     """Submix layout as defined in section 3.7.6 of IAMF.
 
     @note The struct should be allocated with av_iamf_submix_add_layout()
@@ -451,7 +451,7 @@ struct AVIAMFSubmixLayout:
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVIAMFSubmix:
+struct AVIAMFSubmix(Debug):
     """Submix as defined in section 3.7 of IAMF.
 
     @note The struct should be allocated with av_iamf_submix_alloc()
@@ -504,7 +504,7 @@ struct AVIAMFSubmix:
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVIAMFMixPresentation:
+struct AVIAMFMixPresentation(Debug):
     """Information on how to render and mix one or more AVIAMFAudioElement to generate
     the final audio output, as defined in section 3.7 of IAMF.
 

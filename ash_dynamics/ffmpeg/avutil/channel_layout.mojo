@@ -1,14 +1,14 @@
 from sys.ffi import c_int, c_char, c_ulong_long, c_size_t
 from ash_dynamics.primitives._clib import C_Union, ExternalFunction
 from utils import StaticTuple
-from ash_dynamics.primitives._clib import StructWritable, StructWriter
+from ash_dynamics.primitives._clib import Debug
 
 from reflection import get_type_name
 
 
 @register_passable("trivial")
 @fieldwise_init("implicit")
-struct AVChannel:
+struct AVChannel(Debug):
     """Reference [0] for struct details.
 
     Reference:
@@ -150,7 +150,7 @@ struct AVChannel:
 
 @register_passable("trivial")
 @fieldwise_init("implicit")
-struct AVChannelOrder:
+struct AVChannelOrder(Debug):
     """Reference [0] for struct details.
 
     Reference:
@@ -489,7 +489,7 @@ comptime AV_CH_LAYOUT_7POINT1_TOP_BACK = AV_CH_LAYOUT_5POINT1POINT2_BACK
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVMatrixEncoding:
+struct AVMatrixEncoding(Debug):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -505,7 +505,7 @@ struct AVMatrixEncoding:
 
 @register_passable("trivial")
 @fieldwise_init
-struct AVChannelCustom:
+struct AVChannelCustom(Debug):
     """An AVChannelCustom defines a single channel within a custom order layout
 
     Unlike most structures in FFmpeg, sizeof(AVChannelCustom) is a part of the
@@ -529,7 +529,7 @@ struct AVChannelCustom:
 
 @register_passable("trivial")
 @fieldwise_init
-struct AVChannelLayout(StructWritable):
+struct AVChannelLayout(Debug):
     """An AVChannelLayout holds information about the channel layout of audio data.
 
     A channel layout here is defined as a set of channels ordered in a specific
@@ -576,13 +576,6 @@ struct AVChannelLayout(StructWritable):
     ]
     var opaque: OpaquePointer[MutOrigin.external]
     "For some private data of the user."
-
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["order"](self.order)
-        struct_writer.write_field["nb_channels"](self.nb_channels)
-        # self.field_write_to("u", self.u, writer, indent=indent)
-        struct_writer.write_field["opaque"](self.opaque)
 
 
 fn AV_CHANNEL_LAYOUT_MASK(nb: c_int, m: c_ulong_long) -> AVChannelLayout:

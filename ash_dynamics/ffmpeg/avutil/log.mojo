@@ -1,6 +1,6 @@
 from sys.ffi import c_char, c_int
 from ash_dynamics.ffmpeg.avutil.opt import AVOption, AVOptionRanges
-from ash_dynamics.primitives._clib import StructWritable, StructWriter
+from ash_dynamics.primitives._clib import Debug
 
 from reflection import get_type_name
 
@@ -33,7 +33,7 @@ comptime AVClass_child_class_iterate_fn[T: Copyable] = fn (
 
 
 @register_passable("trivial")
-struct AVClass(StructWritable):
+struct AVClass(Debug):
     """Reference [0] for struct details.
 
     Reference:
@@ -79,34 +79,10 @@ struct AVClass(StructWritable):
     state flags, a combination of AVClassStateFlags values. The flags are 
     updated by the object to signal its state to the generic code."""
 
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["class_name"](
-            StringSlice(unsafe_from_utf8_ptr=self.class_name)
-        )
-        struct_writer.write_field["item_name"]("AVClass_item_name_fn")
-        struct_writer.write_field["option"](self.option)
-        struct_writer.write_field["version"](self.version)
-        struct_writer.write_field["log_level_offset_offset"](
-            self.log_level_offset_offset
-        )
-        struct_writer.write_field["parent_log_context_offset"](
-            self.parent_log_context_offset
-        )
-        struct_writer.write_field["category"](self.category)
-
-        struct_writer.write_field["get_category"]("AVClass_get_category_fn")
-        struct_writer.write_field["query_ranges"]("AVClass_query_ranges_fn")
-        struct_writer.write_field["child_next"]("AVClass_child_next_fn")
-        struct_writer.write_field["child_class_iterate"](
-            "AVClass_child_class_iterate_fn[Self]"
-        )
-        struct_writer.write_field["state_flags_offset"](self.state_flags_offset)
-
 
 @register_passable("trivial")
 @fieldwise_init("implicit")
-struct AVClassCategory:
+struct AVClassCategory(Debug):
     """Reference [0] for struct details.
 
     Reference:

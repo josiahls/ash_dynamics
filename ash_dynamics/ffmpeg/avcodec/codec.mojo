@@ -1,6 +1,7 @@
 from sys.ffi import c_char, c_int, c_uchar
 from ash_dynamics.primitives._clib import (
     StructWritable,
+    Debug,
     StructWriter,
     ExternalFunction,
 )
@@ -140,7 +141,7 @@ struct AVProfile(StructWritable):
 
 @register_passable("trivial")
 @fieldwise_init
-struct AVCodec(StructWritable):
+struct AVCodec(Debug):
     """Reference [0] for struct details.
 
     Reference:
@@ -187,35 +188,6 @@ struct AVCodec(StructWritable):
     
     Note: This field is deprecated. Use avcodec_get_supported_config() instead.
     """
-
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["name"](
-            StringSlice(unsafe_from_utf8_ptr=self.name)
-        )
-        struct_writer.write_field["long_name"](
-            StringSlice(unsafe_from_utf8_ptr=self.long_name)
-        )
-        struct_writer.write_field["type"](self.type)
-        struct_writer.write_field["id"](self.id)
-        struct_writer.write_field["capabilities"](self.capabilities)
-        struct_writer.write_field["max_lowres"](self.max_lowres)
-        struct_writer.write_field["supported_framerates", deprecated=True](
-            self.supported_framerates
-        )
-        struct_writer.write_field["pix_fmts", deprecated=True](self.pix_fmts)
-        struct_writer.write_field["supported_samplerates", deprecated=True](
-            self.supported_samplerates
-        )
-        struct_writer.write_field["sample_fmts", deprecated=True](
-            self.sample_fmts
-        )
-        struct_writer.write_field["priv_class"](self.priv_class)
-        struct_writer.write_field["profiles"](self.profiles)
-        struct_writer.write_field["wrapper_name"](self.wrapper_name)
-        struct_writer.write_field["ch_layouts", deprecated=True](
-            self.ch_layouts
-        )
 
 
 comptime av_codec_iterate = ExternalFunction[
@@ -380,7 +352,7 @@ configuration are deprecated and others should be used in preference.)
 
 @register_passable("trivial")
 @fieldwise_init
-struct AVCodecHWConfig(StructWritable):
+struct AVCodecHWConfig(Debug):
     """Reference [0] for struct details.
 
     Reference:
@@ -405,12 +377,6 @@ struct AVCodecHWConfig(StructWritable):
     Must be set for AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX and 
     AV_CODEC_HW_CONFIG_METHOD_HW_FRAMES_CTX, otherwise unused.
     """
-
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["pix_fmt"](self.pix_fmt)
-        struct_writer.write_field["methods"](self.methods)
-        struct_writer.write_field["device_type"](self.device_type)
 
 
 comptime avcodec_get_hw_config = ExternalFunction[

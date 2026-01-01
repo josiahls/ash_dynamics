@@ -1,11 +1,12 @@
 """Bindings for https://www.ffmpeg.org/doxygen/8.0/buffer__internal_8h_source.html"""
 from sys.ffi import c_uchar, c_uint, c_int
 from os.atomic import Atomic, Consistency, fence
+from ash_dynamics.primitives._clib import Debug
 
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVBuffer:
+struct AVBuffer(Debug):
     """Represents a buffer.
 
     References:

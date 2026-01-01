@@ -1,5 +1,5 @@
 from sys.ffi import c_int, c_uchar, c_long_long, c_double, c_size_t
-from ash_dynamics.primitives._clib import ExternalFunction, c_ptrdiff_t
+from ash_dynamics.primitives._clib import ExternalFunction, c_ptrdiff_t, Debug
 from ash_dynamics.ffmpeg.avutil.log import AVClass
 from ash_dynamics.ffmpeg.avutil.channel_layout import (
     AVChannelLayout,
@@ -27,7 +27,7 @@ Mojo note: Todos belong, we aware of these.
 
 @fieldwise_init
 @register_passable("trivial")
-struct SwrDitherType:
+struct SwrDitherType(Debug):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -55,7 +55,7 @@ struct SwrDitherType:
 
 @fieldwise_init
 @register_passable("trivial")
-struct SwrEngine:
+struct SwrEngine(Debug):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -69,7 +69,7 @@ struct SwrEngine:
 
 @fieldwise_init
 @register_passable("trivial")
-struct SwrFilterType:
+struct SwrFilterType(Debug):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -83,7 +83,7 @@ struct SwrFilterType:
 
 @fieldwise_init
 @register_passable("trivial")
-struct SwrContext:
+struct SwrContext(Debug):
     """The libswresample context. Unlike libavcodec and libavformat, this structure
     is opaque. This means that if you would like to set options, you must use
     the @ref avoptions API and cannot directly set values to members of the

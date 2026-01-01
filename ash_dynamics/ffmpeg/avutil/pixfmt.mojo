@@ -1,5 +1,5 @@
 from sys.ffi import c_int
-from ash_dynamics.primitives._clib import StructWritable, StructWriter
+from ash_dynamics.primitives._clib import Debug
 
 
 # TODO: We could move the comments for each enum to be for the format:
@@ -10,7 +10,7 @@ from ash_dynamics.primitives._clib import StructWritable, StructWriter
 
 @fieldwise_init("implicit")
 @register_passable("trivial")
-struct AVPixelFormat(StructWritable):
+struct AVPixelFormat(Debug):
     """Reference [0] for enum details.
 
     Reference:
@@ -24,10 +24,6 @@ struct AVPixelFormat(StructWritable):
     fn inc(self) -> Self:
         "Returns a copy of self but with +1 added."
         return Self(self._value + 1)
-
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["value"](self._value)
 
     comptime AV_PIX_FMT_NONE = Self(-1)
 
@@ -990,7 +986,7 @@ struct AVPixelFormat(StructWritable):
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVColorRange(StructWritable):
+struct AVColorRange(Debug):
     """Color range."""
 
     comptime ENUM_DTYPE = c_int
@@ -1038,14 +1034,10 @@ struct AVColorRange(StructWritable):
     comptime AVCOL_RANGE_NB = Self(3)
     """Not part of ABI"""
 
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["value"](self._value)
-
 
 @fieldwise_init("implicit")
 @register_passable("trivial")
-struct AVColorPrimaries(StructWritable):
+struct AVColorPrimaries(Debug):
     """Chromaticity coordinates of the source primaries.
 
     These values match the ones defined by ISO/IEC 23091-2_2019 subclause 8.1 and ITU-T H.273.
@@ -1085,14 +1077,10 @@ struct AVColorPrimaries(StructWritable):
     comptime AVCOL_PRI_NB = Self(Self.AVCOL_PRI_JEDEC_P22._value + 1)
     """Not part of ABI"""
 
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["value"](self._value)
-
 
 @fieldwise_init("implicit")
 @register_passable("trivial")
-struct AVColorTransferCharacteristic(StructWritable):
+struct AVColorTransferCharacteristic(Debug):
     """Color Transfer Characteristic.
 
     These values match the ones defined by ISO/IEC 23091-2_2019 subclause 8.2.
@@ -1140,14 +1128,10 @@ struct AVColorTransferCharacteristic(StructWritable):
     comptime AVCOL_TRC_NB = Self(Self.AVCOL_TRC_ARIB_STD_B67._value + 1)
     """Not part of ABI"""
 
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["value"](self._value)
-
 
 @fieldwise_init("implicit")
 @register_passable("trivial")
-struct AVColorSpace(StructWritable):
+struct AVColorSpace(Debug):
     """YUV colorspace type.
 
     These values match the ones defined by ISO/IEC 23091-2_2019 subclause 8.3.
@@ -1197,14 +1181,10 @@ struct AVColorSpace(StructWritable):
     comptime AVCOL_SPC_NB = Self(Self.AVCOL_SPC_YCGCO_RO._value + 1)
     """Not part of ABI"""
 
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["value"](self._value)
-
 
 @fieldwise_init("implicit")
 @register_passable("trivial")
-struct AVChromaLocation(StructWritable):
+struct AVChromaLocation(Debug):
     """Location of chroma samples.
 
     Illustration showing the location of the first (top left) chroma sample of the
@@ -1235,7 +1215,3 @@ struct AVChromaLocation(StructWritable):
     comptime AVCHROMA_LOC_BOTTOM = Self(6)
     comptime AVCHROMA_LOC_NB = Self(Self.AVCHROMA_LOC_BOTTOM._value + 1)
     """Not part of ABI"""
-
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["value"](self._value)

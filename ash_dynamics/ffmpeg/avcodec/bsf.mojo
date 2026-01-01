@@ -1,4 +1,4 @@
-from ash_dynamics.primitives._clib import StructWritable
+from ash_dynamics.primitives._clib import Debug
 from ash_dynamics.ffmpeg.avutil.log import AVClass
 from ash_dynamics.ffmpeg.avcodec.codec_par import AVCodecParameters
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
@@ -8,7 +8,7 @@ from utils import StaticTuple
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVBSFContext(StructWritable):
+struct AVBSFContext(Debug):
     """The bitstream filter state.
 
     This struct must be allocated with av_bsf_alloc() and freed with
@@ -43,7 +43,7 @@ struct AVBSFContext(StructWritable):
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVBitStreamFilter(StructWritable):
+struct AVBitStreamFilter(Debug):
     var name: UnsafePointer[c_char, origin = ImmutOrigin.external]
 
     var codec_ids: UnsafePointer[

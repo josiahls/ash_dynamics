@@ -1,4 +1,5 @@
 from sys.ffi import c_int
+from ash_dynamics.primitives._clib import Debug
 from ash_dynamics.ffmpeg.avcodec.version_major import (
     FF_API_V408_CODECID,
     FF_API_INIT_PACKET,
@@ -13,7 +14,7 @@ from ash_dynamics.ffmpeg.avcodec.version_major import (
 
 @fieldwise_init("implicit")
 @register_passable("trivial")
-struct AVCodecID:
+struct AVCodecID(Debug):
     """Reference [0] for enum details.
 
     Reference:

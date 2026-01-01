@@ -1,4 +1,5 @@
 from sys.ffi import c_int, c_uint, c_long_long, c_ulong_long
+from ash_dynamics.primitives._clib import Debug
 
 
 comptime AV_NOPTS_VALUE = c_long_long(c_ulong_long(0x8000000000000000))
@@ -11,7 +12,7 @@ either pts or dts.
 
 @fieldwise_init("implicit")
 @register_passable("trivial")
-struct AVPictureType:
+struct AVPictureType(Debug):
     comptime ENUM_DTYPE = c_int
 
     var _value: Self.ENUM_DTYPE
@@ -36,7 +37,7 @@ struct AVPictureType:
 
 @fieldwise_init("implicit")
 @register_passable("trivial")
-struct AVMediaType:
+struct AVMediaType(Debug):
     comptime ENUM_DTYPE = c_uint
 
     var _value: Self.ENUM_DTYPE

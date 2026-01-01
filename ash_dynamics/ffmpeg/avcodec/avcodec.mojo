@@ -16,6 +16,7 @@ from sys.ffi import (
 )
 from ash_dynamics.primitives._clib import (
     StructWritable,
+    Debug,
     StructWriter,
     ExternalFunction,
     TrivialOptionalField,
@@ -173,7 +174,7 @@ comptime AVCodecInternal = OpaquePointer[MutOrigin.external]
 
 @register_passable("trivial")
 @fieldwise_init
-struct AVCodecContext(StructWritable):
+struct AVCodecContext(Debug):
     "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html"
 
     var av_class: UnsafePointer[AVClass, origin = ImmutOrigin.external]
@@ -1375,103 +1376,10 @@ struct AVCodecContext(StructWritable):
     var nb_decoded_side_data: c_int
     """Number of entries in decoded_side_data."""
 
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var sw = StructWriter[Self](writer, indent=indent)
-        sw.write_field["av_class"](self.av_class)
-        sw.write_field["codec"](self.codec)
-        sw.write_field["priv_data"](self.priv_data)
-        sw.write_field["internal"](self.internal)
-        sw.write_field["opaque"](self.opaque)
-        sw.write_field["extradata"](self.extradata)
-        sw.write_field["draw_horiz_band"](
-            UnsafePointer(to=self.draw_horiz_band)
-        )
-        sw.write_field["intra_matrix"](self.intra_matrix)
-        sw.write_field["inter_matrix"](self.inter_matrix)
-        sw.write_field["chroma_intra_matrix"](self.chroma_intra_matrix)
-        sw.write_field["rc_override"](self.rc_override)
-        sw.write_field["stats_out"](self.stats_out)
-        sw.write_field["stats_in"](self.stats_in)
-        sw.write_field["hwaccel"](self.hwaccel)
-        sw.write_field["hwaccel_context"](self.hwaccel_context)
-        sw.write_field["hw_frames_ctx"](self.hw_frames_ctx)
-        sw.write_field["hw_device_ctx"](self.hw_device_ctx)
-        sw.write_field["execute"](UnsafePointer(to=self.execute))
-        sw.write_field["execute2"](UnsafePointer(to=self.execute2))
-        sw.write_field["codec_descriptor"](self.codec_descriptor)
-        sw.write_field["sub_charenc"](self.sub_charenc)
-        sw.write_field["sub_charenc_mode"](self.sub_charenc_mode)
-        sw.write_field["subtitle_header_size"](self.subtitle_header_size)
-        sw.write_field["subtitle_header"](self.subtitle_header)
-        sw.write_field["dump_separator"](self.dump_separator)
-        sw.write_field["codec_whitelist"](self.codec_whitelist)
-        sw.write_field["coded_side_data"](self.coded_side_data)
-        sw.write_field["nb_coded_side_data"](self.nb_coded_side_data)
-        sw.write_field["export_side_data"](self.export_side_data)
-        sw.write_field["max_pixels"](self.max_pixels)
-        sw.write_field["apply_cropping"](self.apply_cropping)
-        sw.write_field["discard_damaged_percentage"](
-            self.discard_damaged_percentage
-        )
-        sw.write_field["max_samples"](self.max_samples)
-        # sw.write_field["get_encode_buffer"](self.get_encode_buffer)
-        sw.write_field["frame_num"](self.frame_num)
-        sw.write_field["side_data_prefer_packet"](self.side_data_prefer_packet)
-        sw.write_field["nb_side_data_prefer_packet"](
-            self.nb_side_data_prefer_packet
-        )
-        sw.write_field["decoded_side_data"](self.decoded_side_data)
-        sw.write_field["nb_decoded_side_data"](self.nb_decoded_side_data)
-        sw.write_field["qcompress"](self.qcompress)
-        sw.write_field["qblur"](self.qblur)
-        sw.write_field["qmin"](self.qmin)
-        sw.write_field["qmax"](self.qmax)
-        sw.write_field["qblur"](self.qblur)
-        sw.write_field["qmin"](self.qmin)
-        sw.write_field["qmax"](self.qmax)
-        sw.write_field["get_format"](UnsafePointer(to=self.get_format))
-        sw.write_field["max_b_frames"](self.max_b_frames)
-        sw.write_field["b_quant_factor"](self.b_quant_factor)
-        sw.write_field["b_quant_offset"](self.b_quant_offset)
-        sw.write_field["i_quant_factor"](self.i_quant_factor)
-        sw.write_field["i_quant_offset"](self.i_quant_offset)
-        sw.write_field["lumi_masking"](self.lumi_masking)
-        sw.write_field["skip_idct"](self.skip_idct)
-        sw.write_field["skip_loop_filter"](self.skip_loop_filter)
-        sw.write_field["skip_frame"](self.skip_frame)
-        sw.write_field["skip_idct"](self.skip_idct)
-        sw.write_field["skip_loop_filter"](self.skip_loop_filter)
-        sw.write_field["temporal_cplx_masking"](self.temporal_cplx_masking)
-        sw.write_field["spatial_cplx_masking"](self.spatial_cplx_masking)
-        sw.write_field["p_masking"](self.p_masking)
-        sw.write_field["dark_masking"](self.dark_masking)
-        sw.write_field["nsse_weight"](self.nsse_weight)
-        sw.write_field["me_cmp"](self.me_cmp)
-        sw.write_field["me_sub_cmp"](self.me_sub_cmp)
-        sw.write_field["mb_cmp"](self.mb_cmp)
-        sw.write_field["ildct_cmp"](self.ildct_cmp)
-        sw.write_field["dia_size"](self.dia_size)
-        sw.write_field["last_predictor_count"](self.last_predictor_count)
-        sw.write_field["pre_dia_size"](self.pre_dia_size)
-        sw.write_field["me_subpel_quality"](self.me_subpel_quality)
-        sw.write_field["me_range"](self.me_range)
-        sw.write_field["mb_decision"](self.mb_decision)
-        sw.write_field["intra_matrix"](self.intra_matrix)
-        sw.write_field["inter_matrix"](self.inter_matrix)
-        sw.write_field["chroma_intra_matrix"](self.chroma_intra_matrix)
-        sw.write_field["intra_dc_precision"](self.intra_dc_precision)
-        sw.write_field["extra_hw_frames"](self.extra_hw_frames)
-        sw.write_field["error"](
-            "StaticTuple[c_ulong_long, AVFrame.AV_NUM_DATA_POINTERS]"
-        )
-        sw.write_field["dct_algo"](self.dct_algo)
-        sw.write_field["thread_count"](self.thread_count)
-        sw.write_field["idct_algo"](self.idct_algo)
-
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVHWAccel(StructWritable):
+struct AVHWAccel(Debug):
     """Note: Nothing in this structure should be accessed by the user. At some
     point in future it will not be externally visible at all.
     """
@@ -1501,14 +1409,6 @@ struct AVHWAccel(StructWritable):
     """Hardware accelerated codec capabilities.
     see AV_HWACCEL_CODEC_CAP_*.
     """
-
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["name"](self.name)
-        struct_writer.write_field["type"](self.type)
-        struct_writer.write_field["id"](self.id)
-        struct_writer.write_field["pix_fmt"](self.pix_fmt)
-        struct_writer.write_field["capabilities"](self.capabilities)
 
 
 comptime AV_HWACCEL_CODEC_CAP_EXPERIMENTAL = c_int(0x0200)
@@ -1559,7 +1459,7 @@ flag and ensure their processing chain does not exhaust the surface pool.
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVSubtitleType(StructWritable):
+struct AVSubtitleType(Debug):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -1573,17 +1473,13 @@ struct AVSubtitleType(StructWritable):
     """Formatted text, the ass field must be set by the decoder and is
     authoritative. pict and text fields may contain approximations."""
 
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["value"](self.value)
-
 
 comptime AV_SUBTITLE_FLAG_FORCED = c_int(0x00000001)
 
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVSubtitleRect(StructWritable):
+struct AVSubtitleRect(Debug):
     var x: c_int
     """Top left corner  of pict, undefined when pict is not set."""
     var y: c_int
@@ -1610,24 +1506,10 @@ struct AVSubtitleRect(StructWritable):
     """0 terminated ASS/SSA compatible event line. The presentation of this
     is unaffected by the other values in this struct."""
 
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["x"](self.x)
-        struct_writer.write_field["y"](self.y)
-        struct_writer.write_field["w"](self.w)
-        struct_writer.write_field["h"](self.h)
-        struct_writer.write_field["nb_colors"](self.nb_colors)
-        struct_writer.write_field["data"](self.data)
-        struct_writer.write_field["linesize"]("StaticTuple[c_int, 4]")
-        struct_writer.write_field["flags"](self.flags)
-        struct_writer.write_field["type"](self.type)
-        struct_writer.write_field["text"](self.text)
-        struct_writer.write_field["ass"](self.ass)
-
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVSubtitle(StructWritable):
+struct AVSubtitle(Debug):
     var format: c_ushort
     """0 = graphics."""
     var start_display_time: c_uint
@@ -1642,15 +1524,6 @@ struct AVSubtitle(StructWritable):
     """Rectangles in the subtitle. Must be freed with avsubtitle_free() by the caller."""
     var pts: c_long_long
     """Same as packet pts, in AV_TIME_BASE."""
-
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["format"](self.format)
-        struct_writer.write_field["start_display_time"](self.start_display_time)
-        struct_writer.write_field["end_display_time"](self.end_display_time)
-        struct_writer.write_field["num_rects"](self.num_rects)
-        struct_writer.write_field["rects"](self.rects)
-        struct_writer.write_field["pts"](self.pts)
 
 
 comptime avcodec_version = ExternalFunction[
@@ -2236,7 +2109,7 @@ comptime avcodec_get_supported_config = ExternalFunction[
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVPictureStructure(StructWritable):
+struct AVPictureStructure(Debug):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -2249,14 +2122,10 @@ struct AVPictureStructure(StructWritable):
     comptime AV_PICTURE_STRUCTURE_FRAME = Self(3)
     "Coded as frame."
 
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["value"](self._value)
-
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVCodecParserContext(StructWritable):
+struct AVCodecParserContext(Debug):
     comptime AV_PARSER_PTS_NB = Int(4)
     comptime PARSER_FLAG_COMPLETE_FRAMES = Int(0x0001)
     comptime PARSER_FLAG_ONCE = Int(0x0002)
@@ -2405,44 +2274,10 @@ struct AVCodecParserContext(StructWritable):
     one returned by a decoder.
     """
 
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["priv_data"](self.priv_data)
-        struct_writer.write_field["parser"](self.parser)
-        struct_writer.write_field["frame_offset"](self.frame_offset)
-        struct_writer.write_field["cur_offset"](self.cur_offset)
-        struct_writer.write_field["next_frame_offset"](self.next_frame_offset)
-        struct_writer.write_field["pict_type"](self.pict_type)
-        struct_writer.write_field["repeat_pict"](self.repeat_pict)
-        struct_writer.write_field["pts"](self.pts)
-        struct_writer.write_field["dts"](self.dts)
-        struct_writer.write_field["last_pts"](self.last_pts)
-        struct_writer.write_field["last_dts"](self.last_dts)
-        struct_writer.write_field["cur_frame_start_index"](
-            self.cur_frame_start_index
-        )
-        struct_writer.write_field["cur_frame_offset"](
-            "StaticTuple[c_long_long, Self.AV_PARSER_PTS_NB]"
-        )
-        struct_writer.write_field["cur_frame_pts"](
-            "StaticTuple[c_long_long, Self.AV_PARSER_PTS_NB]"
-        )
-        struct_writer.write_field["cur_frame_dts"](
-            "StaticTuple[c_long_long, Self.AV_PARSER_PTS_NB]"
-        )
-        struct_writer.write_field["flags"](self.flags)
-        struct_writer.write_field["offset"](self.offset)
-        struct_writer.write_field["cur_frame_end"](
-            "StaticTuple[c_long_long, Self.AV_PARSER_PTS_NB]"
-        )
-        struct_writer.write_field["key_frame"](self.key_frame)
-        struct_writer.write_field["dts_sync_point"](self.dts_sync_point)
-        struct_writer.write_field["dts_ref_dts_delta"](self.dts_ref_dts_delta)
-
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVCodecParser(StructWritable):
+struct AVCodecParser(Debug):
     var codec_ids: StaticTuple[c_int, 7]
     "Several codec IDs are permitted."
     var priv_data_size: c_int
@@ -2474,15 +2309,6 @@ struct AVCodecParser(StructWritable):
         buf_size: c_int,
     ) -> c_int
     "Parser split function."
-
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["codec_ids"]("StaticTuple[c_int, 7]")
-        struct_writer.write_field["priv_data_size"](self.priv_data_size)
-        struct_writer.write_field["parser_init"]("function pointer")
-        struct_writer.write_field["parser_parse"]("function pointer")
-        struct_writer.write_field["parser_close"]("function pointer")
-        struct_writer.write_field["split"]("function pointer")
 
 
 comptime av_parser_iterate = ExternalFunction[

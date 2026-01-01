@@ -1,11 +1,12 @@
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
 from sys.ffi import c_long_long
 from ash_dynamics.primitives._clib import ExternalFunction
+from ash_dynamics.primitives._clib import Debug
 
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVRounding:
+struct AVRounding(Debug):
     """Rounding methods."""
 
     comptime ENUM_DTYPE = c_int

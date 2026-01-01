@@ -1,8 +1,7 @@
 from sys.ffi import c_char, c_int, c_uchar
 from ash_dynamics.primitives._clib import (
-    StructWritable,
-    StructWriter,
     ExternalFunction,
+    Debug,
 )
 
 from reflection import get_type_name
@@ -18,7 +17,7 @@ from ash_dynamics.ffmpeg.avutil.channel_layout import AVChannelLayout
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVHWDeviceType(StructWritable):
+struct AVHWDeviceType(Debug):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -39,14 +38,10 @@ struct AVHWDeviceType(StructWritable):
     comptime AV_HWDEVICE_TYPE_OHCODEC = c_int(14)
     """OpenHarmony Codec device."""
 
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["value"](self.value)
-
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVHWDeviceContext(StructWritable):
+struct AVHWDeviceContext(Debug):
     """This struct aggregates all the (hardware/vendor-specific) "high-level" state,
     i.e. state that is not tied to a concrete processing configuration.
     E.g., in an API that supports hardware-accelerated encoding and decoding,
@@ -106,18 +101,10 @@ struct AVHWDeviceContext(StructWritable):
     ]
     """Arbitrary user data, to be used e.g. by the free() callback."""
 
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["av_class"](self.av_class)
-        struct_writer.write_field["type"](self.type)
-        struct_writer.write_field["hwctx"](self.hwctx)
-        struct_writer.write_field["free"](self.free)
-        struct_writer.write_field["user_opaque"](self.user_opaque)
-
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVHWFramesContext(StructWritable):
+struct AVHWFramesContext(Debug):
     """This struct describes a set or pool of "hardware" frames (i.e. those with
     data not located in normal system memory). All the frames in the pool are
     assumed to be allocated in the same way and interchangeable.
@@ -157,14 +144,3 @@ struct AVHWFramesContext(StructWritable):
     """A pool from which the frames are allocated by av_hwframe_get_buffer()."""
     var initial_pool_size: c_int
     """Initial size of the frame pool. If a device type does not support dynamically resizing the pool, then this is also the maximum pool size."""
-
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["av_class"](self.av_class)
-        struct_writer.write_field["device_ref"](self.device_ref)
-        struct_writer.write_field["device_ctx"](self.device_ctx)
-        struct_writer.write_field["hwctx"](self.hwctx)
-        struct_writer.write_field["free"](self.free)
-        struct_writer.write_field["user_opaque"](self.user_opaque)
-        struct_writer.write_field["pool"](self.pool)
-        struct_writer.write_field["initial_pool_size"](self.initial_pool_size)

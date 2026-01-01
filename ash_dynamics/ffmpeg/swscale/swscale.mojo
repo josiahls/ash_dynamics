@@ -10,7 +10,7 @@ from sys.ffi import (
 )
 from sys._libc import dup, fclose, fdopen, fflush, FILE_ptr
 from utils import StaticTuple
-from ash_dynamics.primitives._clib import C_Union, ExternalFunction
+from ash_dynamics.primitives._clib import C_Union, ExternalFunction, Debug
 from ash_dynamics.ffmpeg.avutil.frame import AVFrame
 from ash_dynamics.ffmpeg.avcodec.codec import AVCodec
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
@@ -89,7 +89,7 @@ Returns:
 
 @fieldwise_init
 @register_passable("trivial")
-struct SwsDither:
+struct SwsDither(Debug):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -111,7 +111,7 @@ struct SwsDither:
 
 @fieldwise_init
 @register_passable("trivial")
-struct SwsAlphaBlend:
+struct SwsAlphaBlend(Debug):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -127,7 +127,7 @@ struct SwsAlphaBlend:
 
 @fieldwise_init
 @register_passable("trivial")
-struct SwsFlags:
+struct SwsFlags(Debug):
     """Scaler selection options. Only one may be active at a time."""
 
     comptime ENUM_DTYPE = c_int
@@ -203,7 +203,7 @@ struct SwsFlags:
 
 @fieldwise_init
 @register_passable("trivial")
-struct SwsIntent:
+struct SwsIntent(Debug):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -226,7 +226,7 @@ struct SwsIntent:
 
 @fieldwise_init
 @register_passable("trivial")
-struct SwsContext:
+struct SwsContext(Debug):
     """Main external API structure. New fields can be added to the end with
     minor version bumps. Removal, reordering and changes to existing fields
     require a major version bump. sizeof(SwsContext) is not part of the ABI."""

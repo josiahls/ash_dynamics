@@ -15,9 +15,8 @@ from ash_dynamics.ffmpeg.avutil.pixfmt import (
 from sys.ffi import c_uchar, c_int, c_long_long, c_ulong_long, c_size_t, c_uint
 from utils import StaticTuple
 from ash_dynamics.primitives._clib import (
-    StructWritable,
-    StructWriter,
     ExternalFunction,
+    Debug,
 )
 
 
@@ -41,7 +40,7 @@ __extension StaticTuple:
 
 @fieldwise_init("implicit")
 @register_passable("trivial")
-struct AVFrameSideDataType:
+struct AVFrameSideDataType(Debug):
     """
     The data is the AVPanScan struct defined in libavcodec.
     """
@@ -228,7 +227,7 @@ struct AVFrameSideDataType:
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVActiveFormatDescription:
+struct AVActiveFormatDescription(Debug):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -243,7 +242,7 @@ struct AVActiveFormatDescription:
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVFrameSideData(StructWritable):
+struct AVFrameSideData(Debug):
     """Structure to hold side data for an AVFrame.
 
     sizeof(AVFrameSideData) is not a part of the public ABI, so new fields may be added
@@ -256,18 +255,10 @@ struct AVFrameSideData(StructWritable):
     var metadata: UnsafePointer[AVDictionary, MutOrigin.external]
     var buf: UnsafePointer[AVBufferRef, MutOrigin.external]
 
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var sw = StructWriter[Self](writer, indent=indent)
-        sw.write_field["type"](self.type)
-        sw.write_field["data"](self.data)
-        sw.write_field["size"](self.size)
-        sw.write_field["metadata"](self.metadata)
-        sw.write_field["buf"](self.buf)
-
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVSideDataProps:
+struct AVSideDataProps(Debug):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -299,7 +290,7 @@ struct AVSideDataProps:
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVSideDataDescriptor:
+struct AVSideDataDescriptor(Debug):
     """This struct describes the properties of a side data type. Its instance
     corresponding to a given type can be obtained from av_frame_side_data_desc().
     """
@@ -312,7 +303,7 @@ struct AVSideDataDescriptor:
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVRegionOfInterest:
+struct AVRegionOfInterest(Debug):
     """Structure describing a single Region Of Interest.
 
     When multiple regions are defined in a single side-data block, they
@@ -362,7 +353,7 @@ struct AVRegionOfInterest:
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVFrame(StructWritable):
+struct AVFrame(Debug):
     """The frame structure.
     This structure describes decoded (raw) audio or video data.
 
@@ -392,57 +383,6 @@ struct AVFrame(StructWritable):
     Fields can be accessed through AVOptions, the name string used, matches the
     C structure field name for fields accessible through AVOptions.
     """
-
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["data"](
-            "StaticTuple[c_uchar, Self.AV_NUM_DATA_POINTERS]"
-        )
-        struct_writer.write_field["extended_data"](self.extended_data)
-        struct_writer.write_field["width"](self.width)
-        struct_writer.write_field["height"](self.height)
-        struct_writer.write_field["nb_samples"](self.nb_samples)
-        struct_writer.write_field["format"](self.format)
-        struct_writer.write_field["pict_type"](self.pict_type)
-        struct_writer.write_field["sample_aspect_ratio"](
-            self.sample_aspect_ratio
-        )
-        struct_writer.write_field["pts"](self.pts)
-        struct_writer.write_field["pkt_dts"](self.pkt_dts)
-        struct_writer.write_field["time_base"](self.time_base)
-        struct_writer.write_field["quality"](self.quality)
-        struct_writer.write_field["opaque"](self.opaque)
-        struct_writer.write_field["repeat_pict"](self.repeat_pict)
-        struct_writer.write_field["sample_rate"](self.sample_rate)
-        struct_writer.write_field["buf"](
-            "StaticTuple[AVBufferRef, Self.AV_NUM_DATA_POINTERS]"
-        )
-        struct_writer.write_field["extended_buf"](self.extended_buf)
-        struct_writer.write_field["nb_extended_buf"](self.nb_extended_buf)
-        struct_writer.write_field["side_data"](self.side_data)
-        struct_writer.write_field["nb_side_data"](self.nb_side_data)
-        struct_writer.write_field["flags"](self.flags)
-        struct_writer.write_field["color_range"](self.color_range)
-        struct_writer.write_field["color_primaries"](self.color_primaries)
-        struct_writer.write_field["color_transfer_characteristic"](
-            self.color_transfer_characteristic
-        )
-        struct_writer.write_field["colorspace"](self.colorspace)
-        struct_writer.write_field["chroma_location"](self.chroma_location)
-        struct_writer.write_field["best_effort_timestamp"](
-            self.best_effort_timestamp
-        )
-        struct_writer.write_field["metadata"](self.metadata)
-        struct_writer.write_field["decode_error_flags"](self.decode_error_flags)
-        struct_writer.write_field["hw_frames_ctx"](self.hw_frames_ctx)
-        struct_writer.write_field["opaque_ref"](self.opaque_ref)
-        struct_writer.write_field["crop_top"](self.crop_top)
-        struct_writer.write_field["crop_bottom"](self.crop_bottom)
-        struct_writer.write_field["crop_left"](self.crop_left)
-        struct_writer.write_field["crop_right"](self.crop_right)
-        struct_writer.write_field["private_ref"](self.private_ref)
-        struct_writer.write_field["ch_layout"](self.ch_layout)
-        struct_writer.write_field["duration"](self.duration)
 
     comptime AV_NUM_DATA_POINTERS = Int(8)
     """Number of pointers in data and extended_data."""

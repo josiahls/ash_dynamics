@@ -1,5 +1,5 @@
 from sys.ffi import c_char, c_int
-from ash_dynamics.primitives._clib import StructWritable, StructWriter
+from ash_dynamics.primitives._clib import Debug
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 from ash_dynamics.ffmpeg.avutil.avutil import AVMediaType
 from ash_dynamics.ffmpeg.avcodec.codec import AVProfile
@@ -7,7 +7,7 @@ from ash_dynamics.ffmpeg.avcodec.codec import AVProfile
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVCodecDescriptor(StructWritable):
+struct AVCodecDescriptor(Debug):
     """This struct describes the properties of a single codec described by an
     AVCodecID.
     """
@@ -35,12 +35,3 @@ struct AVCodecDescriptor(StructWritable):
     """If non-NULL, an array of profiles recognized for this codec.
     Terminated with AV_PROFILE_UNKNOWN.
     """
-
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["id"](self.id)
-        struct_writer.write_field["type"](self.type)
-        struct_writer.write_field["name"](self.name)
-        struct_writer.write_field["long_name"](self.long_name)
-        struct_writer.write_field["props"](self.props)
-        struct_writer.write_field["mime_types"](self.mime_types)

@@ -1,10 +1,10 @@
 from sys.ffi import c_int
-from ash_dynamics.primitives._clib import StructWritable, StructWriter
+from ash_dynamics.primitives._clib import Debug
 
 
 @fieldwise_init("implicit")
 @register_passable("trivial")
-struct AVSampleFormat(StructWritable):
+struct AVSampleFormat(Debug):
     """Audio sample formats
 
     - The data described by the sample format is always in native-endian order.

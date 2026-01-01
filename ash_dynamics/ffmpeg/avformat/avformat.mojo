@@ -9,7 +9,7 @@ I/O and Muxing/Demuxing Library
 from sys.ffi import c_int, c_char, c_uchar, c_long_long, c_uint, c_size_t
 from sys._libc import dup, fclose, fdopen, fflush, FILE_ptr
 from utils import StaticTuple
-from ash_dynamics.primitives._clib import C_Union, ExternalFunction
+from ash_dynamics.primitives._clib import C_Union, ExternalFunction, Debug
 from ash_dynamics.ffmpeg.avutil.frame import AVFrame
 from ash_dynamics.ffmpeg.avcodec.codec import AVCodec
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
@@ -96,7 +96,7 @@ Returns:
 
 @register_passable("trivial")
 @fieldwise_init
-struct AVProbeData:
+struct AVProbeData(Debug):
     """This structure contains the data a format has to probe a file."""
 
     var filename: UnsafePointer[c_char, origin = ImmutOrigin.external]
@@ -167,7 +167,7 @@ comptime AVFMT_SEEK_TO_PTS = 0x4000000
 
 @register_passable("trivial")
 @fieldwise_init
-struct AVOutputFormat:
+struct AVOutputFormat(Debug):
     var name: UnsafePointer[c_char, origin = ImmutOrigin.external]
     "Short name for the format."
     var long_name: UnsafePointer[c_char, origin = ImmutOrigin.external]
@@ -204,7 +204,7 @@ struct AVOutputFormat:
 
 @register_passable("trivial")
 @fieldwise_init
-struct AVInputFormat:
+struct AVInputFormat(Debug):
     var name: UnsafePointer[c_char, origin = ImmutOrigin.external]
     """A comma separated list of short names for the format. New names
     may be appended with a minor bump."""
@@ -235,7 +235,7 @@ struct AVInputFormat:
 
 @register_passable("trivial")
 @fieldwise_init
-struct AVStreamParseType:
+struct AVStreamParseType(Debug):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -257,7 +257,7 @@ struct AVStreamParseType:
 
 @register_passable("trivial")
 @fieldwise_init
-struct AVIndexEntry:
+struct AVIndexEntry(Debug):
     var pos: c_long_long
     "Position of the index entry in the stream."
     var timestamp: c_long_long
@@ -389,7 +389,7 @@ comptime AV_PTS_WRAP_SUB_OFFSET = -1
 
 @register_passable("trivial")
 @fieldwise_init
-struct AVStream:
+struct AVStream(Debug):
     """Stream structure.
 
     New fields can be added to the end with minor version bumps.
@@ -525,7 +525,7 @@ struct AVStream:
 
 @register_passable("trivial")
 @fieldwise_init
-struct _AVStreamGroupTileGrid_offsets:
+struct _AVStreamGroupTileGrid_offsets(Debug):
     """Binding note: In the original header this is a anonymous struct.
     Mojo does not support this, so we define this as a private, name spaced
     struct outside of AVStreamGroupTileGrid.
@@ -554,7 +554,7 @@ struct _AVStreamGroupTileGrid_offsets:
 
 @register_passable("trivial")
 @fieldwise_init
-struct AVStreamGroupTileGrid:
+struct AVStreamGroupTileGrid(Debug):
     """
     AVStreamGroupTileGrid holds information on how to combine several
     independent images on a single canvas for presentation.
@@ -678,7 +678,7 @@ struct AVStreamGroupTileGrid:
 
 @register_passable("trivial")
 @fieldwise_init
-struct AVStreamGroupLCEVC:
+struct AVStreamGroupLCEVC(Debug):
     """
     AVStreamGroupLCEVC is meant to define the relation between video streams
     and a data stream containing LCEVC enhancement layer NALUs.
@@ -700,7 +700,7 @@ struct AVStreamGroupLCEVC:
 
 @register_passable("trivial")
 @fieldwise_init
-struct AVStreamGroupParamsType:
+struct AVStreamGroupParamsType(Debug):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -718,7 +718,7 @@ struct AVStreamGroupParamsType:
 
 @register_passable("trivial")
 @fieldwise_init
-struct AVStreamGroup:
+struct AVStreamGroup(Debug):
     """
     AVStreamGroup is a container for a group of streams.
     """
@@ -799,7 +799,7 @@ comptime AV_PROGRAM_RUNNING = 1
 
 @register_passable("trivial")
 @fieldwise_init
-struct AVProgram:
+struct AVProgram(Debug):
     """
     AVProgram is a container for a program.
 
@@ -848,7 +848,7 @@ change dynamically at runtime."""
 
 @register_passable("trivial")
 @fieldwise_init
-struct AVChapter:
+struct AVChapter(Debug):
     var id: c_long_long
     "Unique ID to identify the chapter."
     var time_base: AVRational
@@ -889,7 +889,7 @@ comptime AVOpenCallback = fn (
 
 @register_passable("trivial")
 @fieldwise_init
-struct AVDurationEstimationMethod:
+struct AVDurationEstimationMethod(Debug):
     """The duration of a video can be estimated through various ways, and this
     enum can be used to know how the duration was estimated.
     """
@@ -907,7 +907,7 @@ struct AVDurationEstimationMethod:
 
 # @register_passable("trivial")
 @fieldwise_init
-struct AVFormatContext:
+struct AVFormatContext(Debug):
     """Format I/O context.
     New fields can be added to the end with minor version bumps.
     Removal, reordering and changes to existing fields require a major

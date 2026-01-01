@@ -1,11 +1,11 @@
 from sys.ffi import c_char, c_int, c_double, c_long_long
 from ash_dynamics.primitives._clib import C_Union
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
-from ash_dynamics.primitives._clib import StructWritable, StructWriter
+from ash_dynamics.primitives._clib import Debug
 
 
 @register_passable("trivial")
-struct AVOption(StructWritable):
+struct AVOption(Debug):
     """Reference [0] for struct details.
 
     Reference:
@@ -35,25 +35,10 @@ struct AVOption(StructWritable):
     var flags: c_int
     var unit: UnsafePointer[c_char, ImmutOrigin.external]
 
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["name"](
-            StringSlice(unsafe_from_utf8_ptr=self.name)
-        )
-        struct_writer.write_field["help"](
-            StringSlice(unsafe_from_utf8_ptr=self.help)
-        )
-        struct_writer.write_field["offset"](self.offset)
-        struct_writer.write_field["type"](self.type)
-        # TODO: figure out the union type later.
-        # struct_writer.write_field["default_val"](self.default_val)
-        struct_writer.write_field["min"](self.min)
-        struct_writer.write_field["max"](self.max)
-
 
 @fieldwise_init("implicit")
 @register_passable("trivial")
-struct AVOptionType(Writable):
+struct AVOptionType(Debug):
     """An option type determines:
     - for native access, the underlying C type of the field that an AVOption
       refers to;
@@ -69,9 +54,6 @@ struct AVOptionType(Writable):
     fn inc(self) -> Self:
         "Returns a copy of self but with +1 added."
         return Self(self._value + 1)
-
-    fn write_to(self, mut writer: Some[Writer]):
-        writer.write(self._value)
 
     comptime AV_OPT_TYPE_FLAGS = Self(1)
     "Underlying C type is unsigned int."
@@ -137,7 +119,7 @@ struct AVOptionType(Writable):
 
 @register_passable("trivial")
 @fieldwise_init
-struct AVOptionArrayDef:
+struct AVOptionArrayDef(Debug):
     var def_: UnsafePointer[c_char, ImmutOrigin.external]
     """Native access only.
 
@@ -162,7 +144,7 @@ struct AVOptionArrayDef:
 
 
 @register_passable("trivial")
-struct AVOptionRanges:
+struct AVOptionRanges(Debug):
     """Reference [0] for struct details.
 
     Reference:

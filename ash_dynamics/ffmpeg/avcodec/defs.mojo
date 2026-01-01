@@ -1,6 +1,6 @@
 """Bindings for https://www.ffmpeg.org/doxygen/8.0/defs_8h_source.html"""
 from sys.ffi import c_int
-from ash_dynamics.primitives._clib import StructWritable, StructWriter
+from ash_dynamics.primitives._clib import Debug
 
 comptime AV_INPUT_BUFFER_PADDING_SIZE = c_int(64)
 """
@@ -14,7 +14,7 @@ MPEG bitstreams could cause overread and segfault.
 
 @fieldwise_init("implicit")
 @register_passable("trivial")
-struct AVFieldOrder(StructWritable):
+struct AVFieldOrder(Debug):
     """The order of the fields in interlaced video."""
 
     comptime ENUM_DTYPE = c_int
@@ -31,14 +31,10 @@ struct AVFieldOrder(StructWritable):
     comptime AV_FIELD_BT = Self(5)
     """Bottom coded_first, top displayed first"""
 
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["value"](self._value)
-
 
 @fieldwise_init("implicit")
 @register_passable("trivial")
-struct AVAudioServiceType(StructWritable):
+struct AVAudioServiceType(Debug):
     """Audio service type"""
 
     comptime ENUM_DTYPE = c_int
@@ -56,14 +52,10 @@ struct AVAudioServiceType(StructWritable):
     comptime AV_AUDIO_SERVICE_TYPE_NB = Self(9)
     """Not part of ABI"""
 
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["value"](self._value)
-
 
 @fieldwise_init("implicit")
 @register_passable("trivial")
-struct AVDiscard(StructWritable):
+struct AVDiscard(Debug):
     """Discard frames.
 
     We leave some space between them for extensions (drop some
@@ -87,7 +79,3 @@ struct AVDiscard(StructWritable):
     "discard all frames except keyframes"
     comptime AVDISCARD_ALL = 48
     "discard all"
-
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["value"](self._value)

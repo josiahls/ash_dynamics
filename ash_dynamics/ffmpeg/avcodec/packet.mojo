@@ -4,12 +4,13 @@ from os.atomic import Atomic
 from ash_dynamics.ffmpeg.avutil.buffer import AVBufferRef
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
 from ash_dynamics.primitives._clib import ExternalFunction
-from ash_dynamics.primitives._clib import StructWritable, StructWriter
+from ash_dynamics.primitives._clib import Debug
+from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
 
 
 @fieldwise_init("implicit")
 @register_passable("trivial")
-struct AVPacketSideDataType:
+struct AVPacketSideDataType(Debug):
     """Reference [0] for enum details.
 
     Reference:
@@ -88,7 +89,7 @@ struct AVPacketSideDataType:
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVPacketSideData(StructWritable):
+struct AVPacketSideData(Debug):
     """
     This structure stores auxiliary information for decoding, presenting, or
     otherwise processing the coded stream. It is typically exported by demuxers
@@ -120,12 +121,6 @@ struct AVPacketSideData(StructWritable):
     var data: UnsafePointer[c_uchar, MutAnyOrigin]
     var size: c_uint
     var type: AVPacketSideDataType.ENUM_DTYPE
-
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var sw = StructWriter[Self](writer, indent=indent)
-        sw.write_field["data"](self.data)
-        sw.write_field["size"](self.size)
-        sw.write_field["type"](self.type)
 
 
 comptime av_packet_side_data_new = ExternalFunction[
