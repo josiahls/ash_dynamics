@@ -3,12 +3,11 @@ from sys.info import size_of
 from utils import StaticTuple
 from sys.intrinsics import _type_is_eq
 from builtin.rebind import downcast
-from compile.reflection import get_type_name
-from compile.reflection import (
-    get_struct_field_count,
-    get_struct_field_types,
-    get_struct_field_names,
+from reflection import (
+    struct_field_count,
+    struct_field_names,
     struct_field_types,
+    get_type_name,
 )
 
 
@@ -212,23 +211,19 @@ struct TrivialOptionalField[active: Bool, ElementType: AnyTrivialRegType](
         return self.field[0]
 
 
+# NOTE: Not working at the moment. Gets:
+# failed to locate witness entry for std::builtin::simd::SIMD, std::builtin::str::Stringable, __str__($0)
 trait Debug:
     fn debug(self):
         print(get_type_name[Self]() + ":")
 
         @parameter
-        for i in range(get_struct_field_count[Self]()):
+        for i in range(struct_field_count[Self]()):
             comptime field_type = struct_field_types[Self]()[i]
-            comptime field_name = get_struct_field_names[Self]()[i]
+            comptime field_name = struct_field_names[Self]()[i]
             if conforms_to(field_type, Stringable):
-                var field_ref = __mlir_op.`kgen.struct.extract`[
-                    _type=field_type,
-                    index = __mlir_attr[i._mlir_value, `:index`],
-                ](self)
+                ref field_ref = __struct_field_ref(i, self)
 
-                print(
-                    "\t"
-                    + field_name
-                    + ": "
-                    + trait_downcast[Stringable](field_ref).__str__()
-                )
+                ref stringable = trait_downcast[Stringable](field_ref)
+
+                print("\t" + field_name + ": " + String(stringable))
