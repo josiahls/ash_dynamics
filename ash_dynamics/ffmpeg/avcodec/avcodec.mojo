@@ -1,3 +1,8 @@
+"""
+Reference: 
+https://www.ffmpeg.org/doxygen/8.0/avcodec_8h.html
+"""
+
 from sys.ffi import (
     c_int,
     c_float,
@@ -22,10 +27,6 @@ from ash_dynamics.ffmpeg.avutil.pixfmt import AVPixelFormat
 from ash_dynamics.ffmpeg.avcodec.codec import AVCodec
 from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
 from ash_dynamics.ffmpeg.avutil.frame import AVFrame
-
-# from ash_dynamics.ffmpeg.avcodec.av_codec_parser import (
-#     AVCodecParserContext,
-# )
 from ash_dynamics.ffmpeg.avutil.log import AVClass
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
 from ash_dynamics.ffmpeg.avutil.pixfmt import (
@@ -57,7 +58,7 @@ struct RcOverride(StructWritable):
     var start_frame: c_int
     var end_frame: c_int
     var qscale: c_int
-    "If this is 0 then quality_factor will be used instead."
+    "Quality_factor should be used if qscale is 0."
     var quality_factor: c_float
 
     fn write_to(self, mut writer: Some[Writer], indent: Int):
@@ -69,395 +70,177 @@ struct RcOverride(StructWritable):
 
 
 ########################################################
-# Encoding support. These flags can be passed in AVCodecContext.flags before
-# initialization. Note: Not everything is supported yet.
+####### Encoding support section #######################
+########################################################
 
 comptime AV_CODEC_FLAG_UNALIGNED = c_int(1 << 0)
-"""Allow decoders to produce frames with data planes that are not aligned
-to CPU requirements (e.g. due to cropping)."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#gaa52d62f5dbfc4529388f0454ae671359"
 comptime AV_CODEC_FLAG_QSCALE = c_int(1 << 1)
-"""Use fixed qscale."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga70edda5debd8433d29ec1b9eed57422b"
 comptime AV_CODEC_FLAG_4MV = c_int(1 << 2)
-"""4 MV per MB allowed / advanced prediction for H.263."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#gac66356d3e9a7ae8b2b29e14402367649"
 comptime AV_CODEC_FLAG_OUTPUT_CORRUPT = c_int(1 << 3)
-"""Output even those frames that might be corrupted."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#gad406c2774f1334e474256c7f04e1345e"
 comptime AV_CODEC_FLAG_QPEL = c_int(1 << 4)
-"""Use qpel MC."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga0e51f9240c85bc00f9dd684f020e2150"
 comptime AV_CODEC_FLAG_RECON_FRAME = c_int(1 << 6)
-"""Request the encoder to output reconstructed frames, i.e. frames that would
-be produced by decoding the encoded bitstream. These frames may be retrieved
-by calling avcodec_receive_frame() immediately after a successful call to
-avcodec_receive_packet().
-
-Should only be used with encoders flagged with the
-@ref AV_CODEC_CAP_ENCODER_RECON_FRAME capability.
-
-@note
-Each reconstructed frame returned by the encoder corresponds to the last
-encoded packet, i.e. the frames are returned in coded order rather than
-presentation order.
-
-@note
-Frame parameters (like pixel format or dimensions) do not have to match the
-AVCodecContext values. Make sure to use the values from the returned frame.
-"""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#gaff2b2fa4b372eae1690a0258728ea84a"
 comptime AV_CODEC_FLAG_COPY_OPAQUE = c_int(1 << 7)
-"""Request the encoder to propagate each frame's AVFrame.opaque and
-AVFrame.opaque_ref values to its corresponding output AVPacket.
-
-Request the encoder to propagate each frame's AVFrame.opaque and
-AVFrame.opaque_ref values to its corresponding output AVPacket.
-
-May only be set on encoders that have the
-@ref AV_CODEC_CAP_ENCODER_REORDERED_OPAQUE capability flag.
-
-@note
-While in typical cases one input frame produces exactly one output packet
-(perhaps after a delay), in general the mapping of frames to packets is
-M-to-N, so
-- Any number of input frames may be associated with any given output packet.
-  This includes zero - e.g. some encoders may output packets that carry only
-  metadata about the whole stream.
-- A given input frame may be associated with any number of output packets.
-  Again this includes zero - e.g. some encoders may drop frames under certain
-  conditions.
-
-This implies that when using this flag, the caller must NOT assume that
-- a given input frame's opaques will necessarily appear on some output packet;
-- every output packet will have some non-NULL opaque value.
-
-When an output packet contains multiple frames, the opaque values will be
-taken from the first of those.
-
-@note
-The converse holds for decoders, with frames and packets switched.
-"""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#gaf13081b482792279ac9d243c547baa76"
 
 comptime AV_CODEC_FLAG_FRAME_DURATION = c_int(1 << 8)
-"""Signal to the encoder that the values of AVFrame.duration are valid and
-should be used (typically for transferring them to output packets).
-
-If this flag is not set, frame durations are ignored.
-"""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga7909a428549f5770dfc42947f20d5c86"
 
 comptime AV_CODEC_FLAG_PASS1 = c_int(1 << 9)
-"""Use internal 2pass ratecontrol in first pass mode."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga81bc0a84e8866ecff68e6d8a82781936"
 comptime AV_CODEC_FLAG_PASS2 = c_int(1 << 10)
-"""Use internal 2pass ratecontrol in second pass mode."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga234d986d58043b694dd518e2312b4cbe"
 comptime AV_CODEC_FLAG_LOOP_FILTER = c_int(1 << 11)
-"""Loop filter."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga8460d3e1778f861cfc074df91e7100b6"
 comptime AV_CODEC_FLAG_GRAY = c_int(1 << 13)
-"""Only decode/encode grayscale."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga752fa4b8beeb25c9e8f0014a4aa622b4"
 comptime AV_CODEC_FLAG_PSNR = c_int(1 << 15)
-"""Error[?] variables will be set during encoding."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#gac14e43b675c9a342f9c7275553d6f533"
 comptime AV_CODEC_FLAG_INTERLACED_DCT = c_int(1 << 18)
-"""Use interlaced DCT."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga502225f65e2092fbc45945247892cb0f"
 comptime AV_CODEC_FLAG_LOW_DELAY = c_int(1 << 19)
-"""Force low delay."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#gaa90f89265adba401ebe80380517fe613"
 comptime AV_CODEC_FLAG_GLOBAL_HEADER = c_int(1 << 22)
-"""Place global headers in extradata instead of every keyframe."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga9ed82634c59b339786575827c47a8f68"
 comptime AV_CODEC_FLAG_BITEXACT = c_int(1 << 23)
-"""Use only bitexact stuff (except (I)DCT)."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga17ae68044f725fd5ba26c54162b96490"
 # Fx: Flag for H.263+ extra options
 comptime AV_CODEC_FLAG_AC_PRED = c_int(1 << 24)
-"""H.263 advanced intra coding / MPEG-4 AC prediction."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga78187a415454abc849d4ca0682ab420a"
 comptime AV_CODEC_FLAG_INTERLACED_ME = c_int(1 << 29)
-"""Interlaced motion estimation."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga936c6ae1b3d24d7504f0a9aea1a24c74"
 comptime AV_CODEC_FLAG_CLOSED_GOP = c_int(1 << 31)
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga4444b40e467199423bba5cf5ac791c49"
 comptime AV_CODEC_FLAG2_FAST = c_int(1 << 0)
-"""Allow non spec compliant speedup tricks."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga1a6a486e686ab6c581ffffcb88cb31b3"
 comptime AV_CODEC_FLAG2_NO_OUTPUT = c_int(1 << 2)
-"""Skip bitstream encoding."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#gae85064498366d2dc5e86b0a4f3c64617"
 comptime AV_CODEC_FLAG2_LOCAL_HEADER = c_int(1 << 3)
-"""Place global headers at every keyframe instead of in extradata."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga39082b60bece88ef2fa64741aa2b5ff4"
 comptime AV_CODEC_FLAG2_CHUNKS = c_int(1 << 15)
-"""Input bitstream might be truncated at a packet boundaries instead of only 
-at frame boundaries."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#gabc5592664ff0686def0c2b41cfcc322d"
 comptime AV_CODEC_FLAG2_IGNORE_CROP = c_int(1 << 16)
-"""Discard cropping information from SPS."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#gaa4110d30a0542c7d0198c46ab87e7249"
 comptime AV_CODEC_FLAG2_SHOW_ALL = c_int(1 << 22)
-"""Show all frames before the first keyframe."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga2e513617bb427d5f6ed01f841cb807cf"
 comptime AV_CODEC_FLAG2_EXPORT_MVS = c_int(1 << 28)
-"""Export motion vectors through frame side data."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga33ff0b9183c222b2c509f34d1516969f"
 comptime AV_CODEC_FLAG2_SKIP_MANUAL = c_int(1 << 29)
-"""Do not skip samples and export skip information as frame side data."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#gaee0f0c90c93f0689a1e679cb6690a9e8"
 comptime AV_CODEC_FLAG2_RO_FLUSH_NOOP = c_int(1 << 30)
-"""Do not reset ASS ReadOrder field on flush (subtitles decoding)."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga01e073f9e21f52cb1e0db1555e7c9263"
 
 # TODO: The header has it as 1U << 31. Whats the difference?????
 comptime AV_CODEC_FLAG2_ICC_PROFILES = c_int(1 << 31)
-"""Generate/parse ICC profiles on encode/decode, as appropriate for the type of
-file. No effect on codecs which cannot contain embedded ICC profiles, or
-when compiled without support for lcms2.
-"""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga244dfe37ae3271026fa741ef1ce198d6"
 
 ########################################################
-# Exported side data. These flags can be passed in
-# AVCodecContext.export_side_data before initialization.
+# Before intializing AVCodecContext, these flags can be set in
+# AVCodecContext.export_side_data.
+########################################################
 
 comptime AV_CODEC_EXPORT_DATA_MVS = c_int(1 << 0)
-"""Export motion vectors through frame side data."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#gace654396302da34e598d4192403326ea"
 comptime AV_CODEC_EXPORT_DATA_PRFT = c_int(1 << 1)
-"""Export encoder Producer Reference Time through packet side data."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga3f723db5c7db407c53a61ddfed1f55d8"
 comptime AV_CODEC_EXPORT_DATA_VIDEO_ENC_PARAMS = c_int(1 << 2)
-"""Decoding only.
-Export the AVVideoEncParams structure through frame side data."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#gaf2ee3be17d31e2e6ef8b8096e7789ec5"
 comptime AV_CODEC_EXPORT_DATA_FILM_GRAIN = c_int(1 << 3)
-"""Decoding only.
-Export film grain parameters through frame side data."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga8aeef83bf8b28d1e06d67b50c9d3a994"
 comptime AV_CODEC_EXPORT_DATA_ENHANCEMENTS = c_int(1 << 4)
-"""Decoding only.
-Export picture enhancement metadata through frame side data, 
-e.g. LCEVC (see @code{AV_FRAME_DATA_LCEVC})."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga4e1603e9861297330284d530796a14e1"
 
 comptime AV_GET_BUFFER_FLAG_REF = c_int(1 << 0)
-"""The decoder will keep a reference to the frame and may reuse it later."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga6b4950dd3320e524f648799927f256a7"
 comptime AV_GET_ENCODE_BUFFER_FLAG_REF = c_int(1 << 0)
-"""The encoder will keep a reference to the packet and may reuse it later."""
+"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga6fd5dafb54fc47d56b12722ca848802f"
 
-########################################################
-# Main external API structure.
+#########################################################
+########## Main external API structure ##################
+#########################################################
 
 comptime FF_API_CODEC_PROPS = False
 
 
 comptime AVCodecInternal = OpaquePointer[MutOrigin.external]
-"""Private context used for internal data.
-
-Unlike priv_data, this is not codec-specific. It is used in general
-libavcode
-"""
+"A private non-codec-specific opaque context intended to contain internal data"
 
 
 @register_passable("trivial")
 @fieldwise_init
 struct AVCodecContext(StructWritable):
-    """Main external API structure.
-    New fields can be added to the end with minor version bumps.
-    Removal, reordering and changes to existing fields require a major
-    version bump.
-    You can use AVOptions (av_opt* / av_set/get*()) to access these fields from user
-    applications.
-    The name string for AVOptions options matches the associated command line
-    parameter name and can be found in libavcodec/options_table.h
-    The AVOption/command line parameter names differ in some cases from the C
-    structure field names for historic reasons or brevity.
-    sizeof(AVCodecContext) must not be used outside libav*.
-    """
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html"
 
     var av_class: UnsafePointer[AVClass, origin = ImmutOrigin.external]
-    "Information for av_log(). Set by avcodec_alloc_context3()."
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#a90622d3af2a9abba986a1c9f7ca21b16"
     var log_level_offset: c_int
-    "Log level offset. For libav* bitstream readers."
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#a7f9e4467c3394228bc3c9f308a42303c"
     var codec_type: AVMediaType.ENUM_DTYPE
-    "AVMediaType. See AVMEDIA_TYPE_xxx for the list of possible values."
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#a3f99ca3115c44e6d7772c9384faf15e6"
     var codec: UnsafePointer[AVCodec, origin = ImmutOrigin.external]
-    "AVCodec. See AV_CODEC_ID_xxx for the list of possible values."
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#a6e606effa68724cae2ef5cc05f7fd9cb"
     var codec_id: AVCodecID.ENUM_DTYPE
-    "See AV_CODEC_ID_xxx for the list of possible values."
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#adc5f65d6099fd8339c1580c091777223"
 
     var codec_tag: c_ushort
-    """FourCC (LSB first, so "ABCD" -> ('D'<<24) + ('C'<<16) + ('B'<<8) + 'A').
-    This is used to work around some encoder bugs.
-
-    A demuxer should set this to what is stored in the field used to identify the codec.
-
-    If there are multiple such fields in a container then the demuxer should choose the one
-    which maximizes the information about the used codec.
-
-    If the codec tag field in a container is larger than 32 bits then the demuxer should
-    remap the longer ID to 32 bits with a table or other structure. Alternatively a new
-    extra_codec_tag + size could be added but for this a clear advantage must be demonstrated
-    first.
-    - encoding: Set by user, if not then the default based on codec_id will be used.
-    - decoding: Set by user, will be converted to uppercase by libavcodec during init.
-    """
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#a2c974557671dd459674b170c5e64d79a"
     var priv_data: OpaquePointer[MutOrigin.external]
-    "Private data for use by the codec."
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#af3379123060ad8cc9c321c29af4f8360"
 
     var internal: UnsafePointer[AVCodecInternal, origin = ImmutOrigin.external]
-    """Internal data used for internal data.
-
-    Unlike priv_data, this is not codec-specific. It is used in general
-    libavcodec functions.
-    """
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#aeffc0091dc3138015b53107c8ffb04af"
     var opaque: OpaquePointer[MutOrigin.external]
-    """Private data of the user, can be used to carry app specific stuff.
-
-    - encoding: Set by user.
-    - decoding: Set by user.
-    """
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#aab9c4495feeedde28c1e908d76b7b9f5"
     var bit_rate: c_long_long
-    """The average bitrate (in bits per second).
-    
-    - encoding: Set by user; unused for constant quantizer encoding.
-    - decoding: Set by user, may be overwritten by libavcodec
-    if this info is available in the stream
-    """
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#a6b53fda85ad61baa345edbd96cb8a33c"
     var flags: c_int
-    """AV_CODEC_FLAG_*.
-    
-    - encoding: Set by user.
-    - decoding: Set by user.
-    """
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#abb01e291550fa3fb96188af4d494587e"
     var flags2: c_int
-    """AV_CODEC_FLAG2_*.
-
-    - encoding: Set by user.
-    - decoding: Set by user.
-    """
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#a1944f9a4f8f2e123c087e1fe7613d571"
 
     var extradata: UnsafePointer[c_char, ImmutOrigin.external]
-    """Out-of-band global headers that may be used by some codecs.
-    
-    - decoding: Should be set by the caller when available (typically from a
-    demuxer) before opening the decoder; some decoders require this to be
-    set and will fail to initialize otherwise.
-    
-    The array must be allocated with the av_malloc() family of functions;
-    allocated size must be at least AV_INPUT_BUFFER_PADDING_SIZE bytes
-    larger than extradata_size.
-    
-    - encoding: May be set by the encoder in avcodec_open2() (possibly
-    depending on whether the AV_CODEC_FLAG_GLOBAL_HEADER flag is set).
-    
-    After being set, the array is owned by the codec and freed in
-    avcodec_free_context().
-    """
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#abe964316aaaa61967b012efdcced79c4"
     var extradata_size: c_int
-    "Size of the extradata."
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#ae246ca7a1c72c151891ed0599e8dbfba"
 
     var time_base: AVRational
-    """This is the fundamental unit of time (in seconds) in terms
-    of which frame timestamps are represented. For fixed-fps content,
-    timebase should be 1/framerate and timestamp increments should be
-    identically 1.
-    This often, but not always is the inverse of the frame rate or field rate
-    for video. 1/time_base is not the average frame rate if the frame rate is not
-    constant.
-    Like containers, elementary streams also can store timestamps, 1/time_base
-    is the unit in which these timestamps are specified.
-    As example of such codec time base see ISO/IEC 14496-2:2001(E)
-    vop_time_increment_resolution and fixed_vop_rate
-    (fixed_vop_rate == 0 implies that it is different from the framerate)
-    - encoding: MUST be set by user.
-    - decoding: unused.
-    """
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#ab7bfeb9fa5840aac090e2b0bd0ef7589"
     var pkt_timebase: AVRational
-    """Timebase in which pkt_dts/pts and AVPacket.dts/pts are expressed.
-    - encoding: unused.
-    - decoding: set by user.
-    """
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#a33a289c990bc3fbcad01c4a09f34da38"
     var framerate: AVRational
-    """
-    - decoding: For codecs that store a framerate value in the compressed
-    bitstream, the decoder may export it here. { 0, 1} when
-    unknown.
-    - encoding: May be used to signal the framerate of CFR content to an
-    encoder.
-    """
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#a4d08b297e97eefd66c714df4fff493c8"
     var delay: c_int
-    """Codec delay.
-    - Encoding: Number of frames delay there will be from the encoder input to
-    the decoder output. (we assume the decoder matches the spec)
-    - Decoding: Number of frames delay in addition to what a standard decoder
-    as specified in the spec would produce.
-
-    Video:
-    Number of frames the decoded output will be delayed relative to the
-    encoded input.
-
-    Audio:
-    For encoding, this field is unused (see initial_padding).
-
-    For decoding, this is the number of samples the decoder needs to
-    output before the decoder's output is valid. When seeking, you should
-    start decoding this many samples prior to your desired seek point.
-
-    - encoding: Set by libavcodec.
-    - decoding: Set by libavcodec.
-    """
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#a948993adfdfcd64b81dad1151fe50f33"
     # Video only
     var width: c_int
-    """Picture width / height.
-
-    @note Those fields may not match the values of the last
-    AVFrame output by avcodec_receive_frame() due frame
-    reordering.
-
-    - encoding: MUST be set by user.
-    - decoding: May be set by the user before opening the decoder if known e.g.
-    from the container. Some decoders will require the dimensions
-    to be set by the caller. During decoding, the decoder may
-    overwrite those values as required while parsing the data."""
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#a0d8f46461754e8abea0847dcbc41b956"
     var height: c_int
-    "Reference `Self.width` docs."
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#a0449afd803eb107bd4dbc8b5ea22e363"
 
     var coded_width: c_int
-    """Bitstream width / height, may be different from width/height e.g. when
-    the decoded frame is cropped before being output or lowres is enabled.
-
-    @note Those field may not match the value of the last
-    AVFrame output by avcodec_receive_frame() due frame
-    reordering.
-
-    - encoding: unused
-    - decoding: May be set by the user before opening the decoder if known e.g.
-    from the container. During decoding, the decoder may
-    overwrite those values as required while parsing the data.
-    """
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#ae3c157e97ff15d46e898a538c6bc7f09"
     var coded_height: c_int
-    "Reference `Self.coded_width` docs."
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#ab2ebb76836ef4cd9822b5077c17b33d0"
 
     var sample_aspect_ratio: AVRational
-    """Sample aspect ratio (0 if unknown)
-    That is the width of a pixel divided by the height of the pixel.
-    Numerator and denominator must be relatively prime and smaller than 256 for 
-    some video standards.
-    - encoding: Set by user.
-    - decoding: Set by libavcodec.
-    """
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#a5252d34fbce300228d4dbda19a8c3293"
     var pix_fmt: AVPixelFormat.ENUM_DTYPE
-    """Pixel format, see AV_PIX_FMT_xxx.
-    May be set by the demuxer if known from headers.
-    May be overridden by the decoder if it knows better.
-
-    @note This field may not match the value of the last
-    AVFrame output by avcodec_receive_frame() due frame
-    reordering.
-
-    - encoding: Set by user.
-    - decoding: Set by user if known, overridden by libavcodec while
-    parsing the data.
-    """
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#a0425c77b3d06d71e5db88b1d7e1b37f2"
     var sw_pix_fmt: AVPixelFormat.ENUM_DTYPE
-    """Nominal unaccelerated pixel format, see AV_PIX_FMT_xxx.
-    - encoding: unused.
-    - decoding: Set by libavcodec before calling get_format().
-    """
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#a1ff9829b01eeb0063c21d039dcc5900d"
     var color_primaries: AVColorPrimaries.ENUM_DTYPE
-    """Chromaticity coordinates of the source primaries.
-    - encoding: Set by user.
-    - decoding: Set by libavcodec.
-    """
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#a3a41b3e5bde23b877799f6e72dac8ef3"
     var color_trc: AVColorTransferCharacteristic.ENUM_DTYPE
-    """Color Transfer Characteristic.
-    - encoding: Set by user.
-    - decoding: Set by libavcodec.
-    """
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#ab649e8c599f5a0e2a30448e67a36deb6"
     var color_space: AVColorSpace.ENUM_DTYPE
-    """YUV colorspace type.
-    - encoding: Set by user.
-    - decoding: Set by libavcodec.
-    """
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#a8cd8caa7d40319324ce3d879a2edbd9f"
     var color_range: AVColorRange.ENUM_DTYPE
-    """MPEG vs JPEG YUV range.
-    - encoding: Set by user to override the default output color range value,
-    If not specified, libavcodec sets the color range depending on the
-    output format.
-    - decoding: Set by libavcodec, can be set by the user to propagate the
-    color range to components reading from the decoder context.
-    """
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html#a255bf7100a4ba6dcb6ee5d87740a4f35"
     var chroma_sample_location: AVChromaLocation.ENUM_DTYPE
     """This defines the location of chroma samples.
     - encoding: Set by user.

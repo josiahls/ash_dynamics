@@ -9,7 +9,7 @@ from sys.ffi import OwnedDLHandle, c_int, c_float
 from os.env import getenv
 import os
 from ash_dynamics.ffmpeg.avcodec.packet import AVPacket, av_packet_alloc
-from ash_dynamics.ffmpeg.avcodec.allcodecs import _avcodec_find_decoder
+from ash_dynamics.ffmpeg.avcodec.allcodecs import avcodec_find_decoder
 from ash_dynamics.ffmpeg.avutil.frame import av_frame_alloc
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 from ash_dynamics.ffmpeg.avcodec.avcodec import (
@@ -47,7 +47,7 @@ struct Avcodec:
     # TODO: This function returns null when it doesn't find a decoder.
     # We should change this from a filed to function that validates
     # and raises an error.
-    var avcodec_find_decoder: _avcodec_find_decoder.type
+    var avcodec_find_decoder: avcodec_find_decoder.type
     var av_parser_init: av_parser_init.type
     var avcodec_alloc_context3: avcodec_alloc_context3.type
     var avcodec_open2: avcodec_open2.type
@@ -59,7 +59,7 @@ struct Avcodec:
     var avcodec_parameters_from_context: avcodec_parameters_from_context.type
     var avcodec_send_frame: avcodec_send_frame.type
     var avcodec_receive_packet: avcodec_receive_packet.type
-    var _av_packet_rescale_ts: av_packet_rescale_ts.type
+    var av_packet_rescale_ts: av_packet_rescale_ts.type
     var av_buffer_alloc: av_buffer_alloc.type
 
     fn __init__(out self) raises:
@@ -73,7 +73,7 @@ struct Avcodec:
             )
         self.lib = OwnedDLHandle("{}/libavcodec.so".format(so_install_prefix))
         self.av_packet_alloc = av_packet_alloc.load(self.lib)
-        self.avcodec_find_decoder = _avcodec_find_decoder.load(self.lib)
+        self.avcodec_find_decoder = avcodec_find_decoder.load(self.lib)
         self.av_parser_init = av_parser_init.load(self.lib)
         self.avcodec_alloc_context3 = avcodec_alloc_context3.load(self.lib)
         self.avcodec_open2 = avcodec_open2.load(self.lib)
@@ -87,7 +87,7 @@ struct Avcodec:
         )
         self.avcodec_send_frame = avcodec_send_frame.load(self.lib)
         self.avcodec_receive_packet = avcodec_receive_packet.load(self.lib)
-        self._av_packet_rescale_ts = av_packet_rescale_ts.load(self.lib)
+        self.av_packet_rescale_ts = av_packet_rescale_ts.load(self.lib)
         self.av_buffer_alloc = av_buffer_alloc.load(self.lib)
 
     fn av_packet_rescale_ts(
@@ -96,6 +96,6 @@ struct Avcodec:
         tb_a: AVRational,
         tb_b: AVRational,
     ):
-        return self._av_packet_rescale_ts(
+        return self.av_packet_rescale_ts(
             pkt, tb_a.as_long_long(), tb_b.as_long_long()
         )
