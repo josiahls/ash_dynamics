@@ -21,6 +21,24 @@ from ash_dynamics.primitives._clib import (
 )
 
 
+# Until https://github.com/modular/modular/pull/5715 is merged, we need to
+# extend the unsafe_ptr function to StaticTuple.
+__extension StaticTuple:
+    @always_inline("nodebug")
+    fn unsafe_ptr(
+        ref self,
+    ) -> UnsafePointer[Self.element_type, origin_of(self)]:
+        """Returns a pointer to the static tuple.
+        Returns:
+            A pointer to the static tuple.
+        """
+        return (
+            UnsafePointer(to=self._mlir_value)
+            .bitcast[Self.element_type]()
+            .unsafe_origin_cast[origin_of(self)]()
+        )
+
+
 @fieldwise_init("implicit")
 @register_passable("trivial")
 struct AVFrameSideDataType:
