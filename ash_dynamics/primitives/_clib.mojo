@@ -125,17 +125,14 @@ struct StructWriter[
         T: Writable,
         deprecated: Bool = False,
     ](mut self, value: UnsafePointer[T, _]):
-        comptime not_conform_message: StaticString = rebind[StaticString](
-            name + " does not conform to StructWritable"
-        )
+        comptime not_conform_message: StaticString = name + " does not conform to StructWritable"
+
         comptime null_pointer_message: StaticString = "Null Ptr"
         if value:
 
             @parameter
             if conforms_to(T, StructWritable):
-                comptime struct_message: StaticString = rebind[StaticString](
-                    name + " (struct)"
-                )
+                comptime struct_message: StaticString = name + " (struct)"
                 self._fmt(StringSlice(struct_message), String(value))
                 trait_downcast[StructWritable](value[]).write_to(
                     self.writer[], indent=self.indent + 1
@@ -151,9 +148,7 @@ struct StructWriter[
     fn write_field[name: StaticString, T: Writable](mut self, value: T):
         @parameter
         if conforms_to(T, StructWritable):
-            comptime msg: StaticString = rebind[StaticString](
-                name + " (struct)"
-            )
+            comptime msg: StaticString = name + " (struct)"
             self._fmt(StringSlice(msg), "")
             trait_downcast[StructWritable](value).write_to(
                 self.writer[], indent=self.indent + 1
