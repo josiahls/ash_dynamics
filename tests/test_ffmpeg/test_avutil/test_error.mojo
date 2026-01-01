@@ -8,7 +8,7 @@ from sys._libc_errno import ErrNo
 
 from ash_dynamics.ffmpeg.avutil.error import AVERROR, AVERROR_EOF
 from ash_dynamics.ffmpeg.avutil.error import FFERRTAG
-from compile.reflection import get_type_name
+from reflection import get_type_name
 
 
 def test_FFERRTAG():

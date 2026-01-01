@@ -2,7 +2,7 @@ from sys.ffi import c_char, c_int
 from ash_dynamics.ffmpeg.avutil.opt import AVOption, AVOptionRanges
 from ash_dynamics.primitives._clib import StructWritable, StructWriter
 
-from compile.reflection import get_type_name
+from reflection import get_type_name
 
 
 comptime AVClass_item_name_fn = fn (

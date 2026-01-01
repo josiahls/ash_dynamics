@@ -3,7 +3,7 @@ from ash_dynamics.primitives._clib import C_Union, ExternalFunction
 from utils import StaticTuple
 from ash_dynamics.primitives._clib import StructWritable, StructWriter
 
-from compile.reflection import get_type_name
+from reflection import get_type_name
 
 
 @register_passable("trivial")

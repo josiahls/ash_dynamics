@@ -5,7 +5,7 @@ from ash_dynamics.primitives._clib import (
     ExternalFunction,
 )
 
-from compile.reflection import get_type_name
+from reflection import get_type_name
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 from ash_dynamics.ffmpeg.avutil.avutil import AVMediaType
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
