@@ -1,6 +1,7 @@
 from subprocess import run
 import os
 import sys
+from utils._ansi import Color, Text
 from testing.suite import TestSuiteReport, TestReport, TestResult
 from builtin._location import __call_location
 from pathlib import Path
@@ -12,7 +13,9 @@ comptime TEST_DIR = Path("tests")
 
 def test_file(file: Path) -> TestReport:
     var start = perf_counter_ns()
+    print("Running test: ", Text[Color.CYAN](file.name()), end="")
     var result = run("pixi run test_no_config " + String(file) + " 2>&1")
+    print(Text[Color.MAGENTA](" done"))
     var end = perf_counter_ns()
     var duration_ns = end - start
     if (
