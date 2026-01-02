@@ -858,18 +858,17 @@ struct AVChapter(Debug):
     var metadata: UnsafePointer[AVDictionary, MutOrigin.external]
 
 
-comptime av_format_control_message = ExternalFunction[
-    "av_format_control_message",
-    fn (
-        s: UnsafePointer[AVFormatContext, MutOrigin.external],
-        type: c_int,
-        data: OpaquePointer[MutOrigin.external],
-        data_size: c_size_t,
-    ) -> c_int,
-]
-"""
-Callback used by devices to communicate with application.
-"""
+# TODO: This is not a real function. This is a prototype used by AVFormatContext.control_message_cb.
+# comptime av_format_control_message = ExternalFunction[
+#     "av_format_control_message",
+#     fn (
+#         s: UnsafePointer[AVFormatContext, MutOrigin.external],
+#         type: c_int,
+#         data: OpaquePointer[MutOrigin.external],
+#         data_size: c_size_t,
+#     ) -> c_int,
+# ]
+
 
 comptime AVOpenCallback = fn (
     s: UnsafePointer[AVFormatContext, MutOrigin.external],

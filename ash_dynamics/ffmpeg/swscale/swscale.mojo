@@ -271,8 +271,8 @@ comptime SWS_CS_SMPTE240M = 7
 comptime SWS_CS_DEFAULT = 5
 comptime SWS_CS_BT2020 = 9
 
-comptime sws_get_coefficients = ExternalFunction[
-    "sws_get_coefficients",
+comptime sws_getCoefficients = ExternalFunction[
+    "sws_getCoefficients",
     fn (colorspace: c_int,) -> UnsafePointer[c_int, ImmutOrigin.external],
 ]
 
@@ -295,12 +295,12 @@ struct SwsFilter:
     var chrV: UnsafePointer[SwsVector, ImmutOrigin.external]
 
 
-comptime sws_is_supported_input = ExternalFunction[
-    "sws_is_supported_input", fn (pix_fmt: AVPixelFormat.ENUM_DTYPE,) -> c_int
+comptime sws_isSupportedInput = ExternalFunction[
+    "sws_isSupportedInput", fn (pix_fmt: AVPixelFormat.ENUM_DTYPE,) -> c_int
 ]
 
-comptime sws_is_supported_output = ExternalFunction[
-    "sws_is_supported_output", fn (pix_fmt: AVPixelFormat.ENUM_DTYPE,) -> c_int
+comptime sws_isSupportedOutput = ExternalFunction[
+    "sws_isSupportedOutput", fn (pix_fmt: AVPixelFormat.ENUM_DTYPE,) -> c_int
 ]
 
 comptime sws_isSupportedEndiannessConversion = ExternalFunction[
@@ -317,8 +317,8 @@ comptime sws_init_context = ExternalFunction[
     ) -> c_int,
 ]
 
-comptime sws_free_context = ExternalFunction[
-    "sws_free_context", fn (ctx: UnsafePointer[SwsContext, MutOrigin.external],)
+comptime sws_freeContext = ExternalFunction[
+    "sws_freeContext", fn (ctx: UnsafePointer[SwsContext, MutOrigin.external],)
 ]
 
 comptime sws_getContext = ExternalFunction[

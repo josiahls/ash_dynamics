@@ -488,14 +488,14 @@ comptime av_frame_side_data_get_c = ExternalFunction[
 
 # TODO: This is an inline function and probably shouldn't be a
 # "external function". This needs to be handled in the dlhandle.
-comptime av_frame_side_data_get = ExternalFunction[
-    "av_frame_side_data_get",
-    fn (
-        sd: UnsafePointer[AVFrameSideData, ImmutOrigin.external],
-        nb_sd: c_int,
-        type: AVFrameSideDataType.ENUM_DTYPE,
-    ) -> UnsafePointer[AVFrameSideData, ImmutOrigin.external],
-]
+# comptime av_frame_side_data_get = ExternalFunction[
+#     "av_frame_side_data_get",
+#     fn (
+#         sd: UnsafePointer[AVFrameSideData, ImmutOrigin.external],
+#         nb_sd: c_int,
+#         type: AVFrameSideDataType.ENUM_DTYPE,
+#     ) -> UnsafePointer[AVFrameSideData, ImmutOrigin.external],
+# ]
 
 
 comptime av_frame_side_data_remove = ExternalFunction[
