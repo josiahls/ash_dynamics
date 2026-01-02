@@ -7,12 +7,12 @@ from sys.ffi import c_uchar, c_int, c_char
 from sys._libc_errno import ErrNo
 
 from ash_dynamics.ffmpeg.avcodec.packet import AVPacket
-from ash_dynamics.ffmpeg.avutil import AV_NOPTS_VALUE
+from ash_dynamics.ffmpeg.avutil.avutil import AV_NOPTS_VALUE
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
 from ash_dynamics.ffmpeg.avutil.buffer import AVBufferRef
 from ash_dynamics.ffmpeg.avutil.buffer_internal import AVBuffer
 from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
-from ash_dynamics.ffmpeg.avcodec.av_codec_parser import AVCodecContext
+from ash_dynamics.ffmpeg.avcodec.avcodec import AVCodecContext
 from ash_dynamics.ffmpeg.avutil.frame import AVFrame
 from ash_dynamics.ffmpeg.avcodec.packet import (
     AVPacketSideData,

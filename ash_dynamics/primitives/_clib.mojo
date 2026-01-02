@@ -1,9 +1,25 @@
-from sys.ffi import OwnedDLHandle, c_char, c_int, c_long_long, c_uchar, c_uint
+from sys.ffi import (
+    OwnedDLHandle,
+    c_char,
+    c_int,
+    c_long_long,
+    c_uchar,
+    c_uint,
+    c_ushort,
+)
 from sys.info import size_of
 from utils import StaticTuple
 from sys.intrinsics import _type_is_eq
 from builtin.rebind import downcast
-from compile.reflection import get_type_name
+from reflection import (
+    struct_field_count,
+    struct_field_names,
+    struct_field_types,
+    get_type_name,
+)
+
+
+comptime c_ptrdiff_t = c_long_long
 
 
 struct ExternalFunction[
@@ -118,13 +134,14 @@ struct StructWriter[
         deprecated: Bool = False,
     ](mut self, value: UnsafePointer[T, _]):
         comptime not_conform_message: StaticString = name + " does not conform to StructWritable"
-        comptime null_pointer_message: StaticString = "None"
+
+        comptime null_pointer_message: StaticString = "Null Ptr"
         if value:
 
             @parameter
             if conforms_to(T, StructWritable):
                 comptime struct_message: StaticString = name + " (struct)"
-                self._fmt(StringSlice(struct_message), "")
+                self._fmt(StringSlice(struct_message), String(value))
                 trait_downcast[StructWritable](value[]).write_to(
                     self.writer[], indent=self.indent + 1
                 )
@@ -133,12 +150,14 @@ struct StructWriter[
         else:
             if deprecated:
                 self._fmt(name, null_pointer_message + " (deprecated)")
+            else:
+                self._fmt(name, null_pointer_message)
 
     fn write_field[name: StaticString, T: Writable](mut self, value: T):
         @parameter
         if conforms_to(T, StructWritable):
-            comptime struct_message: StaticString = name + " (struct)"
-            self._fmt(StringSlice(struct_message), "")
+            comptime msg: StaticString = name + " (struct)"
+            self._fmt(StringSlice(msg), "")
             trait_downcast[StructWritable](value).write_to(
                 self.writer[], indent=self.indent + 1
             )
@@ -193,3 +212,60 @@ struct TrivialOptionalField[active: Bool, ElementType: AnyTrivialRegType](
             Self.active, "Field is not active, you should not access it."
         ]()
         return self.field[0]
+
+
+# NOTE: Not working at the moment. Gets:
+# failed to locate witness entry for std::builtin::simd::SIMD, std::builtin::str::Stringable, __str__($0)
+trait Debug(Writable):
+    fn write_to(self, mut w: Some[Writer]):
+        self.write_to(w, indent=0)
+
+    fn write_to(self, mut w: Some[Writer], indent: Int):
+        # TODO: Implement: https://github.com/modular/modular/issues/5720
+        # once solved.
+        print(get_type_name[Self]() + ":")
+
+        @parameter
+        for i in range(struct_field_count[Self]()):
+            comptime field_type = struct_field_types[Self]()[i]
+            comptime field_name = struct_field_names[Self]()[i]
+            # if conforms_to(field_type, Stringable):
+
+            var field = UnsafePointer(to=__struct_field_ref(i, self))
+            w.write("    ", field_name, ": ")
+
+            @parameter
+            if get_type_name[field_type]() == get_type_name[Int8]():
+                w.write(field.bitcast[Int8]()[])
+            elif get_type_name[field_type]() == get_type_name[Int16]():
+                w.write(field.bitcast[Int16]()[])
+            elif get_type_name[field_type]() == get_type_name[Int]():
+                w.write(field.bitcast[Int]()[])
+            elif get_type_name[field_type]() == get_type_name[Int32]():
+                w.write(field.bitcast[Int32]()[])
+            elif get_type_name[field_type]() == get_type_name[Int64]():
+                w.write(field.bitcast[Int64]()[])
+            elif get_type_name[field_type]() == get_type_name[UInt8]():
+                w.write(field.bitcast[UInt8]()[])
+            elif get_type_name[field_type]() == get_type_name[UInt16]():
+                w.write(field.bitcast[UInt16]()[])
+            elif get_type_name[field_type]() == get_type_name[UInt]():
+                w.write(field.bitcast[UInt]()[])
+            elif get_type_name[field_type]() == get_type_name[UInt32]():
+                w.write(field.bitcast[UInt32]()[])
+            elif get_type_name[field_type]() == get_type_name[UInt64]():
+                w.write(field.bitcast[UInt64]()[])
+            elif get_type_name[field_type]() == get_type_name[Float32]():
+                w.write(field.bitcast[Float32]()[])
+            elif get_type_name[field_type]() == get_type_name[Float64]():
+                w.write(field.bitcast[Float64]()[])
+            elif get_type_name[field_type]() == get_type_name[Bool]():
+                w.write(field.bitcast[Bool]()[])
+            elif "UnsafePointer" in get_type_name[field_type]():
+                w.write(field.bitcast[OpaquePointer[MutAnyOrigin]]()[])
+            else:
+                w.write(
+                    "Unable to handle type name: ", get_type_name[field_type]()
+                )
+
+            w.write("\n")

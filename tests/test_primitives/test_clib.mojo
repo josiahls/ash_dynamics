@@ -1,6 +1,6 @@
 from testing.suite import TestSuite
 from testing.testing import assert_equal
-from ash_dynamics.primitives._clib import C_Union, TrivialOptionalField
+from ash_dynamics.primitives._clib import C_Union, TrivialOptionalField, Debug
 from sys import size_of
 
 
@@ -55,6 +55,30 @@ def test_trivial_optional_field():
     # Test inactive field struct has smaller size than active field struct
     assert_equal(size_of[ContainsActiveField](), size_of[Int64]())
     assert_equal(size_of[ContainsInactiveField](), 0)
+
+
+# TODO: Does not pass at the moment.
+@fieldwise_init
+struct A(Debug):
+    var b: Int64
+    var c: Int64
+    var d: UnsafePointer[Int, MutAnyOrigin]
+    var e: Float32
+    var f: Bool
+    var g: UInt8
+    var h: UInt16
+    var i: UInt
+    var j: UInt32
+    var k: UInt64
+    var l: Float64
+
+
+def test_debug_trait():
+    var d = alloc[Int](1)
+    d[] = 1
+
+    var a = A(b=1, c=2, d=d, e=1.0, f=True, g=1, h=1, i=1, j=1, k=1, l=1.0)
+    print(a)
 
 
 def main():

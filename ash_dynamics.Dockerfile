@@ -52,6 +52,7 @@ RUN apt-get update && apt-get install -y \
     ffmpeg \
     nasm \
     xauth \
+    libopenh264-dev \
     ninja-build meson \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*

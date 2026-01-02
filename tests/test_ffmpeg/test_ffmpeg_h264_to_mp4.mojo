@@ -1,8 +1,8 @@
 from testing.suite import TestSuite
 from testing.testing import assert_equal
-from pathlib import Path
 from memory import memset
 from itertools import count
+from pathlib import Path
 import sys
 import os
 from sys.ffi import (
@@ -662,19 +662,18 @@ def test_av_mux_example():
     var swrsample = Swrsample()
 
     var test_data_root = os.getenv("PIXI_PROJECT_ROOT")
-    # Currently auto gens frames
-    # var input_filename: String = (
-    #     "{}/test_data/testsrc_320x180_30fps_2s.h264".format(test_data_root)
-    # )
+    var input_filename: String = (
+        "{}/test_data/testsrc_320x180_30fps_2s.h264".format(test_data_root)
+    )
     var output_filename: String = (
-        "{}/test_data/dash_mojo/testsrc_320x180_30fps_2s.mpd".format(
+        "{}/test_data/dash_manual/testsrc_320x180_30fps_2s.mp4".format(
             test_data_root
         )
     )
+
     var parent_path_parts = Path(output_filename).parts()[:-1]
     var parent_path = Path(String(os.sep).join(parent_path_parts))
     os.makedirs(parent_path, exist_ok=True)
-
     # FIXME: Tryout without any flags, just h264 to mp4.
     # ret = avformat.alloc_output_context(oc, output_filename)
 

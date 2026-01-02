@@ -1,4 +1,6 @@
+"https://www.ffmpeg.org/doxygen/8.0/codec__id_8h.html"
 from sys.ffi import c_int
+from ash_dynamics.primitives._clib import Debug
 from ash_dynamics.ffmpeg.avcodec.version_major import (
     FF_API_V408_CODECID,
     FF_API_INIT_PACKET,
@@ -13,12 +15,8 @@ from ash_dynamics.ffmpeg.avcodec.version_major import (
 
 @fieldwise_init("implicit")
 @register_passable("trivial")
-struct AVCodecID:
-    """Reference [0] for enum details.
-
-    Reference:
-     - https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html
-    """
+struct AVCodecID(Debug):
+    "https://www.ffmpeg.org/doxygen/7.0/group__lavc__core.html#gaadca229ad2c20e060a14fec08a5cc7ce"
 
     comptime ENUM_DTYPE = c_int
 
@@ -33,7 +31,6 @@ struct AVCodecID:
         return Self(value_if_true if condition else value_if_false)
 
     fn inc(self) -> Self:
-        "Returns a copy of self but with +1 added."
         return Self(self._value + 1)
 
     comptime AV_CODEC_ID_NONE = Self(0)

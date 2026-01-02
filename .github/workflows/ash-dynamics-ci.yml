@@ -155,4 +155,4 @@ jobs:
         # Github doesn't have any gpu runners.
         COMPOSE_PROFILES: cpu_${{ matrix.runner.PLATFORM }} 
         # Toggle if there is a need to build the stdlib
-        # export PIXI_ENVIRONMENT_NAME=stdlib_dev
+        # export PIXI_ENVIRONMENT_NAME: stdlib-dev

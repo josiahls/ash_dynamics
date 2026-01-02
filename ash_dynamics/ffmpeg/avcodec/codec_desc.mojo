@@ -1,5 +1,6 @@
+"https://www.ffmpeg.org/doxygen/8.0/codec__desc_8h.html"
 from sys.ffi import c_char, c_int
-from ash_dynamics.primitives._clib import StructWritable, StructWriter
+from ash_dynamics.primitives._clib import Debug
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 from ash_dynamics.ffmpeg.avutil.avutil import AVMediaType
 from ash_dynamics.ffmpeg.avcodec.codec import AVProfile
@@ -7,40 +8,14 @@ from ash_dynamics.ffmpeg.avcodec.codec import AVProfile
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVCodecDescriptor(StructWritable):
-    """This struct describes the properties of a single codec described by an
-    AVCodecID.
-    """
+struct AVCodecDescriptor(Debug):
+    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecDescriptor.html"
 
     var id: AVCodecID.ENUM_DTYPE
     var type: AVMediaType.ENUM_DTYPE
 
     var name: UnsafePointer[c_char, ImmutOrigin.external]
-    """name of the codec described by this descriptor. It is non-empty and
-    unique for each codec descriptor. It should contain alphanumeric
-    characters and '_' only.
-    """
     var long_name: UnsafePointer[c_char, ImmutOrigin.external]
-    """a more descriptive name for this codec. May be NULL.
-    """
     var props: c_int
-    """codec properties, a combination of AV_CODEC_PROP_* flags.
-    """
     var mime_types: UnsafePointer[c_char, MutOrigin.external]
-    """MIME type(s) associated with the codec. May be NULL; if not, a 
-    NULL-terminated array of MIME types. The first item is always non-NULL and 
-    is the preferred MIME type.
-    """
     var profiles: UnsafePointer[AVProfile, MutOrigin.external]
-    """If non-NULL, an array of profiles recognized for this codec.
-    Terminated with AV_PROFILE_UNKNOWN.
-    """
-
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["id"](self.id)
-        struct_writer.write_field["type"](self.type)
-        struct_writer.write_field["name"](self.name)
-        struct_writer.write_field["long_name"](self.long_name)
-        struct_writer.write_field["props"](self.props)
-        struct_writer.write_field["mime_types"](self.mime_types)

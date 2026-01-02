@@ -257,26 +257,24 @@ Symbols present can be listed via:
 nm -D $ASH_DYNAMICS_SO_INSTALL_PREFIX/libavformat.so
 """
 
-from sys.ffi import OwnedDLHandle, c_int, c_float, c_char, c_long_long
+from sys.ffi import OwnedDLHandle, c_int, c_float, c_char
 from os.env import getenv
 import os
-from ash_dynamics.ffmpeg.avutil.channel_layout import av_channel_layout_copy
-from ash_dynamics.ffmpeg.avutil.frame import (
-    av_frame_alloc,
-    av_frame_get_buffer,
-    av_frame_make_writable,
+from ash_dynamics.ffmpeg.avformat.avformat import (
+    avformat_alloc_output_context2,
+    avformat_get_class,
+    av_guess_format,
+    avformat_new_stream,
+    avformat_free_context,
+    av_dump_format,
+    avformat_write_header,
+    av_interleaved_write_frame,
+    av_write_trailer,
+    AVOutputFormat,
+    AVFormatContext,
 )
-from ash_dynamics.ffmpeg.avutil.mathematics import (
-    av_compare_ts,
-    av_rescale_rnd,
-    av_rescale_q_rnd,
-)
-from ash_dynamics.ffmpeg.avutil.mathematics import AVRounding
-from ash_dynamics.ffmpeg.avutil.rational import AVRational
-from ash_dynamics.ffmpeg.avutil.error import (
-    av_strerror,
-    AV_ERROR_MAX_STRING_SIZE,
-)
+from ash_dynamics.ffmpeg.avformat.avio import avio_open, AVIO_FLAG_WRITE
+
 from logger import Logger
 
 
@@ -284,27 +282,30 @@ comptime _logger = Logger()
 
 
 @fieldwise_init
-struct Avutil:
+struct Avformat:
     var lib: OwnedDLHandle
 
     # ===--------------------------------------------------===
     # ===                   Functions                      ===
     # ===--------------------------------------------------===
-    var av_channel_layout_copy: av_channel_layout_copy.type
-    "Shadows av_channel_layout_copy."
-    var av_frame_alloc: av_frame_alloc.type
-    "Shadows av_frame_alloc."
-    var av_frame_get_buffer: av_frame_get_buffer.type
-    "Shadows av_frame_get_buffer."
-    var _av_compare_ts: av_compare_ts.type
-    "Shadows av_compare_ts."
-    var av_frame_make_writable: av_frame_make_writable.type
-    "Shadows av_frame_make_writable."
-    var av_rescale_rnd: av_rescale_rnd.type
-    "Shadows av_rescale_rnd."
-    var _av_rescale_q_rnd: av_rescale_q_rnd.type
-    "Shadows av_rescale_q_rnd."
-    var av_strerror: av_strerror.type
+    var _alloc_output_context: avformat_alloc_output_context2.type
+    "Shadows avformat_alloc_output_context2."
+    var av_guess_format: av_guess_format.type
+    "Shadows av_guess_format."
+    var avformat_get_class: avformat_get_class.type
+    "Shadows avformat_get_class."
+    var avformat_new_stream: avformat_new_stream.type
+    "Shadows avformat_new_stream."
+    var av_dump_format: av_dump_format.type
+    "Shadows av_dump_format."
+    var avio_open: avio_open.type
+    "Shadows avio_open."
+    var avformat_write_header: avformat_write_header.type
+    "Shadows avformat_write_header."
+    var av_interleaved_write_frame: av_interleaved_write_frame.type
+    "Shadows av_interleaved_write_frame."
+    var av_write_trailer: av_write_trailer.type
+    "Shadows av_write_trailer."
 
     fn __init__(out self) raises:
         var so_install_prefix = getenv("ASH_DYNAMICS_SO_INSTALL_PREFIX")
@@ -313,52 +314,60 @@ struct Avutil:
                 "ASH_DYNAMICS_SO_INSTALL_PREFIX env var is not set. "
                 "Expecting a path like:\n"
                 "$PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib\n"
-                "Where `libavutil.so` is expected to exist."
+                "Where `libavformat.so` is expected to exist."
             )
-        self.lib = OwnedDLHandle("{}/libavutil.so".format(so_install_prefix))
-        self.av_channel_layout_copy = av_channel_layout_copy.load(self.lib)
-        self.av_frame_alloc = av_frame_alloc.load(self.lib)
-        self.av_frame_get_buffer = av_frame_get_buffer.load(self.lib)
-        self._av_compare_ts = av_compare_ts.load(self.lib)
-        self.av_frame_make_writable = av_frame_make_writable.load(self.lib)
-        self.av_rescale_rnd = av_rescale_rnd.load(self.lib)
-        self._av_rescale_q_rnd = av_rescale_q_rnd.load(self.lib)
-        self.av_strerror = av_strerror.load(self.lib)
+        self.lib = OwnedDLHandle("{}/libavformat.so".format(so_install_prefix))
+        self._alloc_output_context = avformat_alloc_output_context2.load(
+            self.lib
+        )
+        self.av_guess_format = av_guess_format.load(self.lib)
+        self.avformat_get_class = avformat_get_class.load(self.lib)
+        self.avformat_new_stream = avformat_new_stream.load(self.lib)
+        self.av_dump_format = av_dump_format.load(self.lib)
+        self.avio_open = avio_open.load(self.lib)
+        self.avformat_write_header = avformat_write_header.load(self.lib)
+        self.av_interleaved_write_frame = av_interleaved_write_frame.load(
+            self.lib
+        )
+        self.av_write_trailer = av_write_trailer.load(self.lib)
 
-    fn av_compare_ts(
+    fn alloc_output_context(
         self,
-        ts_a: c_long_long,
-        tb_a: AVRational,
-        ts_b: c_long_long,
-        tb_b: AVRational,
+        ctx: UnsafePointer[
+            UnsafePointer[AVFormatContext, MutOrigin.external], MutAnyOrigin
+        ],
+        oformat: UnsafePointer[AVOutputFormat, ImmutOrigin.external],
+        format_name: UnsafePointer[c_char, ImmutOrigin.external],
+        mut filename: String,
     ) -> c_int:
-        return self._av_compare_ts(
-            ts_a, tb_a.as_long_long(), ts_b, tb_b.as_long_long()
+        return self._alloc_output_context(
+            ctx=ctx,
+            oformat=oformat,
+            format_name=format_name,
+            filename=filename.as_c_string_slice().unsafe_ptr().as_immutable(),
         )
 
-    fn av_rescale_q_rnd(
+    fn alloc_output_context(
         self,
-        a: c_long_long,
-        b: AVRational,
-        c: AVRational,
-        rnd: AVRounding.ENUM_DTYPE,
-    ) -> c_long_long:
-        return self._av_rescale_q_rnd(
-            a, b.as_long_long(), c.as_long_long(), rnd
-        )
+        ctx: UnsafePointer[
+            UnsafePointer[AVFormatContext, MutOrigin.external], MutAnyOrigin
+        ],
+        mut filename: String,
+    ) -> c_int:
+        """Allocate an AVFormatContext for an output format.
 
-    fn av_err2str(
-        self,
-        err: c_int,
-    ) -> String:
-        var s = alloc[c_char](AV_ERROR_MAX_STRING_SIZE)
-        var ret = self.av_strerror(
-            err,
-            s,
-            AV_ERROR_MAX_STRING_SIZE,
+        Note: Null pointers for oformat and format_name will use the filename to guess the format.
+
+        Args:
+                ctx: Pointee is set to the created format context, or to NULL in case of failure.
+                filename: The name of the filename to use for allocating the context, may be NULL.
+
+        Returns:
+                >= 0 in case of success, a negative AVERROR code in case of failure.
+        """
+        return self._alloc_output_context(
+            ctx=ctx,
+            oformat=UnsafePointer[AVOutputFormat, ImmutOrigin.external](),
+            format_name=UnsafePointer[c_char, ImmutOrigin.external](),
+            filename=filename.as_c_string_slice().unsafe_ptr().as_immutable(),
         )
-        if ret < 0:
-            os.abort(
-                "Failed to get error string for error code: {}".format(err)
-            )
-        return String(unsafe_from_utf8_ptr=s)

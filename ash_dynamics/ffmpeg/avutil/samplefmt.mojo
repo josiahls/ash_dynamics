@@ -1,45 +1,17 @@
+"https://www.ffmpeg.org/doxygen/8.0/samplefmt_8h.html"
 from sys.ffi import c_int
-from ash_dynamics.primitives._clib import StructWritable, StructWriter
+from ash_dynamics.primitives._clib import Debug
 
 
 @fieldwise_init("implicit")
 @register_passable("trivial")
-struct AVSampleFormat(StructWritable):
-    """Audio sample formats
-
-    - The data described by the sample format is always in native-endian order.
-    Sample values can be expressed by native C types, hence the lack of a signed
-    24-bit sample format even though it is a common raw audio data format.
-
-    - The floating-point formats are based on full volume being in the range
-    [-1.0, 1.0]. Any values outside this range are beyond full volume level.
-
-    - The data layout as used in av_samples_fill_arrays() and elsewhere in FFmpeg
-    (such as AVFrame in libavcodec) is as follows:
-
-    For planar sample formats, each audio channel is in a separate data plane,
-    and linesize is the buffer size, in bytes, for a single plane. All data
-    planes must be the same size. For packed sample formats, only the first data
-    plane is used, and samples for each channel are interleaved. In this case,
-    linesize is the buffer size, in bytes, for the 1 plane.
-
-    Reference [0] for enum details.
-
-    Reference:
-     - https://www.ffmpeg.org/doxygen/8.0/samplefmt_8h_source.html
-    """
-
+struct AVSampleFormat(Debug):
     comptime ENUM_DTYPE = c_int
 
     var _value: Self.ENUM_DTYPE
 
     fn inc(self) -> Self:
-        "Returns a copy of self but with +1 added."
         return Self(self._value + 1)
-
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["value"](self._value)
 
     comptime AV_SAMPLE_FMT_NONE = Self(-1)
     comptime AV_SAMPLE_FMT_U8 = Self(

@@ -8,7 +8,7 @@ from sys._libc_errno import ErrNo
 
 from ash_dynamics.ffmpeg.avutil.error import AVERROR, AVERROR_EOF
 from ash_dynamics.ffmpeg.avutil.error import FFERRTAG
-from compile.reflection import get_type_name
+from reflection import get_type_name
 
 
 def test_FFERRTAG():
@@ -16,10 +16,10 @@ def test_FFERRTAG():
     Basic 0,1,2,3 values make sense.
     That 'B' and named StaticStrings compile into the variant.
     """
-    assert_equal(FFERRTAG(0, 1, 2, 3), -33751296)
+    assert_equal(FFERRTAG(0, 1, 2, 3), -50462976)
     comptime s: StaticString = "S"
     comptime f: StaticString = "F"
-    assert_equal(FFERRTAG(0, "B", s, f), -1397113344)
+    assert_equal(FFERRTAG(0, "B", s, f), -1179861504)
 
 
 def test_AVERROR():
@@ -32,8 +32,14 @@ def test_AVERROR():
     assert_equal(AVERROR(ErrNo.EPERM.value), -1)
 
 
-# def test_AVERROR_EOF():
-#     assert_equal(AVERROR_EOF, -541478725)
+def test_AVERROR_EOF():
+    # 00100000010001100100111101000101, 20464F45
+    # print(hex(ord('E')))
+    # print(hex(ord('O')))
+    # print(hex(ord('F')))
+    # print(hex(ord(' ')))
+    # print("actual hex: ", hex(AVERROR_EOF))
+    assert_equal(AVERROR_EOF, -541478725)
 
 
 def main():

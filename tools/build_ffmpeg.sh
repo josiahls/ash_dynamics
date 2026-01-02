@@ -16,9 +16,13 @@ cd ./third_party/ffmpeg
 BUILD_PATH=$(pwd)/build
 
 if [ ! -d ${BUILD_PATH} ]; then
+    echo $(ls -la)
     echo "Building ffmpeg in ${BUILD_PATH}"
     # For put the built dir in the same directory. Eventually change to the default
     # location on linux.
+
+    # For: --enable-libopenh264, this package must be installed: 
+    #      apt install libopenh264-dev
     ./configure \
         --prefix=${BUILD_PATH} \
         --enable-shared \
@@ -34,6 +38,7 @@ if [ ! -d ${BUILD_PATH} ]; then
         --disable-faan \
         --disable-iamf \
         --disable-pixelutils \
+        --enable-libopenh264
         # We want to leave these enabled.
         # --disable-avcodec 
         # --disable-swresample
