@@ -16,3 +16,12 @@ if [ ! -f ${OUTPUT_FILE_1} ]; then
         -crf 23 \
         ${OUTPUT_FILE_1}
 fi
+
+OUTPUT_FILE_2="${TEST_DATA_ROOT}/testsrc_128x128.png"
+if [ ! -f ${OUTPUT_FILE_2} ]; then
+    echo "Generating ${OUTPUT_FILE_2}"
+    ffmpeg -y \
+        -f lavfi -i "testsrc=duration=1:size=128x128:rate=1" \
+        -vframes 1 \
+        ${OUTPUT_FILE_2}
+fi
