@@ -52,6 +52,9 @@ args = [{ arg = "n_commits", default = "1" }]
 [tasks.clone_lightbug_http]
 cmd = "bash tools/clone_lightbug_http.sh"
 
+[tasks.clone_numojo]
+cmd = "bash tools/clone_numojo.sh"
+
 [tasks.clone_ffmpeg]
 cmd = "bash tools/clone_ffmpeg.sh"
 
@@ -65,7 +68,7 @@ cmd = "bash tools/generate_test_videos.sh"
 ############################### Core API #######################################
 [tasks.configure]
 cmd = "bash tools/configure.sh"
-depends-on = [ "install_pre_commit_hooks", "clone_lightbug_http", "build_ffmpeg", "generate_test_videos", "install_libopenh264" ]
+depends-on = [ "install_pre_commit_hooks", "clone_lightbug_http", "build_ffmpeg", "generate_test_videos", "install_libopenh264", "clone_numojo" ]
 
 [tasks.package]
 cmd = "pixi run mojo package $ASH_DYNAMICS_INCLUDES ash_dynamics"
