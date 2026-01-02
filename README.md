@@ -37,3 +37,10 @@ python3 serve_dash.py
 ```
 
 https://github.com/user-attachments/assets/a7d5064c-a636-4130-b443-4dfde792f00a
+
+
+## License
+
+Distributed under the Apache 2.0 License with LLVM Exceptions. See [LICENSE](https://github.com/Mojo-Numerics-and-Algorithms-group/NuMojo/blob/main/LICENSE) and the LLVM [License](https://llvm.org/LICENSE.txt) for more information.
+
+This project includes code from [Mojo Standard Library](https://github.com/modular/modular), licensed under the Apache License v2.0 with LLVM Exceptions (see the LLVM [License](https://llvm.org/LICENSE.txt)). MAX and Mojo usage and distribution are licensed under the [MAX & Mojo Community License](https://www.modular.com/legal/max-mojo-license).
