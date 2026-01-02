@@ -4,3 +4,4 @@
 COMPOSE_PROFILES=cpu_arm64
 # Can be changed to "stdlib-dev" to building and using the cloned mojo stdlib.
 PIXI_ENVIRONMENT_NAME="default"
+CONFIGURE_LIBOPENH264="true"

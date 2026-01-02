@@ -16,9 +16,9 @@ yet as an installable deb package.
 # It is important for the end user to be aware of 
 # https://via-la.com/licensing-programs/avc-h-264/#license-fees if they intend
 # to use the encoder in commercial solutions.
-apt install libopenh264-dev
 
-pixi shell --environment stdlib-dev
+pixi shell
+export CONFIGURE_LIBOPENH264=true
 pixi run configure
 pixi run test_all
 ```

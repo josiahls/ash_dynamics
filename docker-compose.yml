@@ -19,6 +19,7 @@ x-ash_dynamics_base: &ash_dynamics_base
   environment:
     C_BINDING_MOJO_TEST_MUJOCO: /home/mojo_user/ash_dynamics/mujoco_mojo/mujoco
     PIXI_ENVIRONMENT_NAME: ${PIXI_ENVIRONMENT_NAME:-default}
+    CONFIGURE_LIBOPENH264: ${CONFIGURE_LIBOPENH264:-false}
     DISPLAY: host.docker.internal:0
 
 volumes:
