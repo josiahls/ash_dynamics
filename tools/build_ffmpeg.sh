@@ -23,7 +23,7 @@ if [ ! -d ${BUILD_PATH} ]; then
 
     # For: --enable-libopenh264, this package must be installed: 
     #      apt install libopenh264-dev
-    ./configure \
+    default_configure_flags=(
         --prefix=${BUILD_PATH} \
         --enable-shared \
         --disable-avdevice \
@@ -37,13 +37,19 @@ if [ ! -d ${BUILD_PATH} ]; then
         --disable-lsp \
         --disable-faan \
         --disable-iamf \
-        --disable-pixelutils \
-        --enable-libopenh264
+        --disable-pixelutils
         # We want to leave these enabled.
         # --disable-avcodec 
         # --disable-swresample
         # --disable-swscale
         # --disable-avformat
+    )
+
+    if [[ "${CONFIGURE_LIBOPENH264:-}" == "true" ]]; then
+        default_configure_flags+=(--enable-libopenh264)
+    fi
+
+    ./configure "${default_configure_flags[@]}"
 
     make
     make install

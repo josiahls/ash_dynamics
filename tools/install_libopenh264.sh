@@ -10,7 +10,7 @@ set -euo pipefail
 
 
 if [[ "${CONFIGURE_LIBOPENH264:-}" == "true" ]]; then
-    if ! -d ! dpkg -s libopenh264-dev >/dev/null 2>&1; then
+    if ! dpkg -s libopenh264-dev >/dev/null 2>&1; then
         echo "Installing libopenh264-dev"
         sudo apt update
         sudo apt install -y libopenh264-dev
