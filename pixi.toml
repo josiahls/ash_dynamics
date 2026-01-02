@@ -39,7 +39,7 @@ build_ffmpeg = { cmd = "bash tools/build_ffmpeg.sh", inputs = [
     "tools/build_ffmpeg.sh",
 ], outputs = [
     "third_party/ffmpeg/build/lib/*.so"
-], depends-on = [ "clone_ffmpeg" ] }
+], depends-on = [ "clone_ffmpeg", "install_libopenh264" ] }
 
 ############################ Git Ops ###########################################
 push = "git push --force-with-lease"

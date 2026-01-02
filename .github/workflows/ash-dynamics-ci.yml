@@ -155,4 +155,5 @@ jobs:
         # Github doesn't have any gpu runners.
         COMPOSE_PROFILES: cpu_${{ matrix.runner.PLATFORM }} 
         # Toggle if there is a need to build the stdlib
+        CONFIGURE_LIBOPENH264: true
         # export PIXI_ENVIRONMENT_NAME: stdlib-dev
