@@ -184,18 +184,22 @@ struct AVCodecContext(Debug):
     comptime SLICE_FLAG_CODED_ORDER = Int(0x0001)
     comptime SLICE_FLAG_ALLOW_FIELD = Int(0x0002)
     comptime SLICE_FLAG_ALLOW_PLANE = Int(0x0004)
-    var draw_horiz_band: fn (
-        s: UnsafePointer[Self, MutOrigin.external],
-        src: UnsafePointer[AVFrame, ImmutOrigin.external],
-        offset: StaticTuple[c_int, AVFrame.AV_NUM_DATA_POINTERS],
-        y: c_int,
-        type: c_int,
-        height: c_int,
-    ) -> NoneType
-    var get_format: fn (
-        s: UnsafePointer[Self, MutOrigin.external],
-        fmt: UnsafePointer[AVPixelFormat.ENUM_DTYPE, ImmutOrigin.external],
-    ) -> AVPixelFormat.ENUM_DTYPE
+    var draw_horiz_band: UnsafePointer[
+        fn (
+            s: UnsafePointer[Self, MutOrigin.external],
+            src: UnsafePointer[AVFrame, ImmutOrigin.external],
+            offset: StaticTuple[c_int, AVFrame.AV_NUM_DATA_POINTERS],
+            y: c_int,
+            type: c_int,
+            height: c_int,
+        ) -> NoneType, MutOrigin.external
+    ]
+    var get_format: UnsafePointer[
+        fn (
+            s: UnsafePointer[Self, MutOrigin.external],
+            fmt: UnsafePointer[AVPixelFormat.ENUM_DTYPE, ImmutOrigin.external],
+        ) -> AVPixelFormat.ENUM_DTYPE, MutOrigin.external
+    ]
     var max_b_frames: c_int
     var b_quant_factor: c_float
     var b_quant_offset: c_float
@@ -262,11 +266,13 @@ struct AVCodecContext(Debug):
     var trailing_padding: c_int
     var seek_preroll: c_int
 
-    var get_buffer2: fn (
-        s: UnsafePointer[Self, MutOrigin.external],
-        frame: UnsafePointer[AVFrame, MutOrigin.external],
-        flags: c_int,
-    ) -> c_int
+    var get_buffer2: UnsafePointer[
+        fn (
+            s: UnsafePointer[Self, MutOrigin.external],
+            frame: UnsafePointer[AVFrame, MutOrigin.external],
+            flags: c_int,
+        ) -> c_int, MutOrigin.external
+    ]
 
     # Encoding parameters
     var bit_rate_tolerance: c_int
@@ -378,30 +384,34 @@ struct AVCodecContext(Debug):
 
     var active_thread_type: c_int
 
-    var execute: fn (
-        c: UnsafePointer[AVCodecContext, MutOrigin.external],
-        func: fn (
-            c2: UnsafePointer[AVCodecContext, MutOrigin.external],
-            arg: OpaquePointer[MutOrigin.external],
-        ) -> c_int,
-        arg2: OpaquePointer[MutOrigin.external],
-        ret: UnsafePointer[c_int, MutOrigin.external],
-        count: c_int,
-        size: c_int,
-    ) -> c_int
+    var execute: UnsafePointer[
+        fn (
+            c: UnsafePointer[AVCodecContext, MutOrigin.external],
+            func: fn (
+                c2: UnsafePointer[AVCodecContext, MutOrigin.external],
+                arg: OpaquePointer[MutOrigin.external],
+            ) -> c_int,
+            arg2: OpaquePointer[MutOrigin.external],
+            ret: UnsafePointer[c_int, MutOrigin.external],
+            count: c_int,
+            size: c_int,
+        ) -> c_int, MutOrigin.external
+    ]
 
-    var execute2: fn (
-        c: UnsafePointer[AVCodecContext, MutOrigin.external],
-        func2: fn (
-            c2: UnsafePointer[AVCodecContext, MutOrigin.external],
-            arg: OpaquePointer[MutOrigin.external],
-            jobnr: c_int,
-            threadnr: c_int,
-        ) -> c_int,
-        arg2: OpaquePointer[MutOrigin.external],
-        ret: UnsafePointer[c_int, MutOrigin.external],
-        count: c_int,
-    ) -> c_int
+    var execute2: UnsafePointer[
+        fn (
+            c: UnsafePointer[AVCodecContext, MutOrigin.external],
+            func2: fn (
+                c2: UnsafePointer[AVCodecContext, MutOrigin.external],
+                arg: OpaquePointer[MutOrigin.external],
+                jobnr: c_int,
+                threadnr: c_int,
+            ) -> c_int,
+            arg2: OpaquePointer[MutOrigin.external],
+            ret: UnsafePointer[c_int, MutOrigin.external],
+            count: c_int,
+        ) -> c_int, MutOrigin.external
+    ]
 
     var profile: c_int
 
@@ -449,11 +459,13 @@ struct AVCodecContext(Debug):
 
     var max_samples: c_long_long
 
-    var get_encode_buffer: fn (
-        s: UnsafePointer[AVCodecContext, MutOrigin.external],
-        pkt: UnsafePointer[AVPacket, MutOrigin.external],
-        flags: c_int,
-    ) -> c_int
+    var get_encode_buffer: UnsafePointer[
+        fn (
+            s: UnsafePointer[AVCodecContext, MutOrigin.external],
+            pkt: UnsafePointer[AVPacket, MutOrigin.external],
+            flags: c_int,
+        ) -> c_int, MutOrigin.external
+    ]
 
     var frame_num: c_long_long
 
