@@ -23,5 +23,5 @@
 [submodule "NuMojo"]
     path = third_party/NuMojo
     url = https://github.com/josiahls/NuMojo.git
-    branch = main
+    branch = pre-0.9
     ignore = all
