@@ -172,11 +172,6 @@ struct Image:
         ]()
         var out_data = UnsafePointer[c_uchar, MutExternalOrigin]()
 
-        # with open(
-        #     path,
-        #     # "{}/test_data/testsrc_320x180_30fps_2s.h264".format(test_data_root),
-        #     "r"
-        # ) as f:
         while True:
             # var data_size = c_int(
             #     f.read[c_uchar.dtype](
