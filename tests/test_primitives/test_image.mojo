@@ -16,6 +16,11 @@ def test_image():
     )
     var image = Image.load(root_path)
 
+    # for i in range(10):
+    #     print(image._data[][Int(i)])
+    # _ = image._data
+    _ = image
+
     # var array = NDArray[i8](
     #     shape=(image.height, image.width, 3),
     #     strides=(1,1,1),

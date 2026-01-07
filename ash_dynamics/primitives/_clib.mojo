@@ -223,7 +223,7 @@ trait Debug(Writable):
     fn write_to(self, mut w: Some[Writer], indent: Int):
         # TODO: Implement: https://github.com/modular/modular/issues/5720
         # once solved.
-        print(get_type_name[Self]() + ":")
+        w.write(get_type_name[Self]() + ":\n")
 
         @parameter
         for i in range(struct_field_count[Self]()):
@@ -232,7 +232,9 @@ trait Debug(Writable):
             # if conforms_to(field_type, Stringable):
 
             var field = UnsafePointer(to=__struct_field_ref(i, self))
-            w.write("    ", field_name, ": ")
+            w.write("    " * (indent + 1), field_name, ": ")
+
+            print("Type name: ", get_type_name[field_type]())
 
             @parameter
             if get_type_name[field_type]() == get_type_name[Int8]():
@@ -261,6 +263,8 @@ trait Debug(Writable):
                 w.write(field.bitcast[Float64]()[])
             elif get_type_name[field_type]() == get_type_name[Bool]():
                 w.write(field.bitcast[Bool]()[])
+            elif "UnsafePointer[UInt8]" in get_type_name[field_type]():
+                w.write(field.bitcast[OpaquePointer[MutAnyOrigin]]()[])
             elif "UnsafePointer" in get_type_name[field_type]():
                 w.write(field.bitcast[OpaquePointer[MutAnyOrigin]]()[])
             else:

@@ -63,7 +63,14 @@ fn decode(
         image_info.format = dec_ctx[].pix_fmt
         image_info.n_color_spaces = dec_ctx[].color_range
 
-        out_data = alloc[c_uchar](Int(frame[].linesize[0]))
+        out_data = alloc[c_uchar](
+            Int(frame[].linesize[0]) * Int(frame[].height)
+        )
+
+        for row in range(frame[].height):
+            for i in range(frame[].linesize[0]):
+                print(frame[].data[0][Int(i + 1 + row)])
+
         out_data[] = frame[].data[0][]
 
         # try:
@@ -78,9 +85,6 @@ fn decode(
         #     frame[].height,
         #     out_filename,
         # )
-
-        # except e:
-        #     print("Error saving frame: ", e)
 
 
 @fieldwise_init
@@ -167,27 +171,13 @@ struct Image:
 
         var data_list = path.read_bytes()
         var data_size = c_int(len(data_list))
-        var data = data_list.unsafe_ptr().unsafe_origin_cast[
-            MutExternalOrigin
-        ]()
+        var data = data_list.unsafe_ptr().as_immutable()
         var out_data = UnsafePointer[c_uchar, MutExternalOrigin]()
 
-        # with open(
-        #     path,
-        #     # "{}/test_data/testsrc_320x180_30fps_2s.h264".format(test_data_root),
-        #     "r"
-        # ) as f:
         while True:
-            # var data_size = c_int(
-            #     f.read[c_uchar.dtype](
-            #         Span(ptr=input_buffer, length=Int(INBUF_SIZE))
-            #     )
-            # )
-
             if data_size == 0:
                 break
 
-            # var data = input_buffer
             while data_size > 0:
                 var ret = avcodec.av_parser_parse2(
                     parser,
