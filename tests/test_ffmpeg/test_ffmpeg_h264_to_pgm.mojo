@@ -25,7 +25,7 @@ from ash_dynamics.ffmpeg.avutil.error import AVERROR, AVERROR_EOF
 
 
 def pgm_save(
-    buf: UnsafePointer[c_uchar, origin = MutOrigin.external],
+    buf: UnsafePointer[c_uchar, origin=MutExternalOrigin],
     wrap: c_int,
     xsize: c_int,
     ysize: c_int,
@@ -41,9 +41,9 @@ def pgm_save(
 
 fn decode(
     mut avcodec: Avcodec,
-    dec_ctx: UnsafePointer[AVCodecContext, origin = MutOrigin.external],
-    frame: UnsafePointer[AVFrame, origin = MutOrigin.external],
-    pkt: UnsafePointer[AVPacket, origin = MutOrigin.external],
+    dec_ctx: UnsafePointer[AVCodecContext, origin=MutExternalOrigin],
+    frame: UnsafePointer[AVFrame, origin=MutExternalOrigin],
+    pkt: UnsafePointer[AVPacket, origin=MutExternalOrigin],
     filename: String,
 ):
     var ret: c_int = avcodec.avcodec_send_packet(dec_ctx, pkt)

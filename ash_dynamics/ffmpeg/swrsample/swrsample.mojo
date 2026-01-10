@@ -72,61 +72,61 @@ struct SwrContext(Debug):
 
 comptime swr_get_class = ExternalFunction[
     "swr_get_class",
-    fn () -> UnsafePointer[AVClass, ImmutOrigin.external],
+    fn () -> UnsafePointer[AVClass, ImmutExternalOrigin],
 ]
 
 
 comptime swr_alloc = ExternalFunction[
     "swr_alloc",
-    fn () -> UnsafePointer[SwrContext, MutOrigin.external],
+    fn () -> UnsafePointer[SwrContext, MutExternalOrigin],
 ]
 
 comptime swr_init = ExternalFunction[
     "swr_init",
-    fn (context: UnsafePointer[SwrContext, MutOrigin.external]) -> c_int,
+    fn (context: UnsafePointer[SwrContext, MutExternalOrigin]) -> c_int,
 ]
 
 comptime swr_is_initialized = ExternalFunction[
     "swr_is_initialized",
-    fn (context: UnsafePointer[SwrContext, ImmutOrigin.external]) -> c_int,
+    fn (context: UnsafePointer[SwrContext, ImmutExternalOrigin]) -> c_int,
 ]
 
 comptime swr_alloc_set_opts2 = ExternalFunction[
     "swr_alloc_set_opts2",
     fn (
-        context: UnsafePointer[SwrContext, MutOrigin.external],
-        out_ch_layout: UnsafePointer[AVChannelLayout, ImmutOrigin.external],
+        context: UnsafePointer[SwrContext, MutExternalOrigin],
+        out_ch_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
         out_sample_fmt: AVSampleFormat,
         out_sample_rate: c_int,
-        in_ch_layout: UnsafePointer[AVChannelLayout, ImmutOrigin.external],
+        in_ch_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
         in_sample_fmt: AVSampleFormat,
         in_sample_rate: c_int,
         log_offset: c_int,
-        log_ctx: UnsafePointer[AVClass, ImmutOrigin.external],
+        log_ctx: UnsafePointer[AVClass, ImmutExternalOrigin],
     ) -> c_int,
 ]
 
 
 comptime swr_free = ExternalFunction[
     "swr_free",
-    fn (context: UnsafePointer[SwrContext, MutOrigin.external]),
+    fn (context: UnsafePointer[SwrContext, MutExternalOrigin]),
 ]
 
 comptime swr_close = ExternalFunction[
     "swr_close",
-    fn (context: UnsafePointer[SwrContext, MutOrigin.external]),
+    fn (context: UnsafePointer[SwrContext, MutExternalOrigin]),
 ]
 
 comptime swr_convert = ExternalFunction[
     "swr_convert",
     fn (
-        s: UnsafePointer[SwrContext, MutOrigin.external],
+        s: UnsafePointer[SwrContext, MutExternalOrigin],
         out_: UnsafePointer[
-            UnsafePointer[c_uchar, MutOrigin.external], ImmutOrigin.external
+            UnsafePointer[c_uchar, MutExternalOrigin], ImmutExternalOrigin
         ],
         out_count: c_int,
         in_: UnsafePointer[
-            UnsafePointer[c_uchar, ImmutOrigin.external], ImmutOrigin.external
+            UnsafePointer[c_uchar, ImmutExternalOrigin], ImmutExternalOrigin
         ],
         in_count: c_int,
     ) -> c_int,
@@ -135,7 +135,7 @@ comptime swr_convert = ExternalFunction[
 comptime swr_next_pts = ExternalFunction[
     "swr_next_pts",
     fn (
-        s: UnsafePointer[SwrContext, MutOrigin.external],
+        s: UnsafePointer[SwrContext, MutExternalOrigin],
         pts: c_long_long,
     ) -> c_long_long,
 ]
@@ -144,7 +144,7 @@ comptime swr_next_pts = ExternalFunction[
 comptime swr_set_compensation = ExternalFunction[
     "swr_set_compensation",
     fn (
-        s: UnsafePointer[SwrContext, MutOrigin.external],
+        s: UnsafePointer[SwrContext, MutExternalOrigin],
         sample_delta: c_int,
         compensation_distance: c_int,
     ) -> c_int,
@@ -154,24 +154,24 @@ comptime swr_set_compensation = ExternalFunction[
 comptime swr_set_channel_mapping = ExternalFunction[
     "swr_set_channel_mapping",
     fn (
-        s: UnsafePointer[SwrContext, MutOrigin.external],
-        channel_map: UnsafePointer[c_int, ImmutOrigin.external],
+        s: UnsafePointer[SwrContext, MutExternalOrigin],
+        channel_map: UnsafePointer[c_int, ImmutExternalOrigin],
     ) -> c_int,
 ]
 
 comptime swr_build_matrix2 = ExternalFunction[
     "swr_build_matrix2",
     fn (
-        in_layout: UnsafePointer[AVChannelLayout, ImmutOrigin.external],
-        out_layout: UnsafePointer[AVChannelLayout, ImmutOrigin.external],
+        in_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
+        out_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
         center_mix_level: c_double,
         surround_mix_level: c_double,
         lfe_mix_level: c_double,
         rematrix_maxval: c_double,
         rematrix_volume: c_double,
-        matrix: UnsafePointer[c_double, MutOrigin.external],
+        matrix: UnsafePointer[c_double, MutExternalOrigin],
         stride: c_ptrdiff_t,
         matrix_encoding: AVMatrixEncoding,
-        log_ctx: UnsafePointer[AVClass, ImmutOrigin.external],
+        log_ctx: UnsafePointer[AVClass, ImmutExternalOrigin],
     ) -> c_int,
 ]

@@ -8,15 +8,15 @@ from ash_dynamics.primitives._clib import Debug
 @register_passable("trivial")
 struct AVBuffer(Debug):
     "https://www.ffmpeg.org/doxygen/8.0/structAVBuffer.html"
-    var data: UnsafePointer[c_uchar, origin = MutOrigin.external]
+    var data: UnsafePointer[c_uchar, origin=MutExternalOrigin]
     var size: c_uint
     # TODO: Should this just be a c value?
     # var refcount: Atomic[c_uint.dtype]
     var refcount: c_uint
     var free: fn (
-        opaque: OpaquePointer[MutOrigin.external],
-        data: UnsafePointer[c_uchar, origin = MutOrigin.external],
+        opaque: OpaquePointer[MutExternalOrigin],
+        data: UnsafePointer[c_uchar, origin=MutExternalOrigin],
     ) -> NoneType
-    var opaque: OpaquePointer[MutOrigin.external]
+    var opaque: OpaquePointer[MutExternalOrigin]
     var flags: c_int
     var flags_internal: c_int

@@ -8,21 +8,21 @@ from ash_dynamics.primitives._clib import Debug
 @register_passable("trivial")
 struct AVOption(Debug):
     "https://www.ffmpeg.org/doxygen/8.0/structAVOption.html"
-    var name: UnsafePointer[c_char, ImmutOrigin.external]
-    var help: UnsafePointer[c_char, ImmutOrigin.external]
+    var name: UnsafePointer[c_char, ImmutExternalOrigin]
+    var help: UnsafePointer[c_char, ImmutExternalOrigin]
     var offset: c_int
     var type: AVOptionType
     var default_val: C_Union[
         c_long_long,
         c_double,
-        UnsafePointer[c_char, ImmutOrigin.external],
+        UnsafePointer[c_char, ImmutExternalOrigin],
         AVRational,
-        UnsafePointer[AVOptionArrayDef, ImmutOrigin.external],
+        UnsafePointer[AVOptionArrayDef, ImmutExternalOrigin],
     ]
     var min: c_double
     var max: c_double
     var flags: c_int
-    var unit: UnsafePointer[c_char, ImmutOrigin.external]
+    var unit: UnsafePointer[c_char, ImmutExternalOrigin]
 
 
 @fieldwise_init("implicit")
@@ -70,7 +70,7 @@ struct AVOptionType(Debug):
 @fieldwise_init
 struct AVOptionArrayDef(Debug):
     "https://www.ffmpeg.org/doxygen/8.0/structAVOptionArrayDef.html"
-    var def_: UnsafePointer[c_char, ImmutOrigin.external]
+    var def_: UnsafePointer[c_char, ImmutExternalOrigin]
     var size_min: c_int
     var size_max: c_int
     var sep: c_char
@@ -80,7 +80,7 @@ struct AVOptionArrayDef(Debug):
 struct AVOptionRanges(Debug):
     "https://www.ffmpeg.org/doxygen/8.0/structAVOptionRanges.html"
     var range: UnsafePointer[
-        UnsafePointer[Self, MutOrigin.external], MutOrigin.external
+        UnsafePointer[Self, MutExternalOrigin], MutExternalOrigin
     ]
     var nb_ranges: c_int
     var nb_components: c_int

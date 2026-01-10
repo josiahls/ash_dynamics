@@ -7,42 +7,42 @@ from reflection import get_type_name
 
 
 comptime AVClass_item_name_fn = fn (
-    ctx: OpaquePointer[MutOrigin.external]
-) -> UnsafePointer[c_char, ImmutOrigin.external]
+    ctx: OpaquePointer[MutExternalOrigin]
+) -> UnsafePointer[c_char, ImmutExternalOrigin]
 
 
 comptime AVClass_get_category_fn = fn (
-    ctx: OpaquePointer[MutOrigin.external]
+    ctx: OpaquePointer[MutExternalOrigin]
 ) -> AVClassCategory.ENUM_DTYPE
 
 comptime AVClass_query_ranges_fn = fn (
-    ranges: UnsafePointer[AVOptionRanges, MutOrigin.external],
-    obj: OpaquePointer[MutOrigin.external],
-    key: UnsafePointer[c_char, ImmutOrigin.external],
+    ranges: UnsafePointer[AVOptionRanges, MutExternalOrigin],
+    obj: OpaquePointer[MutExternalOrigin],
+    key: UnsafePointer[c_char, ImmutExternalOrigin],
     flags: c_int,
 ) -> c_int
 
 comptime AVClass_child_next_fn = fn (
-    obj: OpaquePointer[MutOrigin.external],
-    prev: OpaquePointer[MutOrigin.external],
-) -> OpaquePointer[MutOrigin.external]
+    obj: OpaquePointer[MutExternalOrigin],
+    prev: OpaquePointer[MutExternalOrigin],
+) -> OpaquePointer[MutExternalOrigin]
 
 
 comptime AVClass_child_class_iterate_fn[T: Copyable] = fn (
-    iter: UnsafePointer[OpaquePointer[MutOrigin.external], MutOrigin.external]
-) -> UnsafePointer[T, ImmutOrigin.external]
+    iter: UnsafePointer[OpaquePointer[MutExternalOrigin], MutExternalOrigin]
+) -> UnsafePointer[T, ImmutExternalOrigin]
 
 
 @register_passable("trivial")
 struct AVClass(Debug):
     "https://www.ffmpeg.org/doxygen/8.0/structAVClass.html"
-    var class_name: UnsafePointer[c_char, ImmutOrigin.external]
+    var class_name: UnsafePointer[c_char, ImmutExternalOrigin]
 
     # TODO: Is this correct or do we need to additionally wrap item_name in a
     # unsafe pointer?
     var item_name: AVClass_item_name_fn
 
-    var option: UnsafePointer[AVOption, ImmutOrigin.external]
+    var option: UnsafePointer[AVOption, ImmutExternalOrigin]
     var version: c_int
     var log_level_offset_offset: c_int
     var parent_log_context_offset: c_int

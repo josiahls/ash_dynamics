@@ -27,8 +27,8 @@ struct AVIOInterruptCB(Debug):
     """This structure contains a callback for checking whether to abort blocking functions.
     """
 
-    var callback: fn (opaque: OpaquePointer[MutOrigin.external]) -> c_int
-    var opaque: OpaquePointer[MutOrigin.external]
+    var callback: fn (opaque: OpaquePointer[MutExternalOrigin]) -> c_int
+    var opaque: OpaquePointer[MutExternalOrigin]
 
 
 @fieldwise_init
@@ -53,7 +53,7 @@ struct AVIODirEntryType(Debug):
 struct AVIODirEntry(Debug):
     """This structure contains a directory entry."""
 
-    var name: UnsafePointer[c_char, MutOrigin.external]
+    var name: UnsafePointer[c_char, MutExternalOrigin]
     """Filename"""
     var type: AVIODirEntryType.ENUM_DTYPE  # TODO: Is this right?
     """Type of the entry"""
@@ -132,7 +132,7 @@ struct AVIOContext(Debug):
     function pointers specified in avio_alloc_context()
     """
 
-    var av_class: UnsafePointer[AVClass, MutOrigin.external]
+    var av_class: UnsafePointer[AVClass, MutExternalOrigin]
     """A class for private options.
 
     If this AVIOContext is created by avio_open2(), av_class is set and
@@ -144,7 +144,7 @@ struct AVIOContext(Debug):
     warning -- this field can be NULL, be sure to not pass this AVIOContext
     to any av_opt_* functions in that case.
     """
-    var buffer: UnsafePointer[c_uchar, MutOrigin.external]
+    var buffer: UnsafePointer[c_uchar, MutExternalOrigin]
     """The following shows the relationship between buffer, buf_ptr,
     buf_ptr_max, buf_end, buf_size, and pos, when reading and when writing
     (since AVIOContext is used for both):
@@ -196,27 +196,27 @@ struct AVIOContext(Debug):
     """
     var buffer_size: c_int
     """Maximum buffer size"""
-    var buf_ptr: UnsafePointer[c_uchar, MutOrigin.external]
+    var buf_ptr: UnsafePointer[c_uchar, MutExternalOrigin]
     """Current position in the buffer"""
-    var buf_end: UnsafePointer[c_uchar, MutOrigin.external]
+    var buf_end: UnsafePointer[c_uchar, MutExternalOrigin]
     """End of the data, may be less than buffer+buffer_size if the read function returned
     less data than requested, e.g. for streams where no more data has been received yet."""
-    var opaque: OpaquePointer[MutOrigin.external]
+    var opaque: OpaquePointer[MutExternalOrigin]
     """A private pointer, passed to the read/write/seek/... functions."""
     var read_packet: fn (
-        opaque: OpaquePointer[MutOrigin.external],
-        buf: UnsafePointer[c_uchar, MutOrigin.external],
+        opaque: OpaquePointer[MutExternalOrigin],
+        buf: UnsafePointer[c_uchar, MutExternalOrigin],
         buf_size: c_int,
     ) -> c_int
     """A function pointer to read data from the input stream."""
     var write_packet: fn (
-        opaque: OpaquePointer[MutOrigin.external],
-        buf: UnsafePointer[c_uchar, MutOrigin.external],
+        opaque: OpaquePointer[MutExternalOrigin],
+        buf: UnsafePointer[c_uchar, MutExternalOrigin],
         buf_size: c_int,
     ) -> c_int
     """A function pointer to write data to the output stream."""
     var seek: fn (
-        opaque: OpaquePointer[MutOrigin.external],
+        opaque: OpaquePointer[MutExternalOrigin],
         offset: c_long_long,
         whence: c_int,
     ) -> c_long_long
@@ -237,21 +237,21 @@ struct AVIOContext(Debug):
 
     var checksum: c_ulong
     """Checksum of the data read so far"""
-    var checksum_ptr: UnsafePointer[c_uchar, MutOrigin.external]
+    var checksum_ptr: UnsafePointer[c_uchar, MutExternalOrigin]
     """Pointer to the checksum buffer"""
     var update_checksum: fn (
         checksum: c_ulong,
-        buf: UnsafePointer[c_uchar, ImmutOrigin.external],
+        buf: UnsafePointer[c_uchar, ImmutExternalOrigin],
         size: c_int,
     ) -> c_ulong
     """A function pointer to update the checksum"""
     var read_pause: fn (
-        opaque: OpaquePointer[MutOrigin.external],
+        opaque: OpaquePointer[MutExternalOrigin],
         pause: c_int,
     ) -> c_int
     """A function pointer to pause or resume playback for network streaming protocols - e.g. MMS."""
     var read_seek: fn (
-        opaque: OpaquePointer[MutOrigin.external],
+        opaque: OpaquePointer[MutExternalOrigin],
         stream_index: c_int,
         timestamp: c_long_long,
         flags: c_int,
@@ -265,13 +265,13 @@ struct AVIOContext(Debug):
     """avio_read and avio_write should if possible be satisfied directly
     instead of going through a buffer, and avio_seek will always
     call the underlying seek function directly."""
-    var protocol_whitelist: UnsafePointer[c_char, ImmutOrigin.external]
+    var protocol_whitelist: UnsafePointer[c_char, ImmutExternalOrigin]
     """',' separated list of allowed protocols."""
-    var protocol_blacklist: UnsafePointer[c_char, ImmutOrigin.external]
+    var protocol_blacklist: UnsafePointer[c_char, ImmutExternalOrigin]
     """',' separated list of disallowed protocols."""
     var write_data_type: fn (
-        opaque: OpaquePointer[MutOrigin.external],
-        buf: UnsafePointer[c_uchar, ImmutOrigin.external],
+        opaque: OpaquePointer[MutExternalOrigin],
+        buf: UnsafePointer[c_uchar, ImmutExternalOrigin],
         buf_size: c_int,
         type: AVIODataMarkerType.ENUM_DTYPE,
         time: c_long_long,
@@ -282,7 +282,7 @@ struct AVIOContext(Debug):
     """If set, don't call write_data_type separately for AVIO_DATA_MARKER_BOUNDARY_POINT,
     but ignore them and treat them as AVIO_DATA_MARKER_UNKNOWN (to avoid needlessly
     small chunks of data returned from the callback)."""
-    var buf_ptr_max: UnsafePointer[c_uchar, MutOrigin.external]
+    var buf_ptr_max: UnsafePointer[c_uchar, MutExternalOrigin]
     """Maximum reached position before a backward seek in the write buffer,
     used keeping track of already written data for a later flush."""
     var bytes_read: c_long_long
@@ -292,8 +292,8 @@ struct AVIOContext(Debug):
 
 
 comptime avio_find_protocol_name = fn (
-    url: UnsafePointer[c_char, ImmutOrigin.external],
-) -> UnsafePointer[c_char, ImmutOrigin.external]
+    url: UnsafePointer[c_char, ImmutExternalOrigin],
+) -> UnsafePointer[c_char, ImmutExternalOrigin]
 """Return the name of the protocol that will handle the passed URL.
 
 NULL is returned if no protocol could be found for the given URL.
@@ -302,7 +302,7 @@ NULL is returned if no protocol could be found for the given URL.
 """
 
 comptime avio_check = fn (
-    url: UnsafePointer[c_char, ImmutOrigin.external],
+    url: UnsafePointer[c_char, ImmutExternalOrigin],
     flags: c_int,
 ) -> c_int
 """Return AVIO_FLAG_* access flags corresponding to the access permissions
@@ -319,11 +319,11 @@ checked resource.
 
 comptime avio_open_dir = fn (
     s: UnsafePointer[
-        UnsafePointer[AVIODirContext, MutOrigin.external], MutOrigin.external
+        UnsafePointer[AVIODirContext, MutExternalOrigin], MutExternalOrigin
     ],
-    url: UnsafePointer[c_char, ImmutOrigin.external],
+    url: UnsafePointer[c_char, ImmutExternalOrigin],
     options: UnsafePointer[
-        UnsafePointer[AVDictionary, MutOrigin.external], MutOrigin.external
+        UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
     ],
 ) -> c_int
 """Open directory for reading.
@@ -340,9 +340,9 @@ Returns:
 """
 
 comptime avio_read_dir = fn (
-    s: UnsafePointer[AVIODirContext, MutOrigin.external],
+    s: UnsafePointer[AVIODirContext, MutExternalOrigin],
     next: UnsafePointer[
-        UnsafePointer[AVIODirEntry, MutOrigin.external], MutOrigin.external
+        UnsafePointer[AVIODirEntry, MutExternalOrigin], MutExternalOrigin
     ],
 ) -> c_int
 """Get next directory entry.
@@ -358,7 +358,7 @@ Returns:
 
 comptime avio_close_dir = fn (
     s: UnsafePointer[
-        UnsafePointer[AVIODirContext, MutOrigin.external], MutOrigin.external
+        UnsafePointer[AVIODirContext, MutExternalOrigin], MutExternalOrigin
     ],
 ) -> c_int
 """Close directory.
@@ -375,7 +375,7 @@ Returns:
 
 comptime avio_free_directory_entry = fn (
     entry: UnsafePointer[
-        UnsafePointer[AVIODirEntry, MutOrigin.external], MutOrigin.external
+        UnsafePointer[AVIODirEntry, MutExternalOrigin], MutExternalOrigin
     ],
 ) -> c_int
 """Free entry allocated by avio_read_dir().
@@ -388,26 +388,26 @@ Returns:
 """
 
 comptime avio_alloc_context = fn (
-    buffer: UnsafePointer[c_uchar, MutOrigin.external],
+    buffer: UnsafePointer[c_uchar, MutExternalOrigin],
     buffer_size: c_int,
     write_flag: c_int,
-    opaque: OpaquePointer[MutOrigin.external],
+    opaque: OpaquePointer[MutExternalOrigin],
     read_packet: fn (
-        opaque: OpaquePointer[MutOrigin.external],
-        buf: UnsafePointer[c_uchar, MutOrigin.external],
+        opaque: OpaquePointer[MutExternalOrigin],
+        buf: UnsafePointer[c_uchar, MutExternalOrigin],
         buf_size: c_int,
     ) -> c_int,
     write_packet: fn (
-        opaque: OpaquePointer[MutOrigin.external],
-        buf: UnsafePointer[c_uchar, MutOrigin.external],
+        opaque: OpaquePointer[MutExternalOrigin],
+        buf: UnsafePointer[c_uchar, MutExternalOrigin],
         buf_size: c_int,
     ) -> c_int,
     seek: fn (
-        opaque: OpaquePointer[MutOrigin.external],
+        opaque: OpaquePointer[MutExternalOrigin],
         offset: c_long_long,
         whence: c_int,
     ) -> c_long_long,
-) -> UnsafePointer[AVIOContext, MutOrigin.external]
+) -> UnsafePointer[AVIOContext, MutExternalOrigin]
 """Allocate and initialize an AVIOContext for buffered I/O. It must be later
 freed with avio_context_free().
 
@@ -434,7 +434,7 @@ Returns:
 
 comptime avio_context_free = fn (
     s: UnsafePointer[
-        UnsafePointer[AVIOContext, MutOrigin.external], MutOrigin.external
+        UnsafePointer[AVIOContext, MutExternalOrigin], MutExternalOrigin
     ],
 ) -> c_int
 """Free the supplied IO context and everything associated with it.
@@ -449,50 +449,50 @@ Returns:
 
 
 comptime avio_w8 = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
     b: c_int,
 ) -> c_int
 comptime avio_write = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
-    buf: UnsafePointer[c_uchar, ImmutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
+    buf: UnsafePointer[c_uchar, ImmutExternalOrigin],
     size: c_int,
 ) -> c_int
 comptime avio_wl64 = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
     val: c_ulong_long,
 ) -> c_int
 comptime avio_wb64 = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
     val: c_ulong_long,
 ) -> c_int
 comptime avio_wl32 = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
     val: c_uint,
 ) -> c_int
 comptime avio_wb32 = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
     val: c_uint,
 ) -> c_int
 comptime avio_wl24 = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
     val: c_uint,
 ) -> c_int
 comptime avio_wb24 = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
     val: c_uint,
 ) -> c_int
 comptime avio_wl16 = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
     val: c_uint,
 ) -> c_int
 comptime avio_wb16 = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
     val: c_uint,
 ) -> c_int
 
 comptime avio_put_str = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
-    str: UnsafePointer[c_char, ImmutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
+    str: UnsafePointer[c_char, ImmutExternalOrigin],
 ) -> c_int
 """Write a NULL-terminated string.
 
@@ -501,8 +501,8 @@ Returns:
 """
 
 comptime avio_put_str16le = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
-    str: UnsafePointer[c_char, ImmutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
+    str: UnsafePointer[c_char, ImmutExternalOrigin],
 ) -> c_int
 """Convert an UTF-8 string to UTF-16LE and write it.
 
@@ -515,8 +515,8 @@ Returns:
 """
 
 comptime avio_put_str16be = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
-    str: UnsafePointer[c_char, ImmutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
+    str: UnsafePointer[c_char, ImmutExternalOrigin],
 ) -> c_int
 """Convert an UTF-8 string to UTF-16BE and write it.
 
@@ -529,7 +529,7 @@ Returns:
 """
 
 comptime avio_write_marker = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
     time: c_long_long,
     type: AVIODataMarkerType.ENUM_DTYPE,
 ) -> c_int
@@ -554,7 +554,7 @@ seek by any means (like reopening and linear reading) or other normally unreason
 means that can be extremely slow. This may be ignored by the seek code."""
 
 comptime avio_seek = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
     offset: c_long_long,
     whence: c_int,
 ) -> c_long_long
@@ -565,7 +565,7 @@ Returns:
 """
 
 comptime avio_skip = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
     offset: c_long_long,
 ) -> c_long_long
 """Skip given number of bytes forward.
@@ -576,7 +576,7 @@ Returns:
 
 # TODO: Reimplement in the DLHandle
 # @always_inline
-# fn avio_tell(s: UnsafePointer[AVIOContext, MutOrigin.external]) -> c_long_long:
+# fn avio_tell(s: UnsafePointer[AVIOContext, MutExternalOrigin]) -> c_long_long:
 #     """ftell() equivalent for AVIOContext.
 
 #     Returns:
@@ -586,7 +586,7 @@ Returns:
 
 
 comptime avio_size = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
 ) -> c_long_long
 """Get the filesize.
 
@@ -595,7 +595,7 @@ Returns:
 """
 
 comptime avio_feof = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
 ) -> c_int
 """Similar to feof() but also returns nonzero on read errors.
 
@@ -608,8 +608,8 @@ Returns:
 # int avio_vprintf(AVIOContext *s, const char *fmt, va_list ap);
 
 comptime avio_printf = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
-    fmt: UnsafePointer[c_char, ImmutOrigin.external]
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
+    fmt: UnsafePointer[c_char, ImmutExternalOrigin]
     # ...: Any, TODO: Not sure if we can support this.
 ) -> c_int
 """Writes a formatted string to the context.
@@ -619,9 +619,9 @@ Returns:
 """
 
 comptime avio_print_string_array = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
     strings: UnsafePointer[
-        UnsafePointer[c_char, ImmutOrigin.external], ImmutOrigin.external
+        UnsafePointer[c_char, ImmutExternalOrigin], ImmutExternalOrigin
     ],
 ) -> c_int
 """Write a NULL terminated array of strings to the context.
@@ -639,7 +639,7 @@ Returns:
 #     avio_print_string_array(s, (const char*[]){__VA_ARGS__, NULL})
 
 comptime avio_flush = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
 ) -> c_int
 """Force flushing of buffered data.
 
@@ -651,8 +651,8 @@ Returns:
 """
 
 comptime avio_read = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
-    buf: UnsafePointer[c_uchar, MutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
+    buf: UnsafePointer[c_uchar, MutExternalOrigin],
     size: c_int,
 ) -> c_int
 """Read size bytes from AVIOContext into buf.
@@ -662,8 +662,8 @@ Returns:
 """
 
 comptime avio_read_partial = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
-    buf: UnsafePointer[c_uchar, MutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
+    buf: UnsafePointer[c_uchar, MutExternalOrigin],
     size: c_int,
 ) -> c_int
 """Read size bytes from AVIOContext into buf. Unlike avio_read(), this is allowed
@@ -677,7 +677,7 @@ Returns:
 """
 
 # Functions for reading from AVIOContext
-comptime AVIOContextMutPtr = UnsafePointer[AVIOContext, MutOrigin.external]
+comptime AVIOContextMutPtr = UnsafePointer[AVIOContext, MutExternalOrigin]
 comptime avio_r8 = fn (s: AVIOContextMutPtr) -> c_int
 comptime avio_rl16 = fn (s: AVIOContextMutPtr) -> c_uint
 comptime avio_rl24 = fn (s: AVIOContextMutPtr) -> c_uint
@@ -692,7 +692,7 @@ comptime avio_rb64 = fn (s: AVIOContextMutPtr) -> c_ulong_long
 comptime avio_get_str = fn (
     s: AVIOContextMutPtr,
     maxlen: c_int,
-    buf: UnsafePointer[c_char, MutOrigin.external],
+    buf: UnsafePointer[c_char, MutExternalOrigin],
     buflen: c_int,
 ) -> c_int
 """Read a string from AVIOContext into buf. The reading will terminate when either
@@ -710,7 +710,7 @@ Returns:
 comptime avio_get_str16le = fn (
     s: AVIOContextMutPtr,
     maxlen: c_int,
-    buf: UnsafePointer[c_char, MutOrigin.external],
+    buf: UnsafePointer[c_char, MutExternalOrigin],
     buflen: c_int,
 ) -> c_int
 """Read a UTF-16 string from AVIOContext into buf. The reading will terminate when either
@@ -721,7 +721,7 @@ will be truncated if buf is too small.
 comptime avio_get_str16be = fn (
     s: AVIOContextMutPtr,
     maxlen: c_int,
-    buf: UnsafePointer[c_char, MutOrigin.external],
+    buf: UnsafePointer[c_char, MutExternalOrigin],
     buflen: c_int,
 ) -> c_int
 """@Ref avio_get_str16le"""
@@ -763,7 +763,7 @@ comptime avio_open = ExternalFunction[
     "avio_open",
     fn (
         s: UnsafePointer[
-            UnsafePointer[AVIOContext, MutOrigin.external], MutOrigin.external
+            UnsafePointer[AVIOContext, MutExternalOrigin], MutExternalOrigin
         ],
         url: UnsafePointer[c_char, ImmutAnyOrigin],
         flags: c_int,
@@ -788,13 +788,13 @@ Returns:
 
 comptime avio_open2 = fn (
     s: UnsafePointer[
-        UnsafePointer[AVIOContext, MutOrigin.external], MutOrigin.external
+        UnsafePointer[AVIOContext, MutExternalOrigin], MutExternalOrigin
     ],
-    url: UnsafePointer[c_char, ImmutOrigin.external],
+    url: UnsafePointer[c_char, ImmutExternalOrigin],
     flags: c_int,
-    int_cb: UnsafePointer[AVIOInterruptCB, MutOrigin.external],
+    int_cb: UnsafePointer[AVIOInterruptCB, MutExternalOrigin],
     options: UnsafePointer[
-        UnsafePointer[AVDictionary, MutOrigin.external], MutOrigin.external
+        UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
     ],
 ) -> c_int
 """Create and initialize a AVIOContext for accessing the
@@ -819,7 +819,7 @@ Returns:
 """
 
 comptime avio_close = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
 ) -> c_int
 """Close the resource accessed by the AVIOContext s and free it.
 
@@ -832,7 +832,7 @@ Returns:
 
 comptime avio_closep = fn (
     s: UnsafePointer[
-        UnsafePointer[AVIOContext, MutOrigin.external], MutOrigin.external
+        UnsafePointer[AVIOContext, MutExternalOrigin], MutExternalOrigin
     ],
 ) -> c_int
 """Close the resource accessed by the AVIOContext *s, free it
@@ -850,7 +850,7 @@ Returns:
 
 comptime avio_open_dyn_buf = fn (
     s: UnsafePointer[
-        UnsafePointer[AVIOContext, MutOrigin.external], MutOrigin.external
+        UnsafePointer[AVIOContext, MutExternalOrigin], MutExternalOrigin
     ],
 ) -> c_int
 """Open a write only memory stream.
@@ -863,9 +863,9 @@ Returns:
 """
 
 comptime avio_get_dyn_buf = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
     pbuffer: UnsafePointer[
-        UnsafePointer[c_uchar, MutOrigin.external], MutOrigin.external
+        UnsafePointer[c_uchar, MutExternalOrigin], MutExternalOrigin
     ],
 ) -> c_int
 """Return the written size and a pointer to the buffer.
@@ -883,9 +883,9 @@ Returns:
 """
 
 comptime avio_close_dyn_buf = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
     pbuffer: UnsafePointer[
-        UnsafePointer[c_uchar, MutOrigin.external], MutOrigin.external
+        UnsafePointer[c_uchar, MutExternalOrigin], MutExternalOrigin
     ],
 ) -> c_int
 """Return the written size and a pointer to the buffer.
@@ -903,11 +903,9 @@ Returns:
 """
 
 comptime avio_enum_protocols = fn (
-    opaque: UnsafePointer[
-        OpaquePointer[MutOrigin.external], MutOrigin.external
-    ],
+    opaque: UnsafePointer[OpaquePointer[MutExternalOrigin], MutExternalOrigin],
     output: c_int,
-) -> UnsafePointer[c_char, ImmutOrigin.external]
+) -> UnsafePointer[c_char, ImmutExternalOrigin]
 """Iterate through names of available protocols.
 
 Arguments:
@@ -922,8 +920,8 @@ Returns:
 """
 
 comptime avio_protocol_get_class = fn (
-    name: UnsafePointer[c_char, ImmutOrigin.external],
-) -> UnsafePointer[AVClass, ImmutOrigin.external]
+    name: UnsafePointer[c_char, ImmutExternalOrigin],
+) -> UnsafePointer[AVClass, ImmutExternalOrigin]
 """Get AVClass by names of available protocols.
 
 Arguments:
@@ -934,7 +932,7 @@ Returns:
 """
 
 comptime avio_pause = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
     pause: c_int,
 ) -> c_int
 """Pause and resume playing - only meaningful if using a network streaming
@@ -949,7 +947,7 @@ Returns:
 """
 
 comptime avio_seek_time = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
     stream_index: c_int,
     timestamp: c_long_long,
     flags: c_int,
@@ -976,8 +974,8 @@ struct AVBPrint:
 
 
 comptime avio_read_to_bprint = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
-    pb: UnsafePointer[AVBPrint, MutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
+    pb: UnsafePointer[AVBPrint, MutExternalOrigin],
     max_size: c_size_t,
 ) -> c_int
 """Read contents of h into print buffer, up to max_size bytes, or up to EOF.
@@ -987,9 +985,9 @@ Returns:
 """
 
 comptime avio_accept = fn (
-    s: UnsafePointer[AVIOContext, MutOrigin.external],
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
     c: UnsafePointer[
-        UnsafePointer[AVIOContext, MutOrigin.external], MutOrigin.external
+        UnsafePointer[AVIOContext, MutExternalOrigin], MutExternalOrigin
     ],
 ) -> c_int
 """Accept and allocate a client context on a server context.
@@ -1003,7 +1001,7 @@ Arguments:
 """
 
 comptime avio_handshake = fn (
-    c: UnsafePointer[AVIOContext, MutOrigin.external],
+    c: UnsafePointer[AVIOContext, MutExternalOrigin],
 ) -> c_int
 """Perform one step of the protocol handshake to accept a new client.
 

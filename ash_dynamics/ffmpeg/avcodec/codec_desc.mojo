@@ -14,8 +14,8 @@ struct AVCodecDescriptor(Debug):
     var id: AVCodecID.ENUM_DTYPE
     var type: AVMediaType.ENUM_DTYPE
 
-    var name: UnsafePointer[c_char, ImmutOrigin.external]
-    var long_name: UnsafePointer[c_char, ImmutOrigin.external]
+    var name: UnsafePointer[c_char, ImmutExternalOrigin]
+    var long_name: UnsafePointer[c_char, ImmutExternalOrigin]
     var props: c_int
-    var mime_types: UnsafePointer[c_char, MutOrigin.external]
-    var profiles: UnsafePointer[AVProfile, MutOrigin.external]
+    var mime_types: UnsafePointer[c_char, MutExternalOrigin]
+    var profiles: UnsafePointer[AVProfile, MutExternalOrigin]

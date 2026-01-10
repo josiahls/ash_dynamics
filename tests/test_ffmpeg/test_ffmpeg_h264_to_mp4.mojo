@@ -76,18 +76,18 @@ comptime SCALE_FLAGS = SwsFlags.SWS_BICUBIC
 @fieldwise_init
 @register_passable("trivial")
 struct OutputStream:
-    var st: UnsafePointer[AVStream, origin = MutOrigin.external]
-    var enc: UnsafePointer[AVCodecContext, origin = MutOrigin.external]
+    var st: UnsafePointer[AVStream, origin=MutExternalOrigin]
+    var enc: UnsafePointer[AVCodecContext, origin=MutExternalOrigin]
     var next_pts: c_long_long
     var samples_count: c_int
-    var frame: UnsafePointer[AVFrame, origin = MutOrigin.external]
-    var tmp_frame: UnsafePointer[AVFrame, origin = MutOrigin.external]
-    var tmp_pkt: UnsafePointer[AVPacket, origin = MutOrigin.external]
+    var frame: UnsafePointer[AVFrame, origin=MutExternalOrigin]
+    var tmp_frame: UnsafePointer[AVFrame, origin=MutExternalOrigin]
+    var tmp_pkt: UnsafePointer[AVPacket, origin=MutExternalOrigin]
     var t: c_float
     var tincr: c_float
     var tincr2: c_float
-    var sws_ctx: UnsafePointer[SwsContext, origin = MutOrigin.external]
-    var swr_ctx: UnsafePointer[SwrContext, origin = MutOrigin.external]
+    var sws_ctx: UnsafePointer[SwsContext, origin=MutExternalOrigin]
+    var swr_ctx: UnsafePointer[SwrContext, origin=MutExternalOrigin]
 
     fn __init__(out self) raises:
         self.st = alloc[AVStream](1)
@@ -101,11 +101,11 @@ struct OutputStream:
         self.tincr = c_float(0)
         self.tincr2 = c_float(0)
         self.sws_ctx = alloc[SwsContext](1)
-        self.swr_ctx = UnsafePointer[SwrContext, MutOrigin.external]()
+        self.swr_ctx = UnsafePointer[SwrContext, MutExternalOrigin]()
 
 
 def dump_avformat_context(
-    oc: UnsafePointer[AVFormatContext, MutOrigin.external]
+    oc: UnsafePointer[AVFormatContext, MutExternalOrigin]
 ):
     """Dump all AVFormatContext fields for debugging."""
     if not oc:
@@ -276,7 +276,7 @@ def alloc_frame(
     pix_fmt: AVPixelFormat.ENUM_DTYPE,
     width: c_int,
     height: c_int,
-) -> UnsafePointer[AVFrame, MutOrigin.external]:
+) -> UnsafePointer[AVFrame, MutExternalOrigin]:
     var frame = alloc[AVFrame](1)
 
     frame = avutil.av_frame_alloc()
@@ -295,17 +295,17 @@ def alloc_frame(
 def open_video(
     avformat: Avformat,
     avcodec: Avcodec,
-    oc: UnsafePointer[AVFormatContext, MutOrigin.external],
-    video_codec: UnsafePointer[AVCodec, ImmutOrigin.external],
+    oc: UnsafePointer[AVFormatContext, MutExternalOrigin],
+    video_codec: UnsafePointer[AVCodec, ImmutExternalOrigin],
     mut ost: OutputStream,
-    opt_arg: UnsafePointer[AVDictionary, ImmutOrigin.external],
+    opt_arg: UnsafePointer[AVDictionary, ImmutExternalOrigin],
 ):
     var ret: c_int = 0
     var avutil = Avutil()
     var c = ost.enc
     # NOTE: We need to add an override to avcodec_open2 that makes
     # an internal null pointer. Debug mode otherwise fails on this.
-    var opt = UnsafePointer[AVDictionary, MutOrigin.external]()
+    var opt = UnsafePointer[AVDictionary, MutExternalOrigin]()
     print("im opening a video")
 
     ret = avcodec.avcodec_open2(c, video_codec, opt)
@@ -318,7 +318,7 @@ def open_video(
     if not ost.frame:
         os.abort("Failed to allocate video frame")
 
-    ost.tmp_frame = UnsafePointer[AVFrame, MutOrigin.external]()
+    ost.tmp_frame = UnsafePointer[AVFrame, MutExternalOrigin]()
     if c[].pix_fmt != AVPixelFormat.AV_PIX_FMT_YUV420P._value:
         ost.tmp_frame = alloc_frame(
             avutil,
@@ -340,9 +340,9 @@ def add_stream(
     avformat: Avformat,
     avcodec: Avcodec,
     mut ost: OutputStream,
-    oc: UnsafePointer[AVFormatContext, MutOrigin.external],
+    oc: UnsafePointer[AVFormatContext, MutExternalOrigin],
     codec: UnsafePointer[
-        UnsafePointer[AVCodec, ImmutOrigin.external], MutOrigin.external
+        UnsafePointer[AVCodec, ImmutExternalOrigin], MutExternalOrigin
     ],
     codec_id: AVCodecID.ENUM_DTYPE,
 ):
@@ -360,7 +360,7 @@ def add_stream(
     ost.st = avformat.avformat_new_stream(
         oc,
         # Add a null pointer.
-        UnsafePointer[AVCodec, ImmutOrigin.external](),
+        UnsafePointer[AVCodec, ImmutExternalOrigin](),
     )
     if not ost.st:
         os.abort("Failed to allocate stream")
@@ -437,8 +437,8 @@ def add_stream(
 
 
 def log_packet(
-    fmt_ctx: UnsafePointer[AVFormatContext, MutOrigin.external],
-    pkt: UnsafePointer[AVPacket, MutOrigin.external],
+    fmt_ctx: UnsafePointer[AVFormatContext, MutExternalOrigin],
+    pkt: UnsafePointer[AVPacket, MutExternalOrigin],
 ):
     print(
         "pts:{} dts:{} duration:{} stream_index:{}".format(
@@ -451,7 +451,7 @@ def log_packet(
 
 
 def fill_yuv_image(
-    frame: UnsafePointer[AVFrame, MutOrigin.external],
+    frame: UnsafePointer[AVFrame, MutExternalOrigin],
     frame_index: c_int,
     width: c_int,
     height: c_int,
@@ -480,7 +480,7 @@ def get_video_frame(
     avutil: Avutil,
     avcodec: Avcodec,
     mut ost: OutputStream,
-) -> UnsafePointer[AVFrame, MutOrigin.external]:
+) -> UnsafePointer[AVFrame, MutExternalOrigin]:
     var c = ost.enc
 
     var comparison = avutil.av_compare_ts(
@@ -491,7 +491,7 @@ def get_video_frame(
     )
 
     if comparison > 0:
-        return UnsafePointer[AVFrame, MutOrigin.external]()
+        return UnsafePointer[AVFrame, MutExternalOrigin]()
 
     _ = comparison
     _ = c
@@ -509,9 +509,9 @@ def get_video_frame(
                 c[].height,
                 c[].pix_fmt,
                 SCALE_FLAGS.value,
-                UnsafePointer[SwsFilter, MutOrigin.external](),
-                UnsafePointer[SwsFilter, MutOrigin.external](),
-                UnsafePointer[c_double, ImmutOrigin.external](),
+                UnsafePointer[SwsFilter, MutExternalOrigin](),
+                UnsafePointer[SwsFilter, MutExternalOrigin](),
+                UnsafePointer[c_double, ImmutExternalOrigin](),
             )
             if not ost.sws_ctx:
                 os.abort("Failed to initialize conversion context")
@@ -527,13 +527,13 @@ def get_video_frame(
 
             # TODO: There has to be a better way to do this.
             # We should at least not be doing the allocations in a hot loop.
-            var src_slice = alloc[UnsafePointer[c_uchar, ImmutOrigin.external]](
+            var src_slice = alloc[UnsafePointer[c_uchar, ImmutExternalOrigin]](
                 len(ost.tmp_frame[].data)
             )
             for i in range(len(ost.tmp_frame[].data)):
                 src_slice[i] = ost.tmp_frame[].data[i].as_immutable()
 
-            var dst = alloc[UnsafePointer[c_uchar, MutOrigin.external]](
+            var dst = alloc[UnsafePointer[c_uchar, MutExternalOrigin]](
                 len(ost.frame[].data)
             )
             for i in range(len(ost.frame[].data)):
@@ -568,11 +568,11 @@ def get_video_frame(
 def write_frame(
     avformat: Avformat,
     avcodec: Avcodec,
-    fmt_ctx: UnsafePointer[AVFormatContext, MutOrigin.external],
-    c: UnsafePointer[AVCodecContext, MutOrigin.external],
-    st: UnsafePointer[AVStream, MutOrigin.external],
-    frame: UnsafePointer[AVFrame, MutOrigin.external],
-    pkt: UnsafePointer[AVPacket, MutOrigin.external],
+    fmt_ctx: UnsafePointer[AVFormatContext, MutExternalOrigin],
+    c: UnsafePointer[AVCodecContext, MutExternalOrigin],
+    st: UnsafePointer[AVStream, MutExternalOrigin],
+    frame: UnsafePointer[AVFrame, MutExternalOrigin],
+    pkt: UnsafePointer[AVPacket, MutExternalOrigin],
 ) -> c_int:
     # TODO: Check pkt. It looks completely invalid.
     var ret = c_int(0)
@@ -613,7 +613,7 @@ def write_video_frame(
     avutil: Avutil,
     swrsample: Swrsample,
     swscale: Swscale,
-    oc: UnsafePointer[AVFormatContext, MutOrigin.external],
+    oc: UnsafePointer[AVFormatContext, MutExternalOrigin],
     mut ost: OutputStream,
 ) -> c_int:
     var ret = write_frame(
@@ -633,25 +633,25 @@ def test_av_mux_example():
     var video_st = OutputStream()
     # NOTE: Not interested in audio at the moment.
     # var audio_st = OutputStream()
-    var fmt = alloc[UnsafePointer[AVOutputFormat, ImmutOrigin.external]](1)
-    var oc = alloc[UnsafePointer[AVFormatContext, MutOrigin.external]](1)
+    var fmt = alloc[UnsafePointer[AVOutputFormat, ImmutExternalOrigin]](1)
+    var oc = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     # var oc = UnsafePointer[AVFormatContext, MutAnyOrigin]()
     # NOTE: Not interested in audio at the moment.
     # var audio_codec = AVCodec()
-    var video_codec = alloc[UnsafePointer[AVCodec, ImmutOrigin.external]](1)
+    var video_codec = alloc[UnsafePointer[AVCodec, ImmutExternalOrigin]](1)
     var ret = c_int(0)
     var have_video = c_int(0)
     # NOTE: Not interested in audio at the moment.
     # var have_audio = c_int(0)
     var encode_video = c_int(0)
     # var encode_audio = c_int(0)
-    var opt = alloc[UnsafePointer[AVDictionary, MutOrigin.external]](1)
+    var opt = alloc[UnsafePointer[AVDictionary, MutExternalOrigin]](1)
     opt[] = UnsafePointer[
-        AVDictionary, MutOrigin.external
+        AVDictionary, MutExternalOrigin
     ]()  # NULL, let FFmpeg manage
-    var opt2 = alloc[UnsafePointer[AVDictionary, MutOrigin.external]](1)
+    var opt2 = alloc[UnsafePointer[AVDictionary, MutExternalOrigin]](1)
     opt2[] = UnsafePointer[
-        AVDictionary, MutOrigin.external
+        AVDictionary, MutExternalOrigin
     ]()  # NULL, let FFmpeg manage
     var i = c_int(0)
 

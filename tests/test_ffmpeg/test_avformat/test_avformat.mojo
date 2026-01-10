@@ -22,17 +22,17 @@ def test_AVOutputFormat():
 
     var fmt = avformat.av_guess_format(
         short_name=short_name_ptr,
-        filename=UnsafePointer[c_char, ImmutOrigin.external](),
-        mime_type=UnsafePointer[c_char, ImmutOrigin.external](),
+        filename=UnsafePointer[c_char, ImmutExternalOrigin](),
+        mime_type=UnsafePointer[c_char, ImmutExternalOrigin](),
     )
     assert_equal(fmt[].video_codec, AVCodecID.AV_CODEC_ID_MPEG4._value)
 
     var filename = "some/path/to/test.mp4"
     var filename_ptr = filename.as_c_string_slice().unsafe_ptr().as_immutable()
     var fmt2 = avformat.av_guess_format(
-        short_name=UnsafePointer[c_char, ImmutOrigin.external](),
+        short_name=UnsafePointer[c_char, ImmutExternalOrigin](),
         filename=filename_ptr,
-        mime_type=UnsafePointer[c_char, ImmutOrigin.external](),
+        mime_type=UnsafePointer[c_char, ImmutExternalOrigin](),
     )
     assert_equal(fmt2[].video_codec, AVCodecID.AV_CODEC_ID_MPEG4._value)
 
@@ -41,8 +41,8 @@ def test_AVOutputFormat():
         mime_type.as_c_string_slice().unsafe_ptr().as_immutable()
     )
     var fmt3 = avformat.av_guess_format(
-        short_name=UnsafePointer[c_char, ImmutOrigin.external](),
-        filename=UnsafePointer[c_char, ImmutOrigin.external](),
+        short_name=UnsafePointer[c_char, ImmutExternalOrigin](),
+        filename=UnsafePointer[c_char, ImmutExternalOrigin](),
         mime_type=mime_type_ptr,
     )
     # It is h264 here since we are directly indiciating this contains
@@ -56,7 +56,7 @@ def test_AVOutputFormat():
 
 def test_alloc_output_context():
     var avformat = Avformat()
-    var ctx = alloc[UnsafePointer[AVFormatContext, MutOrigin.external]](1)
+    var ctx = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
 
     var filename = String("some/path/to/test.mp4")
     var ret = avformat.alloc_output_context(

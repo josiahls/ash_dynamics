@@ -432,10 +432,10 @@ struct Avformat:
     fn alloc_output_context(
         self,
         ctx: UnsafePointer[
-            UnsafePointer[AVFormatContext, MutOrigin.external], MutAnyOrigin
+            UnsafePointer[AVFormatContext, MutExternalOrigin], MutAnyOrigin
         ],
-        oformat: UnsafePointer[AVOutputFormat, ImmutOrigin.external],
-        format_name: UnsafePointer[c_char, ImmutOrigin.external],
+        oformat: UnsafePointer[AVOutputFormat, ImmutExternalOrigin],
+        format_name: UnsafePointer[c_char, ImmutExternalOrigin],
         mut filename: String,
     ) -> c_int:
         return self._alloc_output_context(
@@ -448,7 +448,7 @@ struct Avformat:
     fn alloc_output_context(
         self,
         ctx: UnsafePointer[
-            UnsafePointer[AVFormatContext, MutOrigin.external], MutAnyOrigin
+            UnsafePointer[AVFormatContext, MutExternalOrigin], MutAnyOrigin
         ],
         mut filename: String,
     ) -> c_int:
@@ -465,7 +465,7 @@ struct Avformat:
         """
         return self._alloc_output_context(
             ctx=ctx,
-            oformat=UnsafePointer[AVOutputFormat, ImmutOrigin.external](),
-            format_name=UnsafePointer[c_char, ImmutOrigin.external](),
+            oformat=UnsafePointer[AVOutputFormat, ImmutExternalOrigin](),
+            format_name=UnsafePointer[c_char, ImmutExternalOrigin](),
             filename=filename.as_c_string_slice().unsafe_ptr().as_immutable(),
         )
