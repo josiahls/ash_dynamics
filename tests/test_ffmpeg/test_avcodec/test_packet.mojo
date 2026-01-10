@@ -39,45 +39,45 @@ from ash_dynamics.ffmpeg.avutil.error import AVERROR, AVERROR_EOF
 
 #     var side_data = AVPacketSideData(
 #         data=side_data_data.unsafe_ptr().unsafe_origin_cast[
-#             MutOrigin.external
+#             MutExternalOrigin
 #         ](),
 #         size=4,
 #         type=AVPacketSideDataType.AV_PKT_DATA_PALETTE._value,
 #     )
 
 #     fn free_ptr(
-#         opaque: OpaquePointer[MutOrigin.external],
-#         data: UnsafePointer[c_uchar, origin = MutOrigin.external],
+#         opaque: OpaquePointer[MutExternalOrigin],
+#         data: UnsafePointer[c_uchar, origin = MutExternalOrigin],
 #     ):
 #         print("freeing pointer")
 
 #     var buffer = avcodec.av_buffer_alloc(4)
 #     var buffer_ref = AVBufferRef(
 #         buffer=UnsafePointer(to=buffer).unsafe_origin_cast[
-#             MutOrigin.external
+#             MutExternalOrigin
 #         ](),
 #         data=buffer,
 #         size=4,
 #     )
 #     _ = AVPacket(
 #         buf=UnsafePointer(to=buffer_ref).unsafe_origin_cast[
-#             MutOrigin.external
+#             MutExternalOrigin
 #         ](),
 #         pts=1000,
 #         dts=1000,
-#         data=data.unsafe_ptr().unsafe_origin_cast[MutOrigin.external](),
+#         data=data.unsafe_ptr().unsafe_origin_cast[MutExternalOrigin](),
 #         size=4,
 #         stream_index=0,
 #         flags=0,
 #         side_data=UnsafePointer(to=side_data).unsafe_origin_cast[
-#             MutOrigin.external
+#             MutExternalOrigin
 #         ](),
 #         side_data_elems=1,
 #         duration=0,
 #         pos=-1,
-#         opaque=OpaquePointer[MutOrigin.external](),
+#         opaque=OpaquePointer[MutExternalOrigin](),
 #         opaque_ref=UnsafePointer(to=buffer_ref).unsafe_origin_cast[
-#             MutOrigin.external
+#             MutExternalOrigin
 #         ](),
 #         time_base=AVRational(num=1, den=1),
 #     )

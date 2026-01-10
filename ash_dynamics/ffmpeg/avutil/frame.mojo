@@ -114,10 +114,10 @@ struct AVActiveFormatDescription(Debug):
 struct AVFrameSideData(Debug):
     "https://www.ffmpeg.org/doxygen/8.0/structAVFrameSideData.html"
     var type: AVFrameSideDataType.ENUM_DTYPE
-    var data: UnsafePointer[c_uchar, MutOrigin.external]
+    var data: UnsafePointer[c_uchar, MutExternalOrigin]
     var size: c_size_t
-    var metadata: UnsafePointer[AVDictionary, MutOrigin.external]
-    var buf: UnsafePointer[AVBufferRef, MutOrigin.external]
+    var metadata: UnsafePointer[AVDictionary, MutExternalOrigin]
+    var buf: UnsafePointer[AVBufferRef, MutExternalOrigin]
 
 
 @fieldwise_init
@@ -137,7 +137,7 @@ struct AVSideDataProps(Debug):
 @register_passable("trivial")
 struct AVSideDataDescriptor(Debug):
     "https://www.ffmpeg.org/doxygen/8.0/structAVSideDataDescriptor.html"
-    var name: UnsafePointer[c_char, MutOrigin.external]
+    var name: UnsafePointer[c_char, MutExternalOrigin]
     var props: AVSideDataProps.ENUM_DTYPE
 
 
@@ -161,13 +161,13 @@ struct AVFrame(Debug):
     comptime AV_NUM_DATA_POINTERS = Int(8)
 
     var data: StaticTuple[
-        UnsafePointer[c_uchar, MutOrigin.external], Self.AV_NUM_DATA_POINTERS
+        UnsafePointer[c_uchar, MutExternalOrigin], Self.AV_NUM_DATA_POINTERS
     ]
     var linesize: StaticTuple[c_int, Self.AV_NUM_DATA_POINTERS]
 
     var extended_data: UnsafePointer[
-        UnsafePointer[c_uchar, origin = MutOrigin.external],
-        origin = MutOrigin.external,
+        UnsafePointer[c_uchar, origin=MutExternalOrigin],
+        origin=MutExternalOrigin,
     ]
 
     var width: c_int
@@ -189,7 +189,7 @@ struct AVFrame(Debug):
 
     var quality: c_int
 
-    var opaque: OpaquePointer[MutOrigin.external]
+    var opaque: OpaquePointer[MutExternalOrigin]
 
     var repeat_pict: c_int
 
@@ -198,15 +198,15 @@ struct AVFrame(Debug):
     var buf: StaticTuple[AVBufferRef, Self.AV_NUM_DATA_POINTERS]
 
     var extended_buf: UnsafePointer[
-        UnsafePointer[AVBufferRef, origin = MutOrigin.external],
-        origin = MutOrigin.external,
+        UnsafePointer[AVBufferRef, origin=MutExternalOrigin],
+        origin=MutExternalOrigin,
     ]
 
     var nb_extended_buf: c_int
 
     var side_data: UnsafePointer[
-        UnsafePointer[AVFrameSideData, origin = MutOrigin.external],
-        origin = MutOrigin.external,
+        UnsafePointer[AVFrameSideData, origin=MutExternalOrigin],
+        origin=MutExternalOrigin,
     ]
     var nb_side_data: c_int
 
@@ -240,7 +240,7 @@ struct AVFrame(Debug):
     comptime FF_DECODE_ERROR_CONCEALMENT_ACTIVE = Int(4)
     comptime FF_DECODE_ERROR_DECODE_SLICES = Int(8)
 
-    var hw_frames_ctx: UnsafePointer[AVBufferRef, origin = MutOrigin.external]
+    var hw_frames_ctx: UnsafePointer[AVBufferRef, origin=MutExternalOrigin]
 
     var opaque_ref: AVBufferRef
 
@@ -252,7 +252,7 @@ struct AVFrame(Debug):
 
     var crop_right: c_int
 
-    var private_ref: OpaquePointer[MutOrigin.external]
+    var private_ref: OpaquePointer[MutExternalOrigin]
 
     var ch_layout: AVChannelLayout
 
@@ -260,21 +260,21 @@ struct AVFrame(Debug):
 
 
 comptime av_frame_alloc = ExternalFunction[
-    "av_frame_alloc", fn () -> UnsafePointer[AVFrame, MutOrigin.external]
+    "av_frame_alloc", fn () -> UnsafePointer[AVFrame, MutExternalOrigin]
 ]
 
 
 comptime av_frame_free = ExternalFunction[
     "av_frame_free",
-    fn (frame: UnsafePointer[AVFrame, MutOrigin.external]),
+    fn (frame: UnsafePointer[AVFrame, MutExternalOrigin]),
 ]
 
 
 comptime av_frame_ref = ExternalFunction[
     "av_frame_ref",
     fn (
-        dst: UnsafePointer[AVFrame, MutOrigin.external],
-        src: UnsafePointer[AVFrame, ImmutOrigin.external],
+        dst: UnsafePointer[AVFrame, MutExternalOrigin],
+        src: UnsafePointer[AVFrame, ImmutExternalOrigin],
     ) -> c_int,
 ]
 
@@ -282,8 +282,8 @@ comptime av_frame_ref = ExternalFunction[
 comptime av_frame_replace = ExternalFunction[
     "av_frame_replace",
     fn (
-        dst: UnsafePointer[AVFrame, MutOrigin.external],
-        src: UnsafePointer[AVFrame, ImmutOrigin.external],
+        dst: UnsafePointer[AVFrame, MutExternalOrigin],
+        src: UnsafePointer[AVFrame, ImmutExternalOrigin],
     ) -> c_int,
 ]
 
@@ -291,22 +291,22 @@ comptime av_frame_replace = ExternalFunction[
 comptime av_frame_clone = ExternalFunction[
     "av_frame_clone",
     fn (
-        src: UnsafePointer[AVFrame, ImmutOrigin.external]
-    ) -> UnsafePointer[AVFrame, MutOrigin.external],
+        src: UnsafePointer[AVFrame, ImmutExternalOrigin]
+    ) -> UnsafePointer[AVFrame, MutExternalOrigin],
 ]
 
 
 comptime av_frame_unref = ExternalFunction[
     "av_frame_unref",
-    fn (frame: UnsafePointer[AVFrame, MutOrigin.external]),
+    fn (frame: UnsafePointer[AVFrame, MutExternalOrigin]),
 ]
 
 
 comptime av_frame_move_ref = ExternalFunction[
     "av_frame_move_ref",
     fn (
-        dst: UnsafePointer[AVFrame, MutOrigin.external],
-        src: UnsafePointer[AVFrame, ImmutOrigin.external],
+        dst: UnsafePointer[AVFrame, MutExternalOrigin],
+        src: UnsafePointer[AVFrame, ImmutExternalOrigin],
     ),
 ]
 
@@ -314,28 +314,28 @@ comptime av_frame_move_ref = ExternalFunction[
 comptime av_frame_get_buffer = ExternalFunction[
     "av_frame_get_buffer",
     fn (
-        frame: UnsafePointer[AVFrame, MutOrigin.external], align: c_int
+        frame: UnsafePointer[AVFrame, MutExternalOrigin], align: c_int
     ) -> c_int,
 ]
 
 
 comptime av_frame_is_writable = ExternalFunction[
     "av_frame_is_writable",
-    fn (frame: UnsafePointer[AVFrame, MutOrigin.external]) -> c_int,
+    fn (frame: UnsafePointer[AVFrame, MutExternalOrigin]) -> c_int,
 ]
 
 
 comptime av_frame_make_writable = ExternalFunction[
     "av_frame_make_writable",
-    fn (frame: UnsafePointer[AVFrame, MutOrigin.external]) -> c_int,
+    fn (frame: UnsafePointer[AVFrame, MutExternalOrigin]) -> c_int,
 ]
 
 
 comptime av_frame_copy = ExternalFunction[
     "av_frame_copy",
     fn (
-        dst: UnsafePointer[AVFrame, MutOrigin.external],
-        src: UnsafePointer[AVFrame, ImmutOrigin.external],
+        dst: UnsafePointer[AVFrame, MutExternalOrigin],
+        src: UnsafePointer[AVFrame, ImmutExternalOrigin],
     ) -> c_int,
 ]
 
@@ -343,8 +343,8 @@ comptime av_frame_copy = ExternalFunction[
 comptime av_frame_copy_props = ExternalFunction[
     "av_frame_copy_props",
     fn (
-        dst: UnsafePointer[AVFrame, MutOrigin.external],
-        src: UnsafePointer[AVFrame, ImmutOrigin.external],
+        dst: UnsafePointer[AVFrame, MutExternalOrigin],
+        src: UnsafePointer[AVFrame, ImmutExternalOrigin],
     ) -> c_int,
 ]
 
@@ -352,44 +352,44 @@ comptime av_frame_copy_props = ExternalFunction[
 comptime av_frame_get_plane_buffer = ExternalFunction[
     "av_frame_get_plane_buffer",
     fn (
-        frame: UnsafePointer[AVFrame, ImmutOrigin.external], plane: c_int
-    ) -> UnsafePointer[AVBufferRef, MutOrigin.external],
+        frame: UnsafePointer[AVFrame, ImmutExternalOrigin], plane: c_int
+    ) -> UnsafePointer[AVBufferRef, MutExternalOrigin],
 ]
 
 
 comptime av_frame_new_side_data = ExternalFunction[
     "av_frame_new_side_data",
     fn (
-        frame: UnsafePointer[AVFrame, MutOrigin.external],
+        frame: UnsafePointer[AVFrame, MutExternalOrigin],
         type: AVFrameSideDataType.ENUM_DTYPE,
         size: c_size_t,
-    ) -> UnsafePointer[AVFrameSideData, MutOrigin.external],
+    ) -> UnsafePointer[AVFrameSideData, MutExternalOrigin],
 ]
 
 
 comptime av_frame_new_side_data_from_buf = ExternalFunction[
     "av_frame_new_side_data_from_buf",
     fn (
-        frame: UnsafePointer[AVFrame, MutOrigin.external],
+        frame: UnsafePointer[AVFrame, MutExternalOrigin],
         type: AVFrameSideDataType.ENUM_DTYPE,
-        buf: UnsafePointer[AVBufferRef, MutOrigin.external],
-    ) -> UnsafePointer[AVFrameSideData, MutOrigin.external],
+        buf: UnsafePointer[AVBufferRef, MutExternalOrigin],
+    ) -> UnsafePointer[AVFrameSideData, MutExternalOrigin],
 ]
 
 
 comptime av_frame_get_side_data = ExternalFunction[
     "av_frame_get_side_data",
     fn (
-        frame: UnsafePointer[AVFrame, ImmutOrigin.external],
+        frame: UnsafePointer[AVFrame, ImmutExternalOrigin],
         type: AVFrameSideDataType.ENUM_DTYPE,
-    ) -> UnsafePointer[AVFrameSideData, MutOrigin.external],
+    ) -> UnsafePointer[AVFrameSideData, MutExternalOrigin],
 ]
 
 
 comptime av_frame_remove_side_data = ExternalFunction[
     "av_frame_remove_side_data",
     fn (
-        frame: UnsafePointer[AVFrame, MutOrigin.external],
+        frame: UnsafePointer[AVFrame, MutExternalOrigin],
         type: AVFrameSideDataType.ENUM_DTYPE,
     ),
 ]
@@ -404,7 +404,7 @@ comptime AV_FRAME_CROP_UNALIGNED = Int(1 << 0)
 comptime av_frame_apply_cropping = ExternalFunction[
     "av_frame_apply_cropping",
     fn (
-        frame: UnsafePointer[AVFrame, MutOrigin.external], flags: c_int
+        frame: UnsafePointer[AVFrame, MutExternalOrigin], flags: c_int
     ) -> c_int,
 ]
 
@@ -413,7 +413,7 @@ comptime av_frame_side_data_name = ExternalFunction[
     "av_frame_side_data_name",
     fn (
         type: AVFrameSideDataType.ENUM_DTYPE,
-    ) -> UnsafePointer[c_char, ImmutOrigin.external],
+    ) -> UnsafePointer[c_char, ImmutExternalOrigin],
 ]
 
 
@@ -421,13 +421,13 @@ comptime av_frame_side_data_desc = ExternalFunction[
     "av_frame_side_data_desc",
     fn (
         type: AVFrameSideDataType.ENUM_DTYPE,
-    ) -> UnsafePointer[AVSideDataDescriptor, ImmutOrigin.external],
+    ) -> UnsafePointer[AVSideDataDescriptor, ImmutExternalOrigin],
 ]
 
 
 comptime av_frame_side_data_free = ExternalFunction[
     "av_frame_side_data_free",
-    fn (sd: UnsafePointer[AVFrameSideData, MutOrigin.external]),
+    fn (sd: UnsafePointer[AVFrameSideData, MutExternalOrigin]),
 ]
 
 
@@ -443,35 +443,35 @@ comptime AV_FRAME_SIDE_DATA_FLAG_NEW_REF = Int(1 << 2)
 comptime av_frame_side_data_new = ExternalFunction[
     "av_frame_side_data_new",
     fn (
-        sd: UnsafePointer[AVFrameSideData, MutOrigin.external],
-        nb_sd: UnsafePointer[c_int, MutOrigin.external],
+        sd: UnsafePointer[AVFrameSideData, MutExternalOrigin],
+        nb_sd: UnsafePointer[c_int, MutExternalOrigin],
         type: AVFrameSideDataType.ENUM_DTYPE,
         size: c_size_t,
         flags: c_int,
-    ) -> UnsafePointer[AVFrameSideData, MutOrigin.external],
+    ) -> UnsafePointer[AVFrameSideData, MutExternalOrigin],
 ]
 
 
 comptime av_frame_side_data_add = ExternalFunction[
     "av_frame_side_data_add",
     fn (
-        sd: UnsafePointer[AVFrameSideData, MutOrigin.external],
-        nb_sd: UnsafePointer[c_int, MutOrigin.external],
+        sd: UnsafePointer[AVFrameSideData, MutExternalOrigin],
+        nb_sd: UnsafePointer[c_int, MutExternalOrigin],
         type: AVFrameSideDataType.ENUM_DTYPE,
-        buf: UnsafePointer[AVBufferRef, MutOrigin.external],
+        buf: UnsafePointer[AVBufferRef, MutExternalOrigin],
         flags: c_int,
-    ) -> UnsafePointer[AVFrameSideData, MutOrigin.external],
+    ) -> UnsafePointer[AVFrameSideData, MutExternalOrigin],
 ]
 
 
 comptime av_frame_side_data_clone = ExternalFunction[
     "av_frame_side_data_clone",
     fn (
-        sd: UnsafePointer[AVFrameSideData, MutOrigin.external],
-        nb_sd: UnsafePointer[c_int, MutOrigin.external],
-        src: UnsafePointer[AVFrameSideData, ImmutOrigin.external],
+        sd: UnsafePointer[AVFrameSideData, MutExternalOrigin],
+        nb_sd: UnsafePointer[c_int, MutExternalOrigin],
+        src: UnsafePointer[AVFrameSideData, ImmutExternalOrigin],
         flags: c_int,
-    ) -> UnsafePointer[AVFrameSideData, MutOrigin.external],
+    ) -> UnsafePointer[AVFrameSideData, MutExternalOrigin],
 ]
 
 
@@ -480,10 +480,10 @@ comptime av_frame_side_data_clone = ExternalFunction[
 comptime av_frame_side_data_get_c = ExternalFunction[
     "av_frame_side_data_get_c",
     fn (
-        sd: UnsafePointer[AVFrameSideData, ImmutOrigin.external],
+        sd: UnsafePointer[AVFrameSideData, ImmutExternalOrigin],
         nb_sd: c_int,
         type: AVFrameSideDataType.ENUM_DTYPE,
-    ) -> UnsafePointer[AVFrameSideData, ImmutOrigin.external],
+    ) -> UnsafePointer[AVFrameSideData, ImmutExternalOrigin],
 ]
 
 # TODO: This is an inline function and probably shouldn't be a
@@ -491,18 +491,18 @@ comptime av_frame_side_data_get_c = ExternalFunction[
 # comptime av_frame_side_data_get = ExternalFunction[
 #     "av_frame_side_data_get",
 #     fn (
-#         sd: UnsafePointer[AVFrameSideData, ImmutOrigin.external],
+#         sd: UnsafePointer[AVFrameSideData, ImmutExternalOrigin],
 #         nb_sd: c_int,
 #         type: AVFrameSideDataType.ENUM_DTYPE,
-#     ) -> UnsafePointer[AVFrameSideData, ImmutOrigin.external],
+#     ) -> UnsafePointer[AVFrameSideData, ImmutExternalOrigin],
 # ]
 
 
 comptime av_frame_side_data_remove = ExternalFunction[
     "av_frame_side_data_remove",
     fn (
-        sd: UnsafePointer[AVFrameSideData, MutOrigin.external],
-        nb_sd: UnsafePointer[c_int, MutOrigin.external],
+        sd: UnsafePointer[AVFrameSideData, MutExternalOrigin],
+        nb_sd: UnsafePointer[c_int, MutExternalOrigin],
         type: AVFrameSideDataType.ENUM_DTYPE,
     ),
 ]
@@ -511,8 +511,8 @@ comptime av_frame_side_data_remove = ExternalFunction[
 comptime av_frame_side_data_remove_by_props = ExternalFunction[
     "av_frame_side_data_remove_by_props",
     fn (
-        sd: UnsafePointer[AVFrameSideData, MutOrigin.external],
-        nb_sd: UnsafePointer[c_int, MutOrigin.external],
+        sd: UnsafePointer[AVFrameSideData, MutExternalOrigin],
+        nb_sd: UnsafePointer[c_int, MutExternalOrigin],
         props: c_int,
     ),
 ]

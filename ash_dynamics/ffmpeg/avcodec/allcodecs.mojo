@@ -8,6 +8,6 @@ comptime avcodec_find_decoder = ExternalFunction[
     "avcodec_find_decoder",
     fn (
         id: AVCodecID.ENUM_DTYPE,
-    ) -> UnsafePointer[AVCodec, ImmutOrigin.external]
-    # fn (id: AVCodecID.ENUM_DTYPE) -> OpaquePointer[ImmutOrigin.external]
+    ) -> UnsafePointer[AVCodec, ImmutExternalOrigin]
+    # fn (id: AVCodecID.ENUM_DTYPE) -> OpaquePointer[ImmutExternalOrigin]
 ]

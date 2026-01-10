@@ -58,7 +58,7 @@ struct AVProfile(StructWritable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVProfile.html"
 
     var profile: c_int
-    var name: UnsafePointer[c_char, ImmutOrigin.external]
+    var name: UnsafePointer[c_char, ImmutExternalOrigin]
 
     fn write_to(self, mut writer: Some[Writer], indent: Int):
         var struct_writer = StructWriter[Self](writer, indent=indent)
@@ -73,8 +73,8 @@ struct AVProfile(StructWritable):
 struct AVCodec(Debug):
     "https://www.ffmpeg.org/doxygen/8.0/structAVCodec.html"
 
-    var name: UnsafePointer[c_char, ImmutOrigin.external]
-    var long_name: UnsafePointer[c_char, ImmutOrigin.external]
+    var name: UnsafePointer[c_char, ImmutExternalOrigin]
+    var long_name: UnsafePointer[c_char, ImmutExternalOrigin]
 
     var type: AVMediaType.ENUM_DTYPE
     var id: AVCodecID.ENUM_DTYPE
@@ -82,32 +82,30 @@ struct AVCodec(Debug):
     var capabilities: c_int
     var max_lowres: c_uchar
 
-    var supported_framerates: UnsafePointer[AVRational, ImmutOrigin.external]
+    var supported_framerates: UnsafePointer[AVRational, ImmutExternalOrigin]
 
-    var pix_fmts: UnsafePointer[AVPixelFormat.ENUM_DTYPE, MutOrigin.external]
+    var pix_fmts: UnsafePointer[AVPixelFormat.ENUM_DTYPE, MutExternalOrigin]
 
-    var supported_samplerates: UnsafePointer[c_int, ImmutOrigin.external]
+    var supported_samplerates: UnsafePointer[c_int, ImmutExternalOrigin]
 
-    var sample_fmts: UnsafePointer[
-        AVSampleFormat.ENUM_DTYPE, MutOrigin.external
-    ]
+    var sample_fmts: UnsafePointer[AVSampleFormat.ENUM_DTYPE, MutExternalOrigin]
 
-    var priv_class: UnsafePointer[AVClass, ImmutOrigin.external]
+    var priv_class: UnsafePointer[AVClass, ImmutExternalOrigin]
 
-    var profiles: UnsafePointer[AVProfile, ImmutOrigin.external]
+    var profiles: UnsafePointer[AVProfile, ImmutExternalOrigin]
 
-    var wrapper_name: UnsafePointer[c_char, ImmutOrigin.external]
+    var wrapper_name: UnsafePointer[c_char, ImmutExternalOrigin]
 
-    var ch_layouts: UnsafePointer[AVChannelLayout, ImmutOrigin.external]
+    var ch_layouts: UnsafePointer[AVChannelLayout, ImmutExternalOrigin]
 
 
 comptime av_codec_iterate = ExternalFunction[
     "av_codec_iterate",
     fn (
         opaque: UnsafePointer[
-            OpaquePointer[MutOrigin.external], MutOrigin.external
+            OpaquePointer[MutExternalOrigin], MutExternalOrigin
         ],
-    ) -> UnsafePointer[AVCodec, ImmutOrigin.external],
+    ) -> UnsafePointer[AVCodec, ImmutExternalOrigin],
 ]
 
 
@@ -115,46 +113,46 @@ comptime avcodec_find_decoder = ExternalFunction[
     "avcodec_find_decoder",
     fn (
         id: AVCodecID.ENUM_DTYPE,
-    ) -> UnsafePointer[AVCodec, ImmutOrigin.external],
+    ) -> UnsafePointer[AVCodec, ImmutExternalOrigin],
 ]
 
 comptime avcodec_find_decoder_by_name = ExternalFunction[
     "avcodec_find_decoder_by_name",
     fn (
-        name: UnsafePointer[c_char, ImmutOrigin.external],
-    ) -> UnsafePointer[AVCodec, ImmutOrigin.external],
+        name: UnsafePointer[c_char, ImmutAnyOrigin],
+    ) -> UnsafePointer[AVCodec, ImmutExternalOrigin],
 ]
 
 comptime avcodec_find_encoder = ExternalFunction[
     "avcodec_find_encoder",
     fn (
         id: AVCodecID.ENUM_DTYPE,
-    ) -> UnsafePointer[AVCodec, ImmutOrigin.external],
+    ) -> UnsafePointer[AVCodec, ImmutExternalOrigin],
 ]
 
 comptime avcodec_find_encoder_by_name = ExternalFunction[
     "avcodec_find_encoder_by_name",
     fn (
-        name: UnsafePointer[c_char, ImmutOrigin.external],
-    ) -> UnsafePointer[AVCodec, ImmutOrigin.external],
+        name: UnsafePointer[c_char, ImmutExternalOrigin],
+    ) -> UnsafePointer[AVCodec, ImmutExternalOrigin],
 ]
 
 comptime av_codec_is_encoder = ExternalFunction[
     "av_codec_is_encoder",
-    fn (codec: UnsafePointer[AVCodec, ImmutOrigin.external],) -> c_int,
+    fn (codec: UnsafePointer[AVCodec, ImmutExternalOrigin],) -> c_int,
 ]
 
 comptime av_codec_is_decoder = ExternalFunction[
     "av_codec_is_decoder",
-    fn (codec: UnsafePointer[AVCodec, ImmutOrigin.external],) -> c_int,
+    fn (codec: UnsafePointer[AVCodec, ImmutExternalOrigin],) -> c_int,
 ]
 
 comptime av_get_profile_name = ExternalFunction[
     "av_get_profile_name",
     fn (
-        codec: UnsafePointer[AVCodec, ImmutOrigin.external],
+        codec: UnsafePointer[AVCodec, ImmutExternalOrigin],
         profile: c_int,
-    ) -> UnsafePointer[c_char, ImmutOrigin.external],
+    ) -> UnsafePointer[c_char, ImmutExternalOrigin],
 ]
 
 
@@ -181,7 +179,7 @@ struct AVCodecHWConfig(Debug):
 comptime avcodec_get_hw_config = ExternalFunction[
     "avcodec_get_hw_config",
     fn (
-        codec: UnsafePointer[AVCodec, ImmutOrigin.external],
+        codec: UnsafePointer[AVCodec, ImmutExternalOrigin],
         index: c_int,
-    ) -> UnsafePointer[AVCodecHWConfig, ImmutOrigin.external],
+    ) -> UnsafePointer[AVCodecHWConfig, ImmutExternalOrigin],
 ]

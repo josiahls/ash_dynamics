@@ -25,9 +25,9 @@ struct AVCodecParameters(Debug):
     var codec_type: AVMediaType.ENUM_DTYPE
     var codec_id: AVCodecID.ENUM_DTYPE
     var codec_tag: c_uint
-    var extradata: UnsafePointer[c_uchar, MutOrigin.external]
+    var extradata: UnsafePointer[c_uchar, MutExternalOrigin]
     var extradata_size: c_int
-    var coded_side_data: UnsafePointer[AVPacketSideData, MutOrigin.external]
+    var coded_side_data: UnsafePointer[AVPacketSideData, MutExternalOrigin]
     var nb_coded_side_data: c_int
     var format: c_int
     var bit_rate: c_long_long

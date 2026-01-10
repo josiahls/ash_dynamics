@@ -26,7 +26,7 @@ struct AVCodecTag:
 struct CodecMime:
     """This structure contains a list of codec mime types."""
 
-    var str: UnsafePointer[c_char, MutOrigin.external]
+    var str: UnsafePointer[c_char, MutExternalOrigin]
     var id: AVCodecID.ENUM_DTYPE
 
 
@@ -75,7 +75,7 @@ struct FFFrac:
 #     # av_seek_frame() support
 #     var data_offset: c_long_long
 #     """The offset of the first packet."""
-#     var parse_pkt: UnsafePointer[AVPacket, MutOrigin.external]
+#     var parse_pkt: UnsafePointer[AVPacket, MutExternalOrigin]
 #     """The generic code uses this as a temporary packet
 #     to parse packets or for muxing, especially flushing.
 #     For demuxers, it may also be used for other means
@@ -89,13 +89,13 @@ struct FFFrac:
 #     Every user has to ensure that this packet is blank
 #     after using it.
 #     """
-#     var pkt: UnsafePointer[AVPacket, MutOrigin.external]
+#     var pkt: UnsafePointer[AVPacket, MutExternalOrigin]
 #     """Used to hold temporary packets for the generic demuxing code.
 #     When muxing, it may be used by muxers to hold packets (even
 #     permanent ones)."""
 #     var avoid_negative_ts_use_pts: c_int
 #     """Whether to use pts for negative timestamp shift offset determination."""
-#     var id3v2_meta: UnsafePointer[AVDictionary, MutOrigin.external]
+#     var id3v2_meta: UnsafePointer[AVDictionary, MutExternalOrigin]
 #     """ID3v2 tag useful for MP3 demuxing"""
 #     var missing_streams: c_int
 #     """Whether any streams are missing."""
@@ -103,6 +103,6 @@ struct FFFrac:
 
 # @always_inline
 # fn ffformatcontext(
-#     s: UnsafePointer[AVFormatContext, MutOrigin.external]
-# ) -> UnsafePointer[FFFormatContext, MutOrigin.external]:
+#     s: UnsafePointer[AVFormatContext, MutExternalOrigin]
+# ) -> UnsafePointer[FFFormatContext, MutExternalOrigin]:
 #     return rebind(s, FFFormatContext)

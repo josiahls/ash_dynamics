@@ -33,7 +33,7 @@ struct AVIAMFAnimationType(Debug):
 @register_passable("trivial")
 struct AVIAMFMixGain(Debug):
     "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFMixGain.html"
-    var av_class: UnsafePointer[AVClass, ImmutOrigin.external]
+    var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var subblock_duration: c_uint
     var animation_type: AVIAMFAnimationType.ENUM_DTYPE
     var start_point_value: AVRational
@@ -46,7 +46,7 @@ struct AVIAMFMixGain(Debug):
 @register_passable("trivial")
 struct AVIAMFReconGain(Debug):
     "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFReconGain.html"
-    var av_class: UnsafePointer[AVClass, ImmutOrigin.external]
+    var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var subblock_duration: c_uint
     var recon_gain: StaticTuple[StaticTuple[c_uchar, 12], 6]
 
@@ -66,7 +66,7 @@ struct AVIAMFParamDefinitionType(Debug):
 @register_passable("trivial")
 struct AVIAMFParamDefinition(Debug):
     "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFParamDefinition.html"
-    var av_class: UnsafePointer[AVClass, ImmutOrigin.external]
+    var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var subblocks_offset: c_size_t
     var subblock_size: c_size_t
     var nb_subblocks: c_uint
@@ -79,7 +79,7 @@ struct AVIAMFParamDefinition(Debug):
 
 comptime av_iamf_param_definition_get_class = ExternalFunction[
     "av_iamf_param_definition_get_class",
-    fn () -> UnsafePointer[AVClass, ImmutOrigin.external],
+    fn () -> UnsafePointer[AVClass, ImmutExternalOrigin],
 ]
 
 
@@ -88,15 +88,15 @@ comptime av_iamf_param_definition_alloc = ExternalFunction[
     fn (
         type: AVIAMFParamDefinitionType.ENUM_DTYPE,
         nb_subblocks: c_uint,
-        size: UnsafePointer[c_size_t, MutOrigin.external],
-    ) -> UnsafePointer[AVIAMFParamDefinition, MutOrigin.external],
+        size: UnsafePointer[c_size_t, MutExternalOrigin],
+    ) -> UnsafePointer[AVIAMFParamDefinition, MutExternalOrigin],
 ]
 
 # TODO: This is an inline function in the iamf.h file. Not sure if we
 # need to implement this.
 # comptime av_iamf_param_definition_get_subblock = ExternalFunction[
 #     "av_iamf_param_definition_get_subblock",
-#     fn(par: UnsafePointer[AVIAMFParamDefinition, ImmutOrigin.external], idx: c_uint) -> UnsafePointer[c_void, ImmutOrigin.external],
+#     fn(par: UnsafePointer[AVIAMFParamDefinition, ImmutExternalOrigin], idx: c_uint) -> UnsafePointer[c_void, ImmutExternalOrigin],
 # ]
 
 
@@ -117,14 +117,14 @@ comptime AV_IAMF_LAYER_FLAG_RECON_GAIN = c_uint(1 << 0)
 @register_passable("trivial")
 struct AVIAMFLayer(Debug):
     "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFLayer.html"
-    var av_class: UnsafePointer[AVClass, ImmutOrigin.external]
+    var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var ch_layout: AVChannelLayout
     var flags: c_uint
     var output_gain_flags: c_uint
     var output_gain: AVRational
 
     var ambisonics_mode: AVIAMFAmbisonicsMode.ENUM_DTYPE
-    var demixing_matrix: UnsafePointer[AVRational, MutOrigin.external]
+    var demixing_matrix: UnsafePointer[AVRational, MutExternalOrigin]
 
 
 @fieldwise_init
@@ -141,15 +141,13 @@ struct AVIAMFAudioElementType(Debug):
 @register_passable("trivial")
 struct AVIAMFAudioElement(Debug):
     "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFAudioElement.html"
-    var av_class: UnsafePointer[AVClass, ImmutOrigin.external]
+    var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var layers: UnsafePointer[
-        UnsafePointer[AVIAMFLayer, MutOrigin.external], MutOrigin.external
+        UnsafePointer[AVIAMFLayer, MutExternalOrigin], MutExternalOrigin
     ]
     var nb_layers: c_uint
-    var demixing_info: UnsafePointer[AVIAMFParamDefinition, MutOrigin.external]
-    var recon_gain_info: UnsafePointer[
-        AVIAMFParamDefinition, MutOrigin.external
-    ]
+    var demixing_info: UnsafePointer[AVIAMFParamDefinition, MutExternalOrigin]
+    var recon_gain_info: UnsafePointer[AVIAMFParamDefinition, MutExternalOrigin]
     var audio_element_type: AVIAMFAudioElementType.ENUM_DTYPE
 
     var default_w: c_uint
@@ -157,27 +155,27 @@ struct AVIAMFAudioElement(Debug):
 
 comptime av_iamf_audio_element_get_class = ExternalFunction[
     "av_iamf_audio_element_get_class",
-    fn () -> UnsafePointer[AVClass, ImmutOrigin.external],
+    fn () -> UnsafePointer[AVClass, ImmutExternalOrigin],
 ]
 
 comptime av_iamf_audio_element_alloc = ExternalFunction[
     "av_iamf_audio_element_alloc",
-    fn () -> UnsafePointer[AVIAMFAudioElement, MutOrigin.external],
+    fn () -> UnsafePointer[AVIAMFAudioElement, MutExternalOrigin],
 ]
 
 comptime av_iamf_audio_element_add_layer = ExternalFunction[
     "av_iamf_audio_element_add_layer",
     fn (
-        audio_element: UnsafePointer[AVIAMFAudioElement, MutOrigin.external]
-    ) -> UnsafePointer[AVIAMFLayer, MutOrigin.external],
+        audio_element: UnsafePointer[AVIAMFAudioElement, MutExternalOrigin]
+    ) -> UnsafePointer[AVIAMFLayer, MutExternalOrigin],
 ]
 
 comptime av_iamf_audio_element_free = ExternalFunction[
     "av_iamf_audio_element_free",
     fn (
         audio_element: UnsafePointer[
-            UnsafePointer[AVIAMFAudioElement, MutOrigin.external],
-            MutOrigin.external,
+            UnsafePointer[AVIAMFAudioElement, MutExternalOrigin],
+            MutExternalOrigin,
         ]
     ),
 ]
@@ -197,14 +195,14 @@ struct AVIAMFHeadphonesMode(Debug):
 @register_passable("trivial")
 struct AVIAMFSubmixElement(Debug):
     "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFSubmixElement.html"
-    var av_class: UnsafePointer[AVClass, ImmutOrigin.external]
+    var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var audio_element_id: c_uint
     var element_mix_config: UnsafePointer[
-        AVIAMFParamDefinition, MutOrigin.external
+        AVIAMFParamDefinition, MutExternalOrigin
     ]
     var default_mix_gain: AVRational
     var headphones_rendering_mode: AVIAMFHeadphonesMode.ENUM_DTYPE
-    var annotations: UnsafePointer[AVDictionary, MutOrigin.external]
+    var annotations: UnsafePointer[AVDictionary, MutExternalOrigin]
 
 
 @fieldwise_init
@@ -221,7 +219,7 @@ struct AVIAMFSubmixLayoutType(Debug):
 @register_passable("trivial")
 struct AVIAMFSubmixLayout(Debug):
     "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFSubmixLayout.html"
-    var av_class: UnsafePointer[AVClass, ImmutOrigin.external]
+    var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var layout_type: AVIAMFSubmixLayoutType.ENUM_DTYPE
     var sound_system: AVChannelLayout
     var integrated_loudness: AVRational
@@ -235,19 +233,19 @@ struct AVIAMFSubmixLayout(Debug):
 @register_passable("trivial")
 struct AVIAMFSubmix(Debug):
     "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFSubmix.html"
-    var av_class: UnsafePointer[AVClass, ImmutOrigin.external]
+    var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var elements: UnsafePointer[
-        UnsafePointer[AVIAMFSubmixElement, MutOrigin.external],
-        MutOrigin.external,
+        UnsafePointer[AVIAMFSubmixElement, MutExternalOrigin],
+        MutExternalOrigin,
     ]
     var nb_elements: c_uint
     var layouts: UnsafePointer[
-        UnsafePointer[AVIAMFSubmixLayout, MutOrigin.external],
-        MutOrigin.external,
+        UnsafePointer[AVIAMFSubmixLayout, MutExternalOrigin],
+        MutExternalOrigin,
     ]
     var nb_layouts: c_uint
     var output_mix_config: UnsafePointer[
-        AVIAMFParamDefinition, MutOrigin.external
+        AVIAMFParamDefinition, MutExternalOrigin
     ]
     var default_mix_gain: AVRational
 
@@ -256,53 +254,53 @@ struct AVIAMFSubmix(Debug):
 @register_passable("trivial")
 struct AVIAMFMixPresentation(Debug):
     "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFMixPresentation.html"
-    var av_class: UnsafePointer[AVClass, ImmutOrigin.external]
+    var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var submixes: UnsafePointer[
-        UnsafePointer[AVIAMFSubmix, MutOrigin.external], MutOrigin.external
+        UnsafePointer[AVIAMFSubmix, MutExternalOrigin], MutExternalOrigin
     ]
     var nb_submixes: c_uint
-    var annotations: UnsafePointer[AVDictionary, MutOrigin.external]
+    var annotations: UnsafePointer[AVDictionary, MutExternalOrigin]
 
 
 comptime av_iamf_mix_presentation_get_class = ExternalFunction[
     "av_iamf_mix_presentation_get_class",
-    fn () -> UnsafePointer[AVClass, ImmutOrigin.external],
+    fn () -> UnsafePointer[AVClass, ImmutExternalOrigin],
 ]
 
 comptime av_iamf_mix_presentation_alloc = ExternalFunction[
     "av_iamf_mix_presentation_alloc",
-    fn () -> UnsafePointer[AVIAMFMixPresentation, MutOrigin.external],
+    fn () -> UnsafePointer[AVIAMFMixPresentation, MutExternalOrigin],
 ]
 
 comptime av_iamf_mix_presentation_add_submix = ExternalFunction[
     "av_iamf_mix_presentation_add_submix",
     fn (
         mix_presentation: UnsafePointer[
-            AVIAMFMixPresentation, MutOrigin.external
+            AVIAMFMixPresentation, MutExternalOrigin
         ]
-    ) -> UnsafePointer[AVIAMFSubmix, MutOrigin.external],
+    ) -> UnsafePointer[AVIAMFSubmix, MutExternalOrigin],
 ]
 
 comptime av_iamf_submix_add_element = ExternalFunction[
     "av_iamf_submix_add_element",
     fn (
-        submix: UnsafePointer[AVIAMFSubmix, MutOrigin.external]
-    ) -> UnsafePointer[AVIAMFSubmixElement, MutOrigin.external],
+        submix: UnsafePointer[AVIAMFSubmix, MutExternalOrigin]
+    ) -> UnsafePointer[AVIAMFSubmixElement, MutExternalOrigin],
 ]
 
 comptime av_iamf_submix_add_layout = ExternalFunction[
     "av_iamf_submix_add_layout",
     fn (
-        submix: UnsafePointer[AVIAMFSubmix, MutOrigin.external]
-    ) -> UnsafePointer[AVIAMFSubmixLayout, MutOrigin.external],
+        submix: UnsafePointer[AVIAMFSubmix, MutExternalOrigin]
+    ) -> UnsafePointer[AVIAMFSubmixLayout, MutExternalOrigin],
 ]
 
 comptime av_iamf_mix_presentation_free = ExternalFunction[
     "av_iamf_mix_presentation_free",
     fn (
         mix_presentation: UnsafePointer[
-            UnsafePointer[AVIAMFMixPresentation, MutOrigin.external],
-            MutOrigin.external,
+            UnsafePointer[AVIAMFMixPresentation, MutExternalOrigin],
+            MutExternalOrigin,
         ]
     ),
 ]
