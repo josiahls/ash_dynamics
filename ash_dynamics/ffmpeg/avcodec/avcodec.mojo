@@ -133,7 +133,7 @@ comptime AV_GET_ENCODE_BUFFER_FLAG_REF = c_int(1 << 0)
 comptime FF_API_CODEC_PROPS = False
 
 
-comptime AVCodecInternal = OpaquePointer[MutOrigin.external]
+comptime AVCodecInternal = OpaquePointer[MutExternalOrigin]
 
 
 @register_passable("trivial")
@@ -141,22 +141,22 @@ comptime AVCodecInternal = OpaquePointer[MutOrigin.external]
 struct AVCodecContext(Debug):
     "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html"
 
-    var av_class: UnsafePointer[AVClass, origin = ImmutOrigin.external]
+    var av_class: UnsafePointer[AVClass, origin=ImmutExternalOrigin]
     var log_level_offset: c_int
     var codec_type: AVMediaType.ENUM_DTYPE
-    var codec: UnsafePointer[AVCodec, origin = ImmutOrigin.external]
+    var codec: UnsafePointer[AVCodec, origin=ImmutExternalOrigin]
     var codec_id: AVCodecID.ENUM_DTYPE
 
     var codec_tag: c_ushort
-    var priv_data: OpaquePointer[MutOrigin.external]
+    var priv_data: OpaquePointer[MutExternalOrigin]
 
-    var internal: UnsafePointer[AVCodecInternal, origin = ImmutOrigin.external]
-    var opaque: OpaquePointer[MutOrigin.external]
+    var internal: UnsafePointer[AVCodecInternal, origin=ImmutExternalOrigin]
+    var opaque: OpaquePointer[MutExternalOrigin]
     var bit_rate: c_long_long
     var flags: c_int
     var flags2: c_int
 
-    var extradata: UnsafePointer[c_char, ImmutOrigin.external]
+    var extradata: UnsafePointer[c_char, ImmutExternalOrigin]
     var extradata_size: c_int
 
     var time_base: AVRational
@@ -186,19 +186,19 @@ struct AVCodecContext(Debug):
     comptime SLICE_FLAG_ALLOW_PLANE = Int(0x0004)
     var draw_horiz_band: UnsafePointer[
         fn (
-            s: UnsafePointer[Self, MutOrigin.external],
-            src: UnsafePointer[AVFrame, ImmutOrigin.external],
+            s: UnsafePointer[Self, MutExternalOrigin],
+            src: UnsafePointer[AVFrame, ImmutExternalOrigin],
             offset: StaticTuple[c_int, AVFrame.AV_NUM_DATA_POINTERS],
             y: c_int,
             type: c_int,
             height: c_int,
-        ) -> NoneType, MutOrigin.external
+        ) -> NoneType, MutExternalOrigin
     ]
     var get_format: UnsafePointer[
         fn (
-            s: UnsafePointer[Self, MutOrigin.external],
-            fmt: UnsafePointer[AVPixelFormat.ENUM_DTYPE, ImmutOrigin.external],
-        ) -> AVPixelFormat.ENUM_DTYPE, MutOrigin.external
+            s: UnsafePointer[Self, MutExternalOrigin],
+            fmt: UnsafePointer[AVPixelFormat.ENUM_DTYPE, ImmutExternalOrigin],
+        ) -> AVPixelFormat.ENUM_DTYPE, MutExternalOrigin
     ]
     var max_b_frames: c_int
     var b_quant_factor: c_float
@@ -238,9 +238,9 @@ struct AVCodecContext(Debug):
     comptime FF_MB_DECISION_BITS = Int(1)
     comptime FF_MB_DECISION_RD = Int(2)
 
-    var intra_matrix: UnsafePointer[c_ushort, ImmutOrigin.external]
-    var inter_matrix: UnsafePointer[c_ushort, ImmutOrigin.external]
-    var chroma_intra_matrix: UnsafePointer[c_ushort, ImmutOrigin.external]
+    var intra_matrix: UnsafePointer[c_ushort, ImmutExternalOrigin]
+    var inter_matrix: UnsafePointer[c_ushort, ImmutExternalOrigin]
+    var chroma_intra_matrix: UnsafePointer[c_ushort, ImmutExternalOrigin]
     var intra_dc_precision: c_int
 
     var mb_lmin: c_int
@@ -268,10 +268,10 @@ struct AVCodecContext(Debug):
 
     var get_buffer2: UnsafePointer[
         fn (
-            s: UnsafePointer[Self, MutOrigin.external],
-            frame: UnsafePointer[AVFrame, MutOrigin.external],
+            s: UnsafePointer[Self, MutExternalOrigin],
+            frame: UnsafePointer[AVFrame, MutExternalOrigin],
             flags: c_int,
-        ) -> c_int, MutOrigin.external
+        ) -> c_int, MutExternalOrigin
     ]
 
     # Encoding parameters
@@ -286,15 +286,15 @@ struct AVCodecContext(Debug):
     var max_qdiff: c_int
     var rc_buffer_size: c_int
     var rc_override_count: c_int
-    var rc_override: UnsafePointer[RcOverride, ImmutOrigin.external]
+    var rc_override: UnsafePointer[RcOverride, ImmutExternalOrigin]
     var rc_max_rate: c_long_long
     var rc_min_rate: c_long_long
     var rc_max_available_vbv_use: c_float
     var rc_min_vbv_overflow_use: c_float
     var rc_initial_buffer_occupancy: c_int
     var trellis: c_int
-    var stats_out: UnsafePointer[c_char, MutOrigin.external]
-    var stats_in: UnsafePointer[c_char, MutOrigin.external]
+    var stats_out: UnsafePointer[c_char, MutExternalOrigin]
+    var stats_in: UnsafePointer[c_char, MutExternalOrigin]
     var workaround_bugs: c_int
     comptime FF_BUG_AUTODETECT = Int(1)
     comptime FF_BUG_XVID_ILACE = Int(4)
@@ -338,12 +338,12 @@ struct AVCodecContext(Debug):
 
     var err_recognition: c_int
 
-    var hwaccel: UnsafePointer[AVHWAccel, ImmutOrigin.external]
+    var hwaccel: UnsafePointer[AVHWAccel, ImmutExternalOrigin]
 
-    var hwaccel_context: OpaquePointer[MutOrigin.external]
+    var hwaccel_context: OpaquePointer[MutExternalOrigin]
 
-    var hw_frames_ctx: UnsafePointer[AVBufferRef, MutOrigin.external]
-    var hw_device_ctx: UnsafePointer[AVBufferRef, MutOrigin.external]
+    var hw_frames_ctx: UnsafePointer[AVBufferRef, MutExternalOrigin]
+    var hw_device_ctx: UnsafePointer[AVBufferRef, MutExternalOrigin]
     var hwaccel_flags: c_int
     var extra_hw_frames: c_int
     var error: StaticTuple[c_ulong_long, AVFrame.AV_NUM_DATA_POINTERS]
@@ -386,31 +386,31 @@ struct AVCodecContext(Debug):
 
     var execute: UnsafePointer[
         fn (
-            c: UnsafePointer[AVCodecContext, MutOrigin.external],
+            c: UnsafePointer[AVCodecContext, MutExternalOrigin],
             func: fn (
-                c2: UnsafePointer[AVCodecContext, MutOrigin.external],
-                arg: OpaquePointer[MutOrigin.external],
+                c2: UnsafePointer[AVCodecContext, MutExternalOrigin],
+                arg: OpaquePointer[MutExternalOrigin],
             ) -> c_int,
-            arg2: OpaquePointer[MutOrigin.external],
-            ret: UnsafePointer[c_int, MutOrigin.external],
+            arg2: OpaquePointer[MutExternalOrigin],
+            ret: UnsafePointer[c_int, MutExternalOrigin],
             count: c_int,
             size: c_int,
-        ) -> c_int, MutOrigin.external
+        ) -> c_int, MutExternalOrigin
     ]
 
     var execute2: UnsafePointer[
         fn (
-            c: UnsafePointer[AVCodecContext, MutOrigin.external],
+            c: UnsafePointer[AVCodecContext, MutExternalOrigin],
             func2: fn (
-                c2: UnsafePointer[AVCodecContext, MutOrigin.external],
-                arg: OpaquePointer[MutOrigin.external],
+                c2: UnsafePointer[AVCodecContext, MutExternalOrigin],
+                arg: OpaquePointer[MutExternalOrigin],
                 jobnr: c_int,
                 threadnr: c_int,
             ) -> c_int,
-            arg2: OpaquePointer[MutOrigin.external],
-            ret: UnsafePointer[c_int, MutOrigin.external],
+            arg2: OpaquePointer[MutExternalOrigin],
+            ret: UnsafePointer[c_int, MutExternalOrigin],
             count: c_int,
-        ) -> c_int, MutOrigin.external
+        ) -> c_int, MutExternalOrigin
     ]
 
     var profile: c_int
@@ -430,9 +430,9 @@ struct AVCodecContext(Debug):
     var skip_top: c_int
     var skip_bottom: c_int
     var lowres: c_int
-    var codec_descriptor: UnsafePointer[AVCodecDescriptor, ImmutOrigin.external]
+    var codec_descriptor: UnsafePointer[AVCodecDescriptor, ImmutExternalOrigin]
 
-    var sub_charenc: UnsafePointer[c_char, MutOrigin.external]
+    var sub_charenc: UnsafePointer[c_char, MutExternalOrigin]
 
     var sub_charenc_mode: c_int
     comptime FF_SUB_CHARENC_MODE_DO_NOTHING = Int(-1)
@@ -441,12 +441,12 @@ struct AVCodecContext(Debug):
     comptime FF_SUB_CHARENC_MODE_IGNORE = Int(2)
 
     var subtitle_header_size: c_int
-    var subtitle_header: UnsafePointer[c_uchar, MutOrigin.external]
+    var subtitle_header: UnsafePointer[c_uchar, MutExternalOrigin]
 
-    var dump_separator: UnsafePointer[c_uchar, MutOrigin.external]
-    var codec_whitelist: UnsafePointer[c_char, MutOrigin.external]
+    var dump_separator: UnsafePointer[c_uchar, MutExternalOrigin]
+    var codec_whitelist: UnsafePointer[c_char, MutExternalOrigin]
 
-    var coded_side_data: UnsafePointer[AVPacketSideData, MutOrigin.external]
+    var coded_side_data: UnsafePointer[AVPacketSideData, MutExternalOrigin]
     var nb_coded_side_data: c_int
 
     var export_side_data: c_int
@@ -461,19 +461,19 @@ struct AVCodecContext(Debug):
 
     var get_encode_buffer: UnsafePointer[
         fn (
-            s: UnsafePointer[AVCodecContext, MutOrigin.external],
-            pkt: UnsafePointer[AVPacket, MutOrigin.external],
+            s: UnsafePointer[AVCodecContext, MutExternalOrigin],
+            pkt: UnsafePointer[AVPacket, MutExternalOrigin],
             flags: c_int,
-        ) -> c_int, MutOrigin.external
+        ) -> c_int, MutExternalOrigin
     ]
 
     var frame_num: c_long_long
 
-    var side_data_prefer_packet: UnsafePointer[c_int, MutOrigin.external]
+    var side_data_prefer_packet: UnsafePointer[c_int, MutExternalOrigin]
 
     var nb_side_data_prefer_packet: c_uint
 
-    var decoded_side_data: UnsafePointer[AVFrameSideData, MutOrigin.external]
+    var decoded_side_data: UnsafePointer[AVFrameSideData, MutExternalOrigin]
     var nb_decoded_side_data: c_int
 
 
@@ -482,7 +482,7 @@ struct AVCodecContext(Debug):
 struct AVHWAccel(Debug):
     "https://www.ffmpeg.org/doxygen/8.0/structAVHWAccel.html"
 
-    var name: UnsafePointer[c_char, ImmutOrigin.external]
+    var name: UnsafePointer[c_char, ImmutExternalOrigin]
 
     var type: AVMediaType.ENUM_DTYPE
 
@@ -527,13 +527,13 @@ struct AVSubtitleRect(Debug):
     var w: c_int
     var h: c_int
     var nb_colors: c_int
-    var data: UnsafePointer[c_uchar, MutOrigin.external]
+    var data: UnsafePointer[c_uchar, MutExternalOrigin]
     var linesize: StaticTuple[c_int, 4]
     var flags: c_int
     var type: AVSubtitleType.ENUM_DTYPE
 
-    var text: UnsafePointer[c_char, MutOrigin.external]
-    var ass: UnsafePointer[c_char, MutOrigin.external]
+    var text: UnsafePointer[c_char, MutExternalOrigin]
+    var ass: UnsafePointer[c_char, MutExternalOrigin]
 
 
 @fieldwise_init
@@ -545,7 +545,7 @@ struct AVSubtitle(Debug):
     var end_display_time: c_uint
     var num_rects: c_uint
     var rects: UnsafePointer[
-        UnsafePointer[AVSubtitleRect, MutOrigin.external], MutOrigin.external
+        UnsafePointer[AVSubtitleRect, MutExternalOrigin], MutExternalOrigin
     ]
     var pts: c_long_long
 
@@ -557,19 +557,19 @@ comptime avcodec_version = ExternalFunction[
 
 comptime avcodec_configuration = ExternalFunction[
     "avcodec_configuration",
-    fn () -> UnsafePointer[c_char, ImmutOrigin.external],
+    fn () -> UnsafePointer[c_char, ImmutExternalOrigin],
 ]
 
 comptime avcodec_license = ExternalFunction[
     "avcodec_license",
-    fn () -> UnsafePointer[c_char, ImmutOrigin.external],
+    fn () -> UnsafePointer[c_char, ImmutExternalOrigin],
 ]
 
 comptime avcodec_alloc_context3 = ExternalFunction[
     "avcodec_alloc_context3",
     fn (
-        codec: UnsafePointer[AVCodec, ImmutOrigin.external]
-    ) -> UnsafePointer[AVCodecContext, MutOrigin.external],
+        codec: UnsafePointer[AVCodec, ImmutExternalOrigin]
+    ) -> UnsafePointer[AVCodecContext, MutExternalOrigin],
 ]
 
 
@@ -577,8 +577,8 @@ comptime avcodec_free_context = ExternalFunction[
     "avcodec_free_context",
     fn (
         avctx: UnsafePointer[
-            UnsafePointer[AVCodecContext, MutOrigin.external],
-            MutOrigin.external,
+            UnsafePointer[AVCodecContext, MutExternalOrigin],
+            MutExternalOrigin,
         ],
     ),
 ]
@@ -586,52 +586,52 @@ comptime avcodec_free_context = ExternalFunction[
 
 comptime avcodec_get_class = ExternalFunction[
     "avcodec_get_class",
-    fn () -> UnsafePointer[AVClass, ImmutOrigin.external],
+    fn () -> UnsafePointer[AVClass, ImmutExternalOrigin],
 ]
 
 comptime avcodec_get_subtitle_rect_class = ExternalFunction[
     "avcodec_get_subtitle_rect_class",
-    fn () -> UnsafePointer[AVClass, ImmutOrigin.external],
+    fn () -> UnsafePointer[AVClass, ImmutExternalOrigin],
 ]
 
 
 comptime avcodec_parameters_from_context = ExternalFunction[
     "avcodec_parameters_from_context",
     fn (
-        par: UnsafePointer[AVCodecParameters, MutOrigin.external],
-        codec: UnsafePointer[AVCodecContext, ImmutOrigin.external],
+        par: UnsafePointer[AVCodecParameters, MutExternalOrigin],
+        codec: UnsafePointer[AVCodecContext, ImmutExternalOrigin],
     ) -> c_int,
 ]
 
 comptime avcodec_parameters_to_context = ExternalFunction[
     "avcodec_parameters_to_context",
     fn (
-        codec: UnsafePointer[AVCodecContext, MutOrigin.external],
-        par: UnsafePointer[AVCodecParameters, ImmutOrigin.external],
+        codec: UnsafePointer[AVCodecContext, MutExternalOrigin],
+        par: UnsafePointer[AVCodecParameters, ImmutExternalOrigin],
     ) -> c_int,
 ]
 
 comptime avcodec_open2 = ExternalFunction[
     "avcodec_open2",
     fn (
-        context: UnsafePointer[AVCodecContext, MutOrigin.external],
-        codec: UnsafePointer[AVCodec, ImmutOrigin.external],
-        options: UnsafePointer[AVDictionary, ImmutOrigin.external],
+        context: UnsafePointer[AVCodecContext, MutExternalOrigin],
+        codec: UnsafePointer[AVCodec, ImmutExternalOrigin],
+        options: UnsafePointer[AVDictionary, ImmutExternalOrigin],
     ) -> c_int,
 ]
 
 
 comptime avsubtitle_free = ExternalFunction[
     "avsubtitle_free",
-    fn (sub: UnsafePointer[AVSubtitle, MutOrigin.external],),
+    fn (sub: UnsafePointer[AVSubtitle, MutExternalOrigin],),
 ]
 
 
 comptime avcodec_default_get_buffer2 = ExternalFunction[
     "avcodec_default_get_buffer2",
     fn (
-        s: UnsafePointer[AVCodecContext, MutOrigin.external],
-        frame: UnsafePointer[AVFrame, MutOrigin.external],
+        s: UnsafePointer[AVCodecContext, MutExternalOrigin],
+        frame: UnsafePointer[AVFrame, MutExternalOrigin],
         flags: c_int,
     ) -> c_int,
 ]
@@ -640,8 +640,8 @@ comptime avcodec_default_get_buffer2 = ExternalFunction[
 comptime avcodec_default_get_encode_buffer = ExternalFunction[
     "avcodec_default_get_encode_buffer",
     fn (
-        s: UnsafePointer[AVCodecContext, MutOrigin.external],
-        pkt: UnsafePointer[AVPacket, MutOrigin.external],
+        s: UnsafePointer[AVCodecContext, MutExternalOrigin],
+        pkt: UnsafePointer[AVPacket, MutExternalOrigin],
         flags: c_int,
     ) -> c_int,
 ]
@@ -650,9 +650,9 @@ comptime avcodec_default_get_encode_buffer = ExternalFunction[
 comptime avcodec_align_dimensions = ExternalFunction[
     "avcodec_align_dimensions",
     fn (
-        s: UnsafePointer[AVCodecContext, MutOrigin.external],
-        width: UnsafePointer[c_int, MutOrigin.external],
-        height: UnsafePointer[c_int, MutOrigin.external],
+        s: UnsafePointer[AVCodecContext, MutExternalOrigin],
+        width: UnsafePointer[c_int, MutExternalOrigin],
+        height: UnsafePointer[c_int, MutExternalOrigin],
     ) -> c_int,
 ]
 
@@ -660,13 +660,13 @@ comptime avcodec_align_dimensions = ExternalFunction[
 comptime avcodec_align_dimensions2 = ExternalFunction[
     "avcodec_align_dimensions2",
     fn (
-        s: UnsafePointer[AVCodecContext, MutOrigin.external],
-        width: UnsafePointer[c_int, MutOrigin.external],
-        height: UnsafePointer[c_int, MutOrigin.external],
+        s: UnsafePointer[AVCodecContext, MutExternalOrigin],
+        width: UnsafePointer[c_int, MutExternalOrigin],
+        height: UnsafePointer[c_int, MutExternalOrigin],
         # TODO: linesize_align should be a StaticTuple[AV_NUM_DATA_POINTERS]
         # I think? Not sure how this plays
         # with passed in parameters.
-        linesize_align: UnsafePointer[c_int, MutOrigin.external],
+        linesize_align: UnsafePointer[c_int, MutExternalOrigin],
     ) -> c_int,
 ]
 
@@ -674,18 +674,18 @@ comptime avcodec_align_dimensions2 = ExternalFunction[
 comptime avcodec_decode_subtitle2 = ExternalFunction[
     "avcodec_decode_subtitle2",
     fn (
-        avctx: UnsafePointer[AVCodecContext, MutOrigin.external],
-        sub: UnsafePointer[AVSubtitle, MutOrigin.external],
-        got_sub_ptr: UnsafePointer[c_int, MutOrigin.external],
-        avpkt: UnsafePointer[AVPacket, ImmutOrigin.external],
+        avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
+        sub: UnsafePointer[AVSubtitle, MutExternalOrigin],
+        got_sub_ptr: UnsafePointer[c_int, MutExternalOrigin],
+        avpkt: UnsafePointer[AVPacket, ImmutExternalOrigin],
     ) -> c_int,
 ]
 
 comptime avcodec_send_packet = ExternalFunction[
     "avcodec_send_packet",
     fn (
-        avctx: UnsafePointer[AVCodecContext, MutOrigin.external],
-        avpkt: UnsafePointer[AVPacket, ImmutOrigin.external],
+        avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
+        avpkt: UnsafePointer[AVPacket, ImmutExternalOrigin],
     ) -> c_int,
 ]
 
@@ -693,8 +693,8 @@ comptime avcodec_send_packet = ExternalFunction[
 comptime avcodec_receive_frame = ExternalFunction[
     "avcodec_receive_frame",
     fn (
-        avctx: UnsafePointer[AVCodecContext, MutOrigin.external],
-        frame: UnsafePointer[AVFrame, MutOrigin.external],
+        avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
+        frame: UnsafePointer[AVFrame, MutExternalOrigin],
     ) -> c_int,
 ]
 
@@ -702,8 +702,8 @@ comptime avcodec_receive_frame = ExternalFunction[
 comptime avcodec_send_frame = ExternalFunction[
     "avcodec_send_frame",
     fn (
-        avctx: UnsafePointer[AVCodecContext, MutOrigin.external],
-        frame: UnsafePointer[AVFrame, ImmutOrigin.external],
+        avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
+        frame: UnsafePointer[AVFrame, ImmutExternalOrigin],
     ) -> c_int,
 ]
 
@@ -711,8 +711,8 @@ comptime avcodec_send_frame = ExternalFunction[
 comptime avcodec_receive_packet = ExternalFunction[
     "avcodec_receive_packet",
     fn (
-        avctx: UnsafePointer[AVCodecContext, MutOrigin.external],
-        pkt: UnsafePointer[AVPacket, MutOrigin.external],
+        avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
+        pkt: UnsafePointer[AVPacket, MutExternalOrigin],
     ) -> c_int,
 ]
 
@@ -720,11 +720,11 @@ comptime avcodec_receive_packet = ExternalFunction[
 comptime avcodec_get_hw_frames_parameters = ExternalFunction[
     "avcodec_get_hw_frames_parameters",
     fn (
-        avctx: UnsafePointer[AVCodecContext, MutOrigin.external],
-        device_ref: UnsafePointer[AVBufferRef, ImmutOrigin.external],
+        avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
+        device_ref: UnsafePointer[AVBufferRef, ImmutExternalOrigin],
         hw_pix_fmt: AVPixelFormat.ENUM_DTYPE,
         out_frames_ref: UnsafePointer[
-            UnsafePointer[AVBufferRef, MutOrigin.external], MutOrigin.external
+            UnsafePointer[AVBufferRef, MutExternalOrigin], MutExternalOrigin
         ],
     ) -> c_int,
 ]
@@ -752,8 +752,8 @@ struct AVCodecConfig(StructWritable):
 comptime avcodec_get_supported_config = ExternalFunction[
     "avcodec_get_supported_config",
     fn (
-        avctx: UnsafePointer[AVCodecContext, ImmutOrigin.external],
-        codec: UnsafePointer[AVCodec, ImmutOrigin.external],
+        avctx: UnsafePointer[AVCodecContext, ImmutExternalOrigin],
+        codec: UnsafePointer[AVCodec, ImmutExternalOrigin],
         config: AVCodecConfig.ENUM_DTYPE,
     ) -> c_int,
 ]
@@ -781,8 +781,8 @@ struct AVCodecParserContext(Debug):
     comptime PARSER_FLAG_FETCHED_OFFSET = Int(0x0004)
     comptime PARSER_FLAG_USE_CODEC_TS = Int(0x1000)
 
-    var priv_data: OpaquePointer[MutOrigin.external]
-    var parser: UnsafePointer[AVCodecParser, origin = ImmutOrigin.external]
+    var priv_data: OpaquePointer[MutExternalOrigin]
+    var parser: UnsafePointer[AVCodecParser, origin=ImmutExternalOrigin]
     var frame_offset: c_long_long
     var cur_offset: c_long_long
     var next_frame_offset: c_long_long
@@ -835,24 +835,24 @@ struct AVCodecParser(Debug):
     var codec_ids: StaticTuple[c_int, 7]
     var priv_data_size: c_int
     var parser_init: fn (
-        s: UnsafePointer[AVCodecParserContext, MutOrigin.external]
+        s: UnsafePointer[AVCodecParserContext, MutExternalOrigin]
     ) -> c_int
     var parser_parse: fn (
-        s: UnsafePointer[AVCodecParserContext, MutOrigin.external],
-        avctx: UnsafePointer[AVCodecContext, MutOrigin.external],
+        s: UnsafePointer[AVCodecParserContext, MutExternalOrigin],
+        avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
         poutbuf: UnsafePointer[
-            UnsafePointer[c_char, ImmutOrigin.external], ImmutOrigin.external
+            UnsafePointer[c_char, ImmutExternalOrigin], ImmutExternalOrigin
         ],
-        poutbuf_size: UnsafePointer[c_int, ImmutOrigin.external],
-        buf: UnsafePointer[c_char, ImmutOrigin.external],
+        poutbuf_size: UnsafePointer[c_int, ImmutExternalOrigin],
+        buf: UnsafePointer[c_char, ImmutExternalOrigin],
         buf_size: c_int,
     ) -> c_int
     var parser_close: fn (
-        s: UnsafePointer[AVCodecParserContext, MutOrigin.external]
+        s: UnsafePointer[AVCodecParserContext, MutExternalOrigin]
     ) -> NoneType
     var split: fn (
-        avctx: UnsafePointer[AVCodecContext, MutOrigin.external],
-        buf: UnsafePointer[c_char, ImmutOrigin.external],
+        avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
+        buf: UnsafePointer[c_char, ImmutExternalOrigin],
         buf_size: c_int,
     ) -> c_int
 
@@ -860,8 +860,8 @@ struct AVCodecParser(Debug):
 comptime av_parser_iterate = ExternalFunction[
     "av_parser_iterate",
     fn (
-        opaque: OpaquePointer[MutOrigin.external],
-    ) -> UnsafePointer[AVCodecParser, ImmutOrigin.external],
+        opaque: OpaquePointer[MutExternalOrigin],
+    ) -> UnsafePointer[AVCodecParser, ImmutExternalOrigin],
 ]
 
 
@@ -869,20 +869,20 @@ comptime av_parser_init = ExternalFunction[
     "av_parser_init",
     fn (
         codec_id: AVCodecID.ENUM_DTYPE,
-    ) -> UnsafePointer[AVCodecParserContext, MutOrigin.external],
+    ) -> UnsafePointer[AVCodecParserContext, MutExternalOrigin],
 ]
 
 
 comptime av_parser_parse2 = ExternalFunction[
     "av_parser_parse2",
     fn (
-        s: UnsafePointer[AVCodecParserContext, MutOrigin.external],
-        avctx: UnsafePointer[AVCodecContext, MutOrigin.external],
+        s: UnsafePointer[AVCodecParserContext, MutExternalOrigin],
+        avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
         poutbuf: UnsafePointer[
-            UnsafePointer[c_uchar, MutOrigin.external], MutOrigin.external
+            UnsafePointer[c_uchar, MutExternalOrigin], MutExternalOrigin
         ],
-        poutbuf_size: UnsafePointer[c_int, MutOrigin.external],
-        buf: UnsafePointer[c_uchar, ImmutOrigin.external],
+        poutbuf_size: UnsafePointer[c_int, MutExternalOrigin],
+        buf: UnsafePointer[c_uchar, ImmutExternalOrigin],
         buf_size: c_int,
         pts: c_long_long,
         dts: c_long_long,
@@ -893,19 +893,17 @@ comptime av_parser_parse2 = ExternalFunction[
 
 comptime av_parser_close = ExternalFunction[
     "av_parser_close",
-    fn (
-        s: UnsafePointer[AVCodecParserContext, MutOrigin.external],
-    ) -> NoneType,
+    fn (s: UnsafePointer[AVCodecParserContext, MutExternalOrigin],) -> NoneType,
 ]
 
 
 comptime avcodec_encode_subtitle = ExternalFunction[
     "avcodec_encode_subtitle",
     fn (
-        avctx: UnsafePointer[AVCodecContext, MutOrigin.external],
-        buf: UnsafePointer[c_uchar, MutOrigin.external],
+        avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
+        buf: UnsafePointer[c_uchar, MutExternalOrigin],
         buf_size: c_int,
-        sub: UnsafePointer[AVSubtitle, ImmutOrigin.external],
+        sub: UnsafePointer[AVSubtitle, ImmutExternalOrigin],
     ) -> c_int,
 ]
 
@@ -920,11 +918,11 @@ comptime avcodec_find_best_pix_fmt_of_list = ExternalFunction[
     "avcodec_find_best_pix_fmt_of_list",
     fn (
         pix_fmt_list: UnsafePointer[
-            AVPixelFormat.ENUM_DTYPE, ImmutOrigin.external
+            AVPixelFormat.ENUM_DTYPE, ImmutExternalOrigin
         ],
         src_pix_fmt: AVPixelFormat.ENUM_DTYPE,
         has_alpha: c_int,
-        loss_ptr: UnsafePointer[c_int, MutOrigin.external],
+        loss_ptr: UnsafePointer[c_int, MutExternalOrigin],
     ) -> AVPixelFormat.ENUM_DTYPE,
 ]
 
@@ -932,8 +930,8 @@ comptime avcodec_find_best_pix_fmt_of_list = ExternalFunction[
 comptime avcodec_default_get_format = ExternalFunction[
     "avcodec_default_get_format",
     fn (
-        s: UnsafePointer[AVCodecContext, MutOrigin.external],
-        fmt: UnsafePointer[AVPixelFormat.ENUM_DTYPE, ImmutOrigin.external],
+        s: UnsafePointer[AVCodecContext, MutExternalOrigin],
+        fmt: UnsafePointer[AVPixelFormat.ENUM_DTYPE, ImmutExternalOrigin],
     ) -> AVPixelFormat.ENUM_DTYPE,
 ]
 
@@ -941,9 +939,9 @@ comptime avcodec_default_get_format = ExternalFunction[
 comptime avcodec_string = ExternalFunction[
     "avcodec_string",
     fn (
-        buf: UnsafePointer[c_char, MutOrigin.external],
+        buf: UnsafePointer[c_char, MutExternalOrigin],
         buf_size: c_int,
-        enc: UnsafePointer[AVCodecContext, ImmutOrigin.external],
+        enc: UnsafePointer[AVCodecContext, ImmutExternalOrigin],
         encode: c_int,
     ),
 ]
@@ -952,13 +950,13 @@ comptime avcodec_string = ExternalFunction[
 comptime avcodec_default_execute = ExternalFunction[
     "avcodec_default_execute",
     fn (
-        c: UnsafePointer[AVCodecContext, MutOrigin.external],
+        c: UnsafePointer[AVCodecContext, MutExternalOrigin],
         func: fn (
-            UnsafePointer[AVCodecContext, MutOrigin.external],
-            OpaquePointer[MutOrigin.external],
+            UnsafePointer[AVCodecContext, MutExternalOrigin],
+            OpaquePointer[MutExternalOrigin],
         ) -> c_int,
-        arg: OpaquePointer[MutOrigin.external],
-        ret: UnsafePointer[c_int, MutOrigin.external],
+        arg: OpaquePointer[MutExternalOrigin],
+        ret: UnsafePointer[c_int, MutExternalOrigin],
         count: c_int,
         size: c_int,
     ) -> c_int,
@@ -966,15 +964,15 @@ comptime avcodec_default_execute = ExternalFunction[
 comptime avcodec_default_execute2 = ExternalFunction[
     "avcodec_default_execute2",
     fn (
-        c: UnsafePointer[AVCodecContext, MutOrigin.external],
+        c: UnsafePointer[AVCodecContext, MutExternalOrigin],
         func: fn (
-            UnsafePointer[AVCodecContext, MutOrigin.external],
-            OpaquePointer[MutOrigin.external],
+            UnsafePointer[AVCodecContext, MutExternalOrigin],
+            OpaquePointer[MutExternalOrigin],
             c_int,
             c_int,
         ) -> c_int,
-        arg: OpaquePointer[MutOrigin.external],
-        ret: UnsafePointer[c_int, MutOrigin.external],
+        arg: OpaquePointer[MutExternalOrigin],
+        ret: UnsafePointer[c_int, MutExternalOrigin],
         count: c_int,
     ) -> c_int,
 ]
@@ -983,10 +981,10 @@ comptime avcodec_default_execute2 = ExternalFunction[
 comptime avcodec_fill_audio_frame = ExternalFunction[
     "avcodec_fill_audio_frame",
     fn (
-        frame: UnsafePointer[AVFrame, MutOrigin.external],
+        frame: UnsafePointer[AVFrame, MutExternalOrigin],
         nb_channels: c_int,
         sample_fmt: AVSampleFormat.ENUM_DTYPE,
-        buf: UnsafePointer[c_uchar, MutOrigin.external],
+        buf: UnsafePointer[c_uchar, MutExternalOrigin],
         buf_size: c_int,
         align: c_int,
     ) -> c_int,
@@ -995,13 +993,13 @@ comptime avcodec_fill_audio_frame = ExternalFunction[
 
 comptime avcodec_flush_buffers = ExternalFunction[
     "avcodec_flush_buffers",
-    fn (avctx: UnsafePointer[AVCodecContext, MutOrigin.external],) -> NoneType,
+    fn (avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],) -> NoneType,
 ]
 
 comptime av_get_audio_frame_duration = ExternalFunction[
     "av_get_audio_frame_duration",
     fn (
-        avctx: UnsafePointer[AVCodecContext, ImmutOrigin.external],
+        avctx: UnsafePointer[AVCodecContext, ImmutExternalOrigin],
         frame_bytes: c_int,
     ) -> c_int,
 ]
@@ -1010,8 +1008,8 @@ comptime av_get_audio_frame_duration = ExternalFunction[
 comptime av_fast_padded_malloc = ExternalFunction[
     "av_fast_padded_malloc",
     fn (
-        ptr: OpaquePointer[MutOrigin.external],
-        size: UnsafePointer[c_int, MutOrigin.external],
+        ptr: OpaquePointer[MutExternalOrigin],
+        size: UnsafePointer[c_int, MutExternalOrigin],
         min_size: c_size_t,
     ) -> NoneType,
 ]
@@ -1020,8 +1018,8 @@ comptime av_fast_padded_malloc = ExternalFunction[
 comptime av_fast_padded_mallocz = ExternalFunction[
     "av_fast_padded_mallocz",
     fn (
-        ptr: OpaquePointer[MutOrigin.external],
-        size: UnsafePointer[c_int, MutOrigin.external],
+        ptr: OpaquePointer[MutExternalOrigin],
+        size: UnsafePointer[c_int, MutExternalOrigin],
         min_size: c_size_t,
     ) -> NoneType,
 ]
@@ -1029,5 +1027,5 @@ comptime av_fast_padded_mallocz = ExternalFunction[
 
 comptime avcodec_is_open = ExternalFunction[
     "avcodec_is_open",
-    fn (avctx: UnsafePointer[AVCodecContext, ImmutOrigin.external],) -> c_int,
+    fn (avctx: UnsafePointer[AVCodecContext, ImmutExternalOrigin],) -> c_int,
 ]

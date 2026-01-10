@@ -323,7 +323,7 @@ struct Avcodec:
 
     fn av_packet_rescale_ts(
         self,
-        pkt: UnsafePointer[AVPacket, MutOrigin.external],
+        pkt: UnsafePointer[AVPacket, MutExternalOrigin],
         tb_a: AVRational,
         tb_b: AVRational,
     ):

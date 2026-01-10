@@ -12,11 +12,11 @@ from utils import StaticTuple
 struct AVBSFContext(Debug):
     "https://www.ffmpeg.org/doxygen/8.0/structAVBSFContext.html"
 
-    var av_class: UnsafePointer[AVClass, origin = ImmutOrigin.external]
-    var filter: UnsafePointer[AVBitStreamFilter, origin = ImmutOrigin.external]
-    var priv_data: OpaquePointer[MutOrigin.external]
-    var par_in: UnsafePointer[AVCodecParameters, origin = ImmutOrigin.external]
-    var par_out: UnsafePointer[AVCodecParameters, origin = ImmutOrigin.external]
+    var av_class: UnsafePointer[AVClass, origin=ImmutExternalOrigin]
+    var filter: UnsafePointer[AVBitStreamFilter, origin=ImmutExternalOrigin]
+    var priv_data: OpaquePointer[MutExternalOrigin]
+    var par_in: UnsafePointer[AVCodecParameters, origin=ImmutExternalOrigin]
+    var par_out: UnsafePointer[AVCodecParameters, origin=ImmutExternalOrigin]
     var time_base_in: AVRational
     var time_base_out: AVRational
 
@@ -25,9 +25,9 @@ struct AVBSFContext(Debug):
 @register_passable("trivial")
 struct AVBitStreamFilter(Debug):
     "https://www.ffmpeg.org/doxygen/8.0/structAVBitStreamFilter.html"
-    var name: UnsafePointer[c_char, origin = ImmutOrigin.external]
+    var name: UnsafePointer[c_char, origin=ImmutExternalOrigin]
 
     var codec_ids: UnsafePointer[
-        AVCodecID.ENUM_DTYPE, origin = ImmutOrigin.external
+        AVCodecID.ENUM_DTYPE, origin=ImmutExternalOrigin
     ]
-    var priv_class: UnsafePointer[AVClass, origin = ImmutOrigin.external]
+    var priv_class: UnsafePointer[AVClass, origin=ImmutExternalOrigin]
