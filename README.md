@@ -38,6 +38,12 @@ python3 serve_dash.py
 
 https://github.com/user-attachments/assets/a7d5064c-a636-4130-b443-4dfde792f00a
 
+## Developer Notes
+If working in cursor, you can change the editor to use cursor instead.
+```
+git config core.editor "cursor --wait"
+```
+
 
 ## License
 
