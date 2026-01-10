@@ -882,7 +882,7 @@ comptime av_parser_parse2 = ExternalFunction[
             UnsafePointer[c_uchar, MutExternalOrigin], MutExternalOrigin
         ],
         poutbuf_size: UnsafePointer[c_int, MutExternalOrigin],
-        buf: UnsafePointer[c_uchar, ImmutExternalOrigin],
+        buf: UnsafePointer[c_uchar, ImmutAnyOrigin],
         buf_size: c_int,
         pts: c_long_long,
         dts: c_long_long,

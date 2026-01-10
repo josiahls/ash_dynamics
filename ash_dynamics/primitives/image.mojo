@@ -63,7 +63,14 @@ fn decode(
         image_info.format = dec_ctx[].pix_fmt
         image_info.n_color_spaces = dec_ctx[].color_range
 
-        out_data = alloc[c_uchar](Int(frame[].linesize[0]))
+        out_data = alloc[c_uchar](
+            Int(frame[].linesize[0]) * Int(frame[].height)
+        )
+
+        for row in range(frame[].height):
+            for i in range(frame[].linesize[0]):
+                print(frame[].data[0][Int(i + 1 + row)])
+
         out_data[] = frame[].data[0][]
 
         # try:
@@ -167,9 +174,7 @@ struct Image:
 
         var data_list = path.read_bytes()
         var data_size = c_int(len(data_list))
-        var data = data_list.unsafe_ptr().unsafe_origin_cast[
-            MutExternalOrigin
-        ]()
+        var data = data_list.unsafe_ptr().as_immutable()
         var out_data = UnsafePointer[c_uchar, MutExternalOrigin]()
 
         while True:
