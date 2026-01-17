@@ -2,7 +2,6 @@
 from sys.ffi import c_uchar, c_uint, c_int, c_size_t
 from os.atomic import Atomic
 from ash_dynamics.primitives._clib import (
-    StructWritable,
     ExternalFunction,
     Debug,
 )

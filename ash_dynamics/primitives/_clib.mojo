@@ -102,18 +102,6 @@ struct C_Union[*Ts: Copyable & Movable](Copyable, Copyable, Movable):
         return ptr
 
 
-trait StructWritable(Writable):
-    """Handles writing a c-style struct. Intended to be used with the `Writable`
-    trait.
-    """
-
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        ...
-
-    fn write_to(self, mut writer: Some[Writer]):
-        self.write_to(writer, indent=0)
-
-
 @register_passable("trivial")
 struct TrivialOptionalField[active: Bool, ElementType: __TypeOfAllTypes](
     Copyable, Movable, Writable
