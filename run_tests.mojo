@@ -3,7 +3,7 @@ import os
 import sys
 from utils._ansi import Color, Text
 from testing.suite import TestSuiteReport, TestReport, TestResult
-from builtin._location import __call_location
+from reflection import call_location
 from pathlib import Path
 from time import perf_counter_ns
 
@@ -44,7 +44,7 @@ def main():
     var test_results = List[TestReport]()
     walk_tests(TEST_DIR, test_results)
     var report = TestSuiteReport(
-        reports=test_results^, location=__call_location[inline_count=0]()
+        reports=test_results^, location=call_location[inline_count=0]()
     )
     print(report)
     if report.failures > 0:
