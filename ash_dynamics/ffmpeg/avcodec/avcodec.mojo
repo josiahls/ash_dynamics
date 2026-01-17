@@ -11,7 +11,6 @@ from sys.ffi import (
     c_size_t,
 )
 from ash_dynamics.primitives._clib import (
-    StructWritable,
     Debug,
     ExternalFunction,
     TrivialOptionalField,

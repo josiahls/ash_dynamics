@@ -1,5 +1,5 @@
 "https://www.ffmpeg.org/doxygen/8.0/frame_8h.html"
-from ash_dynamics.primitives._clib import StructWritable
+
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
 from ash_dynamics.ffmpeg.avutil.buffer import AVBufferRef
 from ash_dynamics.ffmpeg.avutil.avutil import AVPictureType

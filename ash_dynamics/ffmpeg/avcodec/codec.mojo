@@ -1,7 +1,6 @@
 "https://www.ffmpeg.org/doxygen/8.0/codec_8h.html"
 from sys.ffi import c_char, c_int, c_uchar
 from ash_dynamics.primitives._clib import (
-    StructWritable,
     Debug,
     ExternalFunction,
 )
