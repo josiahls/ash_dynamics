@@ -3,7 +3,6 @@ from sys.ffi import c_char, c_int, c_uchar
 from ash_dynamics.primitives._clib import (
     StructWritable,
     Debug,
-    StructWriter,
     ExternalFunction,
 )
 
@@ -54,18 +53,11 @@ comptime AV_CODEC_CAP_ENCODER_RECON_FRAME = c_int(1 << 22)
 
 
 @register_passable("trivial")
-struct AVProfile(StructWritable):
+struct AVProfile(Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVProfile.html"
 
     var profile: c_int
     var name: UnsafePointer[c_char, ImmutExternalOrigin]
-
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["profile"](self.profile)
-        struct_writer.write_field["name"](
-            StringSlice(unsafe_from_utf8_ptr=self.name)
-        )
 
 
 @register_passable("trivial")

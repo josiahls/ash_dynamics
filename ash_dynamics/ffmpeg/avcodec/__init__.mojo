@@ -90,7 +90,7 @@ from ash_dynamics.ffmpeg.avcodec.codec import (
 )
 from os.env import setenv
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
-from ash_dynamics.primitives._clib import StructWritable, StructWriter
+from ash_dynamics.primitives._clib import StructWritable
 from logger import Logger
 
 
