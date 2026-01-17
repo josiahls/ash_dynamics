@@ -5,8 +5,9 @@ from sys import size_of
 from ash_dynamics.primitives.image import Image
 import os
 
-# import numojo as nm
-# from numojo.prelude import *
+import numojo as nm
+from numojo.prelude import *
+from numojo.core.ndstrides import NDArrayStrides
 
 
 def test_image():
@@ -19,14 +20,29 @@ def test_image():
     # for i in range(10):
     #     print(image._data[][Int(i)])
     # _ = image._data
-    _ = image
+    # for row in range(image.height):
+    #     for i in range(image.width):
+    #         if i % 3 == 0:
+    #             print()
+    #         print(image._data[Int(i + row * image.width)], end=" ")
+    #     print()
 
-    # var array = NDArray[i8](
-    #     shape=(image.height, image.width, 3),
-    #     strides=(1,1,1),
-    #     offset=0,
-    #     buffer=image._data
-    # )
+    var array = nm.NDArray(
+        shape=NDArrayShape(Int(image.height), Int(image.width), Int(3)),
+        buffer=image._data.unsafe_origin_cast[MutExternalOrigin](),
+        offset=0,
+        strides=NDArrayStrides(1, 1, 1),
+    )
+
+    # for i in range(128):
+    #     for j in range(128):
+    #         print(array[i, j], end=" ")
+    #     print()
+    # _ = image
+    print(array[0, 0])
+    print(array[127, 0])
+    print(array[0, 127])
+    print(array[127, 127])
 
 
 def main():
