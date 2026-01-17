@@ -24,7 +24,7 @@ comptime c_ptrdiff_t = c_long_long
 
 struct ExternalFunction[
     name: StaticString,
-    type: AnyTrivialRegType,
+    type: __TypeOfAllTypes,
 ]:
     """
 
@@ -179,8 +179,8 @@ struct StructWriter[
 
 
 @register_passable("trivial")
-struct TrivialOptionalField[active: Bool, ElementType: AnyTrivialRegType](
-    Copyable, Movable
+struct TrivialOptionalField[active: Bool, ElementType: __TypeOfAllTypes](
+    Copyable, Movable, Writable
 ):
     comptime OptionalElementType = StaticTuple[
         Self.ElementType, 1 if Self.active else 0
@@ -206,6 +206,10 @@ struct TrivialOptionalField[active: Bool, ElementType: AnyTrivialRegType](
         else:
             self.field = Self.OptionalElementType()
 
+    fn write_to(self, mut writer: Some[Writer]):
+        if Self.active and conforms_to(Self.ElementType, Writable):
+            writer.write(trait_downcast[Writable](self[]))
+
     @always_inline
     fn __getitem__(ref self) -> Self.ElementType:
         constrained[
@@ -217,59 +221,60 @@ struct TrivialOptionalField[active: Bool, ElementType: AnyTrivialRegType](
 # NOTE: Not working at the moment. Gets:
 # failed to locate witness entry for std::builtin::simd::SIMD, std::builtin::str::Stringable, __str__($0)
 trait Debug(Writable):
-    fn write_to(self, mut w: Some[Writer]):
-        self.write_to(w, indent=0)
+    pass
+    # fn write_to(self, mut writer: Some[Writer]):
+    #     self.write_to(writer, indent=0)
 
-    fn write_to(self, mut w: Some[Writer], indent: Int):
-        # TODO: Implement: https://github.com/modular/modular/issues/5720
-        # once solved.
-        w.write(get_type_name[Self]() + ":\n")
+    # fn write_to(self, mut w: Some[Writer], indent: Int):
+    #     # TODO: Implement: https://github.com/modular/modular/issues/5720
+    #     # once solved.
+    #     w.write(get_type_name[Self]() + ":\n")
 
-        @parameter
-        for i in range(struct_field_count[Self]()):
-            comptime field_type = struct_field_types[Self]()[i]
-            comptime field_name = struct_field_names[Self]()[i]
-            # if conforms_to(field_type, Stringable):
+    #     @parameter
+    #     for i in range(struct_field_count[Self]()):
+    #         comptime field_type = struct_field_types[Self]()[i]
+    #         comptime field_name = struct_field_names[Self]()[i]
+    #         # if conforms_to(field_type, Stringable):
 
-            var field = UnsafePointer(to=__struct_field_ref(i, self))
-            w.write("    " * (indent + 1), field_name, ": ")
+    #         var field = UnsafePointer(to=__struct_field_ref(i, self))
+    #         w.write("    " * (indent + 1), field_name, ": ")
 
-            print("Type name: ", get_type_name[field_type]())
+    #         print("Type name: ", get_type_name[field_type]())
 
-            @parameter
-            if get_type_name[field_type]() == get_type_name[Int8]():
-                w.write(field.bitcast[Int8]()[])
-            elif get_type_name[field_type]() == get_type_name[Int16]():
-                w.write(field.bitcast[Int16]()[])
-            elif get_type_name[field_type]() == get_type_name[Int]():
-                w.write(field.bitcast[Int]()[])
-            elif get_type_name[field_type]() == get_type_name[Int32]():
-                w.write(field.bitcast[Int32]()[])
-            elif get_type_name[field_type]() == get_type_name[Int64]():
-                w.write(field.bitcast[Int64]()[])
-            elif get_type_name[field_type]() == get_type_name[UInt8]():
-                w.write(field.bitcast[UInt8]()[])
-            elif get_type_name[field_type]() == get_type_name[UInt16]():
-                w.write(field.bitcast[UInt16]()[])
-            elif get_type_name[field_type]() == get_type_name[UInt]():
-                w.write(field.bitcast[UInt]()[])
-            elif get_type_name[field_type]() == get_type_name[UInt32]():
-                w.write(field.bitcast[UInt32]()[])
-            elif get_type_name[field_type]() == get_type_name[UInt64]():
-                w.write(field.bitcast[UInt64]()[])
-            elif get_type_name[field_type]() == get_type_name[Float32]():
-                w.write(field.bitcast[Float32]()[])
-            elif get_type_name[field_type]() == get_type_name[Float64]():
-                w.write(field.bitcast[Float64]()[])
-            elif get_type_name[field_type]() == get_type_name[Bool]():
-                w.write(field.bitcast[Bool]()[])
-            elif "UnsafePointer[UInt8]" in get_type_name[field_type]():
-                w.write(field.bitcast[OpaquePointer[MutAnyOrigin]]()[])
-            elif "UnsafePointer" in get_type_name[field_type]():
-                w.write(field.bitcast[OpaquePointer[MutAnyOrigin]]()[])
-            else:
-                w.write(
-                    "Unable to handle type name: ", get_type_name[field_type]()
-                )
+    #         @parameter
+    #         if get_type_name[field_type]() == get_type_name[Int8]():
+    #             w.write(field.bitcast[Int8]()[])
+    #         elif get_type_name[field_type]() == get_type_name[Int16]():
+    #             w.write(field.bitcast[Int16]()[])
+    #         elif get_type_name[field_type]() == get_type_name[Int]():
+    #             w.write(field.bitcast[Int]()[])
+    #         elif get_type_name[field_type]() == get_type_name[Int32]():
+    #             w.write(field.bitcast[Int32]()[])
+    #         elif get_type_name[field_type]() == get_type_name[Int64]():
+    #             w.write(field.bitcast[Int64]()[])
+    #         elif get_type_name[field_type]() == get_type_name[UInt8]():
+    #             w.write(field.bitcast[UInt8]()[])
+    #         elif get_type_name[field_type]() == get_type_name[UInt16]():
+    #             w.write(field.bitcast[UInt16]()[])
+    #         elif get_type_name[field_type]() == get_type_name[UInt]():
+    #             w.write(field.bitcast[UInt]()[])
+    #         elif get_type_name[field_type]() == get_type_name[UInt32]():
+    #             w.write(field.bitcast[UInt32]()[])
+    #         elif get_type_name[field_type]() == get_type_name[UInt64]():
+    #             w.write(field.bitcast[UInt64]()[])
+    #         elif get_type_name[field_type]() == get_type_name[Float32]():
+    #             w.write(field.bitcast[Float32]()[])
+    #         elif get_type_name[field_type]() == get_type_name[Float64]():
+    #             w.write(field.bitcast[Float64]()[])
+    #         elif get_type_name[field_type]() == get_type_name[Bool]():
+    #             w.write(field.bitcast[Bool]()[])
+    #         elif "UnsafePointer[UInt8]" in get_type_name[field_type]():
+    #             w.write(field.bitcast[OpaquePointer[MutAnyOrigin]]()[])
+    #         elif "UnsafePointer" in get_type_name[field_type]():
+    #             w.write(field.bitcast[OpaquePointer[MutAnyOrigin]]()[])
+    #         else:
+    #             w.write(
+    #                 "Unable to handle type name: ", get_type_name[field_type]()
+    #             )
 
-            w.write("\n")
+    #         w.write("\n")

@@ -41,8 +41,7 @@ fn decode(
     pkt: UnsafePointer[AVPacket, origin=MutExternalOrigin],
     filename: String,
     mut image_info: ImageInfo,
-    mut out_data: UnsafePointer[c_uchar, MutExternalOrigin],
-):
+) raises -> UnsafePointer[c_uchar, MutExternalOrigin]:
     var ret: c_int = avcodec.avcodec_send_packet(dec_ctx, pkt)
     if ret < 0:
         os.abort("Error sending a packaet for decoding.")
@@ -69,22 +68,23 @@ fn decode(
 
         for row in range(frame[].height):
             for i in range(frame[].linesize[0]):
-                print(frame[].data[0][Int(i + 1 + row)])
+                if i % 3 == 0:
+                    print()
+                print(
+                    frame[].data[0][Int(i + row * frame[].linesize[0])], end=" "
+                )
+            print()
 
         out_data[] = frame[].data[0][]
+        for row in range(image_info.height):
+            for i in range(image_info.width):
+                if i % 3 == 0:
+                    print()
+                print(out_data[Int(i + row * image_info.width)], end=" ")
+            print()
+        return out_data
 
-        # try:
-        #     print("Saving frame {}".format(dec_ctx[].frame_num))
-        # TODO: Nto quite sure why teh example.cpp prints sizeof(buf) when the
-        # size is 1024. Unless pgm_save changes the buf size?
-        # out_filename = "{}-{}.pgm".format(filename, dec_ctx[].frame_num)
-        # pgm_save(
-        #     frame[].data[0],
-        #     frame[].linesize[0],
-        #     frame[].width,
-        #     frame[].height,
-        #     out_filename,
-        # )
+    raise Error("Error decoding image.")
 
 
 @fieldwise_init
@@ -202,15 +202,20 @@ struct Image:
 
                 if packet[].size > 0:
                     print("Packet size: ", packet[].size)
-                    decode(
+                    out_data = decode(
                         avcodec,
                         context,
                         frame,
                         packet,
                         out_filename,
                         image_info,
-                        out_data,
                     )
+                    # for row in range(image_info.height):
+                    #     for i in range(image_info.width):
+                    #         if i % 3 == 0:
+                    #             print()
+                    #         print(out_data[Int(i + row * image_info.width)], end=" ")
+                    #     print()
 
             data_size = 0
 
