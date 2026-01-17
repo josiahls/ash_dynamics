@@ -101,10 +101,10 @@ def test_av_decode_video_example():
     print(codec[])
 
     var parser = avcodec.av_parser_init(codec[].id)
-    print(parser[])
+    # print(parser[])
 
     var context = avcodec.avcodec_alloc_context3(codec)
-    print(context[])
+    # print(context[])
 
     ptr = alloc[AVDictionary](0)
     try_open = avcodec.avcodec_open2(context, codec, ptr)

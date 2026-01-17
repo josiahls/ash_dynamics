@@ -45,8 +45,8 @@ from ash_dynamics.ffmpeg.avutil.channel_layout import AVChannelLayout
 from ash_dynamics.ffmpeg.avcodec.packet import AVPacket, AVPacketSideData
 from ash_dynamics.ffmpeg.avutil.frame import AVFrameSideData
 from ash_dynamics.ffmpeg.avcodec.codec_desc import AVCodecDescriptor
-from utils import StaticTuple
 from ash_dynamics.ffmpeg.avcodec.codec_par import AVCodecParameters
+from utils import StaticTuple
 
 
 @fieldwise_init
