@@ -47,23 +47,19 @@ from ash_dynamics.ffmpeg.avutil.frame import AVFrameSideData
 from ash_dynamics.ffmpeg.avcodec.codec_desc import AVCodecDescriptor
 from ash_dynamics.ffmpeg.avcodec.codec_par import AVCodecParameters
 from utils import StaticTuple
+from ash_dynamics.primitives.mojo_compat import (
+    reflection_write_to_but_handle_static_tuples,
+)
 
 
 @fieldwise_init
 @register_passable("trivial")
-struct RcOverride(StructWritable):
+struct RcOverride(Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structRcOverride.html"
     var start_frame: c_int
     var end_frame: c_int
     var qscale: c_int
     var quality_factor: c_float
-
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["start_frame"](self.start_frame)
-        struct_writer.write_field["end_frame"](self.end_frame)
-        struct_writer.write_field["qscale"](self.qscale)
-        struct_writer.write_field["quality_factor"](self.quality_factor)
 
 
 ########################################################
@@ -476,6 +472,17 @@ struct AVCodecContext(Debug):
     var decoded_side_data: UnsafePointer[AVFrameSideData, MutExternalOrigin]
     var nb_decoded_side_data: c_int
 
+    fn write_to(self, mut writer: Some[Writer]):
+        @always_inline
+        fn call_write_to[
+            FieldType: Writable
+        ](field: FieldType, mut writer: type_of(writer)):
+            field.write_to(writer)
+
+        reflection_write_to_but_handle_static_tuples[f=call_write_to](
+            self, writer
+        )
+
 
 @fieldwise_init
 @register_passable("trivial")
@@ -826,6 +833,17 @@ struct AVCodecParserContext(Debug):
     var coded_width: c_int
     var coded_height: c_int
     var format: c_int
+
+    fn write_to(self, mut writer: Some[Writer]):
+        @always_inline
+        fn call_write_to[
+            FieldType: Writable
+        ](field: FieldType, mut writer: type_of(writer)):
+            field.write_to(writer)
+
+        reflection_write_to_but_handle_static_tuples[f=call_write_to](
+            self, writer
+        )
 
 
 @fieldwise_init

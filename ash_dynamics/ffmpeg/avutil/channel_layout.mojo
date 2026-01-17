@@ -3,7 +3,9 @@ from sys.ffi import c_int, c_char, c_ulong_long, c_size_t
 from ash_dynamics.primitives._clib import C_Union, ExternalFunction
 from utils import StaticTuple
 from ash_dynamics.primitives._clib import Debug
-
+from ash_dynamics.primitives.mojo_compat import (
+    reflection_write_to_but_handle_static_tuples,
+)
 from reflection import get_type_name
 
 
@@ -428,6 +430,17 @@ struct AVChannelLayout(Debug):
         # Details about which channels are present in this layout.
     ]
     var opaque: OpaquePointer[MutExternalOrigin]
+
+    fn write_to(self, mut writer: Some[Writer]):
+        @always_inline
+        fn call_write_to[
+            FieldType: Writable
+        ](field: FieldType, mut writer: type_of(writer)):
+            field.write_to(writer)
+
+        reflection_write_to_but_handle_static_tuples[f=call_write_to](
+            self, writer
+        )
 
 
 fn AV_CHANNEL_LAYOUT_MASK(nb: c_int, m: c_ulong_long) -> AVChannelLayout:

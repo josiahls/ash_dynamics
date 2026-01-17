@@ -207,6 +207,7 @@ struct TrivialOptionalField[active: Bool, ElementType: __TypeOfAllTypes](
             self.field = Self.OptionalElementType()
 
     fn write_to(self, mut writer: Some[Writer]):
+        @parameter
         if Self.active and conforms_to(Self.ElementType, Writable):
             writer.write(trait_downcast[Writable](self[]))
 
