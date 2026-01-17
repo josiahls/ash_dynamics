@@ -164,7 +164,7 @@ comptime av_packet_side_data_name = ExternalFunction[
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVPacket(StructWritable):
+struct AVPacket(Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVPacket.html"
 
     var buf: UnsafePointer[AVBufferRef, origin=MutExternalOrigin]
@@ -188,23 +188,6 @@ struct AVPacket(StructWritable):
     var opaque: OpaquePointer[MutExternalOrigin]
     var opaque_ref: UnsafePointer[AVBufferRef, origin=MutExternalOrigin]
     var time_base: AVRational
-
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["buf"](self.buf)
-        struct_writer.write_field["pts"](self.pts)
-        struct_writer.write_field["dts"](self.dts)
-        struct_writer.write_field["data"](self.data)
-        struct_writer.write_field["size"](self.size)
-        struct_writer.write_field["stream_index"](self.stream_index)
-        struct_writer.write_field["flags"](self.flags)
-        struct_writer.write_field["side_data"](self.side_data)
-        struct_writer.write_field["side_data_elems"](self.side_data_elems)
-        struct_writer.write_field["duration"](self.duration)
-        struct_writer.write_field["pos"](self.pos)
-        struct_writer.write_field["opaque"](self.opaque)
-        struct_writer.write_field["opaque_ref"](self.opaque_ref)
-        struct_writer.write_field["time_base"](self.time_base)
 
 
 # NOTE: AVPacketList is an optional struct that is being deprecated.

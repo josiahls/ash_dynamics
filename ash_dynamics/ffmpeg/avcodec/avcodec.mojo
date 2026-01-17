@@ -13,7 +13,6 @@ from sys.ffi import (
 from ash_dynamics.primitives._clib import (
     StructWritable,
     Debug,
-    StructWriter,
     ExternalFunction,
     TrivialOptionalField,
 )
@@ -739,7 +738,7 @@ comptime avcodec_get_hw_frames_parameters = ExternalFunction[
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVCodecConfig(StructWritable):
+struct AVCodecConfig(Writable):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -750,10 +749,6 @@ struct AVCodecConfig(StructWritable):
     comptime AV_CODEC_CONFIG_CHANNEL_LAYOUT = Self(4)
     comptime AV_CODEC_CONFIG_COLOR_RANGE = Self(5)
     comptime AV_CODEC_CONFIG_COLOR_SPACE = Self(6)
-
-    fn write_to(self, mut writer: Some[Writer], indent: Int):
-        var struct_writer = StructWriter[Self](writer, indent=indent)
-        struct_writer.write_field["value"](self._value)
 
 
 comptime avcodec_get_supported_config = ExternalFunction[
