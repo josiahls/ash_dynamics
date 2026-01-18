@@ -65,23 +65,8 @@ fn decode(
         out_data = alloc[c_uchar](
             Int(frame[].linesize[0]) * Int(frame[].height)
         )
-
-        for row in range(frame[].height):
-            for i in range(frame[].linesize[0]):
-                if i % 3 == 0:
-                    print()
-                print(
-                    frame[].data[0][Int(i + row * frame[].linesize[0])], end=" "
-                )
-            print()
-
         out_data[] = frame[].data[0][]
-        for row in range(image_info.height):
-            for i in range(image_info.width):
-                if i % 3 == 0:
-                    print()
-                print(out_data[Int(i + row * image_info.width)], end=" ")
-            print()
+
         return out_data
 
     raise Error("Error decoding image.")
