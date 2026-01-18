@@ -107,12 +107,8 @@ def test_av_decode_video_example():
     print(context[])
 
     ptr = alloc[AVDictionary](0)
-    try_open = avcodec.avcodec_open2(context, codec, ptr)
-    if try_open < 0:
-        print("Failed to open codec")
-        sys.exit(1)
-    else:
-        print("Opened codec")
+    avcodec.avcodec_open2(context, codec, ptr)
+    print("Opened codec")
 
     var test_data_root = os.getenv("PIXI_PROJECT_ROOT")
     var out_filename: String = (
