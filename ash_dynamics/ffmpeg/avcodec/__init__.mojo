@@ -37,6 +37,7 @@ from ash_dynamics.ffmpeg.avcodec.allcodecs import avcodec_find_decoder
 from ash_dynamics.ffmpeg.avutil.frame import av_frame_alloc
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 from ash_dynamics.ffmpeg.avcodec.avcodec import (
+    AVCodec,
     avcodec_version,
     avcodec_configuration,
     avcodec_license,
@@ -90,6 +91,7 @@ from ash_dynamics.ffmpeg.avcodec.codec import (
 )
 from os.env import setenv
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
+
 
 from logger import Logger
 
@@ -175,7 +177,7 @@ struct Avcodec:
     var avcodec_find_decoder: avcodec_find_decoder.type
     var avcodec_find_encoder: avcodec_find_encoder.type
     var av_codec_iterate: av_codec_iterate.type
-    var avcodec_find_decoder_by_name: avcodec_find_decoder_by_name.type
+    var _avcodec_find_decoder_by_name: avcodec_find_decoder_by_name.type
     var avcodec_find_encoder_by_name: avcodec_find_encoder_by_name.type
     var av_codec_is_encoder: av_codec_is_encoder.type
     var av_codec_is_decoder: av_codec_is_decoder.type
@@ -304,7 +306,7 @@ struct Avcodec:
         self.avcodec_find_decoder = avcodec_find_decoder.load(self.lib)
         self.avcodec_find_encoder = avcodec_find_encoder.load(self.lib)
         self.av_codec_iterate = av_codec_iterate.load(self.lib)
-        self.avcodec_find_decoder_by_name = avcodec_find_decoder_by_name.load(
+        self._avcodec_find_decoder_by_name = avcodec_find_decoder_by_name.load(
             self.lib
         )
         self.avcodec_find_encoder_by_name = avcodec_find_encoder_by_name.load(
@@ -330,3 +332,16 @@ struct Avcodec:
         return self._av_packet_rescale_ts(
             pkt, tb_a.as_long_long(), tb_b.as_long_long()
         )
+
+    fn avcodec_find_decoder_by_name(
+        self, mut extension: String
+    ) raises Error -> UnsafePointer[AVCodec, ImmutExternalOrigin]:
+        var stripped_extension: String = String(
+            extension.as_string_slice_mut().lstrip(".")
+        )
+        var ptr = self._avcodec_find_decoder_by_name(
+            stripped_extension.as_c_string_slice().unsafe_ptr().as_immutable()
+        )
+        if not ptr:
+            raise Error("Failed to find decoder by name: ", extension)
+        return ptr
