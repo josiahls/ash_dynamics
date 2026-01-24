@@ -20,6 +20,9 @@ from ash_dynamics.ffmpeg.avutil.error import AVERROR, AVERROR_EOF
 from ash_dynamics.ffmpeg.avutil.pixfmt import AVPixelFormat
 
 
+from ash_dynamics.image.io import image_save, image_read, ImageData
+
+
 @fieldwise_init
 struct ImageInfo:
     var width: c_int
@@ -100,112 +103,135 @@ struct Image:
 
     @staticmethod
     fn load(path: Path) raises -> Self:
-        var avformat = Avformat()
-        var avcodec = Avcodec()
-        var avutil = Avutil()
-        var swscale = Swscale()
-        var swrsample = Swrsample()
-
-        var oc = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
-        var name = path.name().copy()
-        var extension = String("png")
-
-        comptime INBUF_SIZE = c_int(4096)
-
-        var input_buffer = alloc[c_uchar](
-            Int(INBUF_SIZE + AV_INPUT_BUFFER_PADDING_SIZE)
-        )
-
-        # Set the padding portion of the input_buffer to zero.
-        memset(
-            input_buffer + INBUF_SIZE,
-            0,
-            Int(AV_INPUT_BUFFER_PADDING_SIZE),
-        )
-        var packet = avcodec.av_packet_alloc()
-        # print(packet[])
-
-        var codec = avcodec.avcodec_find_decoder_by_name(extension)
-        # print(codec[])
-
-        var parser = avcodec.av_parser_init(codec[].id)
-        # print(parser[])
-
-        var context = avcodec.avcodec_alloc_context3(codec)
-        # print(context[])
-
-        ptr = alloc[AVDictionary](0)
-        avcodec.avcodec_open2(context, codec, ptr)
-        print("Opened codec")
-
-        var test_data_root = os.getenv("PIXI_PROJECT_ROOT")
-        var out_filename: String = (
-            "{}/test_data/testsrc_320x180_30fps_2s_decoded".format(
-                test_data_root
-            )
-        )
-
-        var frame = avcodec.av_frame_alloc()
-        var image_info = ImageInfo()
-
-        var data_list = path.read_bytes()
-        var data_size = c_int(len(data_list))
-        var data = data_list.unsafe_ptr().as_immutable()
-        var out_data = UnsafePointer[c_uchar, MutExternalOrigin]()
-
-        while True:
-            if data_size == 0:
-                break
-
-            while data_size > 0:
-                var ret = avcodec.av_parser_parse2(
-                    parser,
-                    context,
-                    UnsafePointer(to=packet[].data),
-                    UnsafePointer(to=packet[].size),
-                    data,
-                    data_size,
-                    AV_NOPTS_VALUE,
-                    AV_NOPTS_VALUE,
-                    0,
-                )
-                if ret < 0:
-                    print("Failed to parse data")
-                    sys.exit(1)
-                elif parser[].flags & AVPacket.AV_PKT_FLAG_CORRUPT:
-                    print("Parsed data is corrupted")
-                else:
-                    print("Parsed data is valid")
-                data += ret
-                data_size -= ret
-
-                if packet[].size > 0:
-                    print("Packet size: ", packet[].size)
-                    out_data = decode(
-                        avcodec,
-                        context,
-                        frame,
-                        packet,
-                        out_filename,
-                        image_info,
-                    )
-                    # for row in range(image_info.height):
-                    #     for i in range(image_info.width):
-                    #         if i % 3 == 0:
-                    #             print()
-                    #         print(out_data[Int(i + row * image_info.width)], end=" ")
-                    #     print()
-
-            data_size = 0
-
-        _ = codec
-
-        _ = avcodec  # Need this to keep the ffi bind alive
-
+        var image_data = image_read(path)
         return Self(
-            data=out_data,
-            width=image_info.width,
-            height=image_info.height,
-            format=image_info.format,
-            n_color_spaces=image_info.n_color_spaces,
+            data=image_data.data,
+            width=image_data.width,
+            height=image_data.height,
+            format=image_data.format,
+            n_color_spaces=image_data.n_color_spaces,
         )
+
+    fn save(self, path: Path) raises:
+        image_save(
+            ImageData(
+                data=self._data.unsafe_origin_cast[MutExternalOrigin](),
+                width=self.width,
+                height=self.height,
+                format=self.format,
+                n_color_spaces=self.n_color_spaces,
+            ),
+            path,
+        )
+
+    # @staticmethod
+    # fn load(path: Path) raises -> Self:
+    #     var avformat = Avformat()
+    #     var avcodec = Avcodec()
+    #     var avutil = Avutil()
+    #     var swscale = Swscale()
+    #     var swrsample = Swrsample()
+
+    #     var oc = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
+    #     var name = path.name().copy()
+    #     var extension = String("png")
+
+    #     comptime INBUF_SIZE = c_int(4096)
+
+    #     var input_buffer = alloc[c_uchar](
+    #         Int(INBUF_SIZE + AV_INPUT_BUFFER_PADDING_SIZE)
+    #     )
+
+    #     # Set the padding portion of the input_buffer to zero.
+    #     memset(
+    #         input_buffer + INBUF_SIZE,
+    #         0,
+    #         Int(AV_INPUT_BUFFER_PADDING_SIZE),
+    #     )
+    #     var packet = avcodec.av_packet_alloc()
+    #     # print(packet[])
+
+    #     var codec = avcodec.avcodec_find_decoder_by_name(extension)
+    #     # print(codec[])
+
+    #     var parser = avcodec.av_parser_init(codec[].id)
+    #     # print(parser[])
+
+    #     var context = avcodec.avcodec_alloc_context3(codec)
+    #     # print(context[])
+
+    #     ptr = alloc[AVDictionary](0)
+    #     avcodec.avcodec_open2(context, codec, ptr)
+    #     print("Opened codec")
+
+    #     var test_data_root = os.getenv("PIXI_PROJECT_ROOT")
+    #     var out_filename: String = (
+    #         "{}/test_data/testsrc_320x180_30fps_2s_decoded".format(
+    #             test_data_root
+    #         )
+    #     )
+
+    #     var frame = avcodec.av_frame_alloc()
+    #     var image_info = ImageInfo()
+
+    #     var data_list = path.read_bytes()
+    #     var data_size = c_int(len(data_list))
+    #     var data = data_list.unsafe_ptr().as_immutable()
+    #     var out_data = UnsafePointer[c_uchar, MutExternalOrigin]()
+
+    #     while True:
+    #         if data_size == 0:
+    #             break
+
+    #         while data_size > 0:
+    #             var ret = avcodec.av_parser_parse2(
+    #                 parser,
+    #                 context,
+    #                 UnsafePointer(to=packet[].data),
+    #                 UnsafePointer(to=packet[].size),
+    #                 data,
+    #                 data_size,
+    #                 AV_NOPTS_VALUE,
+    #                 AV_NOPTS_VALUE,
+    #                 0,
+    #             )
+    #             if ret < 0:
+    #                 print("Failed to parse data")
+    #                 sys.exit(1)
+    #             elif parser[].flags & AVPacket.AV_PKT_FLAG_CORRUPT:
+    #                 print("Parsed data is corrupted")
+    #             else:
+    #                 print("Parsed data is valid")
+    #             data += ret
+    #             data_size -= ret
+
+    #             if packet[].size > 0:
+    #                 print("Packet size: ", packet[].size)
+    #                 out_data = decode(
+    #                     avcodec,
+    #                     context,
+    #                     frame,
+    #                     packet,
+    #                     out_filename,
+    #                     image_info,
+    #                 )
+    #                 # for row in range(image_info.height):
+    #                 #     for i in range(image_info.width):
+    #                 #         if i % 3 == 0:
+    #                 #             print()
+    #                 #         print(out_data[Int(i + row * image_info.width)], end=" ")
+    #                 #     print()
+
+    #         data_size = 0
+
+    #     _ = codec
+
+    #     _ = avcodec  # Need this to keep the ffi bind alive
+
+    #     return Self(
+    #         data=out_data,
+    #         width=image_info.width,
+    #         height=image_info.height,
+    #         format=image_info.format,
+    #         n_color_spaces=image_info.n_color_spaces,
+    #     )
