@@ -7,7 +7,7 @@ import os
 
 import numojo as nm
 from numojo.prelude import *
-from numojo.core.ndstrides import NDArrayStrides
+from numojo.core.layout.ndstrides import NDArrayStrides
 
 
 def test_image():

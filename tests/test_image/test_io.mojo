@@ -7,7 +7,7 @@ import os
 
 import numojo as nm
 from numojo.prelude import *
-from numojo.core.ndstrides import NDArrayStrides
+from numojo.core.layout.ndstrides import NDArrayStrides
 from ash_dynamics.image.io import image_read
 from logger import Logger, Level
 from ash_dynamics.ffmpeg.avutil.pixfmt import AVPixelFormat
