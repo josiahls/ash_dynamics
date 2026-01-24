@@ -45,12 +45,8 @@ fn decode(
     frame: UnsafePointer[AVFrame, origin=MutExternalOrigin],
     pkt: UnsafePointer[AVPacket, origin=MutExternalOrigin],
     filename: String,
-):
-    var ret: c_int = avcodec.avcodec_send_packet(dec_ctx, pkt)
-    if ret < 0:
-        os.abort("Error sending a packaet for decoding.")
-    else:
-        print("Packet sent successfully.")
+) raises:
+    var ret = avcodec.avcodec_send_packet(dec_ctx, pkt)
 
     while ret >= 0:
         ret = avcodec.avcodec_receive_frame(dec_ctx, frame)
