@@ -124,7 +124,7 @@ comptime avcodec_find_encoder = ExternalFunction[
 comptime avcodec_find_encoder_by_name = ExternalFunction[
     "avcodec_find_encoder_by_name",
     fn (
-        name: UnsafePointer[c_char, ImmutExternalOrigin],
+        name: UnsafePointer[c_char, ImmutAnyOrigin],
     ) -> UnsafePointer[AVCodec, ImmutExternalOrigin],
 ]
 

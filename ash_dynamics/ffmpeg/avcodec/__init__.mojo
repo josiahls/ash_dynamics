@@ -183,7 +183,7 @@ struct Avcodec:
     var avcodec_find_encoder: avcodec_find_encoder.type
     var av_codec_iterate: av_codec_iterate.type
     var _avcodec_find_decoder_by_name: avcodec_find_decoder_by_name.type
-    var avcodec_find_encoder_by_name: avcodec_find_encoder_by_name.type
+    var _avcodec_find_encoder_by_name: avcodec_find_encoder_by_name.type
     var av_codec_is_encoder: av_codec_is_encoder.type
     var av_codec_is_decoder: av_codec_is_decoder.type
     var av_get_profile_name: av_get_profile_name.type
@@ -314,7 +314,7 @@ struct Avcodec:
         self._avcodec_find_decoder_by_name = avcodec_find_decoder_by_name.load(
             self.lib
         )
-        self.avcodec_find_encoder_by_name = avcodec_find_encoder_by_name.load(
+        self._avcodec_find_encoder_by_name = avcodec_find_encoder_by_name.load(
             self.lib
         )
         self.av_codec_is_encoder = av_codec_is_encoder.load(self.lib)
@@ -349,6 +349,19 @@ struct Avcodec:
         )
         if not ptr:
             raise Error("Failed to find decoder by name: ", extension)
+        return ptr
+
+    fn avcodec_find_encoder_by_name(
+        self, mut extension: String
+    ) raises Error -> UnsafePointer[AVCodec, ImmutExternalOrigin]:
+        var stripped_extension: String = String(
+            extension.as_string_slice_mut().lstrip(".")
+        )
+        var ptr = self._avcodec_find_encoder_by_name(
+            stripped_extension.as_c_string_slice().unsafe_ptr().as_immutable()
+        )
+        if not ptr:
+            raise Error("Failed to find encoder by name: ", extension)
         return ptr
 
     fn avcodec_open2(
