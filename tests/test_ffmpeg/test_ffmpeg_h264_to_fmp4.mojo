@@ -64,6 +64,7 @@ from ash_dynamics.ffmpeg.swscale import Swscale, SwsFilter
 from ash_dynamics.ffmpeg.swrsample import Swrsample
 from ash_dynamics.ffmpeg.swrsample.swrsample import SwrContext
 from utils import StaticTuple
+from ash_dynamics.primitives._clib import Debug
 
 
 comptime STREAM_FRAME_RATE = 25
