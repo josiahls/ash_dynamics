@@ -1,4 +1,4 @@
-from sys.ffi import c_uchar, c_char, c_int
+from sys.ffi import c_uchar, c_char, c_int, c_long_long
 from sys._libc_errno import ErrNo
 from pathlib import Path
 import sys
@@ -18,6 +18,7 @@ from ash_dynamics.ffmpeg.avcodec.avcodec import AVCodecContext
 from ash_dynamics.ffmpeg.avutil.frame import AVFrame
 from ash_dynamics.ffmpeg.avutil.error import AVERROR, AVERROR_EOF
 from ash_dynamics.ffmpeg.avutil.pixfmt import AVPixelFormat
+from ash_dynamics.ffmpeg.avutil.rational import AVRational
 from logger.logger import Logger, Level, DEFAULT_LEVEL
 
 
@@ -184,3 +185,111 @@ fn image_read[in_buffer_size: c_int = 4096](path: Path) raises -> ImageData:
         format=image_info.format,
         n_color_spaces=image_info.n_color_spaces,
     )
+
+
+fn encode(
+    mut avcodec: Avcodec,
+    enc_ctx: UnsafePointer[AVCodecContext, origin=MutExternalOrigin],
+    frame: UnsafePointer[AVFrame, origin=MutExternalOrigin],
+    pkt: UnsafePointer[AVPacket, origin=MutExternalOrigin],
+    mut outfile: FileHandle,
+) raises:
+    var ret = avcodec.avcodec_send_frame(enc_ctx, frame)
+    if ret < 0:
+        raise Error("Failed to send frame for encoding: ", ret)
+
+    while ret >= 0:
+        ret = avcodec.avcodec_receive_packet(enc_ctx, pkt)
+        if ret == AVERROR(ErrNo.EAGAIN.value) or ret == AVERROR_EOF:
+            break
+
+        outfile.write_bytes(
+            Span(
+                ptr=pkt[].data,
+                length=Int(pkt[].size),
+            )
+        )
+        avcodec.av_packet_unref(pkt)
+
+
+fn image_save(image: ImageData, path: Path) raises:
+    """Saves an image to a file.
+
+    Parameters:
+        image: The image to save.
+        path: The path to save the image to.
+    """
+    _logger.info("Saving image to path: ", path)
+    var avformat = Avformat()
+    var avcodec = Avcodec()
+    var avutil = Avutil()
+    var swscale = Swscale()
+    var swrsample = Swrsample()
+
+    var dict = alloc[AVDictionary](0)
+    var extension = path.suffix()
+
+    var codec = avcodec.avcodec_find_encoder_by_name(extension)
+    print("Found codec: ", codec[])
+    var context = avcodec.avcodec_alloc_context3(codec)
+    context[].time_base = AVRational(num=1, den=25)
+    context[].pix_fmt = image.format
+    context[].width = image.width
+    context[].height = image.height
+    context[].color_range = image.n_color_spaces
+    var packet = avcodec.av_packet_alloc()
+
+    print("Opening codec")
+    avcodec.avcodec_open2(context, codec, dict)
+
+    print("Opened codec")
+    var frame = avcodec.av_frame_alloc()
+    print("Allocated frame")
+    frame[].format = context[].pix_fmt
+    frame[].width = context[].width
+    frame[].height = context[].height
+    frame[].color_range = context[].color_range
+
+    print("Getting frame buffer")
+    var ret = avutil.av_frame_get_buffer(frame, 0)
+    if ret < 0:
+        raise Error("Failed to allocate frame buffer: ", ret)
+
+    with open(path, "w") as f:
+        var i = c_int(0)
+        # while True:
+        print("Making frame writable")
+        ret = avutil.av_frame_make_writable(frame)
+        if ret < 0:
+            raise Error("Failed to make frame writable: ", ret)
+
+        # TODO: Remove the copy. We should be able to do a take or something.
+        # Also we really need to factor in whether the pointer is
+        # even the correct format.
+        frame[].data[0] = image.data.copy()
+
+        frame[].pts = c_long_long(i)
+        i += 1
+
+        encode(
+            avcodec,
+            context,
+            frame,
+            packet,
+            f,
+        )
+
+        encode(
+            avcodec,
+            context,
+            UnsafePointer[AVFrame, origin=MutExternalOrigin](),
+            packet,
+            f,
+        )
+
+        _ = avformat
+        _ = avutil
+        _ = swscale
+        _ = swrsample
+        _ = packet
+        _ = avcodec
