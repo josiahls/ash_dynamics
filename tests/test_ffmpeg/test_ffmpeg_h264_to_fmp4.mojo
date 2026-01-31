@@ -75,8 +75,7 @@ comptime SCALE_FLAGS = SwsFlags.SWS_BICUBIC
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct OutputStream:
+struct OutputStream(Debug, TrivialRegisterType):
     var st: UnsafePointer[AVStream, origin=MutExternalOrigin]
     var enc: UnsafePointer[AVCodecContext, origin=MutExternalOrigin]
     var next_pts: c_long_long

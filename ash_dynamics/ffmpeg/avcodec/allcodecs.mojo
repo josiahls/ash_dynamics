@@ -6,8 +6,6 @@ from ash_dynamics.primitives._clib import ExternalFunction
 
 comptime avcodec_find_decoder = ExternalFunction[
     "avcodec_find_decoder",
-    fn (
-        id: AVCodecID.ENUM_DTYPE,
-    ) -> UnsafePointer[AVCodec, ImmutExternalOrigin]
+    fn(id: AVCodecID.ENUM_DTYPE,) -> UnsafePointer[AVCodec, ImmutExternalOrigin]
     # fn (id: AVCodecID.ENUM_DTYPE) -> OpaquePointer[ImmutExternalOrigin]
 ]

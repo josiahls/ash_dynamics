@@ -6,8 +6,7 @@ comptime AV_INPUT_BUFFER_PADDING_SIZE = c_int(64)
 
 
 @fieldwise_init("implicit")
-@register_passable("trivial")
-struct AVFieldOrder(Debug):
+struct AVFieldOrder(Debug, TrivialRegisterType):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -20,8 +19,7 @@ struct AVFieldOrder(Debug):
 
 
 @fieldwise_init("implicit")
-@register_passable("trivial")
-struct AVAudioServiceType(Debug):
+struct AVAudioServiceType(Debug, TrivialRegisterType):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -38,8 +36,7 @@ struct AVAudioServiceType(Debug):
 
 
 @fieldwise_init("implicit")
-@register_passable("trivial")
-struct AVDiscard(Debug):
+struct AVDiscard(Debug, TrivialRegisterType):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 

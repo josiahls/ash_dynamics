@@ -20,8 +20,7 @@ comptime SWR_FLAG_RESAMPLE = Int(1)
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct SwrDitherType(Debug):
+struct SwrDitherType(Debug, TrivialRegisterType):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -42,8 +41,7 @@ struct SwrDitherType(Debug):
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct SwrEngine(Debug):
+struct SwrEngine(Debug, TrivialRegisterType):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -53,8 +51,7 @@ struct SwrEngine(Debug):
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct SwrFilterType(Debug):
+struct SwrFilterType(Debug, TrivialRegisterType):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -64,36 +61,35 @@ struct SwrFilterType(Debug):
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct SwrContext(Debug):
+struct SwrContext(Debug, TrivialRegisterType):
     "https://www.ffmpeg.org/doxygen/8.0/structSwrContext.html"
     pass
 
 
 comptime swr_get_class = ExternalFunction[
     "swr_get_class",
-    fn () -> UnsafePointer[AVClass, ImmutExternalOrigin],
+    fn() -> UnsafePointer[AVClass, ImmutExternalOrigin],
 ]
 
 
 comptime swr_alloc = ExternalFunction[
     "swr_alloc",
-    fn () -> UnsafePointer[SwrContext, MutExternalOrigin],
+    fn() -> UnsafePointer[SwrContext, MutExternalOrigin],
 ]
 
 comptime swr_init = ExternalFunction[
     "swr_init",
-    fn (context: UnsafePointer[SwrContext, MutExternalOrigin]) -> c_int,
+    fn(context: UnsafePointer[SwrContext, MutExternalOrigin]) -> c_int,
 ]
 
 comptime swr_is_initialized = ExternalFunction[
     "swr_is_initialized",
-    fn (context: UnsafePointer[SwrContext, ImmutExternalOrigin]) -> c_int,
+    fn(context: UnsafePointer[SwrContext, ImmutExternalOrigin]) -> c_int,
 ]
 
 comptime swr_alloc_set_opts2 = ExternalFunction[
     "swr_alloc_set_opts2",
-    fn (
+    fn(
         context: UnsafePointer[SwrContext, MutExternalOrigin],
         out_ch_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
         out_sample_fmt: AVSampleFormat,
@@ -109,17 +105,17 @@ comptime swr_alloc_set_opts2 = ExternalFunction[
 
 comptime swr_free = ExternalFunction[
     "swr_free",
-    fn (context: UnsafePointer[SwrContext, MutExternalOrigin]),
+    fn(context: UnsafePointer[SwrContext, MutExternalOrigin]),
 ]
 
 comptime swr_close = ExternalFunction[
     "swr_close",
-    fn (context: UnsafePointer[SwrContext, MutExternalOrigin]),
+    fn(context: UnsafePointer[SwrContext, MutExternalOrigin]),
 ]
 
 comptime swr_convert = ExternalFunction[
     "swr_convert",
-    fn (
+    fn(
         s: UnsafePointer[SwrContext, MutExternalOrigin],
         out_: UnsafePointer[
             UnsafePointer[c_uchar, MutExternalOrigin], ImmutExternalOrigin
@@ -134,7 +130,7 @@ comptime swr_convert = ExternalFunction[
 
 comptime swr_next_pts = ExternalFunction[
     "swr_next_pts",
-    fn (
+    fn(
         s: UnsafePointer[SwrContext, MutExternalOrigin],
         pts: c_long_long,
     ) -> c_long_long,
@@ -143,7 +139,7 @@ comptime swr_next_pts = ExternalFunction[
 
 comptime swr_set_compensation = ExternalFunction[
     "swr_set_compensation",
-    fn (
+    fn(
         s: UnsafePointer[SwrContext, MutExternalOrigin],
         sample_delta: c_int,
         compensation_distance: c_int,
@@ -153,7 +149,7 @@ comptime swr_set_compensation = ExternalFunction[
 
 comptime swr_set_channel_mapping = ExternalFunction[
     "swr_set_channel_mapping",
-    fn (
+    fn(
         s: UnsafePointer[SwrContext, MutExternalOrigin],
         channel_map: UnsafePointer[c_int, ImmutExternalOrigin],
     ) -> c_int,
@@ -161,7 +157,7 @@ comptime swr_set_channel_mapping = ExternalFunction[
 
 comptime swr_build_matrix2 = ExternalFunction[
     "swr_build_matrix2",
-    fn (
+    fn(
         in_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
         out_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
         center_mix_level: c_double,

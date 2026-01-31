@@ -93,7 +93,7 @@ comptime AV_ERROR_MAX_STRING_SIZE = 64
 
 comptime av_strerror = ExternalFunction[
     "av_strerror",
-    fn (
+    fn(
         err: c_int,
         errbuf: UnsafePointer[c_char, MutAnyOrigin],
         errbuf_size: c_int,

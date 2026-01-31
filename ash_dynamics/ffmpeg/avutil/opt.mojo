@@ -5,8 +5,8 @@ from ash_dynamics.ffmpeg.avutil.rational import AVRational
 from ash_dynamics.primitives._clib import Debug
 
 
-@register_passable("trivial")
-struct AVOption(Debug):
+@fieldwise_init
+struct AVOption(Debug, TrivialRegisterType):
     "https://www.ffmpeg.org/doxygen/8.0/structAVOption.html"
     var name: UnsafePointer[c_char, ImmutExternalOrigin]
     var help: UnsafePointer[c_char, ImmutExternalOrigin]
@@ -26,8 +26,7 @@ struct AVOption(Debug):
 
 
 @fieldwise_init("implicit")
-@register_passable("trivial")
-struct AVOptionType(Debug):
+struct AVOptionType(Debug, TrivialRegisterType):
     comptime ENUM_DTYPE = c_int
 
     var _value: Self.ENUM_DTYPE
@@ -66,9 +65,8 @@ struct AVOptionType(Debug):
     comptime AV_OPT_TYPE_FLAG_ARRAY = Self(1 << 16)
 
 
-@register_passable("trivial")
 @fieldwise_init
-struct AVOptionArrayDef(Debug):
+struct AVOptionArrayDef(Debug, TrivialRegisterType):
     "https://www.ffmpeg.org/doxygen/8.0/structAVOptionArrayDef.html"
     var def_: UnsafePointer[c_char, ImmutExternalOrigin]
     var size_min: c_int
@@ -76,8 +74,7 @@ struct AVOptionArrayDef(Debug):
     var sep: c_char
 
 
-@register_passable("trivial")
-struct AVOptionRanges(Debug):
+struct AVOptionRanges(Debug, TrivialRegisterType):
     "https://www.ffmpeg.org/doxygen/8.0/structAVOptionRanges.html"
     var range: UnsafePointer[
         UnsafePointer[Self, MutExternalOrigin], MutExternalOrigin
