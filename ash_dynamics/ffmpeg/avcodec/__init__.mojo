@@ -5,9 +5,11 @@ Symbols present can be listed via:
 nm -D $ASH_DYNAMICS_SO_INSTALL_PREFIX/libavcodec.so
 """
 
-from sys.ffi import OwnedDLHandle, c_int, c_float
+from sys.ffi import OwnedDLHandle, c_int, c_float, c_uchar, c_long_long
 from os.env import getenv
+from sys._libc_errno import ErrNo
 import os
+from ash_dynamics.ffmpeg.avutil.error import AVERROR, AVERROR_EOF
 from ash_dynamics.ffmpeg.avcodec.packet import (
     AVPacket,
     av_packet_alloc,
@@ -34,9 +36,13 @@ from ash_dynamics.ffmpeg.avcodec.packet import (
     av_container_fifo_alloc_avpacket,
 )
 from ash_dynamics.ffmpeg.avcodec.allcodecs import avcodec_find_decoder
-from ash_dynamics.ffmpeg.avutil.frame import av_frame_alloc
+from ash_dynamics.ffmpeg.avutil.frame import av_frame_alloc, AVFrame
+from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 from ash_dynamics.ffmpeg.avcodec.avcodec import (
+    AVCodec,
+    AVCodecContext,
+    AVCodecParserContext,
     avcodec_version,
     avcodec_configuration,
     avcodec_license,
@@ -91,6 +97,7 @@ from ash_dynamics.ffmpeg.avcodec.codec import (
 from os.env import setenv
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
 
+
 from logger import Logger
 
 
@@ -138,15 +145,15 @@ struct Avcodec:
     var avcodec_get_subtitle_rect_class: avcodec_get_subtitle_rect_class.type
     var avcodec_parameters_from_context: avcodec_parameters_from_context.type
     var avcodec_parameters_to_context: avcodec_parameters_to_context.type
-    var avcodec_open2: avcodec_open2.type
+    var _avcodec_open2: avcodec_open2.type
     var avsubtitle_free: avsubtitle_free.type
     var avcodec_default_get_buffer2: avcodec_default_get_buffer2.type
     var avcodec_default_get_encode_buffer: avcodec_default_get_encode_buffer.type
     var avcodec_align_dimensions: avcodec_align_dimensions.type
     var avcodec_align_dimensions2: avcodec_align_dimensions2.type
     var avcodec_decode_subtitle2: avcodec_decode_subtitle2.type
-    var avcodec_send_packet: avcodec_send_packet.type
-    var avcodec_receive_frame: avcodec_receive_frame.type
+    var _avcodec_send_packet: avcodec_send_packet.type
+    var _avcodec_receive_frame: avcodec_receive_frame.type
     var avcodec_send_frame: avcodec_send_frame.type
     var avcodec_receive_packet: avcodec_receive_packet.type
     var avcodec_get_hw_frames_parameters: avcodec_get_hw_frames_parameters.type
@@ -168,15 +175,15 @@ struct Avcodec:
     # Parser functions
     var av_parser_iterate: av_parser_iterate.type
     var av_parser_init: av_parser_init.type
-    var av_parser_parse2: av_parser_parse2.type
+    var _av_parser_parse2: av_parser_parse2.type
     var av_parser_close: av_parser_close.type
 
     # Codec finder functions
     var avcodec_find_decoder: avcodec_find_decoder.type
     var avcodec_find_encoder: avcodec_find_encoder.type
     var av_codec_iterate: av_codec_iterate.type
-    var avcodec_find_decoder_by_name: avcodec_find_decoder_by_name.type
-    var avcodec_find_encoder_by_name: avcodec_find_encoder_by_name.type
+    var _avcodec_find_decoder_by_name: avcodec_find_decoder_by_name.type
+    var _avcodec_find_encoder_by_name: avcodec_find_encoder_by_name.type
     var av_codec_is_encoder: av_codec_is_encoder.type
     var av_codec_is_decoder: av_codec_is_decoder.type
     var av_get_profile_name: av_get_profile_name.type
@@ -249,7 +256,7 @@ struct Avcodec:
         self.avcodec_parameters_to_context = avcodec_parameters_to_context.load(
             self.lib
         )
-        self.avcodec_open2 = avcodec_open2.load(self.lib)
+        self._avcodec_open2 = avcodec_open2.load(self.lib)
         self.avsubtitle_free = avsubtitle_free.load(self.lib)
         self.avcodec_default_get_buffer2 = avcodec_default_get_buffer2.load(
             self.lib
@@ -262,8 +269,8 @@ struct Avcodec:
             self.lib
         )
         self.avcodec_decode_subtitle2 = avcodec_decode_subtitle2.load(self.lib)
-        self.avcodec_send_packet = avcodec_send_packet.load(self.lib)
-        self.avcodec_receive_frame = avcodec_receive_frame.load(self.lib)
+        self._avcodec_send_packet = avcodec_send_packet.load(self.lib)
+        self._avcodec_receive_frame = avcodec_receive_frame.load(self.lib)
         self.avcodec_send_frame = avcodec_send_frame.load(self.lib)
         self.avcodec_receive_packet = avcodec_receive_packet.load(self.lib)
         self.avcodec_get_hw_frames_parameters = (
@@ -297,17 +304,17 @@ struct Avcodec:
         # Parser functions
         self.av_parser_iterate = av_parser_iterate.load(self.lib)
         self.av_parser_init = av_parser_init.load(self.lib)
-        self.av_parser_parse2 = av_parser_parse2.load(self.lib)
+        self._av_parser_parse2 = av_parser_parse2.load(self.lib)
         self.av_parser_close = av_parser_close.load(self.lib)
 
         # Codec finder functions
         self.avcodec_find_decoder = avcodec_find_decoder.load(self.lib)
         self.avcodec_find_encoder = avcodec_find_encoder.load(self.lib)
         self.av_codec_iterate = av_codec_iterate.load(self.lib)
-        self.avcodec_find_decoder_by_name = avcodec_find_decoder_by_name.load(
+        self._avcodec_find_decoder_by_name = avcodec_find_decoder_by_name.load(
             self.lib
         )
-        self.avcodec_find_encoder_by_name = avcodec_find_encoder_by_name.load(
+        self._avcodec_find_encoder_by_name = avcodec_find_encoder_by_name.load(
             self.lib
         )
         self.av_codec_is_encoder = av_codec_is_encoder.load(self.lib)
@@ -330,3 +337,111 @@ struct Avcodec:
         return self._av_packet_rescale_ts(
             pkt, tb_a.as_long_long(), tb_b.as_long_long()
         )
+
+    fn avcodec_find_decoder_by_name(
+        self, mut extension: String
+    ) raises Error -> UnsafePointer[AVCodec, ImmutExternalOrigin]:
+        var stripped_extension: String = String(
+            extension.as_string_slice_mut().lstrip(".")
+        )
+        var ptr = self._avcodec_find_decoder_by_name(
+            stripped_extension.as_c_string_slice().unsafe_ptr().as_immutable()
+        )
+        if not ptr:
+            raise Error("Failed to find decoder by name: ", extension)
+        return ptr
+
+    fn avcodec_find_encoder_by_name(
+        self, mut extension: String
+    ) raises Error -> UnsafePointer[AVCodec, ImmutExternalOrigin]:
+        var stripped_extension: String = String(
+            extension.as_string_slice_mut().lstrip(".")
+        )
+        var ptr = self._avcodec_find_encoder_by_name(
+            stripped_extension.as_c_string_slice().unsafe_ptr().as_immutable()
+        )
+        if not ptr:
+            raise Error("Failed to find encoder by name: ", extension)
+        return ptr
+
+    fn avcodec_open2(
+        self,
+        context: UnsafePointer[AVCodecContext, MutExternalOrigin],
+        codec: UnsafePointer[AVCodec, ImmutExternalOrigin],
+        options: UnsafePointer[AVDictionary, ImmutExternalOrigin],
+    ) raises Error:
+        var flag = self._avcodec_open2(
+            context,
+            codec,
+            options,
+        )
+
+        if flag < 0:
+            # TODO: Use avutil.av_err2str to get the error string.
+            raise Error("Failed to open codec: ", flag)
+
+    fn av_parser_parse2(
+        self,
+        parser: UnsafePointer[AVCodecParserContext, MutExternalOrigin],
+        context: UnsafePointer[AVCodecContext, MutExternalOrigin],
+        poutbuf: UnsafePointer[
+            UnsafePointer[c_uchar, MutExternalOrigin], MutExternalOrigin
+        ],
+        poutbuf_size: UnsafePointer[c_int, MutExternalOrigin],
+        buf: UnsafePointer[c_uchar, ImmutAnyOrigin],
+        buf_size: c_int,
+        pts: c_long_long,
+        dts: c_long_long,
+        pos: c_long_long,
+    ) raises Error -> c_int:
+        var flag = self._av_parser_parse2(
+            parser,
+            context,
+            poutbuf,
+            poutbuf_size,
+            buf,
+            buf_size,
+            pts,
+            dts,
+            pos,
+        )
+
+        if flag < 0:
+            # TODO: Use avutil.av_err2str to get the error string.
+            raise Error("Failed to parse data: ", flag)
+        elif parser[].flags & AVPacket.AV_PKT_FLAG_CORRUPT:
+            raise Error("Parsed data is corrupted")
+
+        return flag
+
+    fn avcodec_receive_frame(
+        self,
+        context: UnsafePointer[AVCodecContext, MutExternalOrigin],
+        frame: UnsafePointer[AVFrame, MutExternalOrigin],
+    ) raises Error -> c_int:
+        var flag = self._avcodec_receive_frame(
+            context,
+            frame,
+        )
+
+        if flag == AVERROR(ErrNo.EAGAIN.value) or flag == AVERROR_EOF:
+            return flag
+        elif flag < 0:
+            raise Error("Failed to receive frame: ", flag)
+        else:
+            return flag
+
+    fn avcodec_send_packet(
+        self,
+        context: UnsafePointer[AVCodecContext, MutExternalOrigin],
+        packet: UnsafePointer[AVPacket, MutExternalOrigin],
+    ) raises Error -> c_int:
+        var flag = self._avcodec_send_packet(
+            context,
+            packet,
+        )
+
+        if flag < 0:
+            raise Error("Failed to send packet: ", flag)
+
+        return flag

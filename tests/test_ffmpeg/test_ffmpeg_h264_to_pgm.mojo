@@ -45,12 +45,8 @@ fn decode(
     frame: UnsafePointer[AVFrame, origin=MutExternalOrigin],
     pkt: UnsafePointer[AVPacket, origin=MutExternalOrigin],
     filename: String,
-):
-    var ret: c_int = avcodec.avcodec_send_packet(dec_ctx, pkt)
-    if ret < 0:
-        os.abort("Error sending a packaet for decoding.")
-    else:
-        print("Packet sent successfully.")
+) raises:
+    var ret = avcodec.avcodec_send_packet(dec_ctx, pkt)
 
     while ret >= 0:
         ret = avcodec.avcodec_receive_frame(dec_ctx, frame)
@@ -107,12 +103,8 @@ def test_av_decode_video_example():
     print(context[])
 
     ptr = alloc[AVDictionary](0)
-    try_open = avcodec.avcodec_open2(context, codec, ptr)
-    if try_open < 0:
-        print("Failed to open codec")
-        sys.exit(1)
-    else:
-        print("Opened codec")
+    avcodec.avcodec_open2(context, codec, ptr)
+    print("Opened codec")
 
     var test_data_root = os.getenv("PIXI_PROJECT_ROOT")
     var out_filename: String = (

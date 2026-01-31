@@ -74,8 +74,7 @@ comptime SCALE_FLAGS = SwsFlags.SWS_BICUBIC
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct OutputStream:
+struct OutputStream(Debug, TrivialRegisterType):
     var st: UnsafePointer[AVStream, origin=MutExternalOrigin]
     var enc: UnsafePointer[AVCodecContext, origin=MutExternalOrigin]
     var next_pts: c_long_long
@@ -308,11 +307,8 @@ def open_video(
     var opt = UnsafePointer[AVDictionary, MutExternalOrigin]()
     print("im opening a video")
 
-    ret = avcodec.avcodec_open2(c, video_codec, opt)
+    avcodec.avcodec_open2(c, video_codec, opt)
     # av_dict_free(&opt);
-
-    if ret < 0:
-        os.abort("Failed to open video codec")
 
     ost.frame = alloc_frame(avutil, c[].pix_fmt, c[].width, c[].height)
     if not ost.frame:

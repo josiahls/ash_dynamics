@@ -6,8 +6,7 @@ from ash_dynamics.primitives._clib import Debug
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct AVRounding(Debug):
+struct AVRounding(Debug, TrivialRegisterType):
     comptime ENUM_DTYPE = c_int
 
     var value: Self.ENUM_DTYPE
@@ -22,7 +21,7 @@ struct AVRounding(Debug):
 
 comptime av_compare_ts = ExternalFunction[
     "av_compare_ts",
-    fn (
+    fn(
         ts_a: c_long_long,
         tb_a: c_long_long,  # AVRational,
         ts_b: c_long_long,
@@ -33,7 +32,7 @@ comptime av_compare_ts = ExternalFunction[
 
 comptime av_rescale_rnd = ExternalFunction[
     "av_rescale_rnd",
-    fn (
+    fn(
         a: c_long_long,
         b: c_long_long,
         c: c_long_long,
@@ -44,7 +43,7 @@ comptime av_rescale_rnd = ExternalFunction[
 
 comptime av_rescale_q_rnd = ExternalFunction[
     "av_rescale_q_rnd",
-    fn (
+    fn(
         a: c_long_long,
         bq: c_long_long,  # AVRational,
         cq: c_long_long,  # AVRational,

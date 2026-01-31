@@ -13,7 +13,7 @@ fn reflection_write_to_but_handle_static_tuples[
     T: Writable,
     W: Writer,
     //,
-    f: fn[FieldType: Writable] (field: FieldType, mut writer: W),
+    f: fn[FieldType: Writable](field: FieldType, mut writer: W),
 ](this: T, mut writer: W,):
     comptime names = struct_field_names[T]()
     comptime types = struct_field_types[T]()

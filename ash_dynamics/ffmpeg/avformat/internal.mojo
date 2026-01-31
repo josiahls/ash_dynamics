@@ -4,6 +4,7 @@ from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 from ash_dynamics.ffmpeg.avformat.avformat import AVFormatContext
 from ash_dynamics.ffmpeg.avcodec.packet import AVPacket
 from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
+from ash_dynamics.primitives._clib import Debug
 
 comptime MAX_URL_SIZE = 4096
 
@@ -13,8 +14,7 @@ comptime PROBE_BUF_MAX = 1 << 20
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct AVCodecTag:
+struct AVCodecTag(Debug, TrivialRegisterType):
     """This structure contains a list of codec tags."""
 
     var id: AVCodecID.ENUM_DTYPE
@@ -22,8 +22,7 @@ struct AVCodecTag:
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct CodecMime:
+struct CodecMime(Debug, TrivialRegisterType):
     """This structure contains a list of codec mime types."""
 
     var str: UnsafePointer[c_char, MutExternalOrigin]
@@ -32,8 +31,7 @@ struct CodecMime:
 
 # Fractional numbers for exact pts handling.
 @fieldwise_init
-@register_passable("trivial")
-struct FFFrac:
+struct FFFrac(Debug, TrivialRegisterType):
     """This structure contains a fractional number."""
 
     var val: c_long_long
@@ -42,7 +40,6 @@ struct FFFrac:
 
 
 # @fieldwise_init
-# @register_passable("trivial")
 # struct _FFFormatContext_avoid_negative_ts_status:
 #     comptime ENUM_DTYPE = c_int
 #     var value: Self.ENUM_DTYPE
