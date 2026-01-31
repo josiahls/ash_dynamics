@@ -17,8 +17,7 @@ from ash_dynamics.ffmpeg.avutil.channel_layout import AVChannelLayout
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct AVHWDeviceType(Debug):
+struct AVHWDeviceType(Debug, TrivialRegisterType):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -40,8 +39,7 @@ struct AVHWDeviceType(Debug):
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct AVHWDeviceContext(Debug):
+struct AVHWDeviceContext(Debug, TrivialRegisterType):
     "https://www.ffmpeg.org/doxygen/8.0/structAVHWDeviceContext.html"
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var type: AVHWDeviceType.ENUM_DTYPE
@@ -51,7 +49,7 @@ struct AVHWDeviceContext(Debug):
     var free: UnsafePointer[
         ExternalFunction[
             "free",
-            fn (ctx: UnsafePointer[AVHWDeviceContext, MutExternalOrigin]),
+            fn(ctx: UnsafePointer[AVHWDeviceContext, MutExternalOrigin]),
         ],
         ImmutExternalOrigin,
     ]
@@ -61,8 +59,7 @@ struct AVHWDeviceContext(Debug):
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct AVHWFramesContext(Debug):
+struct AVHWFramesContext(Debug, TrivialRegisterType):
     "https://www.ffmpeg.org/doxygen/8.0/structAVHWFramesContext.html"
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var device_ref: UnsafePointer[AVBufferRef, MutExternalOrigin]
@@ -71,7 +68,7 @@ struct AVHWFramesContext(Debug):
     var free: UnsafePointer[
         ExternalFunction[
             "free",
-            fn (ctx: UnsafePointer[AVHWFramesContext, MutExternalOrigin]),
+            fn(ctx: UnsafePointer[AVHWFramesContext, MutExternalOrigin]),
         ],
         ImmutExternalOrigin,
     ]

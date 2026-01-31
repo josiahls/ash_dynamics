@@ -51,17 +51,15 @@ comptime AV_CODEC_CAP_ENCODER_FLUSH = c_int(1 << 21)
 comptime AV_CODEC_CAP_ENCODER_RECON_FRAME = c_int(1 << 22)
 
 
-@register_passable("trivial")
-struct AVProfile(Writable):
+struct AVProfile(Debug, TrivialRegisterType):
     "https://www.ffmpeg.org/doxygen/8.0/structAVProfile.html"
 
     var profile: c_int
     var name: UnsafePointer[c_char, ImmutExternalOrigin]
 
 
-@register_passable("trivial")
 @fieldwise_init
-struct AVCodec(Debug):
+struct AVCodec(Debug, TrivialRegisterType):
     "https://www.ffmpeg.org/doxygen/8.0/structAVCodec.html"
 
     var name: UnsafePointer[c_char, ImmutExternalOrigin]
@@ -92,7 +90,7 @@ struct AVCodec(Debug):
 
 comptime av_codec_iterate = ExternalFunction[
     "av_codec_iterate",
-    fn (
+    fn(
         opaque: UnsafePointer[
             OpaquePointer[MutExternalOrigin], MutExternalOrigin
         ],
@@ -102,45 +100,45 @@ comptime av_codec_iterate = ExternalFunction[
 
 comptime avcodec_find_decoder = ExternalFunction[
     "avcodec_find_decoder",
-    fn (
+    fn(
         id: AVCodecID.ENUM_DTYPE,
     ) -> UnsafePointer[AVCodec, ImmutExternalOrigin],
 ]
 
 comptime avcodec_find_decoder_by_name = ExternalFunction[
     "avcodec_find_decoder_by_name",
-    fn (
+    fn(
         name: UnsafePointer[c_char, ImmutAnyOrigin],
     ) -> UnsafePointer[AVCodec, ImmutExternalOrigin],
 ]
 
 comptime avcodec_find_encoder = ExternalFunction[
     "avcodec_find_encoder",
-    fn (
+    fn(
         id: AVCodecID.ENUM_DTYPE,
     ) -> UnsafePointer[AVCodec, ImmutExternalOrigin],
 ]
 
 comptime avcodec_find_encoder_by_name = ExternalFunction[
     "avcodec_find_encoder_by_name",
-    fn (
+    fn(
         name: UnsafePointer[c_char, ImmutAnyOrigin],
     ) -> UnsafePointer[AVCodec, ImmutExternalOrigin],
 ]
 
 comptime av_codec_is_encoder = ExternalFunction[
     "av_codec_is_encoder",
-    fn (codec: UnsafePointer[AVCodec, ImmutExternalOrigin],) -> c_int,
+    fn(codec: UnsafePointer[AVCodec, ImmutExternalOrigin],) -> c_int,
 ]
 
 comptime av_codec_is_decoder = ExternalFunction[
     "av_codec_is_decoder",
-    fn (codec: UnsafePointer[AVCodec, ImmutExternalOrigin],) -> c_int,
+    fn(codec: UnsafePointer[AVCodec, ImmutExternalOrigin],) -> c_int,
 ]
 
 comptime av_get_profile_name = ExternalFunction[
     "av_get_profile_name",
-    fn (
+    fn(
         codec: UnsafePointer[AVCodec, ImmutExternalOrigin],
         profile: c_int,
     ) -> UnsafePointer[c_char, ImmutExternalOrigin],
@@ -156,9 +154,8 @@ comptime AV_CODEC_HW_CONFIG_METHOD_INTERNAL = c_int(0x04)
 comptime AV_CODEC_HW_CONFIG_METHOD_AD_HOC = c_int(0x08)
 
 
-@register_passable("trivial")
 @fieldwise_init
-struct AVCodecHWConfig(Debug):
+struct AVCodecHWConfig(Debug, TrivialRegisterType):
     "https://www.ffmpeg.org/doxygen/8.0/structAVCodecHWConfig.html"
 
     var pix_fmt: AVPixelFormat.ENUM_DTYPE
@@ -169,7 +166,7 @@ struct AVCodecHWConfig(Debug):
 
 comptime avcodec_get_hw_config = ExternalFunction[
     "avcodec_get_hw_config",
-    fn (
+    fn(
         codec: UnsafePointer[AVCodec, ImmutExternalOrigin],
         index: c_int,
     ) -> UnsafePointer[AVCodecHWConfig, ImmutExternalOrigin],

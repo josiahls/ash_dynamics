@@ -10,8 +10,7 @@ from ash_dynamics.primitives._clib import Debug
 
 
 @fieldwise_init("implicit")
-@register_passable("trivial")
-struct AVPixelFormat(Debug):
+struct AVPixelFormat(Debug, TrivialRegisterType):
     comptime ENUM_DTYPE = c_int
 
     var _value: Self.ENUM_DTYPE
@@ -975,8 +974,7 @@ struct AVPixelFormat(Debug):
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct AVColorRange(Debug):
+struct AVColorRange(Debug, TrivialRegisterType):
     comptime ENUM_DTYPE = c_int
 
     var _value: Self.ENUM_DTYPE
@@ -994,8 +992,7 @@ struct AVColorRange(Debug):
 
 
 @fieldwise_init("implicit")
-@register_passable("trivial")
-struct AVColorPrimaries(Debug):
+struct AVColorPrimaries(Debug, TrivialRegisterType):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -1020,8 +1017,7 @@ struct AVColorPrimaries(Debug):
 
 
 @fieldwise_init("implicit")
-@register_passable("trivial")
-struct AVColorTransferCharacteristic(Debug):
+struct AVColorTransferCharacteristic(Debug, TrivialRegisterType):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -1050,8 +1046,7 @@ struct AVColorTransferCharacteristic(Debug):
 
 
 @fieldwise_init("implicit")
-@register_passable("trivial")
-struct AVColorSpace(Debug):
+struct AVColorSpace(Debug, TrivialRegisterType):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -1080,8 +1075,7 @@ struct AVColorSpace(Debug):
 
 
 @fieldwise_init("implicit")
-@register_passable("trivial")
-struct AVChromaLocation(Debug):
+struct AVChromaLocation(Debug, TrivialRegisterType):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 

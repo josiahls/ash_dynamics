@@ -7,8 +7,7 @@ from ash_dynamics.ffmpeg.avcodec.codec import AVProfile
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct AVCodecDescriptor(Debug):
+struct AVCodecDescriptor(Debug, TrivialRegisterType):
     "https://www.ffmpeg.org/doxygen/8.0/structAVCodecDescriptor.html"
 
     var id: AVCodecID.ENUM_DTYPE
