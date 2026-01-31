@@ -14,8 +14,7 @@ from ash_dynamics.ffmpeg.avcodec.version_major import (
 
 
 @fieldwise_init("implicit")
-@register_passable("trivial")
-struct AVCodecID(Debug):
+struct AVCodecID(Debug, TrivialRegisterType):
     "https://www.ffmpeg.org/doxygen/7.0/group__lavc__core.html#gaadca229ad2c20e060a14fec08a5cc7ce"
 
     comptime ENUM_DTYPE = c_int

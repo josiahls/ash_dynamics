@@ -7,8 +7,7 @@ comptime AV_NOPTS_VALUE = c_long_long(c_ulong_long(0x8000000000000000))
 
 
 @fieldwise_init("implicit")
-@register_passable("trivial")
-struct AVPictureType(Debug):
+struct AVPictureType(Debug, TrivialRegisterType):
     comptime ENUM_DTYPE = c_int
 
     var _value: Self.ENUM_DTYPE
@@ -24,8 +23,7 @@ struct AVPictureType(Debug):
 
 
 @fieldwise_init("implicit")
-@register_passable("trivial")
-struct AVMediaType(Debug):
+struct AVMediaType(Debug, TrivialRegisterType):
     comptime ENUM_DTYPE = c_uint
 
     var _value: Self.ENUM_DTYPE

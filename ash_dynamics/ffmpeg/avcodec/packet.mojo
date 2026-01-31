@@ -9,8 +9,7 @@ from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
 
 
 @fieldwise_init("implicit")
-@register_passable("trivial")
-struct AVPacketSideDataType(Debug):
+struct AVPacketSideDataType(Debug, TrivialRegisterType):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -82,8 +81,7 @@ struct AVPacketSideDataType(Debug):
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct AVPacketSideData(Debug):
+struct AVPacketSideData(Debug, TrivialRegisterType):
     "https://www.ffmpeg.org/doxygen/8.0/structAVPacketSideData.html"
 
     var data: UnsafePointer[c_uchar, MutAnyOrigin]
@@ -93,7 +91,7 @@ struct AVPacketSideData(Debug):
 
 comptime av_packet_side_data_new = ExternalFunction[
     "av_packet_side_data_new",
-    fn (
+    fn(
         psd: UnsafePointer[
             UnsafePointer[AVPacketSideData, MutExternalOrigin],
             MutExternalOrigin,
@@ -108,7 +106,7 @@ comptime av_packet_side_data_new = ExternalFunction[
 
 comptime av_packet_side_data_add = ExternalFunction[
     "av_packet_side_data_add",
-    fn (
+    fn(
         psd: UnsafePointer[
             UnsafePointer[AVPacketSideData, MutExternalOrigin],
             MutExternalOrigin,
@@ -124,7 +122,7 @@ comptime av_packet_side_data_add = ExternalFunction[
 
 comptime av_packet_side_data_get = ExternalFunction[
     "av_packet_side_data_get",
-    fn (
+    fn(
         sd: UnsafePointer[AVPacketSideData, ImmutExternalOrigin],
         nb_sd: c_int,
         type: AVPacketSideDataType.ENUM_DTYPE,
@@ -134,7 +132,7 @@ comptime av_packet_side_data_get = ExternalFunction[
 
 comptime av_packet_side_data_remove = ExternalFunction[
     "av_packet_side_data_remove",
-    fn (
+    fn(
         psd: UnsafePointer[AVPacketSideData, MutExternalOrigin],
         pnb_sd: UnsafePointer[c_int, MutExternalOrigin],
         type: AVPacketSideDataType.ENUM_DTYPE,
@@ -144,7 +142,7 @@ comptime av_packet_side_data_remove = ExternalFunction[
 
 comptime av_packet_side_data_free = ExternalFunction[
     "av_packet_side_data_free",
-    fn (
+    fn(
         psd: UnsafePointer[
             UnsafePointer[AVPacketSideData, MutExternalOrigin],
             MutExternalOrigin,
@@ -156,15 +154,14 @@ comptime av_packet_side_data_free = ExternalFunction[
 
 comptime av_packet_side_data_name = ExternalFunction[
     "av_packet_side_data_name",
-    fn (
+    fn(
         type: AVPacketSideDataType.ENUM_DTYPE,
     ) -> UnsafePointer[c_char, ImmutExternalOrigin],
 ]
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct AVPacket(Writable):
+struct AVPacket(Debug, TrivialRegisterType):
     "https://www.ffmpeg.org/doxygen/8.0/structAVPacket.html"
 
     var buf: UnsafePointer[AVBufferRef, origin=MutExternalOrigin]
@@ -209,8 +206,7 @@ comptime AV_PKT_FLAG_DISPOSABLE = c_int(0x0010)
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct AVSideDataParamChangeFlags:
+struct AVSideDataParamChangeFlags(Debug, TrivialRegisterType):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
     comptime AV_SIDE_DATA_PARAM_CHANGE_SAMPLE_RATE = Self(0x0004)
@@ -218,20 +214,20 @@ struct AVSideDataParamChangeFlags:
 
 
 comptime av_packet_alloc = ExternalFunction[
-    "av_packet_alloc", fn () -> UnsafePointer[AVPacket, MutExternalOrigin]
+    "av_packet_alloc", fn() -> UnsafePointer[AVPacket, MutExternalOrigin]
 ]
 
 
 comptime av_packet_clone = ExternalFunction[
     "av_packet_clone",
-    fn (
+    fn(
         src: UnsafePointer[AVPacket, ImmutExternalOrigin],
     ) -> UnsafePointer[AVPacket, MutExternalOrigin],
 ]
 
 comptime av_packet_free = ExternalFunction[
     "av_packet_free",
-    fn (
+    fn(
         pkt: UnsafePointer[
             UnsafePointer[AVPacket, MutExternalOrigin], MutExternalOrigin
         ],
@@ -262,7 +258,7 @@ comptime av_packet_free = ExternalFunction[
 
 comptime av_new_packet = ExternalFunction[
     "av_new_packet",
-    fn (
+    fn(
         pkt: UnsafePointer[AVPacket, MutExternalOrigin],
         size: c_int,
     ) -> c_int,
@@ -271,7 +267,7 @@ comptime av_new_packet = ExternalFunction[
 
 comptime av_shrink_packet = ExternalFunction[
     "av_shrink_packet",
-    fn (
+    fn(
         pkt: UnsafePointer[AVPacket, MutExternalOrigin],
         size: c_int,
     ),
@@ -280,7 +276,7 @@ comptime av_shrink_packet = ExternalFunction[
 
 comptime av_grow_packet = ExternalFunction[
     "av_grow_packet",
-    fn (
+    fn(
         pkt: UnsafePointer[AVPacket, MutExternalOrigin],
         grow_by: c_int,
     ) -> c_int,
@@ -288,7 +284,7 @@ comptime av_grow_packet = ExternalFunction[
 
 comptime av_packet_from_data = ExternalFunction[
     "av_packet_from_data",
-    fn (
+    fn(
         pkt: UnsafePointer[AVPacket, MutExternalOrigin],
         data: UnsafePointer[c_uchar, MutExternalOrigin],
         size: c_int,
@@ -298,7 +294,7 @@ comptime av_packet_from_data = ExternalFunction[
 
 comptime av_packet_new_side_data = ExternalFunction[
     "av_packet_new_side_data",
-    fn (
+    fn(
         pkt: UnsafePointer[AVPacket, MutExternalOrigin],
         type: AVPacketSideDataType.ENUM_DTYPE,
         size: c_size_t,
@@ -308,7 +304,7 @@ comptime av_packet_new_side_data = ExternalFunction[
 
 comptime av_packet_add_side_data = ExternalFunction[
     "av_packet_add_side_data",
-    fn (
+    fn(
         pkt: UnsafePointer[AVPacket, MutExternalOrigin],
         type: AVPacketSideDataType.ENUM_DTYPE,
         data: OpaquePointer[MutExternalOrigin],
@@ -319,7 +315,7 @@ comptime av_packet_add_side_data = ExternalFunction[
 
 comptime av_packet_shrink_side_data = ExternalFunction[
     "av_packet_shrink_side_data",
-    fn (
+    fn(
         pkt: UnsafePointer[AVPacket, MutExternalOrigin],
         type: AVPacketSideDataType.ENUM_DTYPE,
         size: c_size_t,
@@ -329,7 +325,7 @@ comptime av_packet_shrink_side_data = ExternalFunction[
 
 comptime av_packet_get_side_data = ExternalFunction[
     "av_packet_get_side_data",
-    fn (
+    fn(
         pkt: UnsafePointer[AVPacket, ImmutExternalOrigin],
         type: AVPacketSideDataType.ENUM_DTYPE,
         size: UnsafePointer[c_size_t, MutExternalOrigin],
@@ -339,7 +335,7 @@ comptime av_packet_get_side_data = ExternalFunction[
 
 comptime av_packet_pack_dictionary = ExternalFunction[
     "av_packet_pack_dictionary",
-    fn (
+    fn(
         dict: UnsafePointer[AVDictionary, ImmutExternalOrigin],
         size: UnsafePointer[c_size_t, MutExternalOrigin],
     ) -> UnsafePointer[c_uchar, ImmutExternalOrigin],
@@ -348,7 +344,7 @@ comptime av_packet_pack_dictionary = ExternalFunction[
 
 comptime av_packet_unpack_dictionary = ExternalFunction[
     "av_packet_unpack_dictionary",
-    fn (
+    fn(
         data: UnsafePointer[c_uchar, ImmutExternalOrigin],
         size: c_size_t,
         dict: UnsafePointer[AVDictionary, MutExternalOrigin],
@@ -358,13 +354,13 @@ comptime av_packet_unpack_dictionary = ExternalFunction[
 
 comptime av_packet_free_side_data = ExternalFunction[
     "av_packet_free_side_data",
-    fn (pkt: UnsafePointer[AVPacket, MutExternalOrigin],),
+    fn(pkt: UnsafePointer[AVPacket, MutExternalOrigin],),
 ]
 
 
 comptime av_packet_ref = ExternalFunction[
     "av_packet_ref",
-    fn (
+    fn(
         dst: UnsafePointer[AVPacket, MutExternalOrigin],
         src: UnsafePointer[AVPacket, ImmutExternalOrigin],
     ) -> c_int,
@@ -372,12 +368,12 @@ comptime av_packet_ref = ExternalFunction[
 
 comptime av_packet_unref = ExternalFunction[
     "av_packet_unref",
-    fn (pkt: UnsafePointer[AVPacket, MutExternalOrigin],),
+    fn(pkt: UnsafePointer[AVPacket, MutExternalOrigin],),
 ]
 
 comptime av_packet_move_ref = ExternalFunction[
     "av_packet_move_ref",
-    fn (
+    fn(
         dst: UnsafePointer[AVPacket, MutExternalOrigin],
         src: UnsafePointer[AVPacket, ImmutExternalOrigin],
     ),
@@ -385,7 +381,7 @@ comptime av_packet_move_ref = ExternalFunction[
 
 comptime av_packet_copy_props = ExternalFunction[
     "av_packet_copy_props",
-    fn (
+    fn(
         dst: UnsafePointer[AVPacket, MutExternalOrigin],
         src: UnsafePointer[AVPacket, ImmutExternalOrigin],
     ) -> c_int,
@@ -393,17 +389,17 @@ comptime av_packet_copy_props = ExternalFunction[
 
 comptime av_packet_make_refcounted = ExternalFunction[
     "av_packet_make_refcounted",
-    fn (pkt: UnsafePointer[AVPacket, MutExternalOrigin],) -> c_int,
+    fn(pkt: UnsafePointer[AVPacket, MutExternalOrigin],) -> c_int,
 ]
 
 comptime av_packet_make_writable = ExternalFunction[
     "av_packet_make_writable",
-    fn (pkt: UnsafePointer[AVPacket, MutExternalOrigin],) -> c_int,
+    fn(pkt: UnsafePointer[AVPacket, MutExternalOrigin],) -> c_int,
 ]
 
 comptime av_packet_rescale_ts = ExternalFunction[
     "av_packet_rescale_ts",
-    fn (
+    fn(
         pkt: UnsafePointer[AVPacket, MutExternalOrigin],
         tb_src: c_long_long,  # AVRational,
         tb_dst: c_long_long,  # AVRational,
@@ -411,8 +407,7 @@ comptime av_packet_rescale_ts = ExternalFunction[
 ]
 
 
-@register_passable("trivial")
-struct AVContainerFifo:
+struct AVContainerFifo(Debug, TrivialRegisterType):
     "https://www.ffmpeg.org/doxygen/8.0/structAVContainerFifo.html"
 
     pass
@@ -420,5 +415,5 @@ struct AVContainerFifo:
 
 comptime av_container_fifo_alloc_avpacket = ExternalFunction[
     "av_container_fifo_alloc_avpacket",
-    fn (flags: c_int,) -> UnsafePointer[AVContainerFifo, MutExternalOrigin],
+    fn(flags: c_int,) -> UnsafePointer[AVContainerFifo, MutExternalOrigin],
 ]

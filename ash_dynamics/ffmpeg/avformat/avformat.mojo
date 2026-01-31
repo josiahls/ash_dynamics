@@ -40,7 +40,7 @@ from ash_dynamics.ffmpeg.avutil.iamf import (
 
 comptime av_get_packet = ExternalFunction[
     "av_get_packet",
-    fn (
+    fn(
         s: UnsafePointer[AVIOContext, origin=MutExternalOrigin],
         pkt: UnsafePointer[AVPacket, origin=MutExternalOrigin],
         size: c_int,
@@ -61,7 +61,7 @@ Returns:
 
 comptime av_append_packet = ExternalFunction[
     "av_append_packet",
-    fn (
+    fn(
         s: UnsafePointer[AVIOContext, origin=MutExternalOrigin],
         pkt: UnsafePointer[AVPacket, origin=MutExternalOrigin],
         size: c_int,
@@ -92,9 +92,8 @@ Returns:
 # struct AVCodecTag;
 
 
-@register_passable("trivial")
 @fieldwise_init
-struct AVProbeData(Debug):
+struct AVProbeData(Debug, TrivialRegisterType):
     """This structure contains the data a format has to probe a file."""
 
     var filename: UnsafePointer[c_char, origin=ImmutExternalOrigin]
@@ -163,9 +162,8 @@ comptime AVFMT_SEEK_TO_PTS = 0x4000000
 "Seeking is based on PTS."
 
 
-@register_passable("trivial")
 @fieldwise_init
-struct AVOutputFormat(Debug):
+struct AVOutputFormat(Debug, TrivialRegisterType):
     var name: UnsafePointer[c_char, origin=ImmutExternalOrigin]
     "Short name for the format."
     var long_name: UnsafePointer[c_char, origin=ImmutExternalOrigin]
@@ -200,9 +198,8 @@ struct AVOutputFormat(Debug):
     "Private class for the private context."
 
 
-@register_passable("trivial")
 @fieldwise_init
-struct AVInputFormat(Debug):
+struct AVInputFormat(Debug, TrivialRegisterType):
     var name: UnsafePointer[c_char, origin=ImmutExternalOrigin]
     """A comma separated list of short names for the format. New names
     may be appended with a minor bump."""
@@ -231,9 +228,8 @@ struct AVInputFormat(Debug):
     @see av_probe_input_format2."""
 
 
-@register_passable("trivial")
 @fieldwise_init
-struct AVStreamParseType(Debug):
+struct AVStreamParseType(Debug, TrivialRegisterType):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -253,9 +249,8 @@ struct AVStreamParseType(Debug):
     just codec level data, otherwise position generation would fail."""
 
 
-@register_passable("trivial")
 @fieldwise_init
-struct AVIndexEntry(Debug):
+struct AVIndexEntry(Debug, TrivialRegisterType):
     var pos: c_long_long
     "Position of the index entry in the stream."
     var timestamp: c_long_long
@@ -353,7 +348,7 @@ Annex G/H, or HEVC Annex F)."""
 
 comptime av_disposition_from_string = ExternalFunction[
     "av_disposition_from_string",
-    fn (disp: UnsafePointer[c_char, origin=ImmutExternalOrigin]) -> c_int,
+    fn(disp: UnsafePointer[c_char, origin=ImmutExternalOrigin]) -> c_int,
 ]
 """
 Return the AV_DISPOSITION_* flag corresponding to disp or a negative error
@@ -362,7 +357,7 @@ code if disp does not correspond to a known stream disposition.
 
 comptime av_disposition_to_string = ExternalFunction[
     "av_disposition_to_string",
-    fn (
+    fn(
         disposition: c_int,
     ) -> UnsafePointer[c_char, origin=ImmutExternalOrigin],
 ]
@@ -385,9 +380,8 @@ comptime AV_PTS_WRAP_SUB_OFFSET = -1
 """Subtract the format specific offset on wrap detection."""
 
 
-@register_passable("trivial")
 @fieldwise_init
-struct AVStream(Debug):
+struct AVStream(Debug, TrivialRegisterType):
     """Stream structure.
 
     New fields can be added to the end with minor version bumps.
@@ -521,9 +515,8 @@ struct AVStream(Debug):
     """
 
 
-@register_passable("trivial")
 @fieldwise_init
-struct _AVStreamGroupTileGrid_offsets(Debug):
+struct _AVStreamGroupTileGrid_offsets(Debug, TrivialRegisterType):
     """Binding note: In the original header this is a anonymous struct.
     Mojo does not support this, so we define this as a private, name spaced
     struct outside of AVStreamGroupTileGrid.
@@ -550,9 +543,8 @@ struct _AVStreamGroupTileGrid_offsets(Debug):
     """
 
 
-@register_passable("trivial")
 @fieldwise_init
-struct AVStreamGroupTileGrid(Debug):
+struct AVStreamGroupTileGrid(Debug, TrivialRegisterType):
     """
     AVStreamGroupTileGrid holds information on how to combine several
     independent images on a single canvas for presentation.
@@ -674,9 +666,8 @@ struct AVStreamGroupTileGrid(Debug):
     """
 
 
-@register_passable("trivial")
 @fieldwise_init
-struct AVStreamGroupLCEVC(Debug):
+struct AVStreamGroupLCEVC(Debug, TrivialRegisterType):
     """
     AVStreamGroupLCEVC is meant to define the relation between video streams
     and a data stream containing LCEVC enhancement layer NALUs.
@@ -696,9 +687,8 @@ struct AVStreamGroupLCEVC(Debug):
     "Height of the final stream for presentation."
 
 
-@register_passable("trivial")
 @fieldwise_init
-struct AVStreamGroupParamsType(Debug):
+struct AVStreamGroupParamsType(Debug, TrivialRegisterType):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -714,9 +704,8 @@ struct AVStreamGroupParamsType(Debug):
 # struct AVIAMFMixPresentation;
 
 
-@register_passable("trivial")
 @fieldwise_init
-struct AVStreamGroup(Debug):
+struct AVStreamGroup(Debug, TrivialRegisterType):
     """
     AVStreamGroup is a container for a group of streams.
     """
@@ -783,7 +772,7 @@ struct AVStreamGroup(Debug):
 
 comptime av_stream_get_parser = ExternalFunction[
     "av_stream_get_parser",
-    fn (
+    fn(
         s: UnsafePointer[AVStream, ImmutExternalOrigin],
     ) -> UnsafePointer[AVCodecParserContext, ImmutExternalOrigin],
 ]
@@ -795,9 +784,8 @@ comptime AV_PROGRAM_RUNNING = 1
 "Program is running."
 
 
-@register_passable("trivial")
 @fieldwise_init
-struct AVProgram(Debug):
+struct AVProgram(Debug, TrivialRegisterType):
     """
     AVProgram is a container for a program.
 
@@ -844,9 +832,8 @@ seek function will fail. For some network protocols (e.g. HLS), this can
 change dynamically at runtime."""
 
 
-@register_passable("trivial")
 @fieldwise_init
-struct AVChapter(Debug):
+struct AVChapter(Debug, TrivialRegisterType):
     var id: c_long_long
     "Unique ID to identify the chapter."
     var time_base: AVRational
@@ -870,7 +857,7 @@ struct AVChapter(Debug):
 # ]
 
 
-comptime AVOpenCallback = fn (
+comptime AVOpenCallback = fn(
     s: UnsafePointer[AVFormatContext, MutExternalOrigin],
     pb: UnsafePointer[
         UnsafePointer[AVIOContext, MutExternalOrigin], MutExternalOrigin
@@ -884,9 +871,8 @@ comptime AVOpenCallback = fn (
 ) -> c_int
 
 
-@register_passable("trivial")
 @fieldwise_init
-struct AVDurationEstimationMethod(Debug):
+struct AVDurationEstimationMethod(Debug, TrivialRegisterType):
     """The duration of a video can be estimated through various ways, and this
     enum can be used to know how the duration was estimated.
     """
@@ -1356,7 +1342,7 @@ struct AVFormatContext(Debug):
     # TODO: should these be pointers? How does this impact struct size?
     # For some reason I can't define this under: av_format_control_message
     # var control_message_cb: type_of(av_format_control_message)
-    var control_message_cb: fn (
+    var control_message_cb: fn(
         s: UnsafePointer[AVFormatContext, MutExternalOrigin],
         type: c_int,
         data: OpaquePointer[MutExternalOrigin],
@@ -1372,7 +1358,7 @@ struct AVFormatContext(Debug):
     - muxing: Set by user.
     - demuxing: Set by user.
     """
-    var io_open: fn (
+    var io_open: fn(
         s: UnsafePointer[AVFormatContext, MutExternalOrigin],
         pb: UnsafePointer[
             UnsafePointer[AVIOContext, MutExternalOrigin], MutExternalOrigin
@@ -1403,7 +1389,7 @@ struct AVFormatContext(Debug):
     passed to this callback may be different from the one facing the caller.
     It will, however, have the same 'opaque' field.
     """
-    var io_close2: fn (
+    var io_close2: fn(
         s: UnsafePointer[AVFormatContext, MutExternalOrigin],
         pb: UnsafePointer[AVIOContext, MutExternalOrigin],
     ) -> c_int
@@ -1424,25 +1410,25 @@ struct AVFormatContext(Debug):
 
 comptime avformat_version = ExternalFunction[
     "avformat_version",
-    fn () -> c_int,
+    fn() -> c_int,
 ]
 """Return the LIBAVFORMAT_VERSION_INT constant."""
 
 comptime avformat_configuration = ExternalFunction[
     "avformat_configuration",
-    fn () -> UnsafePointer[c_char, ImmutExternalOrigin],
+    fn() -> UnsafePointer[c_char, ImmutExternalOrigin],
 ]
 """Return the libavformat build-time configuration."""
 
 comptime avformat_license = ExternalFunction[
     "avformat_license",
-    fn () -> UnsafePointer[c_char, ImmutExternalOrigin],
+    fn() -> UnsafePointer[c_char, ImmutExternalOrigin],
 ]
 """Return the libavformat license."""
 
 comptime avformat_network_init = ExternalFunction[
     "avformat_network_init",
-    fn () -> c_int,
+    fn() -> c_int,
 ]
 """Do global initialization of network libraries. This is optional,
 and not recommended anymore.
@@ -1460,14 +1446,14 @@ anymore.
 
 comptime avformat_network_deinit = ExternalFunction[
     "avformat_network_deinit",
-    fn () -> c_int,
+    fn() -> c_int,
 ]
 """Undo the initialization done by avformat_network_init. Call it only
 once for each time you called avformat_network_init."""
 
 comptime av_muxer_iterate = ExternalFunction[
     "av_muxer_iterate",
-    fn (
+    fn(
         opaque: UnsafePointer[
             OpaquePointer[MutExternalOrigin], MutExternalOrigin
         ],
@@ -1485,7 +1471,7 @@ Returns:
 
 comptime av_demuxer_iterate = ExternalFunction[
     "av_demuxer_iterate",
-    fn (
+    fn(
         opaque: UnsafePointer[
             OpaquePointer[MutExternalOrigin], MutExternalOrigin
         ],
@@ -1503,7 +1489,7 @@ Returns:
 
 comptime avformat_alloc_context = ExternalFunction[
     "avformat_alloc_context",
-    fn () -> UnsafePointer[AVFormatContext, MutExternalOrigin],
+    fn() -> UnsafePointer[AVFormatContext, MutExternalOrigin],
 ]
 """Allocate an AVFormatContext.
 avformat_free_context() can be used to free the context and everything
@@ -1512,7 +1498,7 @@ allocated by the framework within it.
 
 comptime avformat_free_context = ExternalFunction[
     "avformat_free_context",
-    fn (s: UnsafePointer[AVFormatContext, MutExternalOrigin],),
+    fn(s: UnsafePointer[AVFormatContext, MutExternalOrigin],),
 ]
 """Free an AVFormatContext and all its streams.
 @param s context to free.
@@ -1520,7 +1506,7 @@ comptime avformat_free_context = ExternalFunction[
 
 comptime avformat_get_class = ExternalFunction[
     "avformat_get_class",
-    fn () -> UnsafePointer[AVClass, ImmutExternalOrigin],
+    fn() -> UnsafePointer[AVClass, ImmutExternalOrigin],
 ]
 """Get the AVClass for AVFormatContext. It can be used in combination with
 AV_OPT_SEARCH_FAKE_OBJ for examining options.
@@ -1529,7 +1515,7 @@ AV_OPT_SEARCH_FAKE_OBJ for examining options.
 
 comptime av_stream_get_class = ExternalFunction[
     "av_stream_get_class",
-    fn () -> UnsafePointer[AVClass, ImmutExternalOrigin],
+    fn() -> UnsafePointer[AVClass, ImmutExternalOrigin],
 ]
 """Get the AVClass for AVStream. It can be used in combination with
 AV_OPT_SEARCH_FAKE_OBJ for examining options.
@@ -1538,7 +1524,7 @@ AV_OPT_SEARCH_FAKE_OBJ for examining options.
 
 comptime av_stream_group_get_class = ExternalFunction[
     "av_stream_group_get_class",
-    fn () -> UnsafePointer[AVClass, ImmutExternalOrigin],
+    fn() -> UnsafePointer[AVClass, ImmutExternalOrigin],
 ]
 """Get the AVClass for AVStreamGroup. It can be used in combination with
 AV_OPT_SEARCH_FAKE_OBJ for examining options.
@@ -1547,7 +1533,7 @@ AV_OPT_SEARCH_FAKE_OBJ for examining options.
 
 comptime avformat_stream_group_name = ExternalFunction[
     "avformat_stream_group_name",
-    fn (
+    fn(
         type: AVStreamGroupParamsType.ENUM_DTYPE,
     ) -> UnsafePointer[c_char, ImmutExternalOrigin],
 ]
@@ -1558,7 +1544,7 @@ comptime avformat_stream_group_name = ExternalFunction[
 
 comptime avformat_stream_group_create = ExternalFunction[
     "avformat_stream_group_create",
-    fn (
+    fn(
         s: UnsafePointer[AVFormatContext, MutExternalOrigin],
         type: AVStreamGroupParamsType.ENUM_DTYPE,
         options: UnsafePointer[
@@ -1587,7 +1573,7 @@ New streams can be added to the group with avformat_stream_group_add_stream().
 
 comptime avformat_new_stream = ExternalFunction[
     "avformat_new_stream",
-    fn (
+    fn(
         s: UnsafePointer[AVFormatContext, MutExternalOrigin],
         c: UnsafePointer[AVCodec, ImmutExternalOrigin],
     ) -> UnsafePointer[AVStream, MutExternalOrigin],
@@ -1610,7 +1596,7 @@ by avformat_new_stream().
 
 comptime avformat_stream_group_add_stream = ExternalFunction[
     "avformat_stream_group_add_stream",
-    fn (
+    fn(
         stg: UnsafePointer[AVStreamGroup, MutExternalOrigin],
         st: UnsafePointer[AVStream, MutExternalOrigin],
     ) -> c_int,
@@ -1641,7 +1627,7 @@ by avformat_stream_group_add_stream().
 
 comptime av_new_program = ExternalFunction[
     "av_new_program",
-    fn (
+    fn(
         s: UnsafePointer[AVFormatContext, MutExternalOrigin],
         id: c_int,
     ) -> UnsafePointer[AVProgram, MutExternalOrigin],
@@ -1649,7 +1635,7 @@ comptime av_new_program = ExternalFunction[
 
 comptime avformat_alloc_output_context2 = ExternalFunction[
     "avformat_alloc_output_context2",
-    fn (
+    fn(
         ctx: UnsafePointer[
             UnsafePointer[AVFormatContext, MutExternalOrigin],
             MutAnyOrigin,
@@ -1675,7 +1661,7 @@ Returns:
 
 comptime av_find_input_format = ExternalFunction[
     "av_find_input_format",
-    fn (
+    fn(
         short_name: UnsafePointer[c_char, ImmutExternalOrigin],
     ) -> UnsafePointer[AVInputFormat, ImmutExternalOrigin],
 ]
@@ -1686,7 +1672,7 @@ comptime av_find_input_format = ExternalFunction[
 
 comptime av_probe_input_format = ExternalFunction[
     "av_probe_input_format",
-    fn (
+    fn(
         pd: UnsafePointer[AVProbeData, ImmutExternalOrigin],
         is_opened: c_int,
     ) -> UnsafePointer[AVInputFormat, ImmutExternalOrigin],
@@ -1699,7 +1685,7 @@ comptime av_probe_input_format = ExternalFunction[
 
 comptime av_probe_input_format2 = ExternalFunction[
     "av_probe_input_format2",
-    fn (
+    fn(
         pd: UnsafePointer[AVProbeData, ImmutExternalOrigin],
         is_opened: c_int,
         score_max: UnsafePointer[c_int, MutExternalOrigin],
@@ -1714,7 +1700,7 @@ comptime av_probe_input_format2 = ExternalFunction[
 
 comptime av_probe_input_format3 = ExternalFunction[
     "av_probe_input_format3",
-    fn (
+    fn(
         pd: UnsafePointer[AVProbeData, ImmutExternalOrigin],
         is_opened: c_int,
         score_ret: UnsafePointer[c_int, MutExternalOrigin],
@@ -1730,7 +1716,7 @@ Arguments:
 
 comptime av_probe_input_buffer2 = ExternalFunction[
     "av_probe_input_buffer2",
-    fn (
+    fn(
         pb: UnsafePointer[AVIOContext, MutExternalOrigin],
         fmt: UnsafePointer[
             UnsafePointer[AVInputFormat, ImmutExternalOrigin],
@@ -1763,7 +1749,7 @@ Returns:
 
 comptime av_probe_input_buffer = ExternalFunction[
     "av_probe_input_buffer",
-    fn (
+    fn(
         pb: UnsafePointer[AVIOContext, MutExternalOrigin],
         fmt: UnsafePointer[
             UnsafePointer[AVInputFormat, ImmutExternalOrigin],
@@ -1780,7 +1766,7 @@ comptime av_probe_input_buffer = ExternalFunction[
 
 comptime avformat_open_input = ExternalFunction[
     "avformat_open_input",
-    fn (
+    fn(
         s: UnsafePointer[
             UnsafePointer[AVFormatContext, MutExternalOrigin],
             MutExternalOrigin,
@@ -1814,7 +1800,7 @@ Returns:
 
 comptime avformat_find_stream_info = ExternalFunction[
     "avformat_find_stream_info",
-    fn (
+    fn(
         ic: UnsafePointer[AVFormatContext, MutExternalOrigin],
         options: UnsafePointer[
             UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
@@ -1843,7 +1829,7 @@ waste time getting stuff the user does not need.
 
 comptime av_find_program_from_stream = ExternalFunction[
     "av_find_program_from_stream",
-    fn (
+    fn(
         ic: UnsafePointer[AVFormatContext, MutExternalOrigin],
         last: UnsafePointer[AVProgram, MutExternalOrigin],
         s: c_int,
@@ -1864,7 +1850,7 @@ program is not among the programs of ic.
 
 comptime av_program_add_stream_index = ExternalFunction[
     "av_program_add_stream_index",
-    fn (
+    fn(
         ac: UnsafePointer[AVFormatContext, MutExternalOrigin],
         progid: c_int,
         idx: c_uint,
@@ -1873,7 +1859,7 @@ comptime av_program_add_stream_index = ExternalFunction[
 
 comptime av_find_best_stream = ExternalFunction[
     "av_find_best_stream",
-    fn (
+    fn(
         ic: UnsafePointer[AVFormatContext, MutExternalOrigin],
         type: AVMediaType.ENUM_DTYPE,
         wanted_stream_nb: c_int,
@@ -1911,7 +1897,7 @@ then *decoder_ret is guaranteed to be set to a valid AVCodec.
 
 comptime av_read_frame = ExternalFunction[
     "av_read_frame",
-    fn (
+    fn(
         s: UnsafePointer[AVFormatContext, MutExternalOrigin],
         pkt: UnsafePointer[AVPacket, MutExternalOrigin],
     ) -> c_int,
@@ -1947,7 +1933,7 @@ contain data that needs to be freed.
 
 comptime av_seek_frame = ExternalFunction[
     "av_seek_frame",
-    fn (
+    fn(
         s: UnsafePointer[AVFormatContext, MutExternalOrigin],
         stream_index: c_int,
         timestamp: c_long_long,
@@ -1969,7 +1955,7 @@ Returns:
 
 comptime avformat_seek_file = ExternalFunction[
     "avformat_seek_file",
-    fn (
+    fn(
         s: UnsafePointer[AVFormatContext, MutExternalOrigin],
         stream_index: c_int,
         min_ts: c_long_long,
@@ -2015,7 +2001,7 @@ Note: This is part of the new seek API which is still under construction.
 
 comptime avformat_flush = ExternalFunction[
     "avformat_flush",
-    fn (s: UnsafePointer[AVFormatContext, MutExternalOrigin],),
+    fn(s: UnsafePointer[AVFormatContext, MutExternalOrigin],),
 ]
 """Discard all internally buffered data. This can be useful when dealing with
 discontinuities in the byte stream. Generally works only with formats that
@@ -2038,14 +2024,14 @@ Returns:
 
 comptime av_read_play = ExternalFunction[
     "av_read_play",
-    fn (s: UnsafePointer[AVFormatContext, MutExternalOrigin],),
+    fn(s: UnsafePointer[AVFormatContext, MutExternalOrigin],),
 ]
 """Start playing a network-based stream (e.g. RTSP stream) at the current position.
 """
 
 comptime av_read_pause = ExternalFunction[
     "av_read_pause",
-    fn (s: UnsafePointer[AVFormatContext, MutExternalOrigin],),
+    fn(s: UnsafePointer[AVFormatContext, MutExternalOrigin],),
 ]
 """Pause a network-based stream (e.g. RTSP stream).
 
@@ -2054,7 +2040,7 @@ Use av_read_play() to resume it.
 
 comptime avformat_close_input = ExternalFunction[
     "avformat_close_input",
-    fn (
+    fn(
         s: UnsafePointer[
             UnsafePointer[AVFormatContext, MutExternalOrigin],
             MutExternalOrigin,
@@ -2082,7 +2068,7 @@ comptime AVSTREAM_INIT_IN_INIT_OUTPUT = 1
 
 comptime avformat_write_header = ExternalFunction[
     "avformat_write_header",
-    fn (
+    fn(
         s: UnsafePointer[AVFormatContext, MutExternalOrigin],
         options: UnsafePointer[
             UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
@@ -2112,7 +2098,7 @@ See: av_opt_find, av_dict_set, avio_open, av_oformat_next, avformat_init_output.
 
 comptime avformat_init_output = ExternalFunction[
     "avformat_init_output",
-    fn (
+    fn(
         s: UnsafePointer[AVFormatContext, MutExternalOrigin],
         options: UnsafePointer[
             UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
@@ -2141,7 +2127,7 @@ See: av_opt_find, av_dict_set, avio_open, av_oformat_next, avformat_write_header
 
 comptime av_write_frame = ExternalFunction[
     "av_write_frame",
-    fn (
+    fn(
         s: UnsafePointer[AVFormatContext, MutExternalOrigin],
         pkt: UnsafePointer[AVPacket, MutExternalOrigin],
     ) -> c_int,
@@ -2187,7 +2173,7 @@ Arguments:
 
 comptime av_interleaved_write_frame = ExternalFunction[
     "av_interleaved_write_frame",
-    fn (
+    fn(
         s: UnsafePointer[AVFormatContext, MutExternalOrigin],
         pkt: UnsafePointer[AVPacket, MutExternalOrigin],
     ) -> c_int,
@@ -2233,7 +2219,7 @@ See: av_write_frame(), AVFormatContext.max_interleave_delta
 
 comptime av_write_uncoded_frame = ExternalFunction[
     "av_write_uncoded_frame",
-    fn (
+    fn(
         s: UnsafePointer[AVFormatContext, MutExternalOrigin],
         stream_index: c_int,
         frame: UnsafePointer[AVFrame, MutExternalOrigin],
@@ -2257,7 +2243,7 @@ See: av_interleaved_write_uncoded_frame()
 
 comptime av_interleaved_write_uncoded_frame = ExternalFunction[
     "av_interleaved_write_uncoded_frame",
-    fn (
+    fn(
         s: UnsafePointer[AVFormatContext, MutExternalOrigin],
         stream_index: c_int,
         frame: UnsafePointer[AVFrame, MutExternalOrigin],
@@ -2287,7 +2273,7 @@ Returns:
 
 comptime av_write_uncoded_frame_query = ExternalFunction[
     "av_write_uncoded_frame_query",
-    fn (
+    fn(
         s: UnsafePointer[AVFormatContext, MutExternalOrigin],
         stream_index: c_int,
     ) -> c_int,
@@ -2304,7 +2290,7 @@ Returns:
 
 comptime av_write_trailer = ExternalFunction[
     "av_write_trailer",
-    fn (s: UnsafePointer[AVFormatContext, MutExternalOrigin],) -> c_int,
+    fn(s: UnsafePointer[AVFormatContext, MutExternalOrigin],) -> c_int,
 ]
 """Write the stream trailer to an output media file and free the file private data.
 
@@ -2320,7 +2306,7 @@ Returns:
 
 comptime av_guess_format = ExternalFunction[
     "av_guess_format",
-    fn (
+    fn(
         short_name: UnsafePointer[c_char, ImmutAnyOrigin],
         filename: UnsafePointer[c_char, ImmutAnyOrigin],
         mime_type: UnsafePointer[c_char, ImmutAnyOrigin],
@@ -2337,7 +2323,7 @@ Arguments:
 
 comptime av_guess_codec = ExternalFunction[
     "av_guess_codec",
-    fn (
+    fn(
         fmt: UnsafePointer[AVOutputFormat, ImmutExternalOrigin],
         short_name: UnsafePointer[c_char, ImmutExternalOrigin],
         filename: UnsafePointer[c_char, ImmutExternalOrigin],
@@ -2350,7 +2336,7 @@ comptime av_guess_codec = ExternalFunction[
 
 comptime av_get_output_timestamp = ExternalFunction[
     "av_get_output_timestamp",
-    fn (
+    fn(
         s: UnsafePointer[AVFormatContext, MutExternalOrigin],
         stream: c_int,
         dts: UnsafePointer[c_long_long, MutExternalOrigin],
@@ -2378,7 +2364,7 @@ Note: Some formats or devices may not allow to measure dts and wall atomically.
 
 comptime av_hex_dump = ExternalFunction[
     "av_hex_dump",
-    fn (
+    fn(
         f: FILE_ptr,
         buf: UnsafePointer[c_uchar, ImmutExternalOrigin],
         size: c_int,
@@ -2396,7 +2382,7 @@ Arguments:
 
 comptime av_hex_dump_log = ExternalFunction[
     "av_hex_dump_log",
-    fn (
+    fn(
         avcl: OpaquePointer[MutExternalOrigin],
         level: c_int,
         buf: UnsafePointer[c_uchar, ImmutExternalOrigin],
@@ -2417,7 +2403,7 @@ Arguments:
 
 comptime av_pkt_dump2 = ExternalFunction[
     "av_pkt_dump2",
-    fn (
+    fn(
         f: FILE_ptr,
         pkt: UnsafePointer[AVPacket, ImmutExternalOrigin],
         dump_payload: c_int,
@@ -2437,7 +2423,7 @@ Arguments:
 
 comptime av_pkt_dump_log2 = ExternalFunction[
     "av_pkt_dump_log2",
-    fn (
+    fn(
         avcl: OpaquePointer[MutExternalOrigin],
         level: c_int,
         pkt: UnsafePointer[AVPacket, ImmutExternalOrigin],
@@ -2460,7 +2446,7 @@ Arguments:
 
 comptime av_codec_get_id = ExternalFunction[
     "av_codec_get_id",
-    fn (
+    fn(
         tags: UnsafePointer[
             UnsafePointer[AVCodecTag, ImmutExternalOrigin],
             ImmutExternalOrigin,
@@ -2482,7 +2468,7 @@ Returns:
 
 comptime av_codec_get_tag = ExternalFunction[
     "av_codec_get_tag",
-    fn (
+    fn(
         tags: UnsafePointer[
             UnsafePointer[AVCodecTag, ImmutExternalOrigin],
             ImmutExternalOrigin,
@@ -2503,7 +2489,7 @@ Returns:
 
 comptime av_codec_get_tag2 = ExternalFunction[
     "av_codec_get_tag2",
-    fn (
+    fn(
         tags: UnsafePointer[
             UnsafePointer[AVCodecTag, ImmutExternalOrigin],
             ImmutExternalOrigin,
@@ -2526,13 +2512,13 @@ Returns:
 
 comptime av_find_default_stream_index = ExternalFunction[
     "av_find_default_stream_index",
-    fn (s: UnsafePointer[AVFormatContext, MutExternalOrigin],) -> c_int,
+    fn(s: UnsafePointer[AVFormatContext, MutExternalOrigin],) -> c_int,
 ]
 
 
 comptime av_index_search_timestamp = ExternalFunction[
     "av_index_search_timestamp",
-    fn (
+    fn(
         st: UnsafePointer[AVStream, MutExternalOrigin],
         timestamp: c_long_long,
         flags: c_int,
@@ -2552,7 +2538,7 @@ Returns:
 
 comptime avformat_index_get_entries_count = ExternalFunction[
     "avformat_index_get_entries_count",
-    fn (st: UnsafePointer[AVStream, MutExternalOrigin],) -> c_int,
+    fn(st: UnsafePointer[AVStream, MutExternalOrigin],) -> c_int,
 ]
 """Get the index entry count for the given AVStream.
 
@@ -2565,7 +2551,7 @@ Returns:
 
 comptime avformat_index_get_entry = ExternalFunction[
     "avformat_index_get_entry",
-    fn (
+    fn(
         st: UnsafePointer[AVStream, MutExternalOrigin],
         idx: c_int,
     ) -> UnsafePointer[AVIndexEntry, ImmutExternalOrigin],
@@ -2586,7 +2572,7 @@ as input argument is called.
 
 comptime avformat_index_get_entry_from_timestamp = ExternalFunction[
     "avformat_index_get_entry_from_timestamp",
-    fn (
+    fn(
         st: UnsafePointer[AVStream, MutExternalOrigin],
         timestamp: c_long_long,
         flags: c_int,
@@ -2611,7 +2597,7 @@ as input argument is called.
 
 comptime av_add_index_entry = ExternalFunction[
     "av_add_index_entry",
-    fn (
+    fn(
         st: UnsafePointer[AVStream, MutExternalOrigin],
         pos: c_long_long,
         timestamp: c_long_long,
@@ -2628,7 +2614,7 @@ Arguments:
 
 comptime av_url_split = ExternalFunction[
     "av_url_split",
-    fn (
+    fn(
         proto: UnsafePointer[c_char, MutExternalOrigin],
         proto_size: c_int,
         authorization: UnsafePointer[c_char, MutExternalOrigin],
@@ -2666,7 +2652,7 @@ Returns:
 
 comptime av_dump_format = ExternalFunction[
     "av_dump_format",
-    fn (
+    fn(
         ic: UnsafePointer[AVFormatContext, MutExternalOrigin],
         index: c_int,
         url: UnsafePointer[c_char, ImmutAnyOrigin],
@@ -2689,7 +2675,7 @@ comptime AV_FRAME_FILENAME_FLAGS_MULTIPLE = 1
 
 comptime av_get_frame_filename2 = ExternalFunction[
     "av_get_frame_filename2",
-    fn (
+    fn(
         buf: UnsafePointer[c_char, MutExternalOrigin],
         buf_size: c_int,
         path: UnsafePointer[c_char, ImmutExternalOrigin],
@@ -2715,7 +2701,7 @@ Returns:
 
 comptime av_get_frame_filename = ExternalFunction[
     "av_get_frame_filename",
-    fn (
+    fn(
         buf: UnsafePointer[c_char, MutExternalOrigin],
         buf_size: c_int,
         path: UnsafePointer[c_char, ImmutExternalOrigin],
@@ -2726,7 +2712,7 @@ comptime av_get_frame_filename = ExternalFunction[
 
 comptime av_filename_number_test = ExternalFunction[
     "av_filename_number_test",
-    fn (filename: UnsafePointer[c_char, ImmutExternalOrigin],) -> c_int,
+    fn(filename: UnsafePointer[c_char, ImmutExternalOrigin],) -> c_int,
 ]
 """Check whether filename actually is a numbered sequence generator.
 
@@ -2739,7 +2725,7 @@ Returns:
 
 comptime av_sdp_create = ExternalFunction[
     "av_sdp_create",
-    fn (
+    fn(
         ac: UnsafePointer[
             UnsafePointer[AVFormatContext, MutExternalOrigin],
             MutExternalOrigin,
@@ -2772,7 +2758,7 @@ Returns:
 
 comptime av_match_ext = ExternalFunction[
     "av_match_ext",
-    fn (
+    fn(
         filename: UnsafePointer[c_char, ImmutExternalOrigin],
         extensions: UnsafePointer[c_char, ImmutExternalOrigin],
     ) -> c_int,
@@ -2788,7 +2774,7 @@ Arguments:
 
 comptime avformat_query_codec = ExternalFunction[
     "avformat_query_codec",
-    fn (
+    fn(
         ofmt: UnsafePointer[AVOutputFormat, ImmutExternalOrigin],
         codec_id: AVCodecID.ENUM_DTYPE,
         std_compliance: c_int,
@@ -2816,7 +2802,7 @@ Returns:
 # @endcode
 comptime avformat_get_riff_video_tags = ExternalFunction[
     "avformat_get_riff_video_tags",
-    fn () -> UnsafePointer[AVCodecTag, ImmutExternalOrigin],
+    fn() -> UnsafePointer[AVCodecTag, ImmutExternalOrigin],
 ]
 """Get the tables mapping RIFF FourCCs for video to libavcodec AVCodecID.
 
@@ -2826,7 +2812,7 @@ Returns:
 
 comptime avformat_get_riff_audio_tags = ExternalFunction[
     "avformat_get_riff_audio_tags",
-    fn () -> UnsafePointer[AVCodecTag, ImmutExternalOrigin],
+    fn() -> UnsafePointer[AVCodecTag, ImmutExternalOrigin],
 ]
 """Get the tables mapping RIFF FourCCs for audio to AVCodecID.
 
@@ -2836,7 +2822,7 @@ Returns:
 
 comptime avformat_get_mov_video_tags = ExternalFunction[
     "avformat_get_mov_video_tags",
-    fn () -> UnsafePointer[AVCodecTag, ImmutExternalOrigin],
+    fn() -> UnsafePointer[AVCodecTag, ImmutExternalOrigin],
 ]
 """Get the tables mapping MOV FourCCs for video to libavcodec AVCodecID.
 
@@ -2846,7 +2832,7 @@ Returns:
 
 comptime avformat_get_mov_audio_tags = ExternalFunction[
     "avformat_get_mov_audio_tags",
-    fn () -> UnsafePointer[AVCodecTag, ImmutExternalOrigin],
+    fn() -> UnsafePointer[AVCodecTag, ImmutExternalOrigin],
 ]
 """Get the tables mapping MOV FourCCs for audio to AVCodecID.
 
@@ -2857,7 +2843,7 @@ Returns:
 
 comptime av_guess_sample_aspect_ratio = ExternalFunction[
     "av_guess_sample_aspect_ratio",
-    fn (
+    fn(
         format: UnsafePointer[AVFormatContext, MutExternalOrigin],
         stream: UnsafePointer[AVStream, MutExternalOrigin],
         frame: UnsafePointer[AVFrame, MutExternalOrigin],
@@ -2885,7 +2871,7 @@ Returns:
 
 comptime av_guess_frame_rate = ExternalFunction[
     "av_guess_frame_rate",
-    fn (
+    fn(
         ctx: UnsafePointer[AVFormatContext, MutExternalOrigin],
         stream: UnsafePointer[AVStream, MutExternalOrigin],
         frame: UnsafePointer[AVFrame, MutExternalOrigin],
@@ -2904,7 +2890,7 @@ Returns:
 
 comptime avformat_match_stream_specifier = ExternalFunction[
     "avformat_match_stream_specifier",
-    fn (
+    fn(
         s: UnsafePointer[AVFormatContext, MutExternalOrigin],
         st: UnsafePointer[AVStream, MutExternalOrigin],
         spec: UnsafePointer[c_char, ImmutExternalOrigin],
@@ -2928,7 +2914,7 @@ Note: A stream specifier can match several streams in the format.
 
 comptime avformat_queue_attached_pictures = ExternalFunction[
     "avformat_queue_attached_pictures",
-    fn (s: UnsafePointer[AVFormatContext, MutExternalOrigin],) -> c_int,
+    fn(s: UnsafePointer[AVFormatContext, MutExternalOrigin],) -> c_int,
 ]
 
 

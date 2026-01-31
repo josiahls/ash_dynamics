@@ -6,35 +6,34 @@ from ash_dynamics.primitives._clib import Debug
 from reflection import get_type_name
 
 
-comptime AVClass_item_name_fn = fn (
+comptime AVClass_item_name_fn = fn(
     ctx: OpaquePointer[MutExternalOrigin]
 ) -> UnsafePointer[c_char, ImmutExternalOrigin]
 
 
-comptime AVClass_get_category_fn = fn (
+comptime AVClass_get_category_fn = fn(
     ctx: OpaquePointer[MutExternalOrigin]
 ) -> AVClassCategory.ENUM_DTYPE
 
-comptime AVClass_query_ranges_fn = fn (
+comptime AVClass_query_ranges_fn = fn(
     ranges: UnsafePointer[AVOptionRanges, MutExternalOrigin],
     obj: OpaquePointer[MutExternalOrigin],
     key: UnsafePointer[c_char, ImmutExternalOrigin],
     flags: c_int,
 ) -> c_int
 
-comptime AVClass_child_next_fn = fn (
+comptime AVClass_child_next_fn = fn(
     obj: OpaquePointer[MutExternalOrigin],
     prev: OpaquePointer[MutExternalOrigin],
 ) -> OpaquePointer[MutExternalOrigin]
 
 
-comptime AVClass_child_class_iterate_fn[T: Copyable] = fn (
+comptime AVClass_child_class_iterate_fn[T: Copyable] = fn(
     iter: UnsafePointer[OpaquePointer[MutExternalOrigin], MutExternalOrigin]
 ) -> UnsafePointer[T, ImmutExternalOrigin]
 
 
-@register_passable("trivial")
-struct AVClass(Debug):
+struct AVClass(Debug, TrivialRegisterType):
     "https://www.ffmpeg.org/doxygen/8.0/structAVClass.html"
     var class_name: UnsafePointer[c_char, ImmutExternalOrigin]
 
@@ -54,9 +53,8 @@ struct AVClass(Debug):
     var state_flags_offset: c_int
 
 
-@register_passable("trivial")
 @fieldwise_init("implicit")
-struct AVClassCategory(Debug):
+struct AVClassCategory(Debug, TrivialRegisterType):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 

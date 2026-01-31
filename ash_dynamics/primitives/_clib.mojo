@@ -54,8 +54,7 @@ fn build_union_mlir_type[*Ts: Copyable & Movable]() -> Int:
 
 # TODO(josiahls): We absolutely can't do it this way as a long term thing.
 @fieldwise_init("implicit")
-@register_passable("trivial")
-struct C_Union[*Ts: Copyable & Movable](Copyable, Copyable, Movable):
+struct C_Union[*Ts: Copyable & Movable](Copyable, Movable, TrivialRegisterType):
     """
     A union that can hold a runtime-variant value from a set of predefined
     types.
@@ -102,9 +101,8 @@ struct C_Union[*Ts: Copyable & Movable](Copyable, Copyable, Movable):
         return ptr
 
 
-@register_passable("trivial")
 struct TrivialOptionalField[active: Bool, ElementType: __TypeOfAllTypes](
-    Copyable, Movable, Writable
+    Copyable, Movable, TrivialRegisterType, Writable
 ):
     comptime OptionalElementType = StaticTuple[
         Self.ElementType, 1 if Self.active else 0

@@ -5,15 +5,14 @@ from ash_dynamics.primitives._clib import Debug
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct AVBuffer(Debug):
+struct AVBuffer(Debug, TrivialRegisterType):
     "https://www.ffmpeg.org/doxygen/8.0/structAVBuffer.html"
     var data: UnsafePointer[c_uchar, origin=MutExternalOrigin]
     var size: c_uint
     # TODO: Should this just be a c value?
     # var refcount: Atomic[c_uint.dtype]
     var refcount: c_uint
-    var free: fn (
+    var free: fn(
         opaque: OpaquePointer[MutExternalOrigin],
         data: UnsafePointer[c_uchar, origin=MutExternalOrigin],
     ) -> NoneType
