@@ -62,6 +62,11 @@ cmd = "bash tools/clone_ffmpeg.sh"
 [tasks.install_libopenh264]
 cmd = "bash tools/install_libopenh264.sh"
 
+############################### Env setup ######################################
+
+[tasks.configure_lldb]
+cmd = "bash tools/configure_lldb.sh"
+
 ######################## Test Data Generation API ##############################
 [tasks.generate_test_videos]
 cmd = "bash tools/generate_test_videos.sh"
@@ -85,6 +90,7 @@ args = ["file"]
 [tasks.debug]
 cmd = "pixi run mojo debug -D ASSERT=all -D LOGGING_LEVEL=$LOGGING_LEVEL --debug-level=line-tables $ASH_DYNAMICS_INCLUDES {{ file }}"
 args = ["file"]
+depends-on = [ "configure_lldb" ]
 
 [tasks.test]
 args = ["file"]
