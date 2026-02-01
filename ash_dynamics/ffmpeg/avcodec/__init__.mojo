@@ -342,7 +342,7 @@ struct Avcodec:
         self, mut extension: String
     ) raises Error -> UnsafePointer[AVCodec, ImmutExternalOrigin]:
         var stripped_extension: String = String(
-            extension.as_string_slice_mut().lstrip(".")
+            StringSlice(extension).lstrip(".")
         )
         var ptr = self._avcodec_find_decoder_by_name(
             stripped_extension.as_c_string_slice().unsafe_ptr().as_immutable()
@@ -355,7 +355,7 @@ struct Avcodec:
         self, mut extension: String
     ) raises Error -> UnsafePointer[AVCodec, ImmutExternalOrigin]:
         var stripped_extension: String = String(
-            extension.as_string_slice_mut().lstrip(".")
+            StringSlice(extension).lstrip(".")
         )
         var ptr = self._avcodec_find_encoder_by_name(
             stripped_extension.as_c_string_slice().unsafe_ptr().as_immutable()
