@@ -28,13 +28,81 @@ def test_c_union():
     _ = variant_union_instance
 
     # Test against the union mlir size
-    comptime UnionUnion = C_Union[UInt8, UInt16]
-    comptime UInt32MLIRUnion = __mlir_type[`!pop.union<`, `ui32`, `>`]
-    var union_union_instance: UnionUnion = UInt16(4)
+    comptime Int8And16Union = C_Union[UInt8, UInt16]
+    comptime UInt32MLIRUnion = __mlir_type[`!pop.union<`, `ui16`, `>`]
+    var union_union_instance: Int8And16Union = UInt16(4)
     # NOTE: MLIR union is bugged. It takes 8 bytes regardless of
     # what is contained in it.
-    assert_equal(size_of[UnionUnion](), size_of[UInt32MLIRUnion]() - 6)
+    assert_equal(size_of[Int8And16Union](), size_of[UInt32MLIRUnion]())
     _ = union_union_instance
+
+
+def test_mlir_unions():
+    assert_equal(size_of[__mlir_type[`!pop.union<`, `ui8`, `>`]](), 1)
+    assert_equal(size_of[__mlir_type[`!pop.union<`, `ui16`, `>`]](), 2)
+    assert_equal(size_of[__mlir_type[`!pop.union<`, `ui32`, `>`]](), 4)
+    assert_equal(size_of[__mlir_type[`!pop.union<`, `ui64`, `>`]](), 8)
+    assert_equal(size_of[__mlir_type[`!pop.union<`, `ui128`, `>`]](), 16)
+    assert_equal(size_of[__mlir_type[`!pop.union<`, `ui256`, `>`]](), 32)
+    assert_equal(size_of[__mlir_type[`!pop.union<`, `si8`, `>`]](), 1)
+    assert_equal(size_of[__mlir_type[`!pop.union<`, `si16`, `>`]](), 2)
+    assert_equal(size_of[__mlir_type[`!pop.union<`, `si32`, `>`]](), 4)
+    # Test multiple type unions
+    assert_equal(
+        size_of[__mlir_type[`!pop.union<`, `ui8`, `,`, `ui16`, `>`]](), 2
+    )
+    assert_equal(
+        size_of[
+            __mlir_type[`!pop.union<`, `ui8`, `,`, `ui16`, `,`, `ui32`, `>`]
+        ](),
+        4,
+    )
+    assert_equal(
+        size_of[
+            __mlir_type[
+                `!pop.union<`, `ui8`, `,`, `ui16`, `,`, `ui32`, `,`, `ui64`, `>`
+            ]
+        ](),
+        8,
+    )
+    assert_equal(
+        size_of[
+            __mlir_type[
+                `!pop.union<`,
+                `ui8`,
+                `,`,
+                `ui16`,
+                `,`,
+                `ui32`,
+                `,`,
+                `ui64`,
+                `,`,
+                `ui128`,
+                `>`,
+            ]
+        ](),
+        16,
+    )
+    assert_equal(
+        size_of[
+            __mlir_type[
+                `!pop.union<`,
+                `ui8`,
+                `,`,
+                `ui16`,
+                `,`,
+                `ui32`,
+                `,`,
+                `ui64`,
+                `,`,
+                `ui128`,
+                `,`,
+                `ui256`,
+                `>`,
+            ]
+        ](),
+        32,
+    )
 
 
 @fieldwise_init

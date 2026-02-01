@@ -45,7 +45,7 @@ fn build_union_mlir_type[*Ts: Copyable & Movable]() -> Int:
     var max_size: Int = 0
 
     @parameter
-    for i in range(len(VariadicList(Ts))):
+    for i in range(Variadic.size(Ts)):
         comptime current_size = size_of[Ts[i]]()
         if current_size > max_size:
             max_size = current_size
@@ -86,7 +86,7 @@ struct C_Union[*Ts: Copyable & Movable](Copyable, Movable, TrivialRegisterType):
     @staticmethod
     fn _check[T: AnyType]() -> Bool:
         @parameter
-        for i in range(len(VariadicList(Self.Ts))):
+        for i in range(Variadic.size(Self.Ts)):
             if _type_is_eq[Self.Ts[i], T]():
                 return True
         return False
