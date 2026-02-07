@@ -1,7 +1,7 @@
 from testing.suite import TestSuite
 from testing.testing import assert_equal
 
-from sys.ffi import c_char
+from ffi import c_char
 from sys import size_of
 from ash_dynamics.ffmpeg.avformat.avformat import (
     AVOutputFormat,

@@ -5,7 +5,7 @@ from memory import memset
 from itertools import count
 import sys
 import os
-from sys.ffi import (
+from ffi import (
     c_uchar,
     c_int,
     c_char,

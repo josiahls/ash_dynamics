@@ -4,7 +4,7 @@ from memory import memset
 import sys
 from sys.info import size_of
 import os
-from sys.ffi import c_uchar, c_int, c_char
+from ffi import c_uchar, c_int, c_char
 from ash_dynamics.ffmpeg.avutil import Avutil
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
 from sys._libc_errno import ErrNo
