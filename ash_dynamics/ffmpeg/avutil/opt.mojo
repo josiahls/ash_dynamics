@@ -1,5 +1,5 @@
 "https://www.ffmpeg.org/doxygen/8.0/opt_8h.html"
-from sys.ffi import c_char, c_int, c_double, c_long_long
+from ffi import c_char, c_int, c_double, c_long_long
 from ash_dynamics.primitives._clib import C_Union
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
 from ash_dynamics.primitives._clib import Debug

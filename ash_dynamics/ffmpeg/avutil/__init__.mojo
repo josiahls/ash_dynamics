@@ -1,6 +1,6 @@
 """https://www.ffmpeg.org/doxygen/8.0/avutil_8h_source.html"""
 
-from sys.ffi import OwnedDLHandle, c_int, c_float, c_char, c_long_long
+from ffi import OwnedDLHandle, c_int, c_float, c_char, c_long_long
 from os.env import getenv
 import os
 from ash_dynamics.ffmpeg.avutil.buffer import (

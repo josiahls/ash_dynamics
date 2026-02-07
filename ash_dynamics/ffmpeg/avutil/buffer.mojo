@@ -1,5 +1,5 @@
 "https://www.ffmpeg.org/doxygen/8.0/buffer_8h.html"
-from sys.ffi import c_uchar, c_uint, c_int, c_size_t
+from ffi import c_uchar, c_uint, c_int, c_size_t
 from os.atomic import Atomic
 from ash_dynamics.primitives._clib import (
     ExternalFunction,

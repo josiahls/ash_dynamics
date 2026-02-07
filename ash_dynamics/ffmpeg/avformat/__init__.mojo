@@ -5,7 +5,7 @@ Symbols present can be listed via:
 nm -D $ASH_DYNAMICS_SO_INSTALL_PREFIX/libavformat.so
 """
 
-from sys.ffi import OwnedDLHandle, c_int, c_float, c_char
+from ffi import OwnedDLHandle, c_int, c_float, c_char
 from os.env import getenv
 import os
 from ash_dynamics.ffmpeg.avformat.avformat import (
