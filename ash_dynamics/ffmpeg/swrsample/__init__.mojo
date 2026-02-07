@@ -1,5 +1,5 @@
 """https://www.ffmpeg.org/doxygen/8.0/swresample_8h_source.html"""
-from sys.ffi import OwnedDLHandle, c_int, c_float, c_char
+from ffi import OwnedDLHandle, c_int, c_float, c_char
 from os.env import getenv
 import os
 from ash_dynamics.ffmpeg.swrsample.swrsample import (

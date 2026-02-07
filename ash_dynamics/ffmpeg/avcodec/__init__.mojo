@@ -5,7 +5,7 @@ Symbols present can be listed via:
 nm -D $ASH_DYNAMICS_SO_INSTALL_PREFIX/libavcodec.so
 """
 
-from sys.ffi import OwnedDLHandle, c_int, c_float, c_uchar, c_long_long
+from ffi import OwnedDLHandle, c_int, c_float, c_uchar, c_long_long
 from os.env import getenv
 from sys._libc_errno import ErrNo
 import os

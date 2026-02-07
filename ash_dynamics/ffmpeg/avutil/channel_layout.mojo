@@ -1,5 +1,5 @@
 "https://www.ffmpeg.org/doxygen/8.0/channel__layout_8h.html"
-from sys.ffi import c_int, c_char, c_ulong_long, c_size_t
+from ffi import c_int, c_char, c_ulong_long, c_size_t
 from ash_dynamics.primitives._clib import C_Union, ExternalFunction
 from utils import StaticTuple
 from ash_dynamics.primitives._clib import Debug

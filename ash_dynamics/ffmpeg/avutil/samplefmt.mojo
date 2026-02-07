@@ -1,5 +1,5 @@
 "https://www.ffmpeg.org/doxygen/8.0/samplefmt_8h.html"
-from sys.ffi import c_int
+from ffi import c_int
 from ash_dynamics.primitives._clib import Debug
 
 

@@ -1,5 +1,5 @@
 "https://www.ffmpeg.org/doxygen/8.0/log_8h.html"
-from sys.ffi import c_char, c_int
+from ffi import c_char, c_int
 from ash_dynamics.ffmpeg.avutil.opt import AVOption, AVOptionRanges
 from ash_dynamics.primitives._clib import Debug
 

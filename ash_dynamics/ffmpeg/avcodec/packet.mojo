@@ -1,5 +1,5 @@
 "https://www.ffmpeg.org/doxygen/8.0/packet_8h.html"
-from sys.ffi import c_uchar, c_uint, c_int, c_long_long, c_size_t, c_char
+from ffi import c_uchar, c_uint, c_int, c_long_long, c_size_t, c_char
 from os.atomic import Atomic
 from ash_dynamics.ffmpeg.avutil.buffer import AVBufferRef
 from ash_dynamics.ffmpeg.avutil.rational import AVRational

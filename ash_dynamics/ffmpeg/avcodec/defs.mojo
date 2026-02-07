@@ -1,5 +1,5 @@
 "https://www.ffmpeg.org/doxygen/8.0/defs_8h.html"
-from sys.ffi import c_int
+from ffi import c_int
 from ash_dynamics.primitives._clib import Debug
 
 comptime AV_INPUT_BUFFER_PADDING_SIZE = c_int(64)

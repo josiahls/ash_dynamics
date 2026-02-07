@@ -13,7 +13,7 @@ from ash_dynamics.ffmpeg.avutil.pixfmt import (
     AVColorSpace,
     AVChromaLocation,
 )
-from sys.ffi import c_uchar, c_int, c_long_long, c_ulong_long, c_size_t, c_uint
+from ffi import c_uchar, c_int, c_long_long, c_ulong_long, c_size_t, c_uint
 from utils import StaticTuple
 from ash_dynamics.primitives._clib import (
     ExternalFunction,

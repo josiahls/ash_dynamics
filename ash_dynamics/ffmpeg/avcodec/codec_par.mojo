@@ -11,7 +11,7 @@ from ash_dynamics.ffmpeg.avutil.pixfmt import (
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 from ash_dynamics.ffmpeg.avutil.avutil import AVMediaType
 
-from sys.ffi import c_uint, c_uchar, c_long_long, c_int
+from ffi import c_uint, c_uchar, c_long_long, c_int
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
 from ash_dynamics.ffmpeg.avutil.channel_layout import AVChannelLayout
 from ash_dynamics.ffmpeg.avcodec.packet import AVPacketSideData

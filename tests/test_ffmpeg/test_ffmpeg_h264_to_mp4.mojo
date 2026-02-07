@@ -5,7 +5,7 @@ from itertools import count
 from pathlib import Path
 import sys
 import os
-from sys.ffi import (
+from ffi import (
     c_uchar,
     c_int,
     c_char,
