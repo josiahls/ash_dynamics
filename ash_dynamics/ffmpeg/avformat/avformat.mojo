@@ -4,7 +4,7 @@ Main libavformat public API header
 
 I/O and Muxing/Demuxing Library
 """
-from sys.ffi import c_int, c_char, c_uchar, c_long_long, c_uint, c_size_t
+from ffi import c_int, c_char, c_uchar, c_long_long, c_uint, c_size_t
 from sys._libc import dup, fclose, fdopen, fflush, FILE_ptr
 from utils import StaticTuple
 from ash_dynamics.primitives._clib import C_Union, ExternalFunction, Debug

@@ -1,4 +1,4 @@
-from sys.ffi import c_uchar, c_char, c_int, c_long_long
+from ffi import c_uchar, c_char, c_int, c_long_long
 from sys._libc_errno import ErrNo
 from pathlib import Path
 import sys

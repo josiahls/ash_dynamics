@@ -1,5 +1,5 @@
 "https://www.ffmpeg.org/doxygen/8.0/codec__id_8h.html"
-from sys.ffi import c_int
+from ffi import c_int
 from ash_dynamics.primitives._clib import Debug
 from ash_dynamics.ffmpeg.avcodec.version_major import (
     FF_API_V408_CODECID,

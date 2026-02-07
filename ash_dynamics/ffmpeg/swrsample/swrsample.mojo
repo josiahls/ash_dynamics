@@ -1,5 +1,5 @@
 "https://www.ffmpeg.org/doxygen/8.0/swresample_8h.html"
-from sys.ffi import c_int, c_uchar, c_long_long, c_double, c_size_t
+from ffi import c_int, c_uchar, c_long_long, c_double, c_size_t
 from ash_dynamics.primitives._clib import ExternalFunction, c_ptrdiff_t, Debug
 from ash_dynamics.ffmpeg.avutil.log import AVClass
 from ash_dynamics.ffmpeg.avutil.channel_layout import (

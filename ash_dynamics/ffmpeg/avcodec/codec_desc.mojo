@@ -1,5 +1,5 @@
 "https://www.ffmpeg.org/doxygen/8.0/codec__desc_8h.html"
-from sys.ffi import c_char, c_int
+from ffi import c_char, c_int
 from ash_dynamics.primitives._clib import Debug
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 from ash_dynamics.ffmpeg.avutil.avutil import AVMediaType

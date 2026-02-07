@@ -1,5 +1,5 @@
 "https://www.ffmpeg.org/doxygen/8.0/swscale_8h.html"
-from sys.ffi import (
+from ffi import (
     c_int,
     c_char,
     c_uchar,

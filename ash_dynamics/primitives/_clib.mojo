@@ -1,4 +1,4 @@
-from sys.ffi import (
+from ffi import (
     OwnedDLHandle,
     c_char,
     c_int,
