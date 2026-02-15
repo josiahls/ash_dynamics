@@ -6,7 +6,7 @@ from ash_dynamics.primitives._clib import Debug
 
 
 @fieldwise_init
-struct AVRounding(Debug, TrivialRegisterType):
+struct AVRounding(Debug, Movable):
     comptime ENUM_DTYPE = c_int
 
     var value: Self.ENUM_DTYPE

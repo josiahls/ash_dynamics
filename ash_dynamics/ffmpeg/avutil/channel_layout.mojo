@@ -10,7 +10,7 @@ from reflection import get_type_name
 
 
 @fieldwise_init("implicit")
-struct AVChannel(Debug, TrivialRegisterType):
+struct AVChannel(Debug, Movable):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -117,7 +117,7 @@ struct AVChannel(Debug, TrivialRegisterType):
 
 
 @fieldwise_init("implicit")
-struct AVChannelOrder(Debug, TrivialRegisterType):
+struct AVChannelOrder(Debug, Movable):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -390,7 +390,7 @@ comptime AV_CH_LAYOUT_7POINT1_TOP_BACK = AV_CH_LAYOUT_5POINT1POINT2_BACK
 
 
 @fieldwise_init
-struct AVMatrixEncoding(Debug, TrivialRegisterType):
+struct AVMatrixEncoding(Debug, Movable):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -405,7 +405,7 @@ struct AVMatrixEncoding(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVChannelCustom(Debug, TrivialRegisterType):
+struct AVChannelCustom(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVChannelCustom.html"
     var id: AVChannel.ENUM_DTYPE
     var name: StaticTuple[c_char, 16]
@@ -413,7 +413,7 @@ struct AVChannelCustom(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVChannelLayout(Debug, TrivialRegisterType):
+struct AVChannelLayout(Debug, ImplicitlyCopyable, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVChannelLayout.html"
     var order: AVChannelOrder.ENUM_DTYPE
     var nb_channels: c_int
@@ -424,6 +424,7 @@ struct AVChannelLayout(Debug, TrivialRegisterType):
         UnsafePointer[AVChannelCustom, ImmutExternalOrigin]
         # Details about which channels are present in this layout.
     ]
+
     var opaque: OpaquePointer[MutExternalOrigin]
 
     fn write_to(self, mut writer: Some[Writer]):

@@ -4,7 +4,7 @@ from ash_dynamics.primitives._clib import Debug
 
 
 @fieldwise_init
-struct AVRational(Debug, TrivialRegisterType):
+struct AVRational(Debug, TrivialRegisterPassable):
     """Represents a rational number.
 
     FFI Binding warning: AVRational must be passed via `as_long_long()` to

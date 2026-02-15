@@ -36,7 +36,7 @@ __extension StaticTuple:
 
 
 @fieldwise_init("implicit")
-struct AVFrameSideDataType(Debug, TrivialRegisterType):
+struct AVFrameSideDataType(Debug, Movable):
     comptime ENUM_DTYPE = c_int
 
     var _value: Self.ENUM_DTYPE
@@ -94,7 +94,7 @@ struct AVFrameSideDataType(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVActiveFormatDescription(Debug, TrivialRegisterType):
+struct AVActiveFormatDescription(Debug, Movable):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -108,7 +108,7 @@ struct AVActiveFormatDescription(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVFrameSideData(Debug, TrivialRegisterType):
+struct AVFrameSideData(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVFrameSideData.html"
     var type: AVFrameSideDataType.ENUM_DTYPE
     var data: UnsafePointer[c_uchar, MutExternalOrigin]
@@ -118,7 +118,7 @@ struct AVFrameSideData(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVSideDataProps(Debug, TrivialRegisterType):
+struct AVSideDataProps(Debug, Movable):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -130,14 +130,14 @@ struct AVSideDataProps(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVSideDataDescriptor(Debug, TrivialRegisterType):
+struct AVSideDataDescriptor(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVSideDataDescriptor.html"
     var name: UnsafePointer[c_char, MutExternalOrigin]
     var props: AVSideDataProps.ENUM_DTYPE
 
 
 @fieldwise_init
-struct AVRegionOfInterest(Debug, TrivialRegisterType):
+struct AVRegionOfInterest(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVRegionOfInterest.html"
     var self_size: c_uint
     var top: c_int
@@ -149,7 +149,7 @@ struct AVRegionOfInterest(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVFrame(Debug, TrivialRegisterType):
+struct AVFrame(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVFrame.html"
     comptime AV_NUM_DATA_POINTERS = Int(8)
 

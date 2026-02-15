@@ -28,12 +28,12 @@ comptime AVClass_child_next_fn = fn(
 ) -> OpaquePointer[MutExternalOrigin]
 
 
-comptime AVClass_child_class_iterate_fn[T: Copyable] = fn(
+comptime AVClass_child_class_iterate_fn[T: AnyType] = fn(
     iter: UnsafePointer[OpaquePointer[MutExternalOrigin], MutExternalOrigin]
 ) -> UnsafePointer[T, ImmutExternalOrigin]
 
 
-struct AVClass(Debug, TrivialRegisterType):
+struct AVClass(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVClass.html"
     var class_name: UnsafePointer[c_char, ImmutExternalOrigin]
 
@@ -54,7 +54,7 @@ struct AVClass(Debug, TrivialRegisterType):
 
 
 @fieldwise_init("implicit")
-struct AVClassCategory(Debug, TrivialRegisterType):
+struct AVClassCategory(Debug, Movable):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 

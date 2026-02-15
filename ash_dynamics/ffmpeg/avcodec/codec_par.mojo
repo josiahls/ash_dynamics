@@ -18,7 +18,7 @@ from ash_dynamics.ffmpeg.avcodec.packet import AVPacketSideData
 
 
 @fieldwise_init
-struct AVCodecParameters(Debug, TrivialRegisterType):
+struct AVCodecParameters(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVCodecParameters.html"
 
     var codec_type: AVMediaType.ENUM_DTYPE

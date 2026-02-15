@@ -5,7 +5,7 @@ from ash_dynamics.primitives._clib import Debug
 
 
 @fieldwise_init
-struct AVBuffer(Debug, TrivialRegisterType):
+struct AVBuffer(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVBuffer.html"
     var data: UnsafePointer[c_uchar, origin=MutExternalOrigin]
     var size: c_uint

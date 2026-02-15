@@ -9,7 +9,7 @@ from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
 
 
 @fieldwise_init("implicit")
-struct AVPacketSideDataType(Debug, TrivialRegisterType):
+struct AVPacketSideDataType(Debug, Movable):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -81,7 +81,7 @@ struct AVPacketSideDataType(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVPacketSideData(Debug, TrivialRegisterType):
+struct AVPacketSideData(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVPacketSideData.html"
 
     var data: UnsafePointer[c_uchar, MutAnyOrigin]
@@ -161,7 +161,7 @@ comptime av_packet_side_data_name = ExternalFunction[
 
 
 @fieldwise_init
-struct AVPacket(Debug, TrivialRegisterType):
+struct AVPacket(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVPacket.html"
 
     var buf: UnsafePointer[AVBufferRef, origin=MutExternalOrigin]
@@ -206,7 +206,7 @@ comptime AV_PKT_FLAG_DISPOSABLE = c_int(0x0010)
 
 
 @fieldwise_init
-struct AVSideDataParamChangeFlags(Debug, TrivialRegisterType):
+struct AVSideDataParamChangeFlags(Debug, Movable):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
     comptime AV_SIDE_DATA_PARAM_CHANGE_SAMPLE_RATE = Self(0x0004)
@@ -407,7 +407,7 @@ comptime av_packet_rescale_ts = ExternalFunction[
 ]
 
 
-struct AVContainerFifo(Debug, TrivialRegisterType):
+struct AVContainerFifo(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVContainerFifo.html"
 
     pass

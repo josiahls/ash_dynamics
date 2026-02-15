@@ -14,7 +14,7 @@ comptime PROBE_BUF_MAX = 1 << 20
 
 
 @fieldwise_init
-struct AVCodecTag(Debug, TrivialRegisterType):
+struct AVCodecTag(Debug, Movable):
     """This structure contains a list of codec tags."""
 
     var id: AVCodecID.ENUM_DTYPE
@@ -22,7 +22,7 @@ struct AVCodecTag(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct CodecMime(Debug, TrivialRegisterType):
+struct CodecMime(Debug, Movable):
     """This structure contains a list of codec mime types."""
 
     var str: UnsafePointer[c_char, MutExternalOrigin]
@@ -31,7 +31,7 @@ struct CodecMime(Debug, TrivialRegisterType):
 
 # Fractional numbers for exact pts handling.
 @fieldwise_init
-struct FFFrac(Debug, TrivialRegisterType):
+struct FFFrac(Debug, Movable):
     """This structure contains a fractional number."""
 
     var val: c_long_long

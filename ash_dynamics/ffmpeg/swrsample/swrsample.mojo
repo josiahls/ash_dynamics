@@ -20,7 +20,7 @@ comptime SWR_FLAG_RESAMPLE = Int(1)
 
 
 @fieldwise_init
-struct SwrDitherType(Debug, TrivialRegisterType):
+struct SwrDitherType(Debug, Movable):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -41,7 +41,7 @@ struct SwrDitherType(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct SwrEngine(Debug, TrivialRegisterType):
+struct SwrEngine(Debug, Movable):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -51,7 +51,7 @@ struct SwrEngine(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct SwrFilterType(Debug, TrivialRegisterType):
+struct SwrFilterType(Debug, Movable):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -61,7 +61,7 @@ struct SwrFilterType(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct SwrContext(Debug, TrivialRegisterType):
+struct SwrContext(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structSwrContext.html"
     pass
 

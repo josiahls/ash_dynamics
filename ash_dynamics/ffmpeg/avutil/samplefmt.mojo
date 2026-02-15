@@ -4,7 +4,7 @@ from ash_dynamics.primitives._clib import Debug
 
 
 @fieldwise_init("implicit")
-struct AVSampleFormat(Debug, TrivialRegisterType):
+struct AVSampleFormat(Debug, Movable):
     comptime ENUM_DTYPE = c_int
 
     var _value: Self.ENUM_DTYPE
