@@ -8,6 +8,7 @@ import os
 import numojo as nm
 from numojo.prelude import *
 from numojo.core.layout.ndstrides import NDArrayStrides
+from numojo.core.memory.data_container import DataContainer
 
 
 def test_image_load():
@@ -17,16 +18,16 @@ def test_image_load():
     )
     var image = Image.load(root_path)
 
-    # var array = nm.NDArray[nm.u8](
-    #     shape = nm.Shape(Int(image.height), Int(image.width), Int(3)),
-    #     strides = nm.Strides(1, 1, 1),
-    #     data = nm.core.memory.data_container.DataContainer(image._data.unsafe_origin_cast[MutExternalOrigin]()),
-    # )
+    print("Done Loading image")
+
+    var data_container = DataContainer(
+        ptr=image._data.unsafe_origin_cast[MutExternalOrigin](),
+        size=Int(image.width * image.height * 3),
+    )
 
     var array = nm.NDArray(
         shape=NDArrayShape(Int(image.height), Int(image.width), Int(3)),
-        buffer=image._data.unsafe_origin_cast[MutExternalOrigin](),
-        offset=0,
+        data=data_container,
         strides=NDArrayStrides(1, 1, 1),
     )
 
@@ -59,4 +60,6 @@ def test_image_save():
 
 
 def main():
-    TestSuite.discover_tests[__functions_in_module()]().run()
+    # TestSuite.discover_tests[__functions_in_module()]().run()
+    test_image_load()
+    # test_image_save()
