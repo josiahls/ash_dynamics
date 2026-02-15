@@ -68,7 +68,7 @@ fn decode(
 
     while ret >= 0:
         ret = avcodec.avcodec_receive_frame(dec_ctx, frame)
-        if ret == AVERROR(ErrNo.EAGAIN.value) or ret == AVERROR_EOF:
+        if ret == AVERROR(ErrNo.EAGAIN.value) or ret == Int32(AVERROR_EOF):
             break
         _logger.debug("Frame received successfully.")
 
@@ -83,7 +83,7 @@ fn decode(
         output_buffer.extend(
             Span(
                 ptr=frame[].data[0],
-                length=Int(frame[].linesize[0] * Int(frame[].height)),
+                length=Int(frame[].linesize[0] * frame[].height),
             )
         )
 
@@ -200,7 +200,7 @@ fn encode(
 
     while ret >= 0:
         ret = avcodec.avcodec_receive_packet(enc_ctx, pkt)
-        if ret == AVERROR(ErrNo.EAGAIN.value) or ret == AVERROR_EOF:
+        if ret == AVERROR(ErrNo.EAGAIN.value) or ret == Int32(AVERROR_EOF):
             break
 
         outfile.write_bytes(

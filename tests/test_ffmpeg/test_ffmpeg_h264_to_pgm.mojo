@@ -50,7 +50,7 @@ fn decode(
 
     while ret >= 0:
         ret = avcodec.avcodec_receive_frame(dec_ctx, frame)
-        if ret == AVERROR(ErrNo.EAGAIN.value) or ret == AVERROR_EOF:
+        if ret == AVERROR(ErrNo.EAGAIN.value) or ret == Int32(AVERROR_EOF):
             break
         elif ret < 0:
             os.abort("Error receiving frame.")
