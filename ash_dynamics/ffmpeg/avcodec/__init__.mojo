@@ -5,13 +5,23 @@ Symbols present can be listed via:
 nm -D $ASH_DYNAMICS_SO_INSTALL_PREFIX/libavcodec.so
 """
 
-from sys.ffi import OwnedDLHandle, c_int, c_float, c_uchar, c_long_long
+from ffi import (
+    OwnedDLHandle,
+    c_int,
+    c_float,
+    c_uchar,
+    c_long_long,
+    c_char,
+    c_size_t,
+)
+from memory import OpaquePointer
 from os.env import getenv
 from sys._libc_errno import ErrNo
 import os
 from ash_dynamics.ffmpeg.avutil.error import AVERROR, AVERROR_EOF
 from ash_dynamics.ffmpeg.avcodec.packet import (
     AVPacket,
+    AVContainerFifo,
     av_packet_alloc,
     av_packet_clone,
     av_packet_free,
@@ -42,6 +52,7 @@ from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 from ash_dynamics.ffmpeg.avcodec.avcodec import (
     AVCodec,
     AVCodecContext,
+    AVCodecParser,
     AVCodecParserContext,
     avcodec_version,
     avcodec_configuration,
@@ -83,8 +94,10 @@ from ash_dynamics.ffmpeg.avcodec.avcodec import (
     av_fast_padded_mallocz,
     avcodec_is_open,
 )
-from ash_dynamics.ffmpeg.avutil.buffer import av_buffer_alloc
+from ash_dynamics.ffmpeg.avutil.buffer import av_buffer_alloc, AVBufferRef
+from ash_dynamics.ffmpeg.avutil.log import AVClass
 from ash_dynamics.ffmpeg.avcodec.codec import (
+    AVCodecHWConfig,
     avcodec_find_encoder,
     av_codec_iterate,
     avcodec_find_decoder_by_name,
@@ -112,8 +125,8 @@ struct Avcodec:
     # ===                   Functions                      ===
     # ===--------------------------------------------------===
     # Packet functions
-    var av_packet_alloc: av_packet_alloc.type
-    var av_packet_clone: av_packet_clone.type
+    var _av_packet_alloc: av_packet_alloc.type
+    var _av_packet_clone: av_packet_clone.type
     var av_packet_free: av_packet_free.type
     var av_new_packet: av_new_packet.type
     var av_shrink_packet: av_shrink_packet.type
@@ -133,16 +146,16 @@ struct Avcodec:
     var av_packet_make_refcounted: av_packet_make_refcounted.type
     var av_packet_make_writable: av_packet_make_writable.type
     var _av_packet_rescale_ts: av_packet_rescale_ts.type
-    var av_container_fifo_alloc_avpacket: av_container_fifo_alloc_avpacket.type
+    var _av_container_fifo_alloc_avpacket: av_container_fifo_alloc_avpacket.type
 
     # Codec functions
     var avcodec_version: avcodec_version.type
-    var avcodec_configuration: avcodec_configuration.type
-    var avcodec_license: avcodec_license.type
-    var avcodec_alloc_context3: avcodec_alloc_context3.type
+    var _avcodec_configuration: avcodec_configuration.type
+    var _avcodec_license: avcodec_license.type
+    var _avcodec_alloc_context3: avcodec_alloc_context3.type
     var avcodec_free_context: avcodec_free_context.type
-    var avcodec_get_class: avcodec_get_class.type
-    var avcodec_get_subtitle_rect_class: avcodec_get_subtitle_rect_class.type
+    var _avcodec_get_class: avcodec_get_class.type
+    var _avcodec_get_subtitle_rect_class: avcodec_get_subtitle_rect_class.type
     var avcodec_parameters_from_context: avcodec_parameters_from_context.type
     var avcodec_parameters_to_context: avcodec_parameters_to_context.type
     var _avcodec_open2: avcodec_open2.type
@@ -173,27 +186,27 @@ struct Avcodec:
     var avcodec_is_open: avcodec_is_open.type
 
     # Parser functions
-    var av_parser_iterate: av_parser_iterate.type
-    var av_parser_init: av_parser_init.type
+    var _av_parser_iterate: av_parser_iterate.type
+    var _av_parser_init: av_parser_init.type
     var _av_parser_parse2: av_parser_parse2.type
     var av_parser_close: av_parser_close.type
 
     # Codec finder functions
-    var avcodec_find_decoder: avcodec_find_decoder.type
-    var avcodec_find_encoder: avcodec_find_encoder.type
-    var av_codec_iterate: av_codec_iterate.type
+    var _avcodec_find_decoder: avcodec_find_decoder.type
+    var _avcodec_find_encoder: avcodec_find_encoder.type
+    var _av_codec_iterate: av_codec_iterate.type
     var _avcodec_find_decoder_by_name: avcodec_find_decoder_by_name.type
     var _avcodec_find_encoder_by_name: avcodec_find_encoder_by_name.type
     var av_codec_is_encoder: av_codec_is_encoder.type
     var av_codec_is_decoder: av_codec_is_decoder.type
-    var av_get_profile_name: av_get_profile_name.type
-    var avcodec_get_hw_config: avcodec_get_hw_config.type
+    var _av_get_profile_name: av_get_profile_name.type
+    var _avcodec_get_hw_config: avcodec_get_hw_config.type
 
     # Frame functions
-    var av_frame_alloc: av_frame_alloc.type
+    var _av_frame_alloc: av_frame_alloc.type
 
     # Buffer functions
-    var av_buffer_alloc: av_buffer_alloc.type
+    var _av_buffer_alloc: av_buffer_alloc.type
 
     fn __init__(out self) raises:
         var so_install_prefix = getenv("ASH_DYNAMICS_SO_INSTALL_PREFIX")
@@ -207,8 +220,8 @@ struct Avcodec:
         self.lib = OwnedDLHandle("{}/libavcodec.so".format(so_install_prefix))
 
         # Packet functions
-        self.av_packet_alloc = av_packet_alloc.load(self.lib)
-        self.av_packet_clone = av_packet_clone.load(self.lib)
+        self._av_packet_alloc = av_packet_alloc.load(self.lib)
+        self._av_packet_clone = av_packet_clone.load(self.lib)
         self.av_packet_free = av_packet_free.load(self.lib)
         self.av_new_packet = av_new_packet.load(self.lib)
         self.av_shrink_packet = av_shrink_packet.load(self.lib)
@@ -236,18 +249,18 @@ struct Avcodec:
         )
         self.av_packet_make_writable = av_packet_make_writable.load(self.lib)
         self._av_packet_rescale_ts = av_packet_rescale_ts.load(self.lib)
-        self.av_container_fifo_alloc_avpacket = (
+        self._av_container_fifo_alloc_avpacket = (
             av_container_fifo_alloc_avpacket.load(self.lib)
         )
 
         # Codec functions
         self.avcodec_version = avcodec_version.load(self.lib)
-        self.avcodec_configuration = avcodec_configuration.load(self.lib)
-        self.avcodec_license = avcodec_license.load(self.lib)
-        self.avcodec_alloc_context3 = avcodec_alloc_context3.load(self.lib)
+        self._avcodec_configuration = avcodec_configuration.load(self.lib)
+        self._avcodec_license = avcodec_license.load(self.lib)
+        self._avcodec_alloc_context3 = avcodec_alloc_context3.load(self.lib)
         self.avcodec_free_context = avcodec_free_context.load(self.lib)
-        self.avcodec_get_class = avcodec_get_class.load(self.lib)
-        self.avcodec_get_subtitle_rect_class = (
+        self._avcodec_get_class = avcodec_get_class.load(self.lib)
+        self._avcodec_get_subtitle_rect_class = (
             avcodec_get_subtitle_rect_class.load(self.lib)
         )
         self.avcodec_parameters_from_context = (
@@ -302,15 +315,15 @@ struct Avcodec:
         self.avcodec_is_open = avcodec_is_open.load(self.lib)
 
         # Parser functions
-        self.av_parser_iterate = av_parser_iterate.load(self.lib)
-        self.av_parser_init = av_parser_init.load(self.lib)
+        self._av_parser_iterate = av_parser_iterate.load(self.lib)
+        self._av_parser_init = av_parser_init.load(self.lib)
         self._av_parser_parse2 = av_parser_parse2.load(self.lib)
         self.av_parser_close = av_parser_close.load(self.lib)
 
         # Codec finder functions
-        self.avcodec_find_decoder = avcodec_find_decoder.load(self.lib)
-        self.avcodec_find_encoder = avcodec_find_encoder.load(self.lib)
-        self.av_codec_iterate = av_codec_iterate.load(self.lib)
+        self._avcodec_find_decoder = avcodec_find_decoder.load(self.lib)
+        self._avcodec_find_encoder = avcodec_find_encoder.load(self.lib)
+        self._av_codec_iterate = av_codec_iterate.load(self.lib)
         self._avcodec_find_decoder_by_name = avcodec_find_decoder_by_name.load(
             self.lib
         )
@@ -319,18 +332,135 @@ struct Avcodec:
         )
         self.av_codec_is_encoder = av_codec_is_encoder.load(self.lib)
         self.av_codec_is_decoder = av_codec_is_decoder.load(self.lib)
-        self.av_get_profile_name = av_get_profile_name.load(self.lib)
-        self.avcodec_get_hw_config = avcodec_get_hw_config.load(self.lib)
+        self._av_get_profile_name = av_get_profile_name.load(self.lib)
+        self._avcodec_get_hw_config = avcodec_get_hw_config.load(self.lib)
 
         # Frame functions
-        self.av_frame_alloc = av_frame_alloc.load(self.lib)
+        self._av_frame_alloc = av_frame_alloc.load(self.lib)
 
         # Buffer functions
-        self.av_buffer_alloc = av_buffer_alloc.load(self.lib)
+        self._av_buffer_alloc = av_buffer_alloc.load(self.lib)
+
+    fn av_packet_alloc(
+        mut self,
+    ) raises -> UnsafePointer[AVPacket, origin = origin_of(self.lib)]:
+        var p = self._av_packet_alloc().unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+        if not p:
+            raise Error("Failed to allocate packet")
+
+        # var binded_p = p
+
+        return p
+
+    fn av_packet_clone(
+        mut self, src: UnsafePointer[AVPacket, ImmutAnyOrigin]
+    ) raises -> UnsafePointer[AVPacket, MutAnyOrigin]:
+        return self._av_packet_clone(src).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn avcodec_configuration(self) -> UnsafePointer[c_char, ImmutAnyOrigin]:
+        return self._avcodec_configuration().unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn avcodec_license(self) -> UnsafePointer[c_char, ImmutAnyOrigin]:
+        return self._avcodec_license().unsafe_origin_cast[origin_of(self.lib)]()
+
+    fn avcodec_alloc_context3(
+        mut self, codec: UnsafePointer[AVCodec, ImmutAnyOrigin]
+    ) raises -> UnsafePointer[AVCodecContext, MutAnyOrigin]:
+        return self._avcodec_alloc_context3(codec).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn avcodec_get_class(self) -> UnsafePointer[AVClass, ImmutAnyOrigin]:
+        return self._avcodec_get_class().unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn avcodec_get_subtitle_rect_class(
+        self,
+    ) -> UnsafePointer[AVClass, ImmutAnyOrigin]:
+        return self._avcodec_get_subtitle_rect_class().unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn avcodec_find_decoder(
+        self, id: AVCodecID.ENUM_DTYPE
+    ) -> UnsafePointer[AVCodec, ImmutAnyOrigin]:
+        return self._avcodec_find_decoder(id).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn avcodec_find_encoder(
+        self, id: AVCodecID.ENUM_DTYPE
+    ) -> UnsafePointer[AVCodec, ImmutAnyOrigin]:
+        return self._avcodec_find_encoder(id).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_codec_iterate(
+        self, opaque: UnsafePointer[OpaquePointer[MutAnyOrigin], MutAnyOrigin]
+    ) -> UnsafePointer[AVCodec, ImmutAnyOrigin]:
+        return self._av_codec_iterate(opaque).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_get_profile_name(
+        self,
+        codec: UnsafePointer[AVCodec, ImmutAnyOrigin],
+        profile: c_int,
+    ) -> UnsafePointer[c_char, ImmutAnyOrigin]:
+        return self._av_get_profile_name(codec, profile).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn avcodec_get_hw_config(
+        self,
+        codec: UnsafePointer[AVCodec, ImmutAnyOrigin],
+        index: c_int,
+    ) -> UnsafePointer[AVCodecHWConfig, ImmutAnyOrigin]:
+        return self._avcodec_get_hw_config(codec, index).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_parser_iterate(
+        self, opaque: OpaquePointer[MutAnyOrigin]
+    ) -> UnsafePointer[AVCodecParser, ImmutAnyOrigin]:
+        return self._av_parser_iterate(opaque).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_parser_init(
+        mut self, codec_id: AVCodecID.ENUM_DTYPE
+    ) -> UnsafePointer[AVCodecParserContext, MutAnyOrigin]:
+        return self._av_parser_init(codec_id).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_frame_alloc(mut self) raises -> UnsafePointer[AVFrame, MutAnyOrigin]:
+        return self._av_frame_alloc().unsafe_origin_cast[origin_of(self.lib)]()
+
+    fn av_buffer_alloc(
+        mut self, size: c_size_t
+    ) raises -> UnsafePointer[AVBufferRef, MutAnyOrigin]:
+        return self._av_buffer_alloc(size).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_container_fifo_alloc_avpacket(
+        mut self, flags: c_int
+    ) raises -> UnsafePointer[AVContainerFifo, MutAnyOrigin]:
+        return self._av_container_fifo_alloc_avpacket(flags).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
 
     fn av_packet_rescale_ts(
         self,
-        pkt: UnsafePointer[AVPacket, MutExternalOrigin],
+        pkt: UnsafePointer[AVPacket, MutAnyOrigin],
         tb_a: AVRational,
         tb_b: AVRational,
     ):
@@ -340,7 +470,7 @@ struct Avcodec:
 
     fn avcodec_find_decoder_by_name(
         self, mut extension: String
-    ) raises Error -> UnsafePointer[AVCodec, ImmutExternalOrigin]:
+    ) raises Error -> UnsafePointer[AVCodec, ImmutAnyOrigin]:
         var stripped_extension: String = String(
             StringSlice(extension).lstrip(".")
         )
@@ -349,11 +479,11 @@ struct Avcodec:
         )
         if not ptr:
             raise Error("Failed to find decoder by name: ", extension)
-        return ptr
+        return ptr.unsafe_origin_cast[origin_of(self.lib)]()
 
     fn avcodec_find_encoder_by_name(
         self, mut extension: String
-    ) raises Error -> UnsafePointer[AVCodec, ImmutExternalOrigin]:
+    ) raises Error -> UnsafePointer[AVCodec, ImmutAnyOrigin]:
         var stripped_extension: String = String(
             StringSlice(extension).lstrip(".")
         )
@@ -362,13 +492,13 @@ struct Avcodec:
         )
         if not ptr:
             raise Error("Failed to find encoder by name: ", extension)
-        return ptr
+        return ptr.unsafe_origin_cast[origin_of(self.lib)]()
 
     fn avcodec_open2(
         self,
-        context: UnsafePointer[AVCodecContext, MutExternalOrigin],
-        codec: UnsafePointer[AVCodec, ImmutExternalOrigin],
-        options: UnsafePointer[AVDictionary, ImmutExternalOrigin],
+        context: UnsafePointer[AVCodecContext, MutAnyOrigin],
+        codec: UnsafePointer[AVCodec, ImmutAnyOrigin],
+        options: UnsafePointer[AVDictionary, ImmutAnyOrigin],
     ) raises Error:
         var flag = self._avcodec_open2(
             context,
@@ -382,12 +512,12 @@ struct Avcodec:
 
     fn av_parser_parse2(
         self,
-        parser: UnsafePointer[AVCodecParserContext, MutExternalOrigin],
-        context: UnsafePointer[AVCodecContext, MutExternalOrigin],
+        parser: UnsafePointer[AVCodecParserContext, MutAnyOrigin],
+        context: UnsafePointer[AVCodecContext, MutAnyOrigin],
         poutbuf: UnsafePointer[
-            UnsafePointer[c_uchar, MutExternalOrigin], MutExternalOrigin
+            UnsafePointer[c_uchar, MutAnyOrigin], MutAnyOrigin
         ],
-        poutbuf_size: UnsafePointer[c_int, MutExternalOrigin],
+        poutbuf_size: UnsafePointer[c_int, MutAnyOrigin],
         buf: UnsafePointer[c_uchar, ImmutAnyOrigin],
         buf_size: c_int,
         pts: c_long_long,
@@ -416,8 +546,8 @@ struct Avcodec:
 
     fn avcodec_receive_frame(
         self,
-        context: UnsafePointer[AVCodecContext, MutExternalOrigin],
-        frame: UnsafePointer[AVFrame, MutExternalOrigin],
+        context: UnsafePointer[AVCodecContext, MutAnyOrigin],
+        frame: UnsafePointer[AVFrame, MutAnyOrigin],
     ) raises Error -> c_int:
         var flag = self._avcodec_receive_frame(
             context,
@@ -433,8 +563,8 @@ struct Avcodec:
 
     fn avcodec_send_packet(
         self,
-        context: UnsafePointer[AVCodecContext, MutExternalOrigin],
-        packet: UnsafePointer[AVPacket, MutExternalOrigin],
+        context: UnsafePointer[AVCodecContext, MutAnyOrigin],
+        packet: UnsafePointer[AVPacket, MutAnyOrigin],
     ) raises Error -> c_int:
         var flag = self._avcodec_send_packet(
             context,

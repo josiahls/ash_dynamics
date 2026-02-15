@@ -68,7 +68,7 @@ struct AVHWFramesContext(Debug, TrivialRegisterType):
     var free: UnsafePointer[
         ExternalFunction[
             "free",
-            fn(ctx: UnsafePointer[AVHWFramesContext, MutExternalOrigin]),
+            fn(ctx: UnsafePointer[AVHWFramesContext, MutAnyOrigin]),
         ],
         ImmutExternalOrigin,
     ]

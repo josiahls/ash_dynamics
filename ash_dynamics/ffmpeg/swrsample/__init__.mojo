@@ -1,5 +1,6 @@
 """https://www.ffmpeg.org/doxygen/8.0/swresample_8h_source.html"""
-from sys.ffi import OwnedDLHandle, c_int, c_float, c_char
+from ffi import OwnedDLHandle, c_int, c_float, c_char
+from memory import UnsafePointer
 from os.env import getenv
 import os
 from ash_dynamics.ffmpeg.swrsample.swrsample import (
@@ -15,7 +16,9 @@ from ash_dynamics.ffmpeg.swrsample.swrsample import (
     swr_set_compensation,
     swr_set_channel_mapping,
     swr_build_matrix2,
+    SwrContext,
 )
+from ash_dynamics.ffmpeg.avutil.log import AVClass
 from logger import Logger
 
 
@@ -29,8 +32,8 @@ struct Swrsample:
     # ===--------------------------------------------------===
     # ===                   Functions                      ===
     # ===--------------------------------------------------===
-    var swr_get_class: swr_get_class.type
-    var swr_alloc: swr_alloc.type
+    var _swr_get_class: swr_get_class.type
+    var _swr_alloc: swr_alloc.type
     var swr_init: swr_init.type
     var swr_is_initialized: swr_is_initialized.type
     var swr_alloc_set_opts2: swr_alloc_set_opts2.type
@@ -54,8 +57,8 @@ struct Swrsample:
         self.lib = OwnedDLHandle(
             "{}/libswresample.so".format(so_install_prefix)
         )
-        self.swr_get_class = swr_get_class.load(self.lib)
-        self.swr_alloc = swr_alloc.load(self.lib)
+        self._swr_get_class = swr_get_class.load(self.lib)
+        self._swr_alloc = swr_alloc.load(self.lib)
         self.swr_init = swr_init.load(self.lib)
         self.swr_is_initialized = swr_is_initialized.load(self.lib)
         self.swr_alloc_set_opts2 = swr_alloc_set_opts2.load(self.lib)
@@ -66,3 +69,9 @@ struct Swrsample:
         self.swr_set_compensation = swr_set_compensation.load(self.lib)
         self.swr_set_channel_mapping = swr_set_channel_mapping.load(self.lib)
         self.swr_build_matrix2 = swr_build_matrix2.load(self.lib)
+
+    fn swr_get_class(self) -> UnsafePointer[AVClass, ImmutAnyOrigin]:
+        return self._swr_get_class().unsafe_origin_cast[origin_of(self.lib)]()
+
+    fn swr_alloc(mut self) raises -> UnsafePointer[SwrContext, MutAnyOrigin]:
+        return self._swr_alloc().unsafe_origin_cast[origin_of(self.lib)]()

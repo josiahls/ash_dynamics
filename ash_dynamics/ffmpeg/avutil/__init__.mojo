@@ -1,8 +1,18 @@
 """https://www.ffmpeg.org/doxygen/8.0/avutil_8h_source.html"""
 
-from sys.ffi import OwnedDLHandle, c_int, c_float, c_char, c_long_long
+from ffi import (
+    OwnedDLHandle,
+    c_int,
+    c_float,
+    c_char,
+    c_long_long,
+    c_size_t,
+    c_uchar,
+)
+from memory import UnsafePointer, OpaquePointer
 from os.env import getenv
 import os
+from ash_dynamics.primitives._clib import ExternalFunction
 from ash_dynamics.ffmpeg.avutil.buffer import (
     av_buffer_alloc,
     av_buffer_allocz,
@@ -21,7 +31,10 @@ from ash_dynamics.ffmpeg.avutil.buffer import (
     av_buffer_pool_uninit,
     av_buffer_pool_get,
     av_buffer_pool_buffer_get_opaque,
+    AVBufferRef,
+    AVBufferPool,
 )
+from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
 from ash_dynamics.ffmpeg.avutil.channel_layout import (
     av_channel_layout_copy,
     av_channel_name,
@@ -43,6 +56,7 @@ from ash_dynamics.ffmpeg.avutil.channel_layout import (
     av_channel_layout_compare,
     av_channel_layout_ambisonic_order,
     av_channel_layout_retype,
+    AVChannelLayout,
 )
 from ash_dynamics.ffmpeg.avutil.frame import (
     av_frame_alloc,
@@ -73,6 +87,10 @@ from ash_dynamics.ffmpeg.avutil.frame import (
     # av_frame_side_data_get,
     av_frame_side_data_remove,
     av_frame_side_data_remove_by_props,
+    AVFrame,
+    AVFrameSideData,
+    AVFrameSideDataType,
+    AVSideDataDescriptor,
 )
 from ash_dynamics.ffmpeg.avutil.mathematics import (
     av_compare_ts,
@@ -99,11 +117,11 @@ struct Avutil:
     # ===                   Functions                      ===
     # ===--------------------------------------------------===
     # Buffer functions
-    var av_buffer_alloc: av_buffer_alloc.type
-    var av_buffer_allocz: av_buffer_allocz.type
-    var av_buffer_create: av_buffer_create.type
+    var _av_buffer_alloc: av_buffer_alloc.type
+    var _av_buffer_allocz: av_buffer_allocz.type
+    var _av_buffer_create: av_buffer_create.type
     var av_buffer_default_free: av_buffer_default_free.type
-    var av_buffer_ref: av_buffer_ref.type
+    var _av_buffer_ref: av_buffer_ref.type
     var av_buffer_unref: av_buffer_unref.type
     var av_buffer_is_writable: av_buffer_is_writable.type
     var av_buffer_get_opaque: av_buffer_get_opaque.type
@@ -111,10 +129,10 @@ struct Avutil:
     var av_buffer_make_writable: av_buffer_make_writable.type
     var av_buffer_realloc: av_buffer_realloc.type
     var av_buffer_replace: av_buffer_replace.type
-    var av_buffer_pool_init: av_buffer_pool_init.type
-    var av_buffer_pool_init2: av_buffer_pool_init2.type
+    var _av_buffer_pool_init: av_buffer_pool_init.type
+    var _av_buffer_pool_init2: av_buffer_pool_init2.type
     var av_buffer_pool_uninit: av_buffer_pool_uninit.type
-    var av_buffer_pool_get: av_buffer_pool_get.type
+    var _av_buffer_pool_get: av_buffer_pool_get.type
     var av_buffer_pool_buffer_get_opaque: av_buffer_pool_buffer_get_opaque.type
 
     # Channel layout functions
@@ -126,7 +144,7 @@ struct Avutil:
     var av_channel_layout_from_mask: av_channel_layout_from_mask.type
     var av_channel_layout_from_string: av_channel_layout_from_string.type
     var av_channel_layout_default: av_channel_layout_default.type
-    var av_channel_layout_standard: av_channel_layout_standard.type
+    var _av_channel_layout_standard: av_channel_layout_standard.type
     var av_channel_layout_uninit: av_channel_layout_uninit.type
     var av_channel_layout_describe: av_channel_layout_describe.type
     var av_channel_layout_channel_from_index: av_channel_layout_channel_from_index.type
@@ -140,11 +158,11 @@ struct Avutil:
     var av_channel_layout_retype: av_channel_layout_retype.type
 
     # Frame functions
-    var av_frame_alloc: av_frame_alloc.type
+    var _av_frame_alloc: av_frame_alloc.type
     var av_frame_free: av_frame_free.type
     var av_frame_ref: av_frame_ref.type
     var av_frame_replace: av_frame_replace.type
-    var av_frame_clone: av_frame_clone.type
+    var _av_frame_clone: av_frame_clone.type
     var av_frame_unref: av_frame_unref.type
     var av_frame_move_ref: av_frame_move_ref.type
     var av_frame_get_buffer: av_frame_get_buffer.type
@@ -152,23 +170,23 @@ struct Avutil:
     var av_frame_make_writable: av_frame_make_writable.type
     var av_frame_copy: av_frame_copy.type
     var av_frame_copy_props: av_frame_copy_props.type
-    var av_frame_get_plane_buffer: av_frame_get_plane_buffer.type
-    var av_frame_new_side_data: av_frame_new_side_data.type
-    var av_frame_new_side_data_from_buf: av_frame_new_side_data_from_buf.type
-    var av_frame_get_side_data: av_frame_get_side_data.type
+    var _av_frame_get_plane_buffer: av_frame_get_plane_buffer.type
+    var _av_frame_new_side_data: av_frame_new_side_data.type
+    var _av_frame_new_side_data_from_buf: av_frame_new_side_data_from_buf.type
+    var _av_frame_get_side_data: av_frame_get_side_data.type
     var av_frame_remove_side_data: av_frame_remove_side_data.type
     var av_frame_apply_cropping: av_frame_apply_cropping.type
-    var av_frame_side_data_name: av_frame_side_data_name.type
-    var av_frame_side_data_desc: av_frame_side_data_desc.type
+    var _av_frame_side_data_name: av_frame_side_data_name.type
+    var _av_frame_side_data_desc: av_frame_side_data_desc.type
     var av_frame_side_data_free: av_frame_side_data_free.type
-    var av_frame_side_data_new: av_frame_side_data_new.type
-    var av_frame_side_data_add: av_frame_side_data_add.type
-    var av_frame_side_data_clone: av_frame_side_data_clone.type
+    var _av_frame_side_data_new: av_frame_side_data_new.type
+    var _av_frame_side_data_add: av_frame_side_data_add.type
+    var _av_frame_side_data_clone: av_frame_side_data_clone.type
     # NOTE: There are av_frame_side_data_get_c and av_frame_side_data_get.
     # av_frame_side_data_get is a inline function for av_frame_side_data_get_c
     # that handles an issue of const casting.
     # var av_frame_side_data_get_c: av_frame_side_data_get_c.type
-    var av_frame_side_data_get: av_frame_side_data_get_c.type
+    var _av_frame_side_data_get: av_frame_side_data_get_c.type
     var av_frame_side_data_remove: av_frame_side_data_remove.type
     var av_frame_side_data_remove_by_props: av_frame_side_data_remove_by_props.type
 
@@ -192,11 +210,11 @@ struct Avutil:
         self.lib = OwnedDLHandle("{}/libavutil.so".format(so_install_prefix))
 
         # Buffer functions
-        self.av_buffer_alloc = av_buffer_alloc.load(self.lib)
-        self.av_buffer_allocz = av_buffer_allocz.load(self.lib)
-        self.av_buffer_create = av_buffer_create.load(self.lib)
+        self._av_buffer_alloc = av_buffer_alloc.load(self.lib)
+        self._av_buffer_allocz = av_buffer_allocz.load(self.lib)
+        self._av_buffer_create = av_buffer_create.load(self.lib)
         self.av_buffer_default_free = av_buffer_default_free.load(self.lib)
-        self.av_buffer_ref = av_buffer_ref.load(self.lib)
+        self._av_buffer_ref = av_buffer_ref.load(self.lib)
         self.av_buffer_unref = av_buffer_unref.load(self.lib)
         self.av_buffer_is_writable = av_buffer_is_writable.load(self.lib)
         self.av_buffer_get_opaque = av_buffer_get_opaque.load(self.lib)
@@ -204,10 +222,10 @@ struct Avutil:
         self.av_buffer_make_writable = av_buffer_make_writable.load(self.lib)
         self.av_buffer_realloc = av_buffer_realloc.load(self.lib)
         self.av_buffer_replace = av_buffer_replace.load(self.lib)
-        self.av_buffer_pool_init = av_buffer_pool_init.load(self.lib)
-        self.av_buffer_pool_init2 = av_buffer_pool_init2.load(self.lib)
+        self._av_buffer_pool_init = av_buffer_pool_init.load(self.lib)
+        self._av_buffer_pool_init2 = av_buffer_pool_init2.load(self.lib)
         self.av_buffer_pool_uninit = av_buffer_pool_uninit.load(self.lib)
-        self.av_buffer_pool_get = av_buffer_pool_get.load(self.lib)
+        self._av_buffer_pool_get = av_buffer_pool_get.load(self.lib)
         self.av_buffer_pool_buffer_get_opaque = (
             av_buffer_pool_buffer_get_opaque.load(self.lib)
         )
@@ -229,7 +247,7 @@ struct Avutil:
         self.av_channel_layout_default = av_channel_layout_default.load(
             self.lib
         )
-        self.av_channel_layout_standard = av_channel_layout_standard.load(
+        self._av_channel_layout_standard = av_channel_layout_standard.load(
             self.lib
         )
         self.av_channel_layout_uninit = av_channel_layout_uninit.load(self.lib)
@@ -259,11 +277,11 @@ struct Avutil:
         self.av_channel_layout_retype = av_channel_layout_retype.load(self.lib)
 
         # Frame functions
-        self.av_frame_alloc = av_frame_alloc.load(self.lib)
+        self._av_frame_alloc = av_frame_alloc.load(self.lib)
         self.av_frame_free = av_frame_free.load(self.lib)
         self.av_frame_ref = av_frame_ref.load(self.lib)
         self.av_frame_replace = av_frame_replace.load(self.lib)
-        self.av_frame_clone = av_frame_clone.load(self.lib)
+        self._av_frame_clone = av_frame_clone.load(self.lib)
         self.av_frame_unref = av_frame_unref.load(self.lib)
         self.av_frame_move_ref = av_frame_move_ref.load(self.lib)
         self.av_frame_get_buffer = av_frame_get_buffer.load(self.lib)
@@ -271,25 +289,25 @@ struct Avutil:
         self.av_frame_make_writable = av_frame_make_writable.load(self.lib)
         self.av_frame_copy = av_frame_copy.load(self.lib)
         self.av_frame_copy_props = av_frame_copy_props.load(self.lib)
-        self.av_frame_get_plane_buffer = av_frame_get_plane_buffer.load(
+        self._av_frame_get_plane_buffer = av_frame_get_plane_buffer.load(
             self.lib
         )
-        self.av_frame_new_side_data = av_frame_new_side_data.load(self.lib)
-        self.av_frame_new_side_data_from_buf = (
+        self._av_frame_new_side_data = av_frame_new_side_data.load(self.lib)
+        self._av_frame_new_side_data_from_buf = (
             av_frame_new_side_data_from_buf.load(self.lib)
         )
-        self.av_frame_get_side_data = av_frame_get_side_data.load(self.lib)
+        self._av_frame_get_side_data = av_frame_get_side_data.load(self.lib)
         self.av_frame_remove_side_data = av_frame_remove_side_data.load(
             self.lib
         )
         self.av_frame_apply_cropping = av_frame_apply_cropping.load(self.lib)
-        self.av_frame_side_data_name = av_frame_side_data_name.load(self.lib)
-        self.av_frame_side_data_desc = av_frame_side_data_desc.load(self.lib)
+        self._av_frame_side_data_name = av_frame_side_data_name.load(self.lib)
+        self._av_frame_side_data_desc = av_frame_side_data_desc.load(self.lib)
         self.av_frame_side_data_free = av_frame_side_data_free.load(self.lib)
-        self.av_frame_side_data_new = av_frame_side_data_new.load(self.lib)
-        self.av_frame_side_data_add = av_frame_side_data_add.load(self.lib)
-        self.av_frame_side_data_clone = av_frame_side_data_clone.load(self.lib)
-        self.av_frame_side_data_get = av_frame_side_data_get_c.load(self.lib)
+        self._av_frame_side_data_new = av_frame_side_data_new.load(self.lib)
+        self._av_frame_side_data_add = av_frame_side_data_add.load(self.lib)
+        self._av_frame_side_data_clone = av_frame_side_data_clone.load(self.lib)
+        self._av_frame_side_data_get = av_frame_side_data_get_c.load(self.lib)
         self.av_frame_side_data_remove = av_frame_side_data_remove.load(
             self.lib
         )
@@ -304,6 +322,217 @@ struct Avutil:
 
         # Error functions
         self.av_strerror = av_strerror.load(self.lib)
+
+    fn av_buffer_alloc(
+        mut self, size: c_size_t
+    ) raises -> UnsafePointer[AVBufferRef, MutAnyOrigin]:
+        return self._av_buffer_alloc(size).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_buffer_allocz(
+        mut self, size: c_size_t
+    ) raises -> UnsafePointer[AVBufferRef, MutAnyOrigin]:
+        return self._av_buffer_allocz(size).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_alloc_dictionary(
+        mut self, count: Int = 0
+    ) raises -> UnsafePointer[AVDictionary, MutAnyOrigin]:
+        var d = alloc[AVDictionary](count)
+        return d.unsafe_origin_cast[origin_of(self.lib)]()
+
+    fn av_buffer_create(
+        mut self,
+        data: UnsafePointer[c_uchar, MutAnyOrigin],
+        size: c_size_t,
+        free: UnsafePointer[
+            ExternalFunction[
+                "free",
+                fn(
+                    opaque: OpaquePointer[MutAnyOrigin],
+                    data: UnsafePointer[c_uchar, MutAnyOrigin],
+                ),
+            ],
+            ImmutAnyOrigin,
+        ],
+        opaque: OpaquePointer[MutAnyOrigin],
+        flags: c_int,
+    ) raises -> UnsafePointer[AVBufferRef, MutAnyOrigin]:
+        return self._av_buffer_create(
+            data, size, free, opaque, flags
+        ).unsafe_origin_cast[origin_of(self.lib)]()
+
+    fn av_buffer_ref(
+        mut self, buf: UnsafePointer[AVBufferRef, ImmutAnyOrigin]
+    ) -> UnsafePointer[AVBufferRef, MutAnyOrigin]:
+        return self._av_buffer_ref(buf).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_buffer_pool_init(
+        mut self,
+        size: c_size_t,
+        alloc: UnsafePointer[
+            ExternalFunction[
+                "alloc",
+                fn(
+                    size: c_size_t,
+                ) -> UnsafePointer[AVBufferRef, MutExternalOrigin],
+            ],
+            MutAnyOrigin,
+        ],
+    ) raises -> UnsafePointer[AVBufferPool, MutAnyOrigin]:
+        return self._av_buffer_pool_init(size, alloc).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_buffer_pool_init2(
+        mut self,
+        size: c_size_t,
+        opaque: OpaquePointer[MutAnyOrigin],
+        alloc: UnsafePointer[
+            ExternalFunction[
+                "alloc",
+                fn(
+                    opaque: OpaquePointer[MutAnyOrigin], size: c_size_t
+                ) -> UnsafePointer[AVBufferRef, MutExternalOrigin],
+            ],
+            MutAnyOrigin,
+        ],
+        pool_free: UnsafePointer[
+            ExternalFunction[
+                "pool_free",
+                fn(opaque: OpaquePointer[MutAnyOrigin]) -> NoneType,
+            ],
+            MutAnyOrigin,
+        ],
+    ) raises -> UnsafePointer[AVBufferPool, MutAnyOrigin]:
+        return self._av_buffer_pool_init2(
+            size, opaque, alloc, pool_free
+        ).unsafe_origin_cast[origin_of(self.lib)]()
+
+    fn av_buffer_pool_get(
+        mut self, pool: UnsafePointer[AVBufferPool, ImmutAnyOrigin]
+    ) -> UnsafePointer[AVBufferRef, MutAnyOrigin]:
+        return self._av_buffer_pool_get(pool).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_channel_layout_standard(
+        self, opaque: UnsafePointer[OpaquePointer[MutAnyOrigin], MutAnyOrigin]
+    ) -> UnsafePointer[AVChannelLayout, ImmutAnyOrigin]:
+        return self._av_channel_layout_standard(opaque).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_frame_alloc(mut self) raises -> UnsafePointer[AVFrame, MutAnyOrigin]:
+        return self._av_frame_alloc().unsafe_origin_cast[origin_of(self.lib)]()
+
+    fn av_frame_clone(
+        mut self, src: UnsafePointer[AVFrame, ImmutAnyOrigin]
+    ) -> UnsafePointer[AVFrame, MutAnyOrigin]:
+        return self._av_frame_clone(src).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_frame_get_plane_buffer(
+        mut self, frame: UnsafePointer[AVFrame, ImmutAnyOrigin], plane: c_int
+    ) -> UnsafePointer[AVBufferRef, MutAnyOrigin]:
+        return self._av_frame_get_plane_buffer(frame, plane).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_frame_new_side_data(
+        mut self,
+        frame: UnsafePointer[AVFrame, MutAnyOrigin],
+        type: AVFrameSideDataType.ENUM_DTYPE,
+        size: c_size_t,
+    ) -> UnsafePointer[AVFrameSideData, MutAnyOrigin]:
+        return self._av_frame_new_side_data(
+            frame, type, size
+        ).unsafe_origin_cast[origin_of(self.lib)]()
+
+    fn av_frame_new_side_data_from_buf(
+        mut self,
+        frame: UnsafePointer[AVFrame, MutAnyOrigin],
+        type: AVFrameSideDataType.ENUM_DTYPE,
+        buf: UnsafePointer[AVBufferRef, MutAnyOrigin],
+    ) -> UnsafePointer[AVFrameSideData, MutAnyOrigin]:
+        return self._av_frame_new_side_data_from_buf(
+            frame, type, buf
+        ).unsafe_origin_cast[origin_of(self.lib)]()
+
+    fn av_frame_get_side_data(
+        mut self,
+        frame: UnsafePointer[AVFrame, ImmutAnyOrigin],
+        type: AVFrameSideDataType.ENUM_DTYPE,
+    ) -> UnsafePointer[AVFrameSideData, MutAnyOrigin]:
+        return self._av_frame_get_side_data(frame, type).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_frame_side_data_name(
+        self,
+        type: AVFrameSideDataType.ENUM_DTYPE,
+    ) -> UnsafePointer[c_char, ImmutAnyOrigin]:
+        return self._av_frame_side_data_name(type).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_frame_side_data_desc(
+        self,
+        type: AVFrameSideDataType.ENUM_DTYPE,
+    ) -> UnsafePointer[AVSideDataDescriptor, ImmutAnyOrigin]:
+        return self._av_frame_side_data_desc(type).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_frame_side_data_new(
+        mut self,
+        sd: UnsafePointer[AVFrameSideData, MutAnyOrigin],
+        nb_sd: UnsafePointer[c_int, MutAnyOrigin],
+        type: AVFrameSideDataType.ENUM_DTYPE,
+        size: c_size_t,
+        flags: c_int,
+    ) -> UnsafePointer[AVFrameSideData, MutAnyOrigin]:
+        return self._av_frame_side_data_new(
+            sd, nb_sd, type, size, flags
+        ).unsafe_origin_cast[origin_of(self.lib)]()
+
+    fn av_frame_side_data_add(
+        mut self,
+        sd: UnsafePointer[AVFrameSideData, MutAnyOrigin],
+        nb_sd: UnsafePointer[c_int, MutAnyOrigin],
+        type: AVFrameSideDataType.ENUM_DTYPE,
+        buf: UnsafePointer[AVBufferRef, MutAnyOrigin],
+        flags: c_int,
+    ) -> UnsafePointer[AVFrameSideData, MutAnyOrigin]:
+        return self._av_frame_side_data_add(
+            sd, nb_sd, type, buf, flags
+        ).unsafe_origin_cast[origin_of(self.lib)]()
+
+    fn av_frame_side_data_clone(
+        mut self,
+        sd: UnsafePointer[AVFrameSideData, MutAnyOrigin],
+        nb_sd: UnsafePointer[c_int, MutAnyOrigin],
+        src: UnsafePointer[AVFrameSideData, ImmutAnyOrigin],
+        flags: c_int,
+    ) -> UnsafePointer[AVFrameSideData, MutAnyOrigin]:
+        return self._av_frame_side_data_clone(
+            sd, nb_sd, src, flags
+        ).unsafe_origin_cast[origin_of(self.lib)]()
+
+    fn av_frame_side_data_get(
+        self,
+        sd: UnsafePointer[AVFrameSideData, ImmutAnyOrigin],
+        nb_sd: c_int,
+        type: AVFrameSideDataType.ENUM_DTYPE,
+    ) -> UnsafePointer[AVFrameSideData, ImmutAnyOrigin]:
+        return self._av_frame_side_data_get(sd, nb_sd, type).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
 
     fn av_compare_ts(
         self,

@@ -91,9 +91,7 @@ struct AVCodec(Debug, TrivialRegisterType):
 comptime av_codec_iterate = ExternalFunction[
     "av_codec_iterate",
     fn(
-        opaque: UnsafePointer[
-            OpaquePointer[MutExternalOrigin], MutExternalOrigin
-        ],
+        opaque: UnsafePointer[OpaquePointer[MutAnyOrigin], MutAnyOrigin],
     ) -> UnsafePointer[AVCodec, ImmutExternalOrigin],
 ]
 
@@ -128,18 +126,18 @@ comptime avcodec_find_encoder_by_name = ExternalFunction[
 
 comptime av_codec_is_encoder = ExternalFunction[
     "av_codec_is_encoder",
-    fn(codec: UnsafePointer[AVCodec, ImmutExternalOrigin],) -> c_int,
+    fn(codec: UnsafePointer[AVCodec, ImmutAnyOrigin],) -> c_int,
 ]
 
 comptime av_codec_is_decoder = ExternalFunction[
     "av_codec_is_decoder",
-    fn(codec: UnsafePointer[AVCodec, ImmutExternalOrigin],) -> c_int,
+    fn(codec: UnsafePointer[AVCodec, ImmutAnyOrigin],) -> c_int,
 ]
 
 comptime av_get_profile_name = ExternalFunction[
     "av_get_profile_name",
     fn(
-        codec: UnsafePointer[AVCodec, ImmutExternalOrigin],
+        codec: UnsafePointer[AVCodec, ImmutAnyOrigin],
         profile: c_int,
     ) -> UnsafePointer[c_char, ImmutExternalOrigin],
 ]
@@ -167,7 +165,7 @@ struct AVCodecHWConfig(Debug, TrivialRegisterType):
 comptime avcodec_get_hw_config = ExternalFunction[
     "avcodec_get_hw_config",
     fn(
-        codec: UnsafePointer[AVCodec, ImmutExternalOrigin],
+        codec: UnsafePointer[AVCodec, ImmutAnyOrigin],
         index: c_int,
     ) -> UnsafePointer[AVCodecHWConfig, ImmutExternalOrigin],
 ]

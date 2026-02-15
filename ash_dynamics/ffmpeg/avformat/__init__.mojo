@@ -5,7 +5,8 @@ Symbols present can be listed via:
 nm -D $ASH_DYNAMICS_SO_INSTALL_PREFIX/libavformat.so
 """
 
-from sys.ffi import OwnedDLHandle, c_int, c_float, c_char
+from ffi import OwnedDLHandle, c_int, c_float, c_char, c_long_long
+from memory import UnsafePointer, OpaquePointer
 from os.env import getenv
 import os
 from ash_dynamics.ffmpeg.avformat.avformat import (
@@ -92,7 +93,19 @@ from ash_dynamics.ffmpeg.avformat.avformat import (
     avformat_queue_attached_pictures,
     AVOutputFormat,
     AVFormatContext,
+    AVStream,
+    AVProgram,
+    AVStreamGroup,
+    AVInputFormat,
+    AVClass,
+    AVIndexEntry,
+    AVCodecTag,
+    AVProbeData,
+    AVStreamGroupParamsType,
 )
+from ash_dynamics.ffmpeg.avcodec.avcodec import AVCodecParserContext
+from ash_dynamics.ffmpeg.avcodec.codec import AVCodec
+from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
 from ash_dynamics.ffmpeg.avformat.avio import avio_open, AVIO_FLAG_WRITE
 
 from logger import Logger
@@ -114,55 +127,55 @@ struct Avformat:
 
     # Disposition functions
     var av_disposition_from_string: av_disposition_from_string.type
-    var av_disposition_to_string: av_disposition_to_string.type
+    var _av_disposition_to_string: av_disposition_to_string.type
 
     # Stream functions
-    var av_stream_get_parser: av_stream_get_parser.type
+    var _av_stream_get_parser: av_stream_get_parser.type
 
     # Version/info functions
     var avformat_version: avformat_version.type
-    var avformat_configuration: avformat_configuration.type
-    var avformat_license: avformat_license.type
+    var _avformat_configuration: avformat_configuration.type
+    var _avformat_license: avformat_license.type
 
     # Network functions
     var avformat_network_init: avformat_network_init.type
     var avformat_network_deinit: avformat_network_deinit.type
 
     # Iterator functions
-    var av_muxer_iterate: av_muxer_iterate.type
-    var av_demuxer_iterate: av_demuxer_iterate.type
+    var _av_muxer_iterate: av_muxer_iterate.type
+    var _av_demuxer_iterate: av_demuxer_iterate.type
 
     # Context functions
-    var avformat_alloc_context: avformat_alloc_context.type
+    var _avformat_alloc_context: avformat_alloc_context.type
     var avformat_free_context: avformat_free_context.type
-    var avformat_get_class: avformat_get_class.type
-    var av_stream_get_class: av_stream_get_class.type
-    var av_stream_group_get_class: av_stream_group_get_class.type
+    var _avformat_get_class: avformat_get_class.type
+    var _av_stream_get_class: av_stream_get_class.type
+    var _av_stream_group_get_class: av_stream_group_get_class.type
 
     # Stream group functions
-    var avformat_stream_group_name: avformat_stream_group_name.type
-    var avformat_stream_group_create: avformat_stream_group_create.type
-    var avformat_new_stream: avformat_new_stream.type
+    var _avformat_stream_group_name: avformat_stream_group_name.type
+    var _avformat_stream_group_create: avformat_stream_group_create.type
+    var _avformat_new_stream: avformat_new_stream.type
     var avformat_stream_group_add_stream: avformat_stream_group_add_stream.type
 
     # Program functions
-    var av_new_program: av_new_program.type
+    var _av_new_program: av_new_program.type
+    var _av_find_program_from_stream: av_find_program_from_stream.type
 
     # Output context functions
     var _alloc_output_context: avformat_alloc_output_context2.type
 
     # Input format functions
-    var av_find_input_format: av_find_input_format.type
-    var av_probe_input_format: av_probe_input_format.type
-    var av_probe_input_format2: av_probe_input_format2.type
-    var av_probe_input_format3: av_probe_input_format3.type
+    var _av_find_input_format: av_find_input_format.type
+    var _av_probe_input_format: av_probe_input_format.type
+    var _av_probe_input_format2: av_probe_input_format2.type
+    var _av_probe_input_format3: av_probe_input_format3.type
     var av_probe_input_buffer2: av_probe_input_buffer2.type
     var av_probe_input_buffer: av_probe_input_buffer.type
 
     # Input/output functions
     var avformat_open_input: avformat_open_input.type
     var avformat_find_stream_info: avformat_find_stream_info.type
-    var av_find_program_from_stream: av_find_program_from_stream.type
     var av_program_add_stream_index: av_program_add_stream_index.type
     var av_find_best_stream: av_find_best_stream.type
     var av_read_frame: av_read_frame.type
@@ -184,7 +197,7 @@ struct Avformat:
     var av_write_trailer: av_write_trailer.type
 
     # Format/codec functions
-    var av_guess_format: av_guess_format.type
+    var _av_guess_format: av_guess_format.type
     var av_guess_codec: av_guess_codec.type
     var av_get_output_timestamp: av_get_output_timestamp.type
 
@@ -204,8 +217,8 @@ struct Avformat:
     var av_find_default_stream_index: av_find_default_stream_index.type
     var av_index_search_timestamp: av_index_search_timestamp.type
     var avformat_index_get_entries_count: avformat_index_get_entries_count.type
-    var avformat_index_get_entry: avformat_index_get_entry.type
-    var avformat_index_get_entry_from_timestamp: avformat_index_get_entry_from_timestamp.type
+    var _avformat_index_get_entry: avformat_index_get_entry.type
+    var _avformat_index_get_entry_from_timestamp: avformat_index_get_entry_from_timestamp.type
     var av_add_index_entry: av_add_index_entry.type
 
     # URL functions
@@ -224,10 +237,10 @@ struct Avformat:
     var avformat_query_codec: avformat_query_codec.type
 
     # Tag functions
-    var avformat_get_riff_video_tags: avformat_get_riff_video_tags.type
-    var avformat_get_riff_audio_tags: avformat_get_riff_audio_tags.type
-    var avformat_get_mov_video_tags: avformat_get_mov_video_tags.type
-    var avformat_get_mov_audio_tags: avformat_get_mov_audio_tags.type
+    var _avformat_get_riff_video_tags: avformat_get_riff_video_tags.type
+    var _avformat_get_riff_audio_tags: avformat_get_riff_audio_tags.type
+    var _avformat_get_mov_video_tags: avformat_get_mov_video_tags.type
+    var _avformat_get_mov_audio_tags: avformat_get_mov_audio_tags.type
 
     # Guess functions
     var av_guess_sample_aspect_ratio: av_guess_sample_aspect_ratio.type
@@ -259,47 +272,47 @@ struct Avformat:
         self.av_disposition_from_string = av_disposition_from_string.load(
             self.lib
         )
-        self.av_disposition_to_string = av_disposition_to_string.load(self.lib)
+        self._av_disposition_to_string = av_disposition_to_string.load(self.lib)
 
         # Stream functions
-        self.av_stream_get_parser = av_stream_get_parser.load(self.lib)
+        self._av_stream_get_parser = av_stream_get_parser.load(self.lib)
 
         # Version/info functions
         self.avformat_version = avformat_version.load(self.lib)
-        self.avformat_configuration = avformat_configuration.load(self.lib)
-        self.avformat_license = avformat_license.load(self.lib)
+        self._avformat_configuration = avformat_configuration.load(self.lib)
+        self._avformat_license = avformat_license.load(self.lib)
 
         # Network functions
         self.avformat_network_init = avformat_network_init.load(self.lib)
         self.avformat_network_deinit = avformat_network_deinit.load(self.lib)
 
         # Iterator functions
-        self.av_muxer_iterate = av_muxer_iterate.load(self.lib)
-        self.av_demuxer_iterate = av_demuxer_iterate.load(self.lib)
+        self._av_muxer_iterate = av_muxer_iterate.load(self.lib)
+        self._av_demuxer_iterate = av_demuxer_iterate.load(self.lib)
 
         # Context functions
-        self.avformat_alloc_context = avformat_alloc_context.load(self.lib)
+        self._avformat_alloc_context = avformat_alloc_context.load(self.lib)
         self.avformat_free_context = avformat_free_context.load(self.lib)
-        self.avformat_get_class = avformat_get_class.load(self.lib)
-        self.av_stream_get_class = av_stream_get_class.load(self.lib)
-        self.av_stream_group_get_class = av_stream_group_get_class.load(
+        self._avformat_get_class = avformat_get_class.load(self.lib)
+        self._av_stream_get_class = av_stream_get_class.load(self.lib)
+        self._av_stream_group_get_class = av_stream_group_get_class.load(
             self.lib
         )
 
         # Stream group functions
-        self.avformat_stream_group_name = avformat_stream_group_name.load(
+        self._avformat_stream_group_name = avformat_stream_group_name.load(
             self.lib
         )
-        self.avformat_stream_group_create = avformat_stream_group_create.load(
+        self._avformat_stream_group_create = avformat_stream_group_create.load(
             self.lib
         )
-        self.avformat_new_stream = avformat_new_stream.load(self.lib)
+        self._avformat_new_stream = avformat_new_stream.load(self.lib)
         self.avformat_stream_group_add_stream = (
             avformat_stream_group_add_stream.load(self.lib)
         )
 
         # Program functions
-        self.av_new_program = av_new_program.load(self.lib)
+        self._av_new_program = av_new_program.load(self.lib)
 
         # Output context functions
         self._alloc_output_context = avformat_alloc_output_context2.load(
@@ -307,10 +320,10 @@ struct Avformat:
         )
 
         # Input format functions
-        self.av_find_input_format = av_find_input_format.load(self.lib)
-        self.av_probe_input_format = av_probe_input_format.load(self.lib)
-        self.av_probe_input_format2 = av_probe_input_format2.load(self.lib)
-        self.av_probe_input_format3 = av_probe_input_format3.load(self.lib)
+        self._av_find_input_format = av_find_input_format.load(self.lib)
+        self._av_probe_input_format = av_probe_input_format.load(self.lib)
+        self._av_probe_input_format2 = av_probe_input_format2.load(self.lib)
+        self._av_probe_input_format3 = av_probe_input_format3.load(self.lib)
         self.av_probe_input_buffer2 = av_probe_input_buffer2.load(self.lib)
         self.av_probe_input_buffer = av_probe_input_buffer.load(self.lib)
 
@@ -319,7 +332,7 @@ struct Avformat:
         self.avformat_find_stream_info = avformat_find_stream_info.load(
             self.lib
         )
-        self.av_find_program_from_stream = av_find_program_from_stream.load(
+        self._av_find_program_from_stream = av_find_program_from_stream.load(
             self.lib
         )
         self.av_program_add_stream_index = av_program_add_stream_index.load(
@@ -351,7 +364,7 @@ struct Avformat:
         self.av_write_trailer = av_write_trailer.load(self.lib)
 
         # Format/codec functions
-        self.av_guess_format = av_guess_format.load(self.lib)
+        self._av_guess_format = av_guess_format.load(self.lib)
         self.av_guess_codec = av_guess_codec.load(self.lib)
         self.av_get_output_timestamp = av_get_output_timestamp.load(self.lib)
 
@@ -377,8 +390,8 @@ struct Avformat:
         self.avformat_index_get_entries_count = (
             avformat_index_get_entries_count.load(self.lib)
         )
-        self.avformat_index_get_entry = avformat_index_get_entry.load(self.lib)
-        self.avformat_index_get_entry_from_timestamp = (
+        self._avformat_index_get_entry = avformat_index_get_entry.load(self.lib)
+        self._avformat_index_get_entry_from_timestamp = (
             avformat_index_get_entry_from_timestamp.load(self.lib)
         )
         self.av_add_index_entry = av_add_index_entry.load(self.lib)
@@ -399,16 +412,16 @@ struct Avformat:
         self.avformat_query_codec = avformat_query_codec.load(self.lib)
 
         # Tag functions
-        self.avformat_get_riff_video_tags = avformat_get_riff_video_tags.load(
+        self._avformat_get_riff_video_tags = avformat_get_riff_video_tags.load(
             self.lib
         )
-        self.avformat_get_riff_audio_tags = avformat_get_riff_audio_tags.load(
+        self._avformat_get_riff_audio_tags = avformat_get_riff_audio_tags.load(
             self.lib
         )
-        self.avformat_get_mov_video_tags = avformat_get_mov_video_tags.load(
+        self._avformat_get_mov_video_tags = avformat_get_mov_video_tags.load(
             self.lib
         )
-        self.avformat_get_mov_audio_tags = avformat_get_mov_audio_tags.load(
+        self._avformat_get_mov_audio_tags = avformat_get_mov_audio_tags.load(
             self.lib
         )
 
@@ -429,13 +442,215 @@ struct Avformat:
         # I/O functions
         self.avio_open = avio_open.load(self.lib)
 
+    fn av_disposition_to_string(
+        self, disposition: c_int
+    ) -> UnsafePointer[c_char, ImmutAnyOrigin]:
+        return self._av_disposition_to_string(disposition).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_stream_get_parser(
+        self, s: UnsafePointer[AVStream, ImmutAnyOrigin]
+    ) -> UnsafePointer[AVCodecParserContext, ImmutAnyOrigin]:
+        return self._av_stream_get_parser(s).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn avformat_configuration(self) -> UnsafePointer[c_char, ImmutAnyOrigin]:
+        return self._avformat_configuration().unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn avformat_license(self) -> UnsafePointer[c_char, ImmutAnyOrigin]:
+        return self._avformat_license().unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_muxer_iterate(
+        self, opaque: UnsafePointer[OpaquePointer[MutAnyOrigin], MutAnyOrigin]
+    ) -> UnsafePointer[AVOutputFormat, ImmutAnyOrigin]:
+        return self._av_muxer_iterate(opaque).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_demuxer_iterate(
+        self, opaque: UnsafePointer[OpaquePointer[MutAnyOrigin], MutAnyOrigin]
+    ) -> UnsafePointer[AVInputFormat, ImmutAnyOrigin]:
+        return self._av_demuxer_iterate(opaque).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn avformat_alloc_context(
+        mut self,
+    ) raises -> UnsafePointer[AVFormatContext, MutAnyOrigin]:
+        return self._avformat_alloc_context().unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn avformat_get_class(self) -> UnsafePointer[AVClass, ImmutAnyOrigin]:
+        return self._avformat_get_class().unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_stream_get_class(self) -> UnsafePointer[AVClass, ImmutAnyOrigin]:
+        return self._av_stream_get_class().unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_stream_group_get_class(
+        self,
+    ) -> UnsafePointer[AVClass, ImmutAnyOrigin]:
+        return self._av_stream_group_get_class().unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn avformat_stream_group_name(
+        self, type: AVStreamGroupParamsType.ENUM_DTYPE
+    ) -> UnsafePointer[c_char, ImmutAnyOrigin]:
+        return self._avformat_stream_group_name(type).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn avformat_stream_group_create(
+        mut self,
+        s: UnsafePointer[AVFormatContext, MutAnyOrigin],
+        type: AVStreamGroupParamsType.ENUM_DTYPE,
+        options: UnsafePointer[
+            UnsafePointer[AVDictionary, MutAnyOrigin], MutAnyOrigin
+        ],
+    ) -> UnsafePointer[AVStreamGroup, MutAnyOrigin]:
+        return self._avformat_stream_group_create(
+            s, type, options
+        ).unsafe_origin_cast[origin_of(self.lib)]()
+
+    fn avformat_new_stream(
+        mut self,
+        s: UnsafePointer[AVFormatContext, MutAnyOrigin],
+        c: UnsafePointer[AVCodec, ImmutAnyOrigin],
+    ) -> UnsafePointer[AVStream, MutAnyOrigin]:
+        return self._avformat_new_stream(s, c).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_new_program(
+        mut self,
+        s: UnsafePointer[AVFormatContext, MutAnyOrigin],
+        id: c_int,
+    ) -> UnsafePointer[AVProgram, MutAnyOrigin]:
+        return self._av_new_program(s, id).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_find_input_format(
+        self, short_name: UnsafePointer[c_char, ImmutAnyOrigin]
+    ) -> UnsafePointer[AVInputFormat, ImmutAnyOrigin]:
+        return self._av_find_input_format(short_name).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_probe_input_format(
+        self,
+        pd: UnsafePointer[AVProbeData, ImmutAnyOrigin],
+        is_opened: c_int,
+    ) -> UnsafePointer[AVInputFormat, ImmutAnyOrigin]:
+        return self._av_probe_input_format(pd, is_opened).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn av_probe_input_format2(
+        self,
+        pd: UnsafePointer[AVProbeData, ImmutAnyOrigin],
+        is_opened: c_int,
+        score_max: UnsafePointer[c_int, MutAnyOrigin],
+    ) -> UnsafePointer[AVInputFormat, ImmutAnyOrigin]:
+        return self._av_probe_input_format2(
+            pd, is_opened, score_max
+        ).unsafe_origin_cast[origin_of(self.lib)]()
+
+    fn av_probe_input_format3(
+        self,
+        pd: UnsafePointer[AVProbeData, ImmutAnyOrigin],
+        is_opened: c_int,
+        score_ret: UnsafePointer[c_int, MutAnyOrigin],
+    ) -> UnsafePointer[AVInputFormat, ImmutAnyOrigin]:
+        return self._av_probe_input_format3(
+            pd, is_opened, score_ret
+        ).unsafe_origin_cast[origin_of(self.lib)]()
+
+    fn av_find_program_from_stream(
+        mut self,
+        ic: UnsafePointer[AVFormatContext, MutAnyOrigin],
+        last: UnsafePointer[AVProgram, MutAnyOrigin],
+        s: c_int,
+    ) -> UnsafePointer[AVProgram, MutAnyOrigin]:
+        return self._av_find_program_from_stream(
+            ic, last, s
+        ).unsafe_origin_cast[origin_of(self.lib)]()
+
+    fn av_guess_format(
+        self,
+        short_name: UnsafePointer[c_char, ImmutAnyOrigin],
+        filename: UnsafePointer[c_char, ImmutAnyOrigin],
+        mime_type: UnsafePointer[c_char, ImmutAnyOrigin],
+    ) -> UnsafePointer[AVOutputFormat, ImmutAnyOrigin]:
+        return self._av_guess_format(
+            short_name, filename, mime_type
+        ).unsafe_origin_cast[origin_of(self.lib)]()
+
+    fn avformat_index_get_entry(
+        self,
+        st: UnsafePointer[AVStream, MutAnyOrigin],
+        idx: c_int,
+    ) -> UnsafePointer[AVIndexEntry, ImmutAnyOrigin]:
+        return self._avformat_index_get_entry(st, idx).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn avformat_index_get_entry_from_timestamp(
+        self,
+        st: UnsafePointer[AVStream, MutAnyOrigin],
+        timestamp: c_long_long,
+        flags: c_int,
+    ) -> UnsafePointer[AVIndexEntry, ImmutAnyOrigin]:
+        return self._avformat_index_get_entry_from_timestamp(
+            st, timestamp, flags
+        ).unsafe_origin_cast[origin_of(self.lib)]()
+
+    fn avformat_get_riff_video_tags(
+        self,
+    ) -> UnsafePointer[AVCodecTag, ImmutAnyOrigin]:
+        return self._avformat_get_riff_video_tags().unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn avformat_get_riff_audio_tags(
+        self,
+    ) -> UnsafePointer[AVCodecTag, ImmutAnyOrigin]:
+        return self._avformat_get_riff_audio_tags().unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn avformat_get_mov_video_tags(
+        self,
+    ) -> UnsafePointer[AVCodecTag, ImmutAnyOrigin]:
+        return self._avformat_get_mov_video_tags().unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
+    fn avformat_get_mov_audio_tags(
+        self,
+    ) -> UnsafePointer[AVCodecTag, ImmutAnyOrigin]:
+        return self._avformat_get_mov_audio_tags().unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+
     fn alloc_output_context(
         self,
         ctx: UnsafePointer[
-            UnsafePointer[AVFormatContext, MutExternalOrigin], MutAnyOrigin
+            UnsafePointer[AVFormatContext, MutAnyOrigin], MutAnyOrigin
         ],
-        oformat: UnsafePointer[AVOutputFormat, ImmutExternalOrigin],
-        format_name: UnsafePointer[c_char, ImmutExternalOrigin],
+        oformat: UnsafePointer[AVOutputFormat, ImmutAnyOrigin],
+        format_name: UnsafePointer[c_char, ImmutAnyOrigin],
         mut filename: String,
     ) -> c_int:
         return self._alloc_output_context(
@@ -448,7 +663,7 @@ struct Avformat:
     fn alloc_output_context(
         self,
         ctx: UnsafePointer[
-            UnsafePointer[AVFormatContext, MutExternalOrigin], MutAnyOrigin
+            UnsafePointer[AVFormatContext, MutAnyOrigin], MutAnyOrigin
         ],
         mut filename: String,
     ) -> c_int:
@@ -465,7 +680,7 @@ struct Avformat:
         """
         return self._alloc_output_context(
             ctx=ctx,
-            oformat=UnsafePointer[AVOutputFormat, ImmutExternalOrigin](),
-            format_name=UnsafePointer[c_char, ImmutExternalOrigin](),
+            oformat=UnsafePointer[AVOutputFormat, ImmutAnyOrigin](),
+            format_name=UnsafePointer[c_char, ImmutAnyOrigin](),
             filename=filename.as_c_string_slice().unsafe_ptr().as_immutable(),
         )

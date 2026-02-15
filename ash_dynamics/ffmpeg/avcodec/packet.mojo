@@ -93,10 +93,10 @@ comptime av_packet_side_data_new = ExternalFunction[
     "av_packet_side_data_new",
     fn(
         psd: UnsafePointer[
-            UnsafePointer[AVPacketSideData, MutExternalOrigin],
-            MutExternalOrigin,
+            UnsafePointer[AVPacketSideData, MutAnyOrigin],
+            MutAnyOrigin,
         ],
-        pnb_sd: UnsafePointer[c_int, MutExternalOrigin],
+        pnb_sd: UnsafePointer[c_int, MutAnyOrigin],
         type: AVPacketSideDataType.ENUM_DTYPE,
         size: c_size_t,
         flags: c_int,
@@ -108,12 +108,12 @@ comptime av_packet_side_data_add = ExternalFunction[
     "av_packet_side_data_add",
     fn(
         psd: UnsafePointer[
-            UnsafePointer[AVPacketSideData, MutExternalOrigin],
-            MutExternalOrigin,
+            UnsafePointer[AVPacketSideData, MutAnyOrigin],
+            MutAnyOrigin,
         ],
-        pnb_sd: UnsafePointer[c_int, MutExternalOrigin],
+        pnb_sd: UnsafePointer[c_int, MutAnyOrigin],
         type: AVPacketSideDataType.ENUM_DTYPE,
-        data: OpaquePointer[MutExternalOrigin],
+        data: OpaquePointer[MutAnyOrigin],
         size: c_size_t,
         flags: c_int,
     ) -> UnsafePointer[AVPacketSideData, MutExternalOrigin],
@@ -123,7 +123,7 @@ comptime av_packet_side_data_add = ExternalFunction[
 comptime av_packet_side_data_get = ExternalFunction[
     "av_packet_side_data_get",
     fn(
-        sd: UnsafePointer[AVPacketSideData, ImmutExternalOrigin],
+        sd: UnsafePointer[AVPacketSideData, ImmutAnyOrigin],
         nb_sd: c_int,
         type: AVPacketSideDataType.ENUM_DTYPE,
     ) -> UnsafePointer[AVPacketSideData, ImmutExternalOrigin],
@@ -133,8 +133,8 @@ comptime av_packet_side_data_get = ExternalFunction[
 comptime av_packet_side_data_remove = ExternalFunction[
     "av_packet_side_data_remove",
     fn(
-        psd: UnsafePointer[AVPacketSideData, MutExternalOrigin],
-        pnb_sd: UnsafePointer[c_int, MutExternalOrigin],
+        psd: UnsafePointer[AVPacketSideData, MutAnyOrigin],
+        pnb_sd: UnsafePointer[c_int, MutAnyOrigin],
         type: AVPacketSideDataType.ENUM_DTYPE,
     ),
 ]
@@ -144,10 +144,10 @@ comptime av_packet_side_data_free = ExternalFunction[
     "av_packet_side_data_free",
     fn(
         psd: UnsafePointer[
-            UnsafePointer[AVPacketSideData, MutExternalOrigin],
-            MutExternalOrigin,
+            UnsafePointer[AVPacketSideData, MutAnyOrigin],
+            MutAnyOrigin,
         ],
-        pnb_sd: UnsafePointer[c_int, MutExternalOrigin],
+        pnb_sd: UnsafePointer[c_int, MutAnyOrigin],
     ),
 ]
 
@@ -221,16 +221,14 @@ comptime av_packet_alloc = ExternalFunction[
 comptime av_packet_clone = ExternalFunction[
     "av_packet_clone",
     fn(
-        src: UnsafePointer[AVPacket, ImmutExternalOrigin],
+        src: UnsafePointer[AVPacket, ImmutAnyOrigin],
     ) -> UnsafePointer[AVPacket, MutExternalOrigin],
 ]
 
 comptime av_packet_free = ExternalFunction[
     "av_packet_free",
     fn(
-        pkt: UnsafePointer[
-            UnsafePointer[AVPacket, MutExternalOrigin], MutExternalOrigin
-        ],
+        pkt: UnsafePointer[UnsafePointer[AVPacket, MutAnyOrigin], MutAnyOrigin],
     ),
 ]
 
@@ -259,7 +257,7 @@ comptime av_packet_free = ExternalFunction[
 comptime av_new_packet = ExternalFunction[
     "av_new_packet",
     fn(
-        pkt: UnsafePointer[AVPacket, MutExternalOrigin],
+        pkt: UnsafePointer[AVPacket, MutAnyOrigin],
         size: c_int,
     ) -> c_int,
 ]
@@ -268,7 +266,7 @@ comptime av_new_packet = ExternalFunction[
 comptime av_shrink_packet = ExternalFunction[
     "av_shrink_packet",
     fn(
-        pkt: UnsafePointer[AVPacket, MutExternalOrigin],
+        pkt: UnsafePointer[AVPacket, MutAnyOrigin],
         size: c_int,
     ),
 ]
@@ -277,7 +275,7 @@ comptime av_shrink_packet = ExternalFunction[
 comptime av_grow_packet = ExternalFunction[
     "av_grow_packet",
     fn(
-        pkt: UnsafePointer[AVPacket, MutExternalOrigin],
+        pkt: UnsafePointer[AVPacket, MutAnyOrigin],
         grow_by: c_int,
     ) -> c_int,
 ]
@@ -285,8 +283,8 @@ comptime av_grow_packet = ExternalFunction[
 comptime av_packet_from_data = ExternalFunction[
     "av_packet_from_data",
     fn(
-        pkt: UnsafePointer[AVPacket, MutExternalOrigin],
-        data: UnsafePointer[c_uchar, MutExternalOrigin],
+        pkt: UnsafePointer[AVPacket, MutAnyOrigin],
+        data: UnsafePointer[c_uchar, MutAnyOrigin],
         size: c_int,
     ) -> c_int,
 ]
@@ -295,7 +293,7 @@ comptime av_packet_from_data = ExternalFunction[
 comptime av_packet_new_side_data = ExternalFunction[
     "av_packet_new_side_data",
     fn(
-        pkt: UnsafePointer[AVPacket, MutExternalOrigin],
+        pkt: UnsafePointer[AVPacket, MutAnyOrigin],
         type: AVPacketSideDataType.ENUM_DTYPE,
         size: c_size_t,
     ) -> UnsafePointer[c_uchar, MutExternalOrigin],
@@ -305,9 +303,9 @@ comptime av_packet_new_side_data = ExternalFunction[
 comptime av_packet_add_side_data = ExternalFunction[
     "av_packet_add_side_data",
     fn(
-        pkt: UnsafePointer[AVPacket, MutExternalOrigin],
+        pkt: UnsafePointer[AVPacket, MutAnyOrigin],
         type: AVPacketSideDataType.ENUM_DTYPE,
-        data: OpaquePointer[MutExternalOrigin],
+        data: OpaquePointer[MutAnyOrigin],
         size: c_size_t,
     ) -> c_int,
 ]
@@ -316,7 +314,7 @@ comptime av_packet_add_side_data = ExternalFunction[
 comptime av_packet_shrink_side_data = ExternalFunction[
     "av_packet_shrink_side_data",
     fn(
-        pkt: UnsafePointer[AVPacket, MutExternalOrigin],
+        pkt: UnsafePointer[AVPacket, MutAnyOrigin],
         type: AVPacketSideDataType.ENUM_DTYPE,
         size: c_size_t,
     ) -> c_int,
@@ -326,9 +324,9 @@ comptime av_packet_shrink_side_data = ExternalFunction[
 comptime av_packet_get_side_data = ExternalFunction[
     "av_packet_get_side_data",
     fn(
-        pkt: UnsafePointer[AVPacket, ImmutExternalOrigin],
+        pkt: UnsafePointer[AVPacket, ImmutAnyOrigin],
         type: AVPacketSideDataType.ENUM_DTYPE,
-        size: UnsafePointer[c_size_t, MutExternalOrigin],
+        size: UnsafePointer[c_size_t, MutAnyOrigin],
     ) -> UnsafePointer[c_uchar, ImmutExternalOrigin],
 ]
 
@@ -336,8 +334,8 @@ comptime av_packet_get_side_data = ExternalFunction[
 comptime av_packet_pack_dictionary = ExternalFunction[
     "av_packet_pack_dictionary",
     fn(
-        dict: UnsafePointer[AVDictionary, ImmutExternalOrigin],
-        size: UnsafePointer[c_size_t, MutExternalOrigin],
+        dict: UnsafePointer[AVDictionary, ImmutAnyOrigin],
+        size: UnsafePointer[c_size_t, MutAnyOrigin],
     ) -> UnsafePointer[c_uchar, ImmutExternalOrigin],
 ]
 
@@ -345,62 +343,62 @@ comptime av_packet_pack_dictionary = ExternalFunction[
 comptime av_packet_unpack_dictionary = ExternalFunction[
     "av_packet_unpack_dictionary",
     fn(
-        data: UnsafePointer[c_uchar, ImmutExternalOrigin],
+        data: UnsafePointer[c_uchar, ImmutAnyOrigin],
         size: c_size_t,
-        dict: UnsafePointer[AVDictionary, MutExternalOrigin],
+        dict: UnsafePointer[AVDictionary, MutAnyOrigin],
     ) -> c_int,
 ]
 
 
 comptime av_packet_free_side_data = ExternalFunction[
     "av_packet_free_side_data",
-    fn(pkt: UnsafePointer[AVPacket, MutExternalOrigin],),
+    fn(pkt: UnsafePointer[AVPacket, MutAnyOrigin],),
 ]
 
 
 comptime av_packet_ref = ExternalFunction[
     "av_packet_ref",
     fn(
-        dst: UnsafePointer[AVPacket, MutExternalOrigin],
-        src: UnsafePointer[AVPacket, ImmutExternalOrigin],
+        dst: UnsafePointer[AVPacket, MutAnyOrigin],
+        src: UnsafePointer[AVPacket, ImmutAnyOrigin],
     ) -> c_int,
 ]
 
 comptime av_packet_unref = ExternalFunction[
     "av_packet_unref",
-    fn(pkt: UnsafePointer[AVPacket, MutExternalOrigin],),
+    fn(pkt: UnsafePointer[AVPacket, MutAnyOrigin],),
 ]
 
 comptime av_packet_move_ref = ExternalFunction[
     "av_packet_move_ref",
     fn(
-        dst: UnsafePointer[AVPacket, MutExternalOrigin],
-        src: UnsafePointer[AVPacket, ImmutExternalOrigin],
+        dst: UnsafePointer[AVPacket, MutAnyOrigin],
+        src: UnsafePointer[AVPacket, ImmutAnyOrigin],
     ),
 ]
 
 comptime av_packet_copy_props = ExternalFunction[
     "av_packet_copy_props",
     fn(
-        dst: UnsafePointer[AVPacket, MutExternalOrigin],
-        src: UnsafePointer[AVPacket, ImmutExternalOrigin],
+        dst: UnsafePointer[AVPacket, MutAnyOrigin],
+        src: UnsafePointer[AVPacket, ImmutAnyOrigin],
     ) -> c_int,
 ]
 
 comptime av_packet_make_refcounted = ExternalFunction[
     "av_packet_make_refcounted",
-    fn(pkt: UnsafePointer[AVPacket, MutExternalOrigin],) -> c_int,
+    fn(pkt: UnsafePointer[AVPacket, MutAnyOrigin],) -> c_int,
 ]
 
 comptime av_packet_make_writable = ExternalFunction[
     "av_packet_make_writable",
-    fn(pkt: UnsafePointer[AVPacket, MutExternalOrigin],) -> c_int,
+    fn(pkt: UnsafePointer[AVPacket, MutAnyOrigin],) -> c_int,
 ]
 
 comptime av_packet_rescale_ts = ExternalFunction[
     "av_packet_rescale_ts",
     fn(
-        pkt: UnsafePointer[AVPacket, MutExternalOrigin],
+        pkt: UnsafePointer[AVPacket, MutAnyOrigin],
         tb_src: c_long_long,  # AVRational,
         tb_dst: c_long_long,  # AVRational,
     ),

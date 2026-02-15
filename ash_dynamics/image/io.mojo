@@ -27,14 +27,14 @@ comptime _logger = Logger[level=DEFAULT_LEVEL]()
 
 @fieldwise_init
 struct ImageData:
-    var data: UnsafePointer[c_uchar, MutExternalOrigin]
+    var data: UnsafePointer[c_uchar, MutAnyOrigin]
     var width: c_int
     var height: c_int
     var format: AVPixelFormat.ENUM_DTYPE
     var n_color_spaces: c_int
 
     fn __init__(out self):
-        self.data = UnsafePointer[c_uchar, MutExternalOrigin]()
+        self.data = UnsafePointer[c_uchar, MutAnyOrigin]()
         self.width = 0
         self.height = 0
         self.format = AVPixelFormat.AV_PIX_FMT_NONE._value
@@ -57,9 +57,9 @@ struct ImageInfo(Writable):
 
 fn decode(
     mut avcodec: Avcodec,
-    dec_ctx: UnsafePointer[AVCodecContext, origin=MutExternalOrigin],
-    frame: UnsafePointer[AVFrame, origin=MutExternalOrigin],
-    pkt: UnsafePointer[AVPacket, origin=MutExternalOrigin],
+    dec_ctx: UnsafePointer[AVCodecContext, origin=MutAnyOrigin],
+    frame: UnsafePointer[AVFrame, origin=MutAnyOrigin],
+    pkt: UnsafePointer[AVPacket, origin=MutAnyOrigin],
     mut image_info: ImageInfo,
     mut output_buffer: List[c_uchar],
 ) raises:
@@ -102,7 +102,7 @@ fn image_read[in_buffer_size: c_int = 4096](path: Path) raises -> ImageData:
     var swscale = Swscale()
     var swrsample = Swrsample()
 
-    var oc = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
+    var oc = alloc[UnsafePointer[AVFormatContext, MutAnyOrigin]](1)
     var dict = alloc[AVDictionary](0)
     var extension = path.suffix()
 
@@ -119,6 +119,8 @@ fn image_read[in_buffer_size: c_int = 4096](path: Path) raises -> ImageData:
     )
 
     var packet = avcodec.av_packet_alloc()
+    if not packet:
+        raise Error("Failed to allocate packet")
     var codec = avcodec.avcodec_find_decoder_by_name(extension)
     var parser = avcodec.av_parser_init(codec[].id)
     var context = avcodec.avcodec_alloc_context3(codec)
@@ -133,18 +135,25 @@ fn image_read[in_buffer_size: c_int = 4096](path: Path) raises -> ImageData:
             if data_size == 0:
                 break
 
+            var packet_data = packet[].data.unsafe_origin_cast[MutAnyOrigin]()
+            var poutbuf = UnsafePointer(to=packet_data)
+
             while data_size > 0:
                 _logger.debug("Data size: ", data_size)
                 var size = avcodec.av_parser_parse2(
-                    parser,
-                    context,
-                    UnsafePointer(to=packet[].data),
-                    UnsafePointer(to=packet[].size),
-                    data,
-                    data_size,
-                    AV_NOPTS_VALUE,
-                    AV_NOPTS_VALUE,
-                    0,
+                    parser=parser,
+                    context=context,
+                    poutbuf=poutbuf,
+                    poutbuf_size=UnsafePointer(
+                        to=packet[].size
+                    ).unsafe_origin_cast[MutAnyOrigin](),
+                    buf=data.as_immutable().unsafe_origin_cast[
+                        ImmutAnyOrigin
+                    ](),
+                    buf_size=data_size,
+                    pts=AV_NOPTS_VALUE,
+                    dts=AV_NOPTS_VALUE,
+                    pos=0,
                 )
 
                 _logger.debug("Parsed size: ", size)
@@ -175,9 +184,7 @@ fn image_read[in_buffer_size: c_int = 4096](path: Path) raises -> ImageData:
     _ = packet
     _ = avcodec
     _ = parser
-    var data = output_buffer.unsafe_ptr().unsafe_origin_cast[
-        MutExternalOrigin
-    ]()
+    var data = output_buffer.unsafe_ptr().unsafe_origin_cast[MutAnyOrigin]()
     return ImageData(
         data=data,
         width=image_info.width,
@@ -189,9 +196,9 @@ fn image_read[in_buffer_size: c_int = 4096](path: Path) raises -> ImageData:
 
 fn encode(
     mut avcodec: Avcodec,
-    enc_ctx: UnsafePointer[AVCodecContext, origin=MutExternalOrigin],
-    frame: UnsafePointer[AVFrame, origin=MutExternalOrigin],
-    pkt: UnsafePointer[AVPacket, origin=MutExternalOrigin],
+    enc_ctx: UnsafePointer[AVCodecContext, origin=MutAnyOrigin],
+    frame: UnsafePointer[AVFrame, origin=MutAnyOrigin],
+    pkt: UnsafePointer[AVPacket, origin=MutAnyOrigin],
     mut outfile: FileHandle,
 ) raises:
     var ret = avcodec.avcodec_send_frame(enc_ctx, frame)
@@ -226,7 +233,7 @@ fn image_save(image: ImageData, path: Path) raises:
     var swscale = Swscale()
     var swrsample = Swrsample()
 
-    var dict = alloc[AVDictionary](0)
+    var dict = avutil.av_alloc_dictionary(0)
     var extension = path.suffix()
 
     var codec = avcodec.avcodec_find_encoder_by_name(extension)
@@ -238,6 +245,10 @@ fn image_save(image: ImageData, path: Path) raises:
     context[].height = image.height
     context[].color_range = image.n_color_spaces
     var packet = avcodec.av_packet_alloc()
+
+    print(context[])
+    print(codec[])
+    # print(dict[])
 
     print("Opening codec")
     avcodec.avcodec_open2(context, codec, dict)
@@ -266,7 +277,9 @@ fn image_save(image: ImageData, path: Path) raises:
         # TODO: Remove the copy. We should be able to do a take or something.
         # Also we really need to factor in whether the pointer is
         # even the correct format.
-        frame[].data[0] = image.data.copy()
+        frame[].data[0] = image.data.copy().unsafe_origin_cast[
+            MutExternalOrigin
+        ]()
 
         frame[].pts = c_long_long(i)
         i += 1
@@ -282,7 +295,7 @@ fn image_save(image: ImageData, path: Path) raises:
         encode(
             avcodec,
             context,
-            UnsafePointer[AVFrame, origin=MutExternalOrigin](),
+            UnsafePointer[AVFrame, origin=MutAnyOrigin](),
             packet,
             f,
         )

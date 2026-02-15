@@ -83,7 +83,7 @@ comptime av_iamf_param_definition_alloc = ExternalFunction[
     fn(
         type: AVIAMFParamDefinitionType.ENUM_DTYPE,
         nb_subblocks: c_uint,
-        size: UnsafePointer[c_size_t, MutExternalOrigin],
+        size: UnsafePointer[c_size_t, MutAnyOrigin],
     ) -> UnsafePointer[AVIAMFParamDefinition, MutExternalOrigin],
 ]
 
@@ -157,7 +157,7 @@ comptime av_iamf_audio_element_alloc = ExternalFunction[
 comptime av_iamf_audio_element_add_layer = ExternalFunction[
     "av_iamf_audio_element_add_layer",
     fn(
-        audio_element: UnsafePointer[AVIAMFAudioElement, MutExternalOrigin]
+        audio_element: UnsafePointer[AVIAMFAudioElement, MutAnyOrigin]
     ) -> UnsafePointer[AVIAMFLayer, MutExternalOrigin],
 ]
 
@@ -165,8 +165,8 @@ comptime av_iamf_audio_element_free = ExternalFunction[
     "av_iamf_audio_element_free",
     fn(
         audio_element: UnsafePointer[
-            UnsafePointer[AVIAMFAudioElement, MutExternalOrigin],
-            MutExternalOrigin,
+            UnsafePointer[AVIAMFAudioElement, MutAnyOrigin],
+            MutAnyOrigin,
         ]
     ),
 ]
@@ -260,23 +260,21 @@ comptime av_iamf_mix_presentation_alloc = ExternalFunction[
 comptime av_iamf_mix_presentation_add_submix = ExternalFunction[
     "av_iamf_mix_presentation_add_submix",
     fn(
-        mix_presentation: UnsafePointer[
-            AVIAMFMixPresentation, MutExternalOrigin
-        ]
+        mix_presentation: UnsafePointer[AVIAMFMixPresentation, MutAnyOrigin]
     ) -> UnsafePointer[AVIAMFSubmix, MutExternalOrigin],
 ]
 
 comptime av_iamf_submix_add_element = ExternalFunction[
     "av_iamf_submix_add_element",
     fn(
-        submix: UnsafePointer[AVIAMFSubmix, MutExternalOrigin]
+        submix: UnsafePointer[AVIAMFSubmix, MutAnyOrigin]
     ) -> UnsafePointer[AVIAMFSubmixElement, MutExternalOrigin],
 ]
 
 comptime av_iamf_submix_add_layout = ExternalFunction[
     "av_iamf_submix_add_layout",
     fn(
-        submix: UnsafePointer[AVIAMFSubmix, MutExternalOrigin]
+        submix: UnsafePointer[AVIAMFSubmix, MutAnyOrigin]
     ) -> UnsafePointer[AVIAMFSubmixLayout, MutExternalOrigin],
 ]
 
@@ -284,8 +282,8 @@ comptime av_iamf_mix_presentation_free = ExternalFunction[
     "av_iamf_mix_presentation_free",
     fn(
         mix_presentation: UnsafePointer[
-            UnsafePointer[AVIAMFMixPresentation, MutExternalOrigin],
-            MutExternalOrigin,
+            UnsafePointer[AVIAMFMixPresentation, MutAnyOrigin],
+            MutAnyOrigin,
         ]
     ),
 ]

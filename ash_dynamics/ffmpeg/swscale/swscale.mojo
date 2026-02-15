@@ -212,7 +212,7 @@ comptime sws_test_transfer = ExternalFunction[
 comptime sws_test_frame = ExternalFunction[
     "sws_test_frame",
     fn(
-        frame: UnsafePointer[AVFrame, ImmutExternalOrigin],
+        frame: UnsafePointer[AVFrame, ImmutAnyOrigin],
         output: c_int,
     ) -> c_int,
 ]
@@ -220,9 +220,9 @@ comptime sws_test_frame = ExternalFunction[
 comptime sws_frame_setup = ExternalFunction[
     "sws_frame_setup",
     fn(
-        ctx: UnsafePointer[SwsContext, MutExternalOrigin],
-        dst: UnsafePointer[AVFrame, ImmutExternalOrigin],
-        src: UnsafePointer[AVFrame, ImmutExternalOrigin],
+        ctx: UnsafePointer[SwsContext, MutAnyOrigin],
+        dst: UnsafePointer[AVFrame, ImmutAnyOrigin],
+        src: UnsafePointer[AVFrame, ImmutAnyOrigin],
     ) -> c_int,
 ]
 
@@ -233,17 +233,17 @@ comptime sws_frame_setup = ExternalFunction[
 comptime sws_is_noop = ExternalFunction[
     "sws_is_noop",
     fn(
-        dst: UnsafePointer[AVFrame, ImmutExternalOrigin],
-        src: UnsafePointer[AVFrame, ImmutExternalOrigin],
+        dst: UnsafePointer[AVFrame, ImmutAnyOrigin],
+        src: UnsafePointer[AVFrame, ImmutAnyOrigin],
     ) -> c_int,
 ]
 
 comptime sws_scale_frame = ExternalFunction[
     "sws_scale_frame",
     fn(
-        ctx: UnsafePointer[SwsContext, MutExternalOrigin],
-        dst: UnsafePointer[AVFrame, MutExternalOrigin],
-        src: UnsafePointer[AVFrame, ImmutExternalOrigin],
+        ctx: UnsafePointer[SwsContext, MutAnyOrigin],
+        dst: UnsafePointer[AVFrame, MutAnyOrigin],
+        src: UnsafePointer[AVFrame, ImmutAnyOrigin],
     ) -> c_int,
 ]
 
@@ -304,14 +304,14 @@ comptime sws_isSupportedEndiannessConversion = ExternalFunction[
 comptime sws_init_context = ExternalFunction[
     "sws_init_context",
     fn(
-        ctx: UnsafePointer[SwsContext, MutExternalOrigin],
-        srcFilter: UnsafePointer[SwsFilter, MutExternalOrigin],
-        dstFilter: UnsafePointer[SwsFilter, MutExternalOrigin],
+        ctx: UnsafePointer[SwsContext, MutAnyOrigin],
+        srcFilter: UnsafePointer[SwsFilter, MutAnyOrigin],
+        dstFilter: UnsafePointer[SwsFilter, MutAnyOrigin],
     ) -> c_int,
 ]
 
 comptime sws_freeContext = ExternalFunction[
-    "sws_freeContext", fn(ctx: UnsafePointer[SwsContext, MutExternalOrigin],)
+    "sws_freeContext", fn(ctx: UnsafePointer[SwsContext, MutAnyOrigin],)
 ]
 
 comptime sws_getContext = ExternalFunction[
@@ -324,50 +324,48 @@ comptime sws_getContext = ExternalFunction[
         dstH: c_int,
         dstFormat: AVPixelFormat.ENUM_DTYPE,
         flags: c_int,
-        srcFilter: UnsafePointer[SwsFilter, MutExternalOrigin],
-        dstFilter: UnsafePointer[SwsFilter, MutExternalOrigin],
-        param: UnsafePointer[c_double, ImmutExternalOrigin],
+        srcFilter: UnsafePointer[SwsFilter, MutAnyOrigin],
+        dstFilter: UnsafePointer[SwsFilter, MutAnyOrigin],
+        param: UnsafePointer[c_double, ImmutAnyOrigin],
     ) -> UnsafePointer[SwsContext, MutExternalOrigin],
 ]
 
 comptime sws_scale = ExternalFunction[
     "sws_scale",
     fn(
-        ctx: UnsafePointer[SwsContext, MutExternalOrigin],
+        ctx: UnsafePointer[SwsContext, MutAnyOrigin],
         # NOTE: This is a const pointer to an array. I think this is "ok"
         srcSlice: UnsafePointer[
-            UnsafePointer[c_uchar, ImmutExternalOrigin], ImmutExternalOrigin
+            UnsafePointer[c_uchar, ImmutAnyOrigin], ImmutAnyOrigin
         ],
         # NOTE: This is a const pointer to an array. I think this is "ok"
-        srcStride: UnsafePointer[c_int, ImmutExternalOrigin],
+        srcStride: UnsafePointer[c_int, ImmutAnyOrigin],
         srcSliceY: c_int,
         srcSliceH: c_int,
         # NOTE: This is a pointer to an array. I think this is "ok"
-        dst: UnsafePointer[
-            UnsafePointer[c_uchar, MutExternalOrigin], MutExternalOrigin
-        ],
+        dst: UnsafePointer[UnsafePointer[c_uchar, MutAnyOrigin], MutAnyOrigin],
         # NOTE: This is a const pointer to an array. I think this is "ok"
-        dstStride: UnsafePointer[c_int, ImmutExternalOrigin],
+        dstStride: UnsafePointer[c_int, ImmutAnyOrigin],
     ) -> c_int,
 ]
 
 comptime sws_frame_start = ExternalFunction[
     "sws_frame_start",
     fn(
-        ctx: UnsafePointer[SwsContext, MutExternalOrigin],
-        dst: UnsafePointer[AVFrame, MutExternalOrigin],
-        src: UnsafePointer[AVFrame, ImmutExternalOrigin],
+        ctx: UnsafePointer[SwsContext, MutAnyOrigin],
+        dst: UnsafePointer[AVFrame, MutAnyOrigin],
+        src: UnsafePointer[AVFrame, ImmutAnyOrigin],
     ) -> c_int,
 ]
 
 comptime sws_frame_end = ExternalFunction[
-    "sws_frame_end", fn(ctx: UnsafePointer[SwsContext, MutExternalOrigin],)
+    "sws_frame_end", fn(ctx: UnsafePointer[SwsContext, MutAnyOrigin],)
 ]
 
 comptime sws_send_slice = ExternalFunction[
     "sws_send_slice",
     fn(
-        ctx: UnsafePointer[SwsContext, MutExternalOrigin],
+        ctx: UnsafePointer[SwsContext, MutAnyOrigin],
         slice_start: c_uint,
         slice_height: c_uint,
     ) -> c_int,
@@ -376,7 +374,7 @@ comptime sws_send_slice = ExternalFunction[
 comptime sws_receive_slice = ExternalFunction[
     "sws_receive_slice",
     fn(
-        ctx: UnsafePointer[SwsContext, MutExternalOrigin],
+        ctx: UnsafePointer[SwsContext, MutAnyOrigin],
         slice_start: c_uint,
         slice_height: c_uint,
     ) -> c_int,
@@ -384,16 +382,16 @@ comptime sws_receive_slice = ExternalFunction[
 
 comptime sws_receive_slice_alignment = ExternalFunction[
     "sws_receive_slice_alignment",
-    fn(ctx: UnsafePointer[SwsContext, ImmutExternalOrigin],) -> c_uint,
+    fn(ctx: UnsafePointer[SwsContext, ImmutAnyOrigin],) -> c_uint,
 ]
 
 comptime sws_setColorspaceDetails = ExternalFunction[
     "sws_setColorspaceDetails",
     fn(
-        ctx: UnsafePointer[SwsContext, MutExternalOrigin],
-        inv_table: UnsafePointer[c_int, ImmutExternalOrigin],
+        ctx: UnsafePointer[SwsContext, MutAnyOrigin],
+        inv_table: UnsafePointer[c_int, ImmutAnyOrigin],
         srcRange: c_int,
-        table: UnsafePointer[c_int, ImmutExternalOrigin],
+        table: UnsafePointer[c_int, ImmutAnyOrigin],
         dstRange: c_int,
         brightness: c_int,
         contrast: c_int,
@@ -420,7 +418,7 @@ comptime sws_getGaussianVec = ExternalFunction[
 comptime sws_scaleVec = ExternalFunction[
     "sws_scaleVec",
     fn(
-        a: UnsafePointer[SwsVector, MutExternalOrigin],
+        a: UnsafePointer[SwsVector, MutAnyOrigin],
         scalar: c_double,
     ),
 ]
@@ -428,13 +426,13 @@ comptime sws_scaleVec = ExternalFunction[
 comptime sws_normalizeVec = ExternalFunction[
     "sws_normalizeVec",
     fn(
-        a: UnsafePointer[SwsVector, MutExternalOrigin],
+        a: UnsafePointer[SwsVector, MutAnyOrigin],
         height: c_double,
     ),
 ]
 
 comptime sws_freeVec = ExternalFunction[
-    "sws_freeVec", fn(a: UnsafePointer[SwsVector, MutExternalOrigin],)
+    "sws_freeVec", fn(a: UnsafePointer[SwsVector, MutAnyOrigin],)
 ]
 
 
@@ -452,13 +450,13 @@ comptime sws_getDefaultFilter = ExternalFunction[
 ]
 
 comptime sws_freeFilter = ExternalFunction[
-    "sws_freeFilter", fn(filter: UnsafePointer[SwsFilter, MutExternalOrigin],)
+    "sws_freeFilter", fn(filter: UnsafePointer[SwsFilter, MutAnyOrigin],)
 ]
 
 comptime sws_getCachedContext = ExternalFunction[
     "sws_getCachedContext",
     fn(
-        ctx: UnsafePointer[SwsContext, MutExternalOrigin],
+        ctx: UnsafePointer[SwsContext, MutAnyOrigin],
         srcW: c_int,
         srcH: c_int,
         srcFormat: AVPixelFormat.ENUM_DTYPE,
@@ -466,9 +464,9 @@ comptime sws_getCachedContext = ExternalFunction[
         dstH: c_int,
         dstFormat: AVPixelFormat.ENUM_DTYPE,
         flags: c_int,
-        srcFilter: UnsafePointer[SwsFilter, MutExternalOrigin],
-        dstFilter: UnsafePointer[SwsFilter, MutExternalOrigin],
-        param: UnsafePointer[c_double, ImmutExternalOrigin],
+        srcFilter: UnsafePointer[SwsFilter, MutAnyOrigin],
+        dstFilter: UnsafePointer[SwsFilter, MutAnyOrigin],
+        param: UnsafePointer[c_double, ImmutAnyOrigin],
     ) -> UnsafePointer[SwsContext, ImmutExternalOrigin],
 ]
 
@@ -476,10 +474,10 @@ comptime sws_getCachedContext = ExternalFunction[
 comptime sws_convertPalette8ToPacked32 = ExternalFunction[
     "sws_convertPalette8ToPacked32",
     fn(
-        src: UnsafePointer[c_uchar, ImmutExternalOrigin],
-        dst: UnsafePointer[c_uchar, MutExternalOrigin],
+        src: UnsafePointer[c_uchar, ImmutAnyOrigin],
+        dst: UnsafePointer[c_uchar, MutAnyOrigin],
         num_pixels: c_int,
-        palette: UnsafePointer[c_uchar, ImmutExternalOrigin],
+        palette: UnsafePointer[c_uchar, ImmutAnyOrigin],
     ),
 ]
 
@@ -487,9 +485,9 @@ comptime sws_convertPalette8ToPacked32 = ExternalFunction[
 comptime sws_convertPalette8ToPacked24 = ExternalFunction[
     "sws_convertPalette8ToPacked24",
     fn(
-        src: UnsafePointer[c_uchar, ImmutExternalOrigin],
-        dst: UnsafePointer[c_uchar, MutExternalOrigin],
+        src: UnsafePointer[c_uchar, ImmutAnyOrigin],
+        dst: UnsafePointer[c_uchar, MutAnyOrigin],
         num_pixels: c_int,
-        palette: UnsafePointer[c_uchar, ImmutExternalOrigin],
+        palette: UnsafePointer[c_uchar, ImmutAnyOrigin],
     ),
 ]

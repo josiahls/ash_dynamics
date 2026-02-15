@@ -756,7 +756,7 @@ comptime avio_open = ExternalFunction[
     "avio_open",
     fn(
         s: UnsafePointer[
-            UnsafePointer[AVIOContext, MutExternalOrigin], MutExternalOrigin
+            UnsafePointer[AVIOContext, MutAnyOrigin], MutAnyOrigin
         ],
         url: UnsafePointer[c_char, ImmutAnyOrigin],
         flags: c_int,
