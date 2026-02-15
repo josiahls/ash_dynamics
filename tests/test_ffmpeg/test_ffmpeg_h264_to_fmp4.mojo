@@ -580,7 +580,7 @@ def write_frame(
     while ret >= 0:
         ret = avcodec.avcodec_receive_packet(c, pkt)
 
-        if ret == AVERROR(ErrNo.EAGAIN.value) or ret == AVERROR_EOF:
+        if ret == AVERROR(ErrNo.EAGAIN.value) or ret == Int32(AVERROR_EOF):
             break
         elif ret < 0:
             var avutil = Avutil()
@@ -601,7 +601,7 @@ def write_frame(
 
     # _ = avcodec
     # _ = avformat
-    return c_int(ret == AVERROR_EOF)
+    return c_int(ret == Int32(AVERROR_EOF))
 
 
 def write_video_frame(

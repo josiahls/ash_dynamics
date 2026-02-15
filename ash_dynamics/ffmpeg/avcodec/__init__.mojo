@@ -424,7 +424,7 @@ struct Avcodec:
             frame,
         )
 
-        if flag == AVERROR(ErrNo.EAGAIN.value) or flag == AVERROR_EOF:
+        if flag == AVERROR(ErrNo.EAGAIN.value) or flag == Int32(AVERROR_EOF):
             return flag
         elif flag < 0:
             raise Error("Failed to receive frame: ", flag)
