@@ -6,7 +6,7 @@ from ash_dynamics.primitives._clib import Debug
 
 
 @fieldwise_init
-struct AVOption(Debug, TrivialRegisterType):
+struct AVOption(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVOption.html"
     var name: UnsafePointer[c_char, ImmutExternalOrigin]
     var help: UnsafePointer[c_char, ImmutExternalOrigin]
@@ -26,7 +26,7 @@ struct AVOption(Debug, TrivialRegisterType):
 
 
 @fieldwise_init("implicit")
-struct AVOptionType(Debug, TrivialRegisterType):
+struct AVOptionType(Debug, Movable):
     comptime ENUM_DTYPE = c_int
 
     var _value: Self.ENUM_DTYPE
@@ -66,7 +66,7 @@ struct AVOptionType(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVOptionArrayDef(Debug, TrivialRegisterType):
+struct AVOptionArrayDef(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVOptionArrayDef.html"
     var def_: UnsafePointer[c_char, ImmutExternalOrigin]
     var size_min: c_int
@@ -74,7 +74,7 @@ struct AVOptionArrayDef(Debug, TrivialRegisterType):
     var sep: c_char
 
 
-struct AVOptionRanges(Debug, TrivialRegisterType):
+struct AVOptionRanges(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVOptionRanges.html"
     var range: UnsafePointer[
         UnsafePointer[Self, MutExternalOrigin], MutExternalOrigin

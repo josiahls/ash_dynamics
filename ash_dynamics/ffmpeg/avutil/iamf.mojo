@@ -19,7 +19,7 @@ from ash_dynamics.ffmpeg.avutil.channel_layout import AVChannelLayout
 
 
 @fieldwise_init
-struct AVIAMFAnimationType(Debug, TrivialRegisterType):
+struct AVIAMFAnimationType(Debug, Movable):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -29,7 +29,7 @@ struct AVIAMFAnimationType(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVIAMFMixGain(Debug, TrivialRegisterType):
+struct AVIAMFMixGain(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFMixGain.html"
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var subblock_duration: c_uint
@@ -41,7 +41,7 @@ struct AVIAMFMixGain(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVIAMFReconGain(Debug, TrivialRegisterType):
+struct AVIAMFReconGain(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFReconGain.html"
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var subblock_duration: c_uint
@@ -49,7 +49,7 @@ struct AVIAMFReconGain(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVIAMFParamDefinitionType(Debug, TrivialRegisterType):
+struct AVIAMFParamDefinitionType(Debug, Movable):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -59,7 +59,7 @@ struct AVIAMFParamDefinitionType(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVIAMFParamDefinition(Debug, TrivialRegisterType):
+struct AVIAMFParamDefinition(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFParamDefinition.html"
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var subblocks_offset: c_size_t
@@ -96,7 +96,7 @@ comptime av_iamf_param_definition_alloc = ExternalFunction[
 
 
 @fieldwise_init
-struct AVIAMFAmbisonicsMode(Debug, TrivialRegisterType):
+struct AVIAMFAmbisonicsMode(Debug, Movable):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -108,7 +108,7 @@ comptime AV_IAMF_LAYER_FLAG_RECON_GAIN = c_uint(1 << 0)
 
 
 @fieldwise_init
-struct AVIAMFLayer(Debug, TrivialRegisterType):
+struct AVIAMFLayer(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFLayer.html"
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var ch_layout: AVChannelLayout
@@ -121,7 +121,7 @@ struct AVIAMFLayer(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVIAMFAudioElementType(Debug, TrivialRegisterType):
+struct AVIAMFAudioElementType(Debug, Movable):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -130,7 +130,7 @@ struct AVIAMFAudioElementType(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVIAMFAudioElement(Debug, TrivialRegisterType):
+struct AVIAMFAudioElement(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFAudioElement.html"
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var layers: UnsafePointer[
@@ -173,7 +173,7 @@ comptime av_iamf_audio_element_free = ExternalFunction[
 
 
 @fieldwise_init
-struct AVIAMFHeadphonesMode(Debug, TrivialRegisterType):
+struct AVIAMFHeadphonesMode(Debug, Movable):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -182,7 +182,7 @@ struct AVIAMFHeadphonesMode(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVIAMFSubmixElement(Debug, TrivialRegisterType):
+struct AVIAMFSubmixElement(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFSubmixElement.html"
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var audio_element_id: c_uint
@@ -195,7 +195,7 @@ struct AVIAMFSubmixElement(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVIAMFSubmixLayoutType(Debug, TrivialRegisterType):
+struct AVIAMFSubmixLayoutType(Debug, Movable):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -204,7 +204,7 @@ struct AVIAMFSubmixLayoutType(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVIAMFSubmixLayout(Debug, TrivialRegisterType):
+struct AVIAMFSubmixLayout(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFSubmixLayout.html"
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var layout_type: AVIAMFSubmixLayoutType.ENUM_DTYPE
@@ -217,7 +217,7 @@ struct AVIAMFSubmixLayout(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVIAMFSubmix(Debug, TrivialRegisterType):
+struct AVIAMFSubmix(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFSubmix.html"
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var elements: UnsafePointer[
@@ -237,7 +237,7 @@ struct AVIAMFSubmix(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVIAMFMixPresentation(Debug, TrivialRegisterType):
+struct AVIAMFMixPresentation(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFMixPresentation.html"
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var submixes: UnsafePointer[

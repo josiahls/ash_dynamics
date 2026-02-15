@@ -7,12 +7,12 @@ from ash_dynamics.primitives._clib import (
 )
 
 
-struct AVBuffer(TrivialRegisterType):
+struct AVBuffer(Movable):
     pass
 
 
 @fieldwise_init
-struct AVBufferRef(Debug, TrivialRegisterType):
+struct AVBufferRef(Debug, TrivialRegisterPassable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVBufferRef.html"
     var buffer: UnsafePointer[AVBuffer, origin=MutExternalOrigin]
     var data: UnsafePointer[c_uchar, origin=MutExternalOrigin]
@@ -123,7 +123,7 @@ comptime av_buffer_replace = ExternalFunction[
 
 
 @fieldwise_init
-struct AVBufferPool(TrivialRegisterType):
+struct AVBufferPool(Movable):
     pass
 
 

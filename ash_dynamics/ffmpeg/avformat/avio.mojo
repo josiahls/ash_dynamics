@@ -22,7 +22,7 @@ comptime AVIO_SEEKABLE_TIME = 1 << 1
 
 
 @fieldwise_init
-struct AVIOInterruptCB(Debug, TrivialRegisterType):
+struct AVIOInterruptCB(Debug, Movable):
     """This structure contains a callback for checking whether to abort blocking functions.
     """
 
@@ -31,7 +31,7 @@ struct AVIOInterruptCB(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVIODirEntryType(Debug, TrivialRegisterType):
+struct AVIODirEntryType(Debug, Movable):
     """This structure contains a directory entry type."""
 
     comptime ENUM_DTYPE = c_int
@@ -47,7 +47,7 @@ struct AVIODirEntryType(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVIODirEntry(Debug, TrivialRegisterType):
+struct AVIODirEntry(Debug, Movable):
     """This structure contains a directory entry."""
 
     var name: UnsafePointer[c_char, MutExternalOrigin]
@@ -74,12 +74,12 @@ struct AVIODirEntry(Debug, TrivialRegisterType):
 
 
 # TODO: Is this a forward declaration?
-struct AVIODirContext(Debug, TrivialRegisterType):
+struct AVIODirContext(Debug, Movable):
     pass
 
 
 @fieldwise_init
-struct AVIODataMarkerType(Debug, TrivialRegisterType):
+struct AVIODataMarkerType(Debug, Movable):
     """This structure contains a data marker type."""
 
     comptime ENUM_DTYPE = c_int
@@ -111,7 +111,7 @@ struct AVIODataMarkerType(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVIOContext(Debug, TrivialRegisterType):
+struct AVIOContext(Debug, Movable):
     """Bytestream IO Context.
 
     New public fields can be added with minor version bumps.

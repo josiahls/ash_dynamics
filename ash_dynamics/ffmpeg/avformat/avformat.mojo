@@ -93,7 +93,7 @@ Returns:
 
 
 @fieldwise_init
-struct AVProbeData(Debug, TrivialRegisterType):
+struct AVProbeData(Debug, Movable):
     """This structure contains the data a format has to probe a file."""
 
     var filename: UnsafePointer[c_char, origin=ImmutExternalOrigin]
@@ -163,7 +163,7 @@ comptime AVFMT_SEEK_TO_PTS = 0x4000000
 
 
 @fieldwise_init
-struct AVOutputFormat(Debug, TrivialRegisterType):
+struct AVOutputFormat(Debug, Movable):
     var name: UnsafePointer[c_char, origin=ImmutExternalOrigin]
     "Short name for the format."
     var long_name: UnsafePointer[c_char, origin=ImmutExternalOrigin]
@@ -199,7 +199,7 @@ struct AVOutputFormat(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVInputFormat(Debug, TrivialRegisterType):
+struct AVInputFormat(Debug, Movable):
     var name: UnsafePointer[c_char, origin=ImmutExternalOrigin]
     """A comma separated list of short names for the format. New names
     may be appended with a minor bump."""
@@ -229,7 +229,7 @@ struct AVInputFormat(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVStreamParseType(Debug, TrivialRegisterType):
+struct AVStreamParseType(Debug, Movable):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -250,7 +250,7 @@ struct AVStreamParseType(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVIndexEntry(Debug, TrivialRegisterType):
+struct AVIndexEntry(Debug, Movable):
     var pos: c_long_long
     "Position of the index entry in the stream."
     var timestamp: c_long_long
@@ -381,7 +381,7 @@ comptime AV_PTS_WRAP_SUB_OFFSET = -1
 
 
 @fieldwise_init
-struct AVStream(Debug, TrivialRegisterType):
+struct AVStream(Debug, Movable):
     """Stream structure.
 
     New fields can be added to the end with minor version bumps.
@@ -516,7 +516,7 @@ struct AVStream(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct _AVStreamGroupTileGrid_offsets(Debug, TrivialRegisterType):
+struct _AVStreamGroupTileGrid_offsets(Debug, Movable):
     """Binding note: In the original header this is a anonymous struct.
     Mojo does not support this, so we define this as a private, name spaced
     struct outside of AVStreamGroupTileGrid.
@@ -544,7 +544,7 @@ struct _AVStreamGroupTileGrid_offsets(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVStreamGroupTileGrid(Debug, TrivialRegisterType):
+struct AVStreamGroupTileGrid(Debug, Movable):
     """
     AVStreamGroupTileGrid holds information on how to combine several
     independent images on a single canvas for presentation.
@@ -667,7 +667,7 @@ struct AVStreamGroupTileGrid(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVStreamGroupLCEVC(Debug, TrivialRegisterType):
+struct AVStreamGroupLCEVC(Debug, Movable):
     """
     AVStreamGroupLCEVC is meant to define the relation between video streams
     and a data stream containing LCEVC enhancement layer NALUs.
@@ -688,7 +688,7 @@ struct AVStreamGroupLCEVC(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVStreamGroupParamsType(Debug, TrivialRegisterType):
+struct AVStreamGroupParamsType(Debug, Movable):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -705,7 +705,7 @@ struct AVStreamGroupParamsType(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct AVStreamGroup(Debug, TrivialRegisterType):
+struct AVStreamGroup(Debug, Movable):
     """
     AVStreamGroup is a container for a group of streams.
     """
@@ -785,7 +785,7 @@ comptime AV_PROGRAM_RUNNING = 1
 
 
 @fieldwise_init
-struct AVProgram(Debug, TrivialRegisterType):
+struct AVProgram(Debug, Movable):
     """
     AVProgram is a container for a program.
 
@@ -833,7 +833,7 @@ change dynamically at runtime."""
 
 
 @fieldwise_init
-struct AVChapter(Debug, TrivialRegisterType):
+struct AVChapter(Debug, Movable):
     var id: c_long_long
     "Unique ID to identify the chapter."
     var time_base: AVRational
@@ -872,7 +872,7 @@ comptime AVOpenCallback = fn(
 
 
 @fieldwise_init
-struct AVDurationEstimationMethod(Debug, TrivialRegisterType):
+struct AVDurationEstimationMethod(Debug, Movable):
     """The duration of a video can be estimated through various ways, and this
     enum can be used to know how the duration was estimated.
     """

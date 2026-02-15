@@ -68,7 +68,7 @@ comptime sws_get_class = ExternalFunction[
 
 
 @fieldwise_init
-struct SwsDither(Debug, TrivialRegisterType):
+struct SwsDither(Debug, Movable):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -82,7 +82,7 @@ struct SwsDither(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct SwsAlphaBlend(Debug, TrivialRegisterType):
+struct SwsAlphaBlend(Debug, Movable):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -93,7 +93,7 @@ struct SwsAlphaBlend(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct SwsFlags(Debug, TrivialRegisterType):
+struct SwsFlags(Debug, Movable):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -125,7 +125,7 @@ struct SwsFlags(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct SwsIntent(Debug, TrivialRegisterType):
+struct SwsIntent(Debug, Movable):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -142,7 +142,7 @@ struct SwsIntent(Debug, TrivialRegisterType):
 
 
 @fieldwise_init
-struct SwsContext(Debug, TrivialRegisterType):
+struct SwsContext(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structSwsContext.html"
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var opaque: OpaquePointer[MutExternalOrigin]
@@ -273,14 +273,14 @@ comptime sws_getCoefficients = ExternalFunction[
 
 
 @fieldwise_init
-struct SwsVector(Debug, TrivialRegisterType):
+struct SwsVector(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structSwsVector.html"
     var coeff: UnsafePointer[c_double, ImmutExternalOrigin]
     var length: c_int
 
 
 @fieldwise_init
-struct SwsFilter(Debug, TrivialRegisterType):
+struct SwsFilter(Debug, Movable):
     "https://www.ffmpeg.org/doxygen/8.0/structSwsFilter.html"
     var lumH: UnsafePointer[SwsVector, ImmutExternalOrigin]
     var lumV: UnsafePointer[SwsVector, ImmutExternalOrigin]
