@@ -86,6 +86,7 @@ from ash_dynamics.ffmpeg.avutil.error import (
     AV_ERROR_MAX_STRING_SIZE,
 )
 from logger import Logger
+from ash_dynamics.ffmpeg.avutil.frame import AVFrame
 
 
 comptime _logger = Logger()
@@ -99,7 +100,7 @@ struct Avutil:
     # ===                   Functions                      ===
     # ===--------------------------------------------------===
     # Buffer functions
-    var av_buffer_alloc: av_buffer_alloc.type
+    var _av_buffer_alloc: av_buffer_alloc.type
     var av_buffer_allocz: av_buffer_allocz.type
     var av_buffer_create: av_buffer_create.type
     var av_buffer_default_free: av_buffer_default_free.type
@@ -140,7 +141,7 @@ struct Avutil:
     var av_channel_layout_retype: av_channel_layout_retype.type
 
     # Frame functions
-    var av_frame_alloc: av_frame_alloc.type
+    var _av_frame_alloc: av_frame_alloc.type
     var av_frame_free: av_frame_free.type
     var av_frame_ref: av_frame_ref.type
     var av_frame_replace: av_frame_replace.type
@@ -192,7 +193,7 @@ struct Avutil:
         self.lib = OwnedDLHandle("{}/libavutil.so".format(so_install_prefix))
 
         # Buffer functions
-        self.av_buffer_alloc = av_buffer_alloc.load(self.lib)
+        self._av_buffer_alloc = av_buffer_alloc.load(self.lib)
         self.av_buffer_allocz = av_buffer_allocz.load(self.lib)
         self.av_buffer_create = av_buffer_create.load(self.lib)
         self.av_buffer_default_free = av_buffer_default_free.load(self.lib)
@@ -259,7 +260,7 @@ struct Avutil:
         self.av_channel_layout_retype = av_channel_layout_retype.load(self.lib)
 
         # Frame functions
-        self.av_frame_alloc = av_frame_alloc.load(self.lib)
+        self._av_frame_alloc = av_frame_alloc.load(self.lib)
         self.av_frame_free = av_frame_free.load(self.lib)
         self.av_frame_ref = av_frame_ref.load(self.lib)
         self.av_frame_replace = av_frame_replace.load(self.lib)
@@ -304,6 +305,15 @@ struct Avutil:
 
         # Error functions
         self.av_strerror = av_strerror.load(self.lib)
+
+    fn av_frame_alloc[
+        origin: Origin
+    ](ref[origin] self) -> UnsafePointer[AVFrame, origin]:
+        return (
+            UnsafePointer(to=self._av_frame_alloc()[])
+            .mut_cast[origin.mut]()
+            .unsafe_origin_cast[origin]()
+        )
 
     fn av_compare_ts(
         self,
