@@ -188,7 +188,10 @@ struct AVFrame(Debug, Movable):
 
     var sample_rate: c_int
 
-    var buf: StaticTuple[AVBufferRef, Self.AV_NUM_DATA_POINTERS]
+    var buf: StaticTuple[
+        UnsafePointer[AVBufferRef, origin=MutExternalOrigin],
+        Self.AV_NUM_DATA_POINTERS,
+    ]
 
     var extended_buf: UnsafePointer[
         UnsafePointer[AVBufferRef, origin=MutExternalOrigin],
@@ -235,7 +238,7 @@ struct AVFrame(Debug, Movable):
 
     var hw_frames_ctx: UnsafePointer[AVBufferRef, origin=MutExternalOrigin]
 
-    var opaque_ref: AVBufferRef
+    var opaque_ref: UnsafePointer[AVBufferRef, origin=MutExternalOrigin]
 
     var crop_top: c_int
 
@@ -416,7 +419,10 @@ comptime av_frame_side_data_desc = ExternalFunction[
 
 comptime av_frame_side_data_free = ExternalFunction[
     "av_frame_side_data_free",
-    fn(sd: UnsafePointer[AVFrameSideData, MutExternalOrigin]),
+    fn(
+        sd: UnsafePointer[AVFrameSideData, MutExternalOrigin],
+        nb_sd: UnsafePointer[c_int, MutExternalOrigin],
+    ),
 ]
 
 
@@ -460,7 +466,7 @@ comptime av_frame_side_data_clone = ExternalFunction[
         nb_sd: UnsafePointer[c_int, MutExternalOrigin],
         src: UnsafePointer[AVFrameSideData, ImmutExternalOrigin],
         flags: c_int,
-    ) -> UnsafePointer[AVFrameSideData, MutExternalOrigin],
+    ) -> c_int,
 ]
 
 
