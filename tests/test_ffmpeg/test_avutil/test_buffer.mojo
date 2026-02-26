@@ -1,7 +1,12 @@
 from testing.testing import assert_true, assert_equal
+from testing.suite import TestSuite
 from memory import alloc, memset
 from ffi import c_size_t, c_uint, c_int, c_uchar, external_call
-from ash_dynamics.ffmpeg.avutil.buffer import AVBuffer, AVBufferRef
+from ash_dynamics.ffmpeg.avutil.buffer import (
+    AVBuffer,
+    AVBufferRef,
+    AVBufferPool,
+)
 from ash_dynamics.ffmpeg.avutil import Avutil
 
 
@@ -59,6 +64,156 @@ fn my_alloc(size: c_size_t) -> UnsafePointer[AVBufferRef, MutExternalOrigin]:
     return ref_.unsafe_origin_cast[MutExternalOrigin]()
 
 
+fn my_alloc2(
+    opaque: OpaquePointer[MutExternalOrigin], size: c_size_t
+) -> UnsafePointer[AVBufferRef, MutExternalOrigin]:
+    return my_alloc(size)
+
+
+fn my_pool_free(opaque: OpaquePointer[MutExternalOrigin]) -> NoneType:
+    return
+
+
+def test_av_buffer_alloc():
+    var avutil = Avutil()
+    var buf = avutil._av_buffer_alloc(128)
+    assert_true(Bool(buf))
+    assert_equal(Int(buf[].size), 128)
+    _ = avutil
+
+
+def test_av_buffer_allocz():
+    var avutil = Avutil()
+    var buf = avutil.av_buffer_allocz(128)
+    assert_true(Bool(buf))
+    assert_equal(Int(buf[].size), 128)
+    # allocz zeroes the data
+    assert_equal(Int(buf[].data[0]), 0)
+    _ = avutil
+
+
+def test_av_buffer_create():
+    var avutil = Avutil()
+    var data = alloc[c_uchar](128)
+    var buf = avutil.av_buffer_create(
+        data.unsafe_origin_cast[MutExternalOrigin](),
+        128,
+        my_free,
+        OpaquePointer[MutExternalOrigin](unsafe_from_address=0),
+        0,
+    )
+    assert_true(Bool(buf))
+    assert_equal(Int(buf[].size), 128)
+    _ = avutil
+
+
+def test_av_buffer_ref():
+    var avutil = Avutil()
+    var buf = avutil._av_buffer_alloc(128)
+    assert_true(Bool(buf))
+    var ref_ = avutil.av_buffer_ref(
+        buf.as_immutable().unsafe_origin_cast[ImmutExternalOrigin]()
+    )
+    assert_true(Bool(ref_))
+    assert_equal(
+        avutil.av_buffer_get_ref_count(
+            buf.as_immutable().unsafe_origin_cast[ImmutExternalOrigin]()
+        ),
+        2,
+    )
+    _ = avutil
+
+
+def test_av_buffer_unref():
+    var avutil = Avutil()
+    var buf = avutil._av_buffer_alloc(128)
+    assert_true(Bool(buf))
+    var buf_ptr = alloc[UnsafePointer[AVBufferRef, MutExternalOrigin]](1)
+    buf_ptr[] = buf
+    avutil.av_buffer_unref(buf_ptr.unsafe_origin_cast[MutExternalOrigin]())
+    _ = avutil
+
+
+def test_av_buffer_is_writable():
+    var avutil = Avutil()
+    var buf = avutil._av_buffer_alloc(128)
+    assert_equal(
+        avutil.av_buffer_is_writable(
+            buf.as_immutable().unsafe_origin_cast[ImmutExternalOrigin]()
+        ),
+        1,
+    )
+    _ = avutil
+
+
+def test_av_buffer_get_opaque():
+    var avutil = Avutil()
+    var buf = avutil._av_buffer_alloc(128)
+    # Default alloc sets opaque to NULL -- just check it doesn't crash.
+    _ = avutil.av_buffer_get_opaque(
+        buf.as_immutable().unsafe_origin_cast[ImmutExternalOrigin]()
+    )
+    _ = avutil
+
+
+def test_av_buffer_get_ref_count():
+    var avutil = Avutil()
+    var buf = avutil._av_buffer_alloc(128)
+    assert_equal(
+        avutil.av_buffer_get_ref_count(
+            buf.as_immutable().unsafe_origin_cast[ImmutExternalOrigin]()
+        ),
+        1,
+    )
+    _ = avutil
+
+
+def test_av_buffer_make_writable():
+    var avutil = Avutil()
+    var buf = avutil._av_buffer_alloc(128)
+    var buf_ptr = alloc[UnsafePointer[AVBufferRef, MutExternalOrigin]](1)
+    buf_ptr[] = buf
+    # Single ref -- already writable, so this is a no-op returning 0.
+    assert_equal(
+        avutil.av_buffer_make_writable(
+            buf_ptr.unsafe_origin_cast[MutExternalOrigin]()
+        ),
+        0,
+    )
+    _ = avutil
+
+
+def test_av_buffer_realloc():
+    var avutil = Avutil()
+    var buf = avutil._av_buffer_alloc(128)
+    var buf_ptr = alloc[UnsafePointer[AVBufferRef, MutExternalOrigin]](1)
+    buf_ptr[] = buf
+    assert_equal(
+        avutil.av_buffer_realloc(
+            buf_ptr.unsafe_origin_cast[MutExternalOrigin](), 256
+        ),
+        0,
+    )
+    assert_equal(Int(buf_ptr[][].size), 256)
+    _ = avutil
+
+
+def test_av_buffer_replace():
+    var avutil = Avutil()
+    var src = avutil._av_buffer_alloc(128)
+    var dst = alloc[UnsafePointer[AVBufferRef, MutExternalOrigin]](1)
+    memset(dst, 0, 1)
+    assert_equal(
+        avutil.av_buffer_replace(
+            dst.unsafe_origin_cast[MutExternalOrigin](),
+            src.as_immutable().unsafe_origin_cast[ImmutExternalOrigin](),
+        ),
+        0,
+    )
+    assert_equal(Int(dst[][].size), 128)
+    _ = avutil
+
+
 def test_av_buffer_pool_init():
     var avutil = Avutil()
     var pool = avutil.av_buffer_pool_init(128, my_alloc)
@@ -72,5 +227,78 @@ def test_av_buffer_pool_init():
     _ = avutil
 
 
+def test_av_buffer_pool_init2():
+    var avutil = Avutil()
+    var pool = avutil.av_buffer_pool_init2(
+        128,
+        OpaquePointer[MutExternalOrigin](unsafe_from_address=0),
+        my_alloc2,
+        my_pool_free,
+    )
+    assert_true(Bool(pool))
+    var buf = avutil.av_buffer_pool_get(
+        pool.as_immutable().unsafe_origin_cast[ImmutExternalOrigin]()
+    )
+    assert_true(Bool(buf))
+    assert_equal(Int(buf[].size), 256)
+    _ = avutil
+
+
+def test_av_buffer_pool_uninit():
+    var avutil = Avutil()
+    var pool = avutil.av_buffer_pool_init(128, my_alloc)
+    assert_true(Bool(pool))
+    var pool_ptr = alloc[UnsafePointer[AVBufferPool, MutExternalOrigin]](1)
+    pool_ptr[] = pool
+    avutil.av_buffer_pool_uninit(
+        pool_ptr.unsafe_origin_cast[MutExternalOrigin]()
+    )
+    _ = avutil
+
+
+def test_av_buffer_pool_get():
+    var avutil = Avutil()
+    var pool = avutil.av_buffer_pool_init(128, my_alloc)
+    var buf1 = avutil.av_buffer_pool_get(
+        pool.as_immutable().unsafe_origin_cast[ImmutExternalOrigin]()
+    )
+    var buf2 = avutil.av_buffer_pool_get(
+        pool.as_immutable().unsafe_origin_cast[ImmutExternalOrigin]()
+    )
+    assert_true(Bool(buf1))
+    assert_true(Bool(buf2))
+    _ = avutil
+
+
+def test_av_buffer_pool_buffer_get_opaque():
+    var avutil = Avutil()
+    var pool = avutil.av_buffer_pool_init(128, my_alloc)
+    var buf = avutil.av_buffer_pool_get(
+        pool.as_immutable().unsafe_origin_cast[ImmutExternalOrigin]()
+    )
+    assert_true(Bool(buf))
+    # Just check it doesn't crash -- opaque is NULL for pools with no pool_free.
+    _ = avutil.av_buffer_pool_buffer_get_opaque(
+        buf.as_immutable().unsafe_origin_cast[ImmutExternalOrigin]()
+    )
+    _ = avutil
+
+
 def main():
-    test_av_buffer_pool_init()
+    TestSuite.discover_tests[__functions_in_module()]().run()
+    # test_av_buffer_alloc()
+    # test_av_buffer_allocz()
+    # test_av_buffer_create()
+    # test_av_buffer_ref()
+    # test_av_buffer_unref()
+    # test_av_buffer_is_writable()
+    # test_av_buffer_get_opaque()
+    # test_av_buffer_get_ref_count()
+    # test_av_buffer_make_writable()
+    # test_av_buffer_realloc()
+    # test_av_buffer_replace()
+    # test_av_buffer_pool_init()
+    # test_av_buffer_pool_init2()
+    # test_av_buffer_pool_uninit()
+    # test_av_buffer_pool_get()
+    # test_av_buffer_pool_buffer_get_opaque()
