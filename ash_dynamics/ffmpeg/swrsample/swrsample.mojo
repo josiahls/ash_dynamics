@@ -90,12 +90,14 @@ comptime swr_is_initialized = ExternalFunction[
 comptime swr_alloc_set_opts2 = ExternalFunction[
     "swr_alloc_set_opts2",
     fn(
-        context: UnsafePointer[SwrContext, MutExternalOrigin],
+        context: UnsafePointer[
+            UnsafePointer[SwrContext, MutExternalOrigin], MutExternalOrigin
+        ],
         out_ch_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
-        out_sample_fmt: AVSampleFormat,
+        out_sample_fmt: AVSampleFormat.ENUM_DTYPE,
         out_sample_rate: c_int,
         in_ch_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
-        in_sample_fmt: AVSampleFormat,
+        in_sample_fmt: AVSampleFormat.ENUM_DTYPE,
         in_sample_rate: c_int,
         log_offset: c_int,
         log_ctx: UnsafePointer[AVClass, ImmutExternalOrigin],
@@ -105,7 +107,11 @@ comptime swr_alloc_set_opts2 = ExternalFunction[
 
 comptime swr_free = ExternalFunction[
     "swr_free",
-    fn(context: UnsafePointer[SwrContext, MutExternalOrigin]),
+    fn(
+        context: UnsafePointer[
+            UnsafePointer[SwrContext, MutExternalOrigin], MutExternalOrigin
+        ]
+    ),
 ]
 
 comptime swr_close = ExternalFunction[
@@ -167,7 +173,7 @@ comptime swr_build_matrix2 = ExternalFunction[
         rematrix_volume: c_double,
         matrix: UnsafePointer[c_double, MutExternalOrigin],
         stride: c_ptrdiff_t,
-        matrix_encoding: AVMatrixEncoding,
+        matrix_encoding: AVMatrixEncoding.ENUM_DTYPE,
         log_ctx: UnsafePointer[AVClass, ImmutExternalOrigin],
     ) -> c_int,
 ]
