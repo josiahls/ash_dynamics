@@ -240,13 +240,13 @@ struct AVFrame(Debug, Movable):
 
     var opaque_ref: UnsafePointer[AVBufferRef, origin=MutExternalOrigin]
 
-    var crop_top: c_int
+    var crop_top: c_size_t
 
-    var crop_bottom: c_int
+    var crop_bottom: c_size_t
 
-    var crop_left: c_int
+    var crop_left: c_size_t
 
-    var crop_right: c_int
+    var crop_right: c_size_t
 
     var private_ref: OpaquePointer[MutExternalOrigin]
 
