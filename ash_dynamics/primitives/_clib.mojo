@@ -98,7 +98,7 @@ struct C_Union[*Ts: Copyable & Movable](
         T: AnyType
     ](mut self) -> UnsafePointer[T, origin_of(self._impl)]:
         comptime is_supported = Self._check[T]()
-        constrained[is_supported, "not a union element type"]()
+        comptime assert is_supported, "not a union element type"
         var ptr = UnsafePointer(to=self._impl).bitcast[T]()
         return ptr
 
