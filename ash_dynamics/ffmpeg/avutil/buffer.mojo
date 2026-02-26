@@ -38,16 +38,10 @@ comptime av_buffer_create = ExternalFunction[
     fn(
         data: UnsafePointer[c_uchar, MutExternalOrigin],
         size: c_size_t,
-        free: UnsafePointer[
-            ExternalFunction[
-                "free",
-                fn(
-                    opaque: OpaquePointer[MutExternalOrigin],
-                    data: UnsafePointer[c_uchar, MutExternalOrigin],
-                ),
-            ],
-            ImmutExternalOrigin,
-        ],
+        free: fn(
+            opaque: OpaquePointer[MutExternalOrigin],
+            data: UnsafePointer[c_uchar, MutExternalOrigin],
+        ) -> NoneType,
         opaque: OpaquePointer[MutExternalOrigin],
         flags: c_int,
     ) -> UnsafePointer[AVBufferRef, MutExternalOrigin],
@@ -71,7 +65,11 @@ comptime av_buffer_ref = ExternalFunction[
 
 comptime av_buffer_unref = ExternalFunction[
     "av_buffer_unref",
-    fn(buf: UnsafePointer[AVBufferRef, MutExternalOrigin]) -> NoneType,
+    fn(
+        buf: UnsafePointer[
+            UnsafePointer[AVBufferRef, MutExternalOrigin], MutExternalOrigin
+        ]
+    ) -> NoneType,
 ]
 
 comptime av_buffer_is_writable = ExternalFunction[
@@ -131,14 +129,8 @@ comptime av_buffer_pool_init = ExternalFunction[
     "av_buffer_pool_init",
     fn(
         size: c_size_t,
-        alloc: UnsafePointer[
-            ExternalFunction[
-                "alloc",
-                fn(
-                    size: c_size_t,
-                ) -> UnsafePointer[AVBufferRef, MutExternalOrigin],
-            ],
-            MutExternalOrigin,
+        alloc: fn(size: c_size_t) -> UnsafePointer[
+            AVBufferRef, MutExternalOrigin
         ],
     ) -> UnsafePointer[AVBufferPool, MutExternalOrigin],
 ]
@@ -148,28 +140,20 @@ comptime av_buffer_pool_init2 = ExternalFunction[
     fn(
         size: c_size_t,
         opaque: OpaquePointer[MutExternalOrigin],
-        alloc: UnsafePointer[
-            ExternalFunction[
-                "alloc",
-                fn(
-                    opaque: OpaquePointer[MutExternalOrigin], size: c_size_t
-                ) -> UnsafePointer[AVBufferRef, MutExternalOrigin],
-            ],
-            MutExternalOrigin,
-        ],
-        pool_free: UnsafePointer[
-            ExternalFunction[
-                "pool_free",
-                fn(opaque: OpaquePointer[MutExternalOrigin]) -> NoneType,
-            ],
-            MutExternalOrigin,
-        ],
+        alloc: fn(
+            opaque: OpaquePointer[MutExternalOrigin], size: c_size_t
+        ) -> UnsafePointer[AVBufferRef, MutExternalOrigin],
+        pool_free: fn(opaque: OpaquePointer[MutExternalOrigin]) -> NoneType,
     ) -> UnsafePointer[AVBufferPool, MutExternalOrigin],
 ]
 
 comptime av_buffer_pool_uninit = ExternalFunction[
     "av_buffer_pool_uninit",
-    fn(pool: UnsafePointer[AVBufferPool, MutExternalOrigin]) -> NoneType,
+    fn(
+        pool: UnsafePointer[
+            UnsafePointer[AVBufferPool, MutExternalOrigin], MutExternalOrigin
+        ]
+    ) -> NoneType,
 ]
 
 comptime av_buffer_pool_get = ExternalFunction[
