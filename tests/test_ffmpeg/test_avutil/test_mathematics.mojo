@@ -1,19 +1,8 @@
 from testing.suite import TestSuite
 from testing.testing import assert_equal
-from memory import memset
-import sys
-from sys.info import size_of
-import os
-from ffi import c_uchar, c_int, c_char
 from ash_dynamics.ffmpeg.avutil import Avutil
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
-from sys._libc_errno import ErrNo
-
-from ash_dynamics.ffmpeg.avutil.mathematics import (
-    AVRounding,
-    av_rescale_rnd,
-    av_rescale_q_rnd,
-)
+from ash_dynamics.ffmpeg.avutil.mathematics import AVRounding
 
 
 def test_AVRounding():
@@ -25,19 +14,43 @@ def test_AVRounding():
     assert_equal(AVRounding.AV_ROUND_PASS_MINMAX.value, 8192)
 
 
+def test_av_compare_ts():
+    var avutil = Avutil()
+    var tb = AVRational(num=1, den=1)
+    # ts_a < ts_b -> -1
+    assert_equal(avutil.av_compare_ts(0, tb, 1, tb), -1)
+    # ts_a == ts_b -> 0
+    assert_equal(avutil.av_compare_ts(1, tb, 1, tb), 0)
+    # ts_a > ts_b -> 1
+    assert_equal(avutil.av_compare_ts(2, tb, 1, tb), 1)
+    _ = avutil
+
+
+def test_av_rescale_rnd():
+    var avutil = Avutil()
+    var rnd = AVRounding.AV_ROUND_NEAR_INF.value
+    # a * b / c: 100 * 2 / 2 = 100
+    assert_equal(avutil.av_rescale_rnd(100, 2, 2, rnd), 100)
+    # 50 * 4 / 2 = 100
+    assert_equal(avutil.av_rescale_rnd(50, 4, 2, rnd), 100)
+    # 0 * anything = 0
+    assert_equal(avutil.av_rescale_rnd(0, 1000, 1, rnd), 0)
+    _ = avutil
+
+
 def test_av_rescale_q_rnd():
     var avutil = Avutil()
-    var a = 0
+    var rnd = AVRounding.AV_ROUND_NEAR_INF.value
+    # a=0 -> 0
     var bq = AVRational(num=1, den=25)
     var cq = AVRational(num=2, den=12800)
-    print("sizeof(AVRational) = {}".format(size_of[AVRational]()))  # Also 8
-    # C side is Stopping early.sizeof(a) = 8
-    var rnd = AVRounding.AV_ROUND_NEAR_INF.value
-    # The operation is mathematically equivalent to `a * bq / cq`
-    print("a * bq / cq = {}".format(a * bq.num / cq.den))  # Outputs 0 (correct)
-    var result = avutil.av_rescale_q_rnd(a, bq, cq, rnd)
-    print("result = {}".format(result))  # Outputs -9223372036854775808 (wrong)
-    assert_equal(result, 0)
+    assert_equal(avutil.av_rescale_q_rnd(0, bq, cq, rnd), 0)
+    # a * (1/1) / (1/1) = a
+    var one = AVRational(num=1, den=1)
+    assert_equal(avutil.av_rescale_q_rnd(100, one, one, rnd), 100)
+    # a * (1/1) / (2/1) = a/2
+    var two = AVRational(num=2, den=1)
+    assert_equal(avutil.av_rescale_q_rnd(100, one, two, rnd), 50)
     _ = avutil
 
 
