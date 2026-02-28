@@ -93,7 +93,12 @@ from ash_dynamics.ffmpeg.avformat.avformat import (
     AVOutputFormat,
     AVFormatContext,
 )
-from ash_dynamics.ffmpeg.avformat.avio import avio_open, AVIO_FLAG_WRITE
+from ash_dynamics.ffmpeg.avformat.avio import (
+    avio_open,
+    avio_closep,
+    AVIO_FLAG_WRITE,
+    AVIO_FLAG_READ,
+)
 
 from logger import Logger
 
@@ -239,6 +244,7 @@ struct Avformat:
 
     # I/O functions
     var avio_open: avio_open.type
+    var avio_closep: avio_closep.type
 
     fn __init__(out self) raises:
         var so_install_prefix = getenv("ASH_DYNAMICS_SO_INSTALL_PREFIX")
@@ -428,6 +434,7 @@ struct Avformat:
 
         # I/O functions
         self.avio_open = avio_open.load(self.lib)
+        self.avio_closep = avio_closep.load(self.lib)
 
     fn alloc_output_context(
         self,
