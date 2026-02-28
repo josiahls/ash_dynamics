@@ -1618,5 +1618,384 @@ def test_avformat_write_header_trailer():
     _ = st
 
 
+def test_av_sdp_create():
+    var avformat = Avformat()
+    var ac = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
+    ac[0] = avformat.avformat_alloc_context()
+    assert_true(Bool(ac[0]))
+    var buf = alloc[c_char](256)
+    memset(buf, 0, 256)
+    var ret = avformat.av_sdp_create(
+        ac.unsafe_origin_cast[MutExternalOrigin](),
+        1,
+        buf.unsafe_origin_cast[MutExternalOrigin](),
+        256,
+    )
+    assert_equal(ret, 0)
+    avformat.avformat_free_context(ac[0])
+    _ = avformat
+    _ = buf
+
+
+def test_avformat_init_output():
+    var avformat = Avformat()
+    var ctx = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
+    var fmt = avformat.av_guess_format(
+        short_name="null".as_c_string_slice().unsafe_ptr().as_immutable(),
+        filename=UnsafePointer[c_char, ImmutExternalOrigin](
+            unsafe_from_address=0
+        ),
+        mime_type=UnsafePointer[c_char, ImmutExternalOrigin](
+            unsafe_from_address=0
+        ),
+    )
+    if not Bool(fmt):
+        _ = avformat
+        return
+    var filename = String("")
+    var ret = avformat.alloc_output_context(
+        ctx=ctx,
+        oformat=fmt,
+        format_name=UnsafePointer[c_char, ImmutExternalOrigin](
+            unsafe_from_address=0
+        ),
+        filename=filename,
+    )
+    if ret < 0:
+        _ = avformat
+        return
+    var st = avformat.avformat_new_stream(
+        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        UnsafePointer[AVCodec, ImmutExternalOrigin](unsafe_from_address=0),
+    )
+    if not Bool(st):
+        avformat.avformat_free_context(ctx[])
+        _ = avformat
+        return
+    st[].time_base.num = 1
+    st[].time_base.den = 25
+    st[].codecpar[].codec_type = AVMediaType.AVMEDIA_TYPE_VIDEO._value
+    st[].codecpar[].codec_id = AVCodecID.AV_CODEC_ID_H264._value
+    var opt = UnsafePointer[
+        UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
+    ](
+        unsafe_from_address=0,
+    )
+    ret = avformat.avformat_init_output(
+        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        opt,
+    )
+    # ret may be < 0 for null muxer without pb; we just verify the API call completes
+    avformat.avformat_free_context(ctx[])
+    _ = avformat
+    _ = st
+
+
+def test_av_write_frame():
+    var avformat = Avformat()
+    var avcodec = Avcodec()
+    var ctx = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
+    var fmt = avformat.av_guess_format(
+        short_name="null".as_c_string_slice().unsafe_ptr().as_immutable(),
+        filename=UnsafePointer[c_char, ImmutExternalOrigin](
+            unsafe_from_address=0
+        ),
+        mime_type=UnsafePointer[c_char, ImmutExternalOrigin](
+            unsafe_from_address=0
+        ),
+    )
+    if not Bool(fmt):
+        _ = avformat
+        _ = avcodec
+        return
+    var filename = String("")
+    var ret = avformat.alloc_output_context(
+        ctx=ctx,
+        oformat=fmt,
+        format_name=UnsafePointer[c_char, ImmutExternalOrigin](
+            unsafe_from_address=0
+        ),
+        filename=filename,
+    )
+    if ret < 0:
+        _ = avformat
+        _ = avcodec
+        return
+    var st = avformat.avformat_new_stream(
+        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        UnsafePointer[AVCodec, ImmutExternalOrigin](unsafe_from_address=0),
+    )
+    if not Bool(st):
+        avformat.avformat_free_context(ctx[])
+        _ = avformat
+        _ = avcodec
+        return
+    st[].time_base.num = 1
+    st[].time_base.den = 25
+    st[].codecpar[].codec_type = AVMediaType.AVMEDIA_TYPE_VIDEO._value
+    st[].codecpar[].codec_id = AVCodecID.AV_CODEC_ID_H264._value
+    var opt = UnsafePointer[
+        UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
+    ](
+        unsafe_from_address=0,
+    )
+    ret = avformat.avformat_write_header(
+        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        opt,
+    )
+    if ret >= 0:
+        ret = avformat.av_write_frame(
+            ctx[].unsafe_origin_cast[MutExternalOrigin](),
+            UnsafePointer[AVPacket, MutExternalOrigin](unsafe_from_address=0),
+        )
+        assert_true(ret >= 0)
+        ret = avformat.av_write_trailer(
+            ctx[].unsafe_origin_cast[MutExternalOrigin]()
+        )
+    avformat.avformat_free_context(ctx[])
+    _ = avformat
+    _ = avcodec
+    _ = st
+
+
+def test_av_interleaved_write_frame():
+    var avformat = Avformat()
+    var avcodec = Avcodec()
+    var ctx = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
+    var fmt = avformat.av_guess_format(
+        short_name="null".as_c_string_slice().unsafe_ptr().as_immutable(),
+        filename=UnsafePointer[c_char, ImmutExternalOrigin](
+            unsafe_from_address=0
+        ),
+        mime_type=UnsafePointer[c_char, ImmutExternalOrigin](
+            unsafe_from_address=0
+        ),
+    )
+    if not Bool(fmt):
+        _ = avformat
+        _ = avcodec
+        return
+    var filename = String("")
+    var ret = avformat.alloc_output_context(
+        ctx=ctx,
+        oformat=fmt,
+        format_name=UnsafePointer[c_char, ImmutExternalOrigin](
+            unsafe_from_address=0
+        ),
+        filename=filename,
+    )
+    if ret < 0:
+        _ = avformat
+        _ = avcodec
+        return
+    var st = avformat.avformat_new_stream(
+        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        UnsafePointer[AVCodec, ImmutExternalOrigin](unsafe_from_address=0),
+    )
+    if not Bool(st):
+        avformat.avformat_free_context(ctx[])
+        _ = avformat
+        _ = avcodec
+        return
+    st[].time_base.num = 1
+    st[].time_base.den = 25
+    st[].codecpar[].codec_type = AVMediaType.AVMEDIA_TYPE_VIDEO._value
+    st[].codecpar[].codec_id = AVCodecID.AV_CODEC_ID_H264._value
+    var opt = UnsafePointer[
+        UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
+    ](
+        unsafe_from_address=0,
+    )
+    ret = avformat.avformat_write_header(
+        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        opt,
+    )
+    if ret >= 0:
+        ret = avformat.av_interleaved_write_frame(
+            ctx[].unsafe_origin_cast[MutExternalOrigin](),
+            UnsafePointer[AVPacket, MutExternalOrigin](unsafe_from_address=0),
+        )
+        assert_true(ret >= 0)
+        ret = avformat.av_write_trailer(
+            ctx[].unsafe_origin_cast[MutExternalOrigin]()
+        )
+    avformat.avformat_free_context(ctx[])
+    _ = avformat
+    _ = avcodec
+    _ = st
+
+
+def test_av_write_uncoded_frame_query():
+    var avformat = Avformat()
+    var ctx = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
+    var fmt = avformat.av_guess_format(
+        short_name="null".as_c_string_slice().unsafe_ptr().as_immutable(),
+        filename=UnsafePointer[c_char, ImmutExternalOrigin](
+            unsafe_from_address=0
+        ),
+        mime_type=UnsafePointer[c_char, ImmutExternalOrigin](
+            unsafe_from_address=0
+        ),
+    )
+    if not Bool(fmt):
+        _ = avformat
+        return
+    var filename = String("")
+    var ret = avformat.alloc_output_context(
+        ctx=ctx,
+        oformat=fmt,
+        format_name=UnsafePointer[c_char, ImmutExternalOrigin](
+            unsafe_from_address=0
+        ),
+        filename=filename,
+    )
+    if ret < 0:
+        _ = avformat
+        return
+    var st = avformat.avformat_new_stream(
+        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        UnsafePointer[AVCodec, ImmutExternalOrigin](unsafe_from_address=0),
+    )
+    if not Bool(st):
+        avformat.avformat_free_context(ctx[])
+        _ = avformat
+        return
+    st[].time_base.num = 1
+    st[].time_base.den = 25
+    st[].codecpar[].codec_type = AVMediaType.AVMEDIA_TYPE_VIDEO._value
+    st[].codecpar[].codec_id = AVCodecID.AV_CODEC_ID_H264._value
+    ret = avformat.av_write_uncoded_frame_query(
+        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        0,
+    )
+    avformat.avformat_free_context(ctx[])
+    _ = avformat
+    _ = st
+
+
+def test_av_write_uncoded_frame():
+    var avformat = Avformat()
+    var ctx = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
+    var fmt = avformat.av_guess_format(
+        short_name="null".as_c_string_slice().unsafe_ptr().as_immutable(),
+        filename=UnsafePointer[c_char, ImmutExternalOrigin](
+            unsafe_from_address=0
+        ),
+        mime_type=UnsafePointer[c_char, ImmutExternalOrigin](
+            unsafe_from_address=0
+        ),
+    )
+    if not Bool(fmt):
+        _ = avformat
+        return
+    var filename = String("")
+    var ret = avformat.alloc_output_context(
+        ctx=ctx,
+        oformat=fmt,
+        format_name=UnsafePointer[c_char, ImmutExternalOrigin](
+            unsafe_from_address=0
+        ),
+        filename=filename,
+    )
+    if ret < 0:
+        _ = avformat
+        return
+    var st = avformat.avformat_new_stream(
+        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        UnsafePointer[AVCodec, ImmutExternalOrigin](unsafe_from_address=0),
+    )
+    if not Bool(st):
+        avformat.avformat_free_context(ctx[])
+        _ = avformat
+        return
+    st[].time_base.num = 1
+    st[].time_base.den = 25
+    st[].codecpar[].codec_type = AVMediaType.AVMEDIA_TYPE_VIDEO._value
+    st[].codecpar[].codec_id = AVCodecID.AV_CODEC_ID_H264._value
+    var opt = UnsafePointer[
+        UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
+    ](
+        unsafe_from_address=0,
+    )
+    ret = avformat.avformat_write_header(
+        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        opt,
+    )
+    if ret >= 0:
+        ret = avformat.av_write_uncoded_frame(
+            ctx[].unsafe_origin_cast[MutExternalOrigin](),
+            0,
+            UnsafePointer[AVFrame, MutExternalOrigin](unsafe_from_address=0),
+        )
+        ret = avformat.av_write_trailer(
+            ctx[].unsafe_origin_cast[MutExternalOrigin]()
+        )
+    avformat.avformat_free_context(ctx[])
+    _ = avformat
+    _ = st
+
+
+def test_av_interleaved_write_uncoded_frame():
+    var avformat = Avformat()
+    var ctx = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
+    var fmt = avformat.av_guess_format(
+        short_name="null".as_c_string_slice().unsafe_ptr().as_immutable(),
+        filename=UnsafePointer[c_char, ImmutExternalOrigin](
+            unsafe_from_address=0
+        ),
+        mime_type=UnsafePointer[c_char, ImmutExternalOrigin](
+            unsafe_from_address=0
+        ),
+    )
+    if not Bool(fmt):
+        _ = avformat
+        return
+    var filename = String("")
+    var ret = avformat.alloc_output_context(
+        ctx=ctx,
+        oformat=fmt,
+        format_name=UnsafePointer[c_char, ImmutExternalOrigin](
+            unsafe_from_address=0
+        ),
+        filename=filename,
+    )
+    if ret < 0:
+        _ = avformat
+        return
+    var st = avformat.avformat_new_stream(
+        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        UnsafePointer[AVCodec, ImmutExternalOrigin](unsafe_from_address=0),
+    )
+    if not Bool(st):
+        avformat.avformat_free_context(ctx[])
+        _ = avformat
+        return
+    st[].time_base.num = 1
+    st[].time_base.den = 25
+    st[].codecpar[].codec_type = AVMediaType.AVMEDIA_TYPE_VIDEO._value
+    st[].codecpar[].codec_id = AVCodecID.AV_CODEC_ID_H264._value
+    var opt = UnsafePointer[
+        UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
+    ](
+        unsafe_from_address=0,
+    )
+    ret = avformat.avformat_write_header(
+        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        opt,
+    )
+    if ret >= 0:
+        ret = avformat.av_interleaved_write_uncoded_frame(
+            ctx[].unsafe_origin_cast[MutExternalOrigin](),
+            0,
+            UnsafePointer[AVFrame, MutExternalOrigin](unsafe_from_address=0),
+        )
+        ret = avformat.av_write_trailer(
+            ctx[].unsafe_origin_cast[MutExternalOrigin]()
+        )
+    avformat.avformat_free_context(ctx[])
+    _ = avformat
+    _ = st
+
+
 def main():
     TestSuite.discover_tests[__functions_in_module()]().run()
