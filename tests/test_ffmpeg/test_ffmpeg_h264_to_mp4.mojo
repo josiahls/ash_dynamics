@@ -105,20 +105,22 @@ struct OutputStream:
 
 
 def alloc_frame(
-    avutil: Avutil,
+    mut avutil: Avutil,
     pix_fmt: AVPixelFormat.ENUM_DTYPE,
     width: c_int,
     height: c_int,
-) -> UnsafePointer[AVFrame, MutExternalOrigin]:
-    var frame = alloc[AVFrame](1)
+) -> UnsafePointer[AVFrame, origin_of(avutil)]:
+    # var frame = alloc[AVFrame](1)
 
-    frame = avutil.av_frame_alloc()
+    var frame = avutil.av_frame_alloc()
 
     frame[].format = pix_fmt
     frame[].width = width
     frame[].height = height
 
-    ret = avutil.av_frame_get_buffer(frame, 0)
+    ret = avutil.av_frame_get_buffer(
+        frame.unsafe_origin_cast[MutExternalOrigin](), 0
+    )
     if ret < 0:
         os.abort("Failed to allocate frame buffer")
 
@@ -144,7 +146,9 @@ def open_video(
     avcodec.avcodec_open2(c, video_codec, opt)
     # av_dict_free(&opt);
 
-    ost.frame = alloc_frame(avutil, c[].pix_fmt, c[].width, c[].height)
+    ost.frame = alloc_frame(
+        avutil, c[].pix_fmt, c[].width, c[].height
+    ).unsafe_origin_cast[MutExternalOrigin]()
     if not ost.frame:
         os.abort("Failed to allocate video frame")
 
@@ -155,7 +159,7 @@ def open_video(
             AVPixelFormat.AV_PIX_FMT_YUV420P._value,
             c[].width,
             c[].height,
-        )
+        ).unsafe_origin_cast[MutExternalOrigin]()
         if not ost.tmp_frame:
             os.abort("Failed to allocate temporary video frame")
 
