@@ -307,7 +307,7 @@ comptime av_packet_add_side_data = ExternalFunction[
     fn(
         pkt: UnsafePointer[AVPacket, MutExternalOrigin],
         type: AVPacketSideDataType.ENUM_DTYPE,
-        data: OpaquePointer[MutExternalOrigin],
+        data: UnsafePointer[c_uchar, MutExternalOrigin],
         size: c_size_t,
     ) -> c_int,
 ]
