@@ -1,6 +1,6 @@
 """https://www.ffmpeg.org/doxygen/8.0/avutil_8h_source.html"""
 
-from ffi import OwnedDLHandle, c_int, c_float, c_char, c_long_long
+from ffi import OwnedDLHandle, c_int, c_float, c_char, c_long_long, c_size_t
 from os.env import getenv
 import os
 from ash_dynamics.ffmpeg.avutil.buffer import (
@@ -87,6 +87,7 @@ from ash_dynamics.ffmpeg.avutil.error import (
 )
 from logger import Logger
 from ash_dynamics.ffmpeg.avutil.frame import AVFrame
+from ash_dynamics.ffmpeg.avutil.buffer import AVBufferRef
 
 
 comptime _logger = Logger()
@@ -101,7 +102,7 @@ struct Avutil:
     # ===--------------------------------------------------===
     # Buffer functions
     var _av_buffer_alloc: av_buffer_alloc.type
-    var av_buffer_allocz: av_buffer_allocz.type
+    var _av_buffer_allocz: av_buffer_allocz.type
     var av_buffer_create: av_buffer_create.type
     var av_buffer_default_free: av_buffer_default_free.type
     var av_buffer_ref: av_buffer_ref.type
@@ -145,7 +146,7 @@ struct Avutil:
     var av_frame_free: av_frame_free.type
     var av_frame_ref: av_frame_ref.type
     var av_frame_replace: av_frame_replace.type
-    var av_frame_clone: av_frame_clone.type
+    var _av_frame_clone: av_frame_clone.type
     var av_frame_unref: av_frame_unref.type
     var av_frame_move_ref: av_frame_move_ref.type
     var av_frame_get_buffer: av_frame_get_buffer.type
@@ -153,7 +154,7 @@ struct Avutil:
     var av_frame_make_writable: av_frame_make_writable.type
     var av_frame_copy: av_frame_copy.type
     var av_frame_copy_props: av_frame_copy_props.type
-    var av_frame_get_plane_buffer: av_frame_get_plane_buffer.type
+    var _av_frame_get_plane_buffer: av_frame_get_plane_buffer.type
     var av_frame_new_side_data: av_frame_new_side_data.type
     var av_frame_new_side_data_from_buf: av_frame_new_side_data_from_buf.type
     var av_frame_get_side_data: av_frame_get_side_data.type
@@ -194,7 +195,7 @@ struct Avutil:
 
         # Buffer functions
         self._av_buffer_alloc = av_buffer_alloc.load(self.lib)
-        self.av_buffer_allocz = av_buffer_allocz.load(self.lib)
+        self._av_buffer_allocz = av_buffer_allocz.load(self.lib)
         self.av_buffer_create = av_buffer_create.load(self.lib)
         self.av_buffer_default_free = av_buffer_default_free.load(self.lib)
         self.av_buffer_ref = av_buffer_ref.load(self.lib)
@@ -264,7 +265,7 @@ struct Avutil:
         self.av_frame_free = av_frame_free.load(self.lib)
         self.av_frame_ref = av_frame_ref.load(self.lib)
         self.av_frame_replace = av_frame_replace.load(self.lib)
-        self.av_frame_clone = av_frame_clone.load(self.lib)
+        self._av_frame_clone = av_frame_clone.load(self.lib)
         self.av_frame_unref = av_frame_unref.load(self.lib)
         self.av_frame_move_ref = av_frame_move_ref.load(self.lib)
         self.av_frame_get_buffer = av_frame_get_buffer.load(self.lib)
@@ -272,7 +273,7 @@ struct Avutil:
         self.av_frame_make_writable = av_frame_make_writable.load(self.lib)
         self.av_frame_copy = av_frame_copy.load(self.lib)
         self.av_frame_copy_props = av_frame_copy_props.load(self.lib)
-        self.av_frame_get_plane_buffer = av_frame_get_plane_buffer.load(
+        self._av_frame_get_plane_buffer = av_frame_get_plane_buffer.load(
             self.lib
         )
         self.av_frame_new_side_data = av_frame_new_side_data.load(self.lib)
@@ -311,6 +312,58 @@ struct Avutil:
     ](ref[origin] self) -> UnsafePointer[AVFrame, origin]:
         return (
             UnsafePointer(to=self._av_frame_alloc()[])
+            .mut_cast[origin.mut]()
+            .unsafe_origin_cast[origin]()
+        )
+
+    fn av_buffer_alloc[
+        origin: Origin
+    ](ref[origin] self, size: c_size_t) -> UnsafePointer[AVBufferRef, origin]:
+        return (
+            UnsafePointer(to=self._av_buffer_alloc(size)[])
+            .mut_cast[origin.mut]()
+            .unsafe_origin_cast[origin]()
+        )
+
+    fn av_buffer_allocz[
+        origin: Origin
+    ](ref[origin] self, size: c_size_t) -> UnsafePointer[AVBufferRef, origin]:
+        return (
+            UnsafePointer(to=self._av_buffer_allocz(size)[])
+            .mut_cast[origin.mut]()
+            .unsafe_origin_cast[origin]()
+        )
+
+    fn av_frame_clone[
+        origin: Origin
+    ](
+        ref[origin] self,
+        src: UnsafePointer[mut=False, AVFrame, origin],
+    ) -> UnsafePointer[AVFrame, origin]:
+        return (
+            UnsafePointer(
+                to=self._av_frame_clone(
+                    src.unsafe_origin_cast[ImmutExternalOrigin](),
+                )[],
+            )
+            .mut_cast[origin.mut]()
+            .unsafe_origin_cast[origin]()
+        )
+
+    fn av_frame_get_plane_buffer[
+        origin: Origin
+    ](
+        ref[origin] self,
+        frame: UnsafePointer[mut=False, AVFrame, origin],
+        plane: c_int,
+    ) -> UnsafePointer[AVBufferRef, origin]:
+        return (
+            UnsafePointer(
+                to=self._av_frame_get_plane_buffer(
+                    frame.unsafe_origin_cast[ImmutExternalOrigin](),
+                    plane,
+                )[],
+            )
             .mut_cast[origin.mut]()
             .unsafe_origin_cast[origin]()
         )

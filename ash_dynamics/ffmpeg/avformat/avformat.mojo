@@ -7,7 +7,7 @@ I/O and Muxing/Demuxing Library
 from ffi import c_int, c_char, c_uchar, c_long_long, c_uint, c_size_t
 from sys._libc import dup, fclose, fdopen, fflush, FILE_ptr
 from utils import StaticTuple
-from ash_dynamics.primitives._clib import C_Union, ExternalFunction, Debug
+from ash_dynamics.primitives._clib import C_Union, ExternalFunction
 from ash_dynamics.ffmpeg.avutil.frame import AVFrame
 from ash_dynamics.ffmpeg.avcodec.codec import AVCodec
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
