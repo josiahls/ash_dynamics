@@ -112,15 +112,15 @@ struct TrivialOptionalField[active: Bool, ElementType: __TypeOfAllTypes](
     var field: Self.OptionalElementType
 
     fn __init__(out self):
-        constrained[
-            not Self.active, "Constructor only available with no active field"
-        ]()
+        comptime assert (
+            not Self.active
+        ), "Constructor only available with no active field"
         self.field = Self.OptionalElementType()
 
     fn __init__(out self, var value: Self.ElementType):
-        constrained[
-            Self.active, "Constructor only available with active field"
-        ]()
+        comptime assert (
+            Self.active
+        ), "Constructor only available with active field"
         self.field = Self.OptionalElementType(value)
 
     fn __init__(out self, var value: Optional[Self.ElementType]):
@@ -137,9 +137,9 @@ struct TrivialOptionalField[active: Bool, ElementType: __TypeOfAllTypes](
 
     @always_inline
     fn __getitem__(ref self) -> Self.ElementType:
-        constrained[
-            Self.active, "Field is not active, you should not access it."
-        ]()
+        comptime assert (
+            Self.active
+        ), "Field is not active, you should not access it."
         return self.field[0]
 
 
