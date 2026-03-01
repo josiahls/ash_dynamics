@@ -21,15 +21,11 @@ fn reflection_write_to_but_handle_static_tuples[
     writer.write_string(type_name)
     writer.write_string("(")
 
-    @parameter
-    for i in range(names.size):
+    comptime for i in range(names.size):
         comptime FieldType = types[i]
 
-        @parameter
-        if not conforms_to(FieldType, Writable):
-
-            @parameter
-            if i > 0:
+        comptime if not conforms_to(FieldType, Writable):
+            comptime if i > 0:
                 writer.write_string(", ")
                 writer.write_string(materialize[names[i]]())
                 writer.write_string("= (Not Writable)")
@@ -41,8 +37,7 @@ fn reflection_write_to_but_handle_static_tuples[
                 ParentConformsTo="Writable",
             ]()
 
-            @parameter
-            if i > 0:
+            comptime if i > 0:
                 writer.write_string(", ")
             writer.write_string(materialize[names[i]]())
             writer.write_string("=")

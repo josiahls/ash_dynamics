@@ -44,8 +44,7 @@ struct ExternalFunction[
 fn build_union_mlir_type[*Ts: Copyable & Movable]() -> Int:
     var max_size: Int = 0
 
-    @parameter
-    for i in range(Variadic.size(Ts)):
+    comptime for i in range(Variadic.size(Ts)):
         comptime current_size = size_of[Ts[i]]()
         if current_size > max_size:
             max_size = current_size
@@ -87,8 +86,7 @@ struct C_Union[*Ts: Copyable & Movable](
 
     @staticmethod
     fn _check[T: AnyType]() -> Bool:
-        @parameter
-        for i in range(Variadic.size(Self.Ts)):
+        comptime for i in range(Variadic.size(Self.Ts)):
             if _type_is_eq[Self.Ts[i], T]():
                 return True
         return False
@@ -124,15 +122,13 @@ struct TrivialOptionalField[active: Bool, ElementType: __TypeOfAllTypes](
         self.field = Self.OptionalElementType(value)
 
     fn __init__(out self, var value: Optional[Self.ElementType]):
-        @parameter
-        if Self.active:
+        comptime if Self.active:
             self.field = Self.OptionalElementType(value.take())
         else:
             self.field = Self.OptionalElementType()
 
     fn write_to(self, mut writer: Some[Writer]):
-        @parameter
-        if Self.active and conforms_to(Self.ElementType, Writable):
+        comptime if Self.active and conforms_to(Self.ElementType, Writable):
             writer.write(trait_downcast[Writable](self[]))
 
     @always_inline
