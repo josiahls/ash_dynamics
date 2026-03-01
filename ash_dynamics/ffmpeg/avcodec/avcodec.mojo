@@ -862,7 +862,9 @@ struct AVCodecParser(Debug, Movable):
 comptime av_parser_iterate = ExternalFunction[
     "av_parser_iterate",
     fn(
-        opaque: OpaquePointer[MutExternalOrigin],
+        opaque: UnsafePointer[
+            OpaquePointer[MutExternalOrigin], MutExternalOrigin
+        ],
     ) -> UnsafePointer[AVCodecParser, ImmutExternalOrigin],
 ]
 
