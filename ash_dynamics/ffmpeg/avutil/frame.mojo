@@ -15,10 +15,7 @@ from ash_dynamics.ffmpeg.avutil.pixfmt import (
 )
 from ffi import c_uchar, c_int, c_long_long, c_ulong_long, c_size_t, c_uint
 from utils import StaticTuple
-from ash_dynamics.primitives._clib import (
-    ExternalFunction,
-    Debug,
-)
+from ash_dynamics.primitives._clib import ExternalFunction
 
 
 # Until https://github.com/modular/modular/pull/5715 is merged, we need to

@@ -13,7 +13,7 @@ import os
 from utils import StaticTuple
 from ash_dynamics.ffmpeg.avutil.log import AVClass
 from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
-from ash_dynamics.primitives._clib import C_Union, ExternalFunction, Debug
+from ash_dynamics.primitives._clib import C_Union, ExternalFunction
 
 
 comptime AVIO_SEEKABLE_NORMAL = 1 << 0
