@@ -4,8 +4,7 @@ from ash_dynamics.ffmpeg.avutil import avconfig
 
 
 fn AV_NE[T: ImplicitlyCopyable](be: T, le: T) -> T:
-    @parameter
-    if avconfig.AV_HAVE_BIGENDIAN:
+    comptime if avconfig.AV_HAVE_BIGENDIAN:
         return be
     return le
 
@@ -26,8 +25,7 @@ fn FFDIFFSIGN[T: Comparable](x: T, y: T) -> Bool:
 
 @always_inline
 fn MKTAG(a: Int, b: Int, c: Int, d: Int) -> Int:
-    @parameter
-    if avconfig.AV_HAVE_BIGENDIAN:
+    comptime if avconfig.AV_HAVE_BIGENDIAN:
         return (d) | ((c) << 8) | ((b) << 16) | Int(UInt(a) << 24)
 
     return Int((UInt(a) | (UInt(b) << 8) | (UInt(c) << 16) | UInt(d) << 24))
