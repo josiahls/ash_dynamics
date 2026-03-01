@@ -1,13 +1,12 @@
 "https://www.ffmpeg.org/doxygen/8.0/avutil_8h.html"
 from ffi import c_int, c_uint, c_long_long, c_ulong_long
-from ash_dynamics.primitives._clib import Debug
 
 
 comptime AV_NOPTS_VALUE = c_long_long(c_ulong_long(0x8000000000000000))
 
 
 @fieldwise_init("implicit")
-struct AVPictureType(Debug, Movable):
+struct AVPictureType(Movable, Writable):
     comptime ENUM_DTYPE = c_int
 
     var _value: Self.ENUM_DTYPE
@@ -23,7 +22,7 @@ struct AVPictureType(Debug, Movable):
 
 
 @fieldwise_init("implicit")
-struct AVMediaType(Debug, Movable):
+struct AVMediaType(Movable, Writable):
     comptime ENUM_DTYPE = c_uint
 
     var _value: Self.ENUM_DTYPE

@@ -51,7 +51,7 @@ comptime AV_CODEC_CAP_ENCODER_FLUSH = c_int(1 << 21)
 comptime AV_CODEC_CAP_ENCODER_RECON_FRAME = c_int(1 << 22)
 
 
-struct AVProfile(Debug, Movable):
+struct AVProfile(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVProfile.html"
 
     var profile: c_int
@@ -59,7 +59,7 @@ struct AVProfile(Debug, Movable):
 
 
 @fieldwise_init
-struct AVCodec(Debug, Movable):
+struct AVCodec(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVCodec.html"
 
     var name: UnsafePointer[c_char, ImmutExternalOrigin]
@@ -155,7 +155,7 @@ comptime AV_CODEC_HW_CONFIG_METHOD_AD_HOC = c_int(0x08)
 
 
 @fieldwise_init
-struct AVCodecHWConfig(Debug, Movable):
+struct AVCodecHWConfig(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVCodecHWConfig.html"
 
     var pix_fmt: AVPixelFormat.ENUM_DTYPE

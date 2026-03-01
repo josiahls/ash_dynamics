@@ -4,12 +4,12 @@ from os.atomic import Atomic
 from ash_dynamics.ffmpeg.avutil.buffer import AVBufferRef
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
 from ash_dynamics.primitives._clib import ExternalFunction
-from ash_dynamics.primitives._clib import Debug
+
 from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
 
 
 @fieldwise_init("implicit")
-struct AVPacketSideDataType(Debug, Movable):
+struct AVPacketSideDataType(Movable, Writable):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -81,7 +81,7 @@ struct AVPacketSideDataType(Debug, Movable):
 
 
 @fieldwise_init
-struct AVPacketSideData(Debug, Movable):
+struct AVPacketSideData(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVPacketSideData.html"
 
     var data: UnsafePointer[c_uchar, MutAnyOrigin]
@@ -161,7 +161,7 @@ comptime av_packet_side_data_name = ExternalFunction[
 
 
 @fieldwise_init
-struct AVPacket(Debug, Movable):
+struct AVPacket(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVPacket.html"
 
     var buf: UnsafePointer[AVBufferRef, origin=MutExternalOrigin]
@@ -206,7 +206,7 @@ comptime AV_PKT_FLAG_DISPOSABLE = c_int(0x0010)
 
 
 @fieldwise_init
-struct AVSideDataParamChangeFlags(Debug, Movable):
+struct AVSideDataParamChangeFlags(Movable, Writable):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
     comptime AV_SIDE_DATA_PARAM_CHANGE_SAMPLE_RATE = Self(0x0004)
@@ -407,7 +407,7 @@ comptime av_packet_rescale_ts = ExternalFunction[
 ]
 
 
-struct AVContainerFifo(Debug, Movable):
+struct AVContainerFifo(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVContainerFifo.html"
 
     pass

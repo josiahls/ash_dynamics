@@ -12,7 +12,7 @@ struct AVBuffer(Movable):
 
 
 @fieldwise_init
-struct AVBufferRef(Debug, TrivialRegisterPassable):
+struct AVBufferRef(TrivialRegisterPassable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVBufferRef.html"
     var buffer: UnsafePointer[AVBuffer, origin=MutExternalOrigin]
     var data: UnsafePointer[c_uchar, origin=MutExternalOrigin]

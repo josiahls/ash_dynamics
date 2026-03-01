@@ -63,7 +63,7 @@ comptime av_append_packet = ExternalFunction[
 
 
 @fieldwise_init
-struct AVProbeData(Debug, Movable):
+struct AVProbeData(Movable, Writable):
     """https://www.ffmpeg.org/doxygen/8.0/structAVProbeData.html"""
 
     var filename: UnsafePointer[c_char, origin=ImmutExternalOrigin]
@@ -104,7 +104,7 @@ comptime AVFMT_SEEK_TO_PTS = 0x4000000
 
 
 @fieldwise_init
-struct AVOutputFormat(Debug, Movable):
+struct AVOutputFormat(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVOutputFormat.html"
     var name: UnsafePointer[c_char, origin=ImmutExternalOrigin]
     var long_name: UnsafePointer[c_char, origin=ImmutExternalOrigin]
@@ -124,7 +124,7 @@ struct AVOutputFormat(Debug, Movable):
 
 
 @fieldwise_init
-struct AVInputFormat(Debug, Movable):
+struct AVInputFormat(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVInputFormat.html"
     var name: UnsafePointer[c_char, origin=ImmutExternalOrigin]
     var long_name: UnsafePointer[c_char, origin=ImmutExternalOrigin]
@@ -138,7 +138,7 @@ struct AVInputFormat(Debug, Movable):
 
 
 @fieldwise_init
-struct AVStreamParseType(Debug, Movable):
+struct AVStreamParseType(Movable, Writable):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -151,7 +151,7 @@ struct AVStreamParseType(Debug, Movable):
 
 
 @fieldwise_init
-struct AVIndexEntry(Debug, Movable):
+struct AVIndexEntry(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVIndexEntry.html"
     var pos: c_long_long
     var timestamp: c_long_long
@@ -202,7 +202,7 @@ comptime AV_PTS_WRAP_SUB_OFFSET = -1
 
 
 @fieldwise_init
-struct AVStream(Debug, Movable):
+struct AVStream(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVStream.html"
 
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
@@ -240,7 +240,7 @@ struct AVStream(Debug, Movable):
 
 
 @fieldwise_init
-struct _AVStreamGroupTileGrid_offsets(Debug, Movable):
+struct _AVStreamGroupTileGrid_offsets(Movable, Writable):
     """Binding note: In the original header this is a anonymous struct.
     Mojo does not support this, so we define this as a private, name spaced
     struct outside of AVStreamGroupTileGrid.
@@ -252,7 +252,7 @@ struct _AVStreamGroupTileGrid_offsets(Debug, Movable):
 
 
 @fieldwise_init
-struct AVStreamGroupTileGrid(Debug, Movable):
+struct AVStreamGroupTileGrid(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVStreamGroupTileGrid.html"
 
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
@@ -273,7 +273,7 @@ struct AVStreamGroupTileGrid(Debug, Movable):
 
 
 @fieldwise_init
-struct AVStreamGroupLCEVC(Debug, Movable):
+struct AVStreamGroupLCEVC(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVStreamGroupLCEVC.html"
 
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
@@ -283,7 +283,7 @@ struct AVStreamGroupLCEVC(Debug, Movable):
 
 
 @fieldwise_init
-struct AVStreamGroupParamsType(Debug, Movable):
+struct AVStreamGroupParamsType(Movable, Writable):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -300,7 +300,7 @@ struct AVStreamGroupParamsType(Debug, Movable):
 
 
 @fieldwise_init
-struct AVStreamGroup(Debug, Movable):
+struct AVStreamGroup(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVStreamGroup.html"
 
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
@@ -333,7 +333,7 @@ comptime AV_PROGRAM_RUNNING = 1
 
 
 @fieldwise_init
-struct AVProgram(Debug, Movable):
+struct AVProgram(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVProgram.html"
 
     var id: c_int
@@ -365,7 +365,7 @@ comptime AVFMTCTX_UNSEEKABLE = 0x0002
 
 
 @fieldwise_init
-struct AVChapter(Debug, Movable):
+struct AVChapter(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVChapter.html"
     var id: c_long_long
     var time_base: AVRational
@@ -401,7 +401,7 @@ comptime AVOpenCallback = fn(
 
 
 @fieldwise_init
-struct AVDurationEstimationMethod(Debug, Movable):
+struct AVDurationEstimationMethod(Movable, Writable):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -412,7 +412,7 @@ struct AVDurationEstimationMethod(Debug, Movable):
 
 # @register_passable("trivial")
 @fieldwise_init
-struct AVFormatContext(Debug):
+struct AVFormatContext(Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVFormatContext.html"
 
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]

@@ -11,7 +11,7 @@ from ffi import (
 )
 from sys._libc import dup, fclose, fdopen, fflush, FILE_ptr
 from utils import StaticTuple
-from ash_dynamics.primitives._clib import C_Union, ExternalFunction, Debug
+from ash_dynamics.primitives._clib import C_Union, ExternalFunction
 from ash_dynamics.ffmpeg.avutil.frame import AVFrame
 from ash_dynamics.ffmpeg.avcodec.codec import AVCodec
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
@@ -68,7 +68,7 @@ comptime sws_get_class = ExternalFunction[
 
 
 @fieldwise_init
-struct SwsDither(Debug, Movable):
+struct SwsDither(Movable, Writable):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -82,7 +82,7 @@ struct SwsDither(Debug, Movable):
 
 
 @fieldwise_init
-struct SwsAlphaBlend(Debug, Movable):
+struct SwsAlphaBlend(Movable, Writable):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -93,7 +93,7 @@ struct SwsAlphaBlend(Debug, Movable):
 
 
 @fieldwise_init
-struct SwsFlags(Debug, Movable):
+struct SwsFlags(Movable, Writable):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -125,7 +125,7 @@ struct SwsFlags(Debug, Movable):
 
 
 @fieldwise_init
-struct SwsIntent(Debug, Movable):
+struct SwsIntent(Movable, Writable):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -142,7 +142,7 @@ struct SwsIntent(Debug, Movable):
 
 
 @fieldwise_init
-struct SwsContext(Debug, Movable):
+struct SwsContext(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structSwsContext.html"
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var opaque: OpaquePointer[MutExternalOrigin]
@@ -273,14 +273,14 @@ comptime sws_getCoefficients = ExternalFunction[
 
 
 @fieldwise_init
-struct SwsVector(Debug, Movable):
+struct SwsVector(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structSwsVector.html"
     var coeff: UnsafePointer[c_double, ImmutExternalOrigin]
     var length: c_int
 
 
 @fieldwise_init
-struct SwsFilter(Debug, Movable):
+struct SwsFilter(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structSwsFilter.html"
     var lumH: UnsafePointer[SwsVector, ImmutExternalOrigin]
     var lumV: UnsafePointer[SwsVector, ImmutExternalOrigin]

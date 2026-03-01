@@ -1,12 +1,12 @@
 "https://www.ffmpeg.org/doxygen/8.0/defs_8h.html"
 from ffi import c_int
-from ash_dynamics.primitives._clib import Debug
+
 
 comptime AV_INPUT_BUFFER_PADDING_SIZE = c_int(64)
 
 
 @fieldwise_init("implicit")
-struct AVFieldOrder(Debug, Movable):
+struct AVFieldOrder(Movable, Writable):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -19,7 +19,7 @@ struct AVFieldOrder(Debug, Movable):
 
 
 @fieldwise_init("implicit")
-struct AVAudioServiceType(Debug, Movable):
+struct AVAudioServiceType(Movable, Writable):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -36,7 +36,7 @@ struct AVAudioServiceType(Debug, Movable):
 
 
 @fieldwise_init("implicit")
-struct AVDiscard(Debug, Movable):
+struct AVDiscard(Movable, Writable):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 

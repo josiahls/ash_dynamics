@@ -1,7 +1,7 @@
 "https://www.ffmpeg.org/doxygen/8.0/log_8h.html"
 from ffi import c_char, c_int
 from ash_dynamics.ffmpeg.avutil.opt import AVOption, AVOptionRanges
-from ash_dynamics.primitives._clib import Debug
+
 
 from reflection import get_type_name
 
@@ -33,7 +33,7 @@ comptime AVClass_child_class_iterate_fn[T: AnyType] = fn(
 ) -> UnsafePointer[T, ImmutExternalOrigin]
 
 
-struct AVClass(Debug, Movable):
+struct AVClass(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVClass.html"
     var class_name: UnsafePointer[c_char, ImmutExternalOrigin]
 
@@ -54,7 +54,7 @@ struct AVClass(Debug, Movable):
 
 
 @fieldwise_init("implicit")
-struct AVClassCategory(Debug, Movable):
+struct AVClassCategory(Movable, Writable):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
