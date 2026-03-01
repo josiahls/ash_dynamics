@@ -23,7 +23,7 @@ comptime AVIO_SEEKABLE_TIME = 1 << 1
 
 
 @fieldwise_init
-struct AVIOInterruptCB(Debug, Movable):
+struct AVIOInterruptCB(Movable, Writable):
     """This structure contains a callback for checking whether to abort blocking functions.
     """
 
@@ -32,7 +32,7 @@ struct AVIOInterruptCB(Debug, Movable):
 
 
 @fieldwise_init
-struct AVIODirEntryType(Debug, Movable):
+struct AVIODirEntryType(Movable, Writable):
     """This structure contains a directory entry type."""
 
     comptime ENUM_DTYPE = c_int
@@ -48,7 +48,7 @@ struct AVIODirEntryType(Debug, Movable):
 
 
 @fieldwise_init
-struct AVIODirEntry(Debug, Movable):
+struct AVIODirEntry(Movable, Writable):
     """https://www.ffmpeg.org/doxygen/8.0/structAVIODirEntry.html"""
 
     var name: UnsafePointer[c_char, MutExternalOrigin]
@@ -64,12 +64,12 @@ struct AVIODirEntry(Debug, Movable):
 
 
 # TODO: Is this a forward declaration?
-struct AVIODirContext(Debug, Movable):
+struct AVIODirContext(Movable, Writable):
     pass
 
 
 @fieldwise_init
-struct AVIODataMarkerType(Debug, Movable):
+struct AVIODataMarkerType(Movable, Writable):
     """This structure contains a data marker type."""
 
     comptime ENUM_DTYPE = c_int
@@ -84,7 +84,7 @@ struct AVIODataMarkerType(Debug, Movable):
 
 
 @fieldwise_init
-struct AVIOContext(Debug, Movable):
+struct AVIOContext(Movable, Writable):
     """https://www.ffmpeg.org/doxygen/8.0/structAVIOContext.html"""
 
     var av_class: UnsafePointer[AVClass, MutExternalOrigin]

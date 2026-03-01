@@ -1,6 +1,5 @@
 "https://www.ffmpeg.org/doxygen/8.0/pixfmt_8h.html"
 from ffi import c_int
-from ash_dynamics.primitives._clib import Debug
 
 
 # TODO: We could move the comments for each enum to be for the format:
@@ -10,7 +9,7 @@ from ash_dynamics.primitives._clib import Debug
 
 
 @fieldwise_init("implicit")
-struct AVPixelFormat(Debug, Movable):
+struct AVPixelFormat(Movable, Writable):
     comptime ENUM_DTYPE = c_int
 
     var _value: Self.ENUM_DTYPE
@@ -974,7 +973,7 @@ struct AVPixelFormat(Debug, Movable):
 
 
 @fieldwise_init
-struct AVColorRange(Debug, Movable):
+struct AVColorRange(Movable, Writable):
     comptime ENUM_DTYPE = c_int
 
     var _value: Self.ENUM_DTYPE
@@ -992,7 +991,7 @@ struct AVColorRange(Debug, Movable):
 
 
 @fieldwise_init("implicit")
-struct AVColorPrimaries(Debug, Movable):
+struct AVColorPrimaries(Movable, Writable):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -1017,7 +1016,7 @@ struct AVColorPrimaries(Debug, Movable):
 
 
 @fieldwise_init("implicit")
-struct AVColorTransferCharacteristic(Debug, Movable):
+struct AVColorTransferCharacteristic(Movable, Writable):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -1046,7 +1045,7 @@ struct AVColorTransferCharacteristic(Debug, Movable):
 
 
 @fieldwise_init("implicit")
-struct AVColorSpace(Debug, Movable):
+struct AVColorSpace(Movable, Writable):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -1075,7 +1074,7 @@ struct AVColorSpace(Debug, Movable):
 
 
 @fieldwise_init("implicit")
-struct AVChromaLocation(Debug, Movable):
+struct AVChromaLocation(Movable, Writable):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 

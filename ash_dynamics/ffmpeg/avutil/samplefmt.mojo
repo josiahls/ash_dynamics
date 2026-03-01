@@ -1,10 +1,9 @@
 "https://www.ffmpeg.org/doxygen/8.0/samplefmt_8h.html"
 from ffi import c_int
-from ash_dynamics.primitives._clib import Debug
 
 
 @fieldwise_init("implicit")
-struct AVSampleFormat(Debug, Movable):
+struct AVSampleFormat(Movable, Writable):
     comptime ENUM_DTYPE = c_int
 
     var _value: Self.ENUM_DTYPE

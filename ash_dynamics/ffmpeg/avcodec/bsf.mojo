@@ -1,5 +1,5 @@
 "https://www.ffmpeg.org/doxygen/8.0/bsf_8h.html"
-from ash_dynamics.primitives._clib import Debug
+
 from ash_dynamics.ffmpeg.avutil.log import AVClass
 from ash_dynamics.ffmpeg.avcodec.codec_par import AVCodecParameters
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
@@ -9,7 +9,7 @@ from utils import StaticTuple
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVBSFContext(Debug):
+struct AVBSFContext(Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVBSFContext.html"
 
     var av_class: UnsafePointer[AVClass, origin=ImmutExternalOrigin]
@@ -23,7 +23,7 @@ struct AVBSFContext(Debug):
 
 @fieldwise_init
 @register_passable("trivial")
-struct AVBitStreamFilter(Debug):
+struct AVBitStreamFilter(Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVBitStreamFilter.html"
     var name: UnsafePointer[c_char, origin=ImmutExternalOrigin]
 

@@ -17,7 +17,7 @@ from ash_dynamics.ffmpeg.avutil.channel_layout import AVChannelLayout
 
 
 @fieldwise_init
-struct AVHWDeviceType(Debug, Movable):
+struct AVHWDeviceType(Movable, Writable):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -39,7 +39,7 @@ struct AVHWDeviceType(Debug, Movable):
 
 
 @fieldwise_init
-struct AVHWDeviceContext(Debug, Movable):
+struct AVHWDeviceContext(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVHWDeviceContext.html"
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var type: AVHWDeviceType.ENUM_DTYPE
@@ -59,7 +59,7 @@ struct AVHWDeviceContext(Debug, Movable):
 
 
 @fieldwise_init
-struct AVHWFramesContext(Debug, Movable):
+struct AVHWFramesContext(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVHWFramesContext.html"
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var device_ref: UnsafePointer[AVBufferRef, MutExternalOrigin]

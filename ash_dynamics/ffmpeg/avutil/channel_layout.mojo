@@ -2,7 +2,7 @@
 from ffi import c_int, c_char, c_ulong_long, c_size_t
 from ash_dynamics.primitives._clib import C_Union, ExternalFunction
 from utils import StaticTuple
-from ash_dynamics.primitives._clib import Debug
+
 from ash_dynamics.primitives.mojo_compat import (
     reflection_write_to_but_handle_static_tuples,
 )
@@ -10,7 +10,7 @@ from reflection import get_type_name
 
 
 @fieldwise_init("implicit")
-struct AVChannel(Debug, Movable):
+struct AVChannel(Movable, Writable):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -117,7 +117,7 @@ struct AVChannel(Debug, Movable):
 
 
 @fieldwise_init("implicit")
-struct AVChannelOrder(Debug, Movable):
+struct AVChannelOrder(Movable, Writable):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -390,7 +390,7 @@ comptime AV_CH_LAYOUT_7POINT1_TOP_BACK = AV_CH_LAYOUT_5POINT1POINT2_BACK
 
 
 @fieldwise_init
-struct AVMatrixEncoding(Debug, Movable):
+struct AVMatrixEncoding(Movable, Writable):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -405,7 +405,7 @@ struct AVMatrixEncoding(Debug, Movable):
 
 
 @fieldwise_init
-struct AVChannelCustom(Debug, Movable):
+struct AVChannelCustom(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVChannelCustom.html"
     var id: AVChannel.ENUM_DTYPE
     var name: StaticTuple[c_char, 16]
@@ -413,7 +413,7 @@ struct AVChannelCustom(Debug, Movable):
 
 
 @fieldwise_init
-struct AVChannelLayout(Debug, ImplicitlyCopyable, Movable):
+struct AVChannelLayout(ImplicitlyCopyable, Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVChannelLayout.html"
     var order: AVChannelOrder.ENUM_DTYPE
     var nb_channels: c_int

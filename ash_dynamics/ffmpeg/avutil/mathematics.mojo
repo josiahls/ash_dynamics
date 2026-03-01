@@ -2,11 +2,10 @@
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
 from ffi import c_long_long
 from ash_dynamics.primitives._clib import ExternalFunction
-from ash_dynamics.primitives._clib import Debug
 
 
 @fieldwise_init
-struct AVRounding(Debug, Movable):
+struct AVRounding(Movable, Writable):
     comptime ENUM_DTYPE = c_int
 
     var value: Self.ENUM_DTYPE

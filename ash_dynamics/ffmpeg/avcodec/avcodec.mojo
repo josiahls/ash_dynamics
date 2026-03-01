@@ -51,7 +51,7 @@ from ash_dynamics.primitives.mojo_compat import (
 
 
 @fieldwise_init
-struct RcOverride(Debug, Movable):
+struct RcOverride(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structRcOverride.html"
     var start_frame: c_int
     var end_frame: c_int
@@ -130,7 +130,7 @@ comptime AVCodecInternal = OpaquePointer[MutExternalOrigin]
 
 
 @fieldwise_init
-struct AVCodecContext(Debug, Movable):
+struct AVCodecContext(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html"
 
     var av_class: UnsafePointer[AVClass, origin=ImmutExternalOrigin]
@@ -481,7 +481,7 @@ struct AVCodecContext(Debug, Movable):
 
 
 @fieldwise_init
-struct AVHWAccel(Debug, Movable):
+struct AVHWAccel(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVHWAccel.html"
 
     var name: UnsafePointer[c_char, ImmutExternalOrigin]
@@ -506,7 +506,7 @@ comptime AV_HWACCEL_FLAG_UNSAFE_OUTPUT = c_int(1 << 3)
 
 
 @fieldwise_init
-struct AVSubtitleType(Debug, Movable):
+struct AVSubtitleType(Movable, Writable):
     comptime ENUM_DTYPE = c_int
     var value: Self.ENUM_DTYPE
 
@@ -520,7 +520,7 @@ comptime AV_SUBTITLE_FLAG_FORCED = c_int(0x00000001)
 
 
 @fieldwise_init
-struct AVSubtitleRect(Debug, Movable):
+struct AVSubtitleRect(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVSubtitleRect.html"
     var x: c_int
     var y: c_int
@@ -537,7 +537,7 @@ struct AVSubtitleRect(Debug, Movable):
 
 
 @fieldwise_init
-struct AVSubtitle(Debug, Movable):
+struct AVSubtitle(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVSubtitle.html"
     var format: c_ushort
     var start_display_time: c_uint
@@ -730,7 +730,7 @@ comptime avcodec_get_hw_frames_parameters = ExternalFunction[
 
 
 @fieldwise_init
-struct AVCodecConfig(Debug, Movable):
+struct AVCodecConfig(Movable, Writable):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -754,7 +754,7 @@ comptime avcodec_get_supported_config = ExternalFunction[
 
 
 @fieldwise_init
-struct AVPictureStructure(Debug, Movable):
+struct AVPictureStructure(Movable, Writable):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
@@ -765,7 +765,7 @@ struct AVPictureStructure(Debug, Movable):
 
 
 @fieldwise_init
-struct AVCodecParserContext(Debug, Movable):
+struct AVCodecParserContext(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVCodecParserContext.html"
     comptime AV_PARSER_PTS_NB = Int(4)
     comptime PARSER_FLAG_COMPLETE_FRAMES = Int(0x0001)
@@ -832,7 +832,7 @@ struct AVCodecParserContext(Debug, Movable):
 
 
 @fieldwise_init
-struct AVCodecParser(Debug, Movable):
+struct AVCodecParser(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVCodecParser.html"
     var codec_ids: StaticTuple[c_int, 7]
     var priv_data_size: c_int
