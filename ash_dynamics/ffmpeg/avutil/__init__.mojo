@@ -9,7 +9,6 @@ from ash_dynamics.ffmpeg.avutil.buffer import (
     av_buffer_create,
     av_buffer_default_free,
     av_buffer_ref,
-    av_buffer_unref,
     av_buffer_is_writable,
     av_buffer_get_opaque,
     av_buffer_get_ref_count,
@@ -100,23 +99,22 @@ struct Avutil:
     # ===                   Functions                      ===
     # ===--------------------------------------------------===
     # Buffer functions
-    var _av_buffer_alloc: av_buffer_alloc.type
-    var av_buffer_allocz: av_buffer_allocz.type
-    var av_buffer_create: av_buffer_create.type
+    var av_buffer_alloc: av_buffer_alloc
+    var av_buffer_allocz: av_buffer_allocz
+    var av_buffer_create: av_buffer_create
     var av_buffer_default_free: av_buffer_default_free.type
-    var av_buffer_ref: av_buffer_ref.type
-    var av_buffer_unref: av_buffer_unref.type
+    var av_buffer_ref: av_buffer_ref
     var av_buffer_is_writable: av_buffer_is_writable.type
-    var av_buffer_get_opaque: av_buffer_get_opaque.type
+    var av_buffer_get_opaque: av_buffer_get_opaque
     var av_buffer_get_ref_count: av_buffer_get_ref_count.type
     var av_buffer_make_writable: av_buffer_make_writable.type
     var av_buffer_realloc: av_buffer_realloc.type
     var av_buffer_replace: av_buffer_replace.type
-    var av_buffer_pool_init: av_buffer_pool_init.type
-    var av_buffer_pool_init2: av_buffer_pool_init2.type
+    var av_buffer_pool_init: av_buffer_pool_init
+    var av_buffer_pool_init2: av_buffer_pool_init2
     var av_buffer_pool_uninit: av_buffer_pool_uninit.type
-    var av_buffer_pool_get: av_buffer_pool_get.type
-    var av_buffer_pool_buffer_get_opaque: av_buffer_pool_buffer_get_opaque.type
+    var av_buffer_pool_get: av_buffer_pool_get
+    var av_buffer_pool_buffer_get_opaque: av_buffer_pool_buffer_get_opaque
 
     # Channel layout functions
     var av_channel_layout_copy: av_channel_layout_copy.type
@@ -193,12 +191,12 @@ struct Avutil:
         self.lib = OwnedDLHandle("{}/libavutil.so".format(so_install_prefix))
 
         # Buffer functions
-        self._av_buffer_alloc = av_buffer_alloc.load(self.lib)
+        self.av_buffer_alloc = av_buffer_alloc.load(self.lib)
         self.av_buffer_allocz = av_buffer_allocz.load(self.lib)
         self.av_buffer_create = av_buffer_create.load(self.lib)
         self.av_buffer_default_free = av_buffer_default_free.load(self.lib)
         self.av_buffer_ref = av_buffer_ref.load(self.lib)
-        self.av_buffer_unref = av_buffer_unref.load(self.lib)
+        # self.av_buffer_unref = av_buffer_unref.load(self.lib)
         self.av_buffer_is_writable = av_buffer_is_writable.load(self.lib)
         self.av_buffer_get_opaque = av_buffer_get_opaque.load(self.lib)
         self.av_buffer_get_ref_count = av_buffer_get_ref_count.load(self.lib)
@@ -306,14 +304,10 @@ struct Avutil:
         # Error functions
         self.av_strerror = av_strerror.load(self.lib)
 
-    fn av_frame_alloc[
-        origin: Origin
-    ](ref[origin] self) -> UnsafePointer[AVFrame, origin]:
-        return (
-            UnsafePointer(to=self._av_frame_alloc()[])
-            .mut_cast[origin.mut]()
-            .unsafe_origin_cast[origin]()
-        )
+    fn av_buffer_unref(
+        self, buf: UnsafePointer[AVBufferRef, MutAnyOrigin]
+    ) raises:
+        raise Error("av_buffer_unref is not implemented")
 
     fn av_compare_ts(
         self,
