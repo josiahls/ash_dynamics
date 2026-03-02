@@ -1,5 +1,6 @@
 from ffi import (
     OwnedDLHandle,
+    _DLHandle,
     c_char,
     c_int,
     c_long_long,
@@ -38,6 +39,72 @@ struct ExternalFunction[
     fn load(lib: OwnedDLHandle) -> Self.type:
         """Loads this external function from an opened dynamic library."""
         return lib._get_function[Self.name, Self.type]()
+
+
+fn _mut_cast_ptr_origin[
+    T: AnyType, target_origin: MutOrigin
+](p: UnsafePointer[T, MutAnyOrigin]) -> UnsafePointer[T, target_origin]:
+    return p.unsafe_origin_cast[target_origin]()
+
+
+fn _immut_cast_ptr_origin[
+    T: AnyType, target_origin: ImmutOrigin
+](p: UnsafePointer[T, ImmutAnyOrigin]) -> UnsafePointer[T, target_origin]:
+    return p.unsafe_origin_cast[target_origin]()
+
+
+struct MutOriginCastExternalFunction[
+    name: StaticString,
+    type: __TypeOfAllTypes,
+    T: AnyType,
+    callback_fn: type_of(_mut_cast_ptr_origin) = _mut_cast_ptr_origin,
+](Copyable, Movable):
+    """Like ExternalFunction but casts pointer return values to O (MutAnyOrigin or ImmutAnyOrigin).
+    FFI returns MutExternalOrigin; we cast to O inside the wrapper."""
+
+    var _handle: _DLHandle
+
+    fn __init__(out self, mut lib: OwnedDLHandle):
+        self._handle = lib.borrow()
+
+    @staticmethod
+    fn load(mut lib: OwnedDLHandle) -> Self:
+        return Self(lib)
+
+    # Raw FFI returns MutExternalOrigin; cast to O.
+    fn __call__[
+        *Args: AnyType
+    ](mut self, *args: *Args) -> UnsafePointer[Self.T, MutAnyOrigin]:
+        comptime RawRet = UnsafePointer[Self.T, MutExternalOrigin]
+        var raw = self._handle.call[Self.name, RawRet](args)
+        return Self.callback_fn[Self.T, MutAnyOrigin](raw)
+
+
+struct ImmutOriginCastExternalFunction[
+    name: StaticString,
+    type: __TypeOfAllTypes,
+    T: AnyType,
+    callback_fn: type_of(_immut_cast_ptr_origin) = _immut_cast_ptr_origin,
+](Copyable, Movable):
+    """Like ExternalFunction but casts pointer return values to O (MutAnyOrigin or ImmutAnyOrigin).
+    FFI returns MutExternalOrigin; we cast to O inside the wrapper."""
+
+    var _handle: _DLHandle
+
+    fn __init__(out self, lib: OwnedDLHandle):
+        self._handle = lib.borrow()
+
+    @staticmethod
+    fn load(lib: OwnedDLHandle) -> Self:
+        return Self(lib)
+
+    # Raw FFI returns MutExternalOrigin; cast to O.
+    fn __call__[
+        *Args: AnyType
+    ](self, *args: *Args) -> UnsafePointer[Self.T, ImmutAnyOrigin]:
+        comptime RawRet = UnsafePointer[Self.T, MutExternalOrigin]
+        var raw = self._handle.call[Self.name, RawRet](args)
+        return Self.callback_fn[Self.T, ImmutAnyOrigin](raw)
 
 
 @always_inline("nodebug")
