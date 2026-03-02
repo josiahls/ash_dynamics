@@ -7,41 +7,41 @@ from reflection import get_type_name
 
 
 comptime AVClass_item_name_fn = fn(
-    ctx: OpaquePointer[MutExternalOrigin]
-) -> UnsafePointer[c_char, ImmutExternalOrigin]
+    ctx: OpaquePointer[MutAnyOrigin]
+) -> UnsafePointer[c_char, ImmutAnyOrigin]
 
 
 comptime AVClass_get_category_fn = fn(
-    ctx: OpaquePointer[MutExternalOrigin]
+    ctx: OpaquePointer[MutAnyOrigin]
 ) -> AVClassCategory.ENUM_DTYPE
 
 comptime AVClass_query_ranges_fn = fn(
-    ranges: UnsafePointer[AVOptionRanges, MutExternalOrigin],
-    obj: OpaquePointer[MutExternalOrigin],
-    key: UnsafePointer[c_char, ImmutExternalOrigin],
+    ranges: UnsafePointer[AVOptionRanges, MutAnyOrigin],
+    obj: OpaquePointer[MutAnyOrigin],
+    key: UnsafePointer[c_char, ImmutAnyOrigin],
     flags: c_int,
 ) -> c_int
 
 comptime AVClass_child_next_fn = fn(
-    obj: OpaquePointer[MutExternalOrigin],
-    prev: OpaquePointer[MutExternalOrigin],
-) -> OpaquePointer[MutExternalOrigin]
+    obj: OpaquePointer[MutAnyOrigin],
+    prev: OpaquePointer[MutAnyOrigin],
+) -> OpaquePointer[MutAnyOrigin]
 
 
 comptime AVClass_child_class_iterate_fn[T: AnyType] = fn(
-    iter: UnsafePointer[OpaquePointer[MutExternalOrigin], MutExternalOrigin]
-) -> UnsafePointer[T, ImmutExternalOrigin]
+    iter: UnsafePointer[OpaquePointer[MutAnyOrigin], MutAnyOrigin]
+) -> UnsafePointer[T, ImmutAnyOrigin]
 
 
 struct AVClass(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVClass.html"
-    var class_name: UnsafePointer[c_char, ImmutExternalOrigin]
+    var class_name: UnsafePointer[c_char, ImmutAnyOrigin]
 
     # TODO: Is this correct or do we need to additionally wrap item_name in a
     # unsafe pointer?
     var item_name: AVClass_item_name_fn
 
-    var option: UnsafePointer[AVOption, ImmutExternalOrigin]
+    var option: UnsafePointer[AVOption, ImmutAnyOrigin]
     var version: c_int
     var log_level_offset_offset: c_int
     var parent_log_context_offset: c_int

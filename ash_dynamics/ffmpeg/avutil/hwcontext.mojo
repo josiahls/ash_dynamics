@@ -41,39 +41,33 @@ struct AVHWDeviceType(Movable, Writable):
 @fieldwise_init
 struct AVHWDeviceContext(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVHWDeviceContext.html"
-    var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
+    var av_class: UnsafePointer[AVClass, ImmutAnyOrigin]
     var type: AVHWDeviceType.ENUM_DTYPE
-    var hwctx: UnsafePointer[
-        OpaquePointer[MutExternalOrigin], MutExternalOrigin
-    ]
+    var hwctx: UnsafePointer[OpaquePointer[MutAnyOrigin], MutAnyOrigin]
     var free: UnsafePointer[
         ExternalFunction[
             "free",
-            fn(ctx: UnsafePointer[AVHWDeviceContext, MutExternalOrigin]),
+            fn(ctx: UnsafePointer[AVHWDeviceContext, MutAnyOrigin]),
         ],
-        ImmutExternalOrigin,
+        ImmutAnyOrigin,
     ]
-    var user_opaque: UnsafePointer[
-        OpaquePointer[MutExternalOrigin], MutExternalOrigin
-    ]
+    var user_opaque: UnsafePointer[OpaquePointer[MutAnyOrigin], MutAnyOrigin]
 
 
 @fieldwise_init
 struct AVHWFramesContext(Movable, Writable):
     "https://www.ffmpeg.org/doxygen/8.0/structAVHWFramesContext.html"
-    var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
-    var device_ref: UnsafePointer[AVBufferRef, MutExternalOrigin]
-    var device_ctx: UnsafePointer[AVHWDeviceContext, MutExternalOrigin]
-    var hwctx: OpaquePointer[MutExternalOrigin]
+    var av_class: UnsafePointer[AVClass, ImmutAnyOrigin]
+    var device_ref: UnsafePointer[AVBufferRef, MutAnyOrigin]
+    var device_ctx: UnsafePointer[AVHWDeviceContext, MutAnyOrigin]
+    var hwctx: OpaquePointer[MutAnyOrigin]
     var free: UnsafePointer[
         ExternalFunction[
             "free",
-            fn(ctx: UnsafePointer[AVHWFramesContext, MutExternalOrigin]),
+            fn(ctx: UnsafePointer[AVHWFramesContext, MutAnyOrigin]),
         ],
-        ImmutExternalOrigin,
+        ImmutAnyOrigin,
     ]
-    var user_opaque: UnsafePointer[
-        OpaquePointer[MutExternalOrigin], MutExternalOrigin
-    ]
-    var pool: UnsafePointer[AVBufferPool, MutExternalOrigin]
+    var user_opaque: UnsafePointer[OpaquePointer[MutAnyOrigin], MutAnyOrigin]
+    var pool: UnsafePointer[AVBufferPool, MutAnyOrigin]
     var initial_pool_size: c_int
