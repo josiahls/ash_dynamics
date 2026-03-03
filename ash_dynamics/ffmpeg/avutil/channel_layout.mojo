@@ -1,6 +1,10 @@
 "https://www.ffmpeg.org/doxygen/8.0/channel__layout_8h.html"
 from ffi import c_int, c_char, c_ulong_long, c_size_t
 from ash_dynamics.primitives._clib import C_Union, ExternalFunction
+from ash_dynamics.primitives._clib import (
+    MutOriginCastExternalFunction,
+    ImmutOriginCastExternalFunction,
+)
 from utils import StaticTuple
 
 from ash_dynamics.primitives.mojo_compat import (
@@ -603,7 +607,7 @@ comptime av_channel_description = ExternalFunction[
 
 comptime av_channel_from_string = ExternalFunction[
     "av_channel_from_string",
-    fn(str: UnsafePointer[c_char, ImmutAnyOrigin],) -> AVChannel.ENUM_DTYPE,
+    fn(str: UnsafePointer[c_char, ImmutAnyOrigin]) -> AVChannel.ENUM_DTYPE,
 ]
 
 comptime av_channel_layout_custom_init = ExternalFunction[
@@ -641,17 +645,18 @@ comptime av_channel_layout_default = ExternalFunction[
 ]
 
 
-comptime av_channel_layout_standard = ExternalFunction[
+comptime av_channel_layout_standard = ImmutOriginCastExternalFunction[
     "av_channel_layout_standard",
     fn(
         opaque: UnsafePointer[OpaquePointer[MutAnyOrigin], MutAnyOrigin],
     ) -> UnsafePointer[AVChannelLayout, ImmutAnyOrigin],
+    AVChannelLayout,
 ]
 
 
 comptime av_channel_layout_uninit = ExternalFunction[
     "av_channel_layout_uninit",
-    fn(channel_layout: UnsafePointer[AVChannelLayout, MutAnyOrigin],),
+    fn(channel_layout: UnsafePointer[AVChannelLayout, MutAnyOrigin]),
 ]
 
 

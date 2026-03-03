@@ -20,7 +20,6 @@ def test_av_channel_name():
         AVChannel.AV_CHAN_FRONT_LEFT._value,
     )
     assert_true(ret >= 0)
-    _ = avutil
 
 
 def test_av_channel_description():
@@ -32,7 +31,6 @@ def test_av_channel_description():
         AVChannel.AV_CHAN_FRONT_LEFT._value,
     )
     assert_true(ret >= 0)
-    _ = avutil
 
 
 def test_av_channel_from_string():
@@ -44,7 +42,6 @@ def test_av_channel_from_string():
         .unsafe_origin_cast[ImmutExternalOrigin]()
     )
     assert_equal(Int(ch), Int(AVChannel.AV_CHAN_FRONT_LEFT._value))
-    _ = avutil
 
 
 def test_av_channel_layout_custom_init():
@@ -59,7 +56,6 @@ def test_av_channel_layout_custom_init():
     avutil.av_channel_layout_uninit(
         layout.unsafe_origin_cast[MutExternalOrigin]()
     )
-    _ = avutil
 
 
 def test_av_channel_layout_from_mask():
@@ -75,7 +71,6 @@ def test_av_channel_layout_from_mask():
     avutil.av_channel_layout_uninit(
         layout.unsafe_origin_cast[MutExternalOrigin]()
     )
-    _ = avutil
 
 
 def test_av_channel_layout_from_string():
@@ -94,7 +89,6 @@ def test_av_channel_layout_from_string():
     avutil.av_channel_layout_uninit(
         layout.unsafe_origin_cast[MutExternalOrigin]()
     )
-    _ = avutil
 
 
 def test_av_channel_layout_default():
@@ -108,18 +102,14 @@ def test_av_channel_layout_default():
     avutil.av_channel_layout_uninit(
         layout.unsafe_origin_cast[MutExternalOrigin]()
     )
-    _ = avutil
 
 
 def test_av_channel_layout_standard():
     var avutil = Avutil()
-    var opaque = alloc[OpaquePointer[MutExternalOrigin]](1)
-    memset(opaque, 0, 1)
-    var layout = avutil.av_channel_layout_standard(
-        opaque.unsafe_origin_cast[MutExternalOrigin](),
-    )
+    var opaque_ptr = alloc[OpaquePointer[MutAnyOrigin]](1)
+    memset(opaque_ptr, 0, 1)
+    var layout = avutil.av_channel_layout_standard(opaque_ptr)
     assert_true(Bool(layout))
-    _ = avutil
 
 
 def test_av_channel_layout_uninit():
@@ -134,7 +124,6 @@ def test_av_channel_layout_uninit():
     avutil.av_channel_layout_uninit(
         layout.unsafe_origin_cast[MutExternalOrigin]()
     )
-    _ = avutil
 
 
 def test_av_channel_layout_copy():
@@ -156,7 +145,6 @@ def test_av_channel_layout_copy():
     assert_equal(dst[].nb_channels, 2)
     avutil.av_channel_layout_uninit(dst.unsafe_origin_cast[MutExternalOrigin]())
     avutil.av_channel_layout_uninit(src.unsafe_origin_cast[MutExternalOrigin]())
-    _ = avutil
 
 
 def test_av_channel_layout_describe():
@@ -178,7 +166,6 @@ def test_av_channel_layout_describe():
     avutil.av_channel_layout_uninit(
         layout.unsafe_origin_cast[MutExternalOrigin]()
     )
-    _ = avutil
 
 
 def test_av_channel_layout_channel_from_index():
@@ -198,7 +185,6 @@ def test_av_channel_layout_channel_from_index():
     avutil.av_channel_layout_uninit(
         layout.unsafe_origin_cast[MutExternalOrigin]()
     )
-    _ = avutil
 
 
 def test_av_channel_layout_index_from_channel():
@@ -218,7 +204,6 @@ def test_av_channel_layout_index_from_channel():
     avutil.av_channel_layout_uninit(
         layout.unsafe_origin_cast[MutExternalOrigin]()
     )
-    _ = avutil
 
 
 def test_av_channel_layout_index_from_string():
@@ -241,7 +226,6 @@ def test_av_channel_layout_index_from_string():
     avutil.av_channel_layout_uninit(
         layout.unsafe_origin_cast[MutExternalOrigin]()
     )
-    _ = avutil
 
 
 def test_av_channel_layout_channel_from_string():
@@ -264,7 +248,6 @@ def test_av_channel_layout_channel_from_string():
     avutil.av_channel_layout_uninit(
         layout.unsafe_origin_cast[MutExternalOrigin]()
     )
-    _ = avutil
 
 
 def test_av_channel_layout_subset():
@@ -284,7 +267,6 @@ def test_av_channel_layout_subset():
     avutil.av_channel_layout_uninit(
         layout.unsafe_origin_cast[MutExternalOrigin]()
     )
-    _ = avutil
 
 
 def test_av_channel_layout_check():
@@ -303,7 +285,6 @@ def test_av_channel_layout_check():
     avutil.av_channel_layout_uninit(
         layout.unsafe_origin_cast[MutExternalOrigin]()
     )
-    _ = avutil
 
 
 def test_av_channel_layout_compare():
@@ -333,7 +314,6 @@ def test_av_channel_layout_compare():
     avutil.av_channel_layout_uninit(
         layout2.unsafe_origin_cast[MutExternalOrigin]()
     )
-    _ = avutil
 
 
 def test_av_channel_layout_ambisonic_order():
@@ -353,7 +333,6 @@ def test_av_channel_layout_ambisonic_order():
     avutil.av_channel_layout_uninit(
         layout.unsafe_origin_cast[MutExternalOrigin]()
     )
-    _ = avutil
 
 
 def test_av_channel_layout_retype():
@@ -374,7 +353,6 @@ def test_av_channel_layout_retype():
     avutil.av_channel_layout_uninit(
         layout.unsafe_origin_cast[MutExternalOrigin]()
     )
-    _ = avutil
 
 
 def main():

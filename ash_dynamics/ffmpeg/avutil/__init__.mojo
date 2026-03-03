@@ -125,7 +125,7 @@ struct Avutil:
     var av_channel_layout_from_mask: av_channel_layout_from_mask.type
     var av_channel_layout_from_string: av_channel_layout_from_string.type
     var av_channel_layout_default: av_channel_layout_default.type
-    var av_channel_layout_standard: av_channel_layout_standard.type
+    var av_channel_layout_standard: av_channel_layout_standard
     var av_channel_layout_uninit: av_channel_layout_uninit.type
     var av_channel_layout_describe: av_channel_layout_describe.type
     var av_channel_layout_channel_from_index: av_channel_layout_channel_from_index.type
