@@ -86,6 +86,10 @@ struct Image:
 
     fn __init__(out self, var data: List[c_uchar]):
         self._data = data.unsafe_ptr()
+        self.width = 0
+        self.height = 0
+        self.format = AVPixelFormat.AV_PIX_FMT_NONE._value
+        self.n_color_spaces = 0
 
     fn __init__(
         out self,
