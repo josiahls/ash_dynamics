@@ -17,7 +17,9 @@ from ffi import c_uchar, c_int, c_long_long, c_ulong_long, c_size_t, c_uint
 from utils import StaticTuple
 from ash_dynamics.primitives._clib import (
     ExternalFunction,
-    Debug,
+    MutOriginCastExternalFunction,
+    ImmutOriginCastExternalFunction,
+    OriginedExternalFunction,
 )
 
 
@@ -255,14 +257,16 @@ struct AVFrame(Movable, Writable):
     var duration: c_long_long
 
 
-comptime av_frame_alloc = ExternalFunction[
-    "av_frame_alloc", fn() -> UnsafePointer[AVFrame, MutAnyOrigin]
+comptime av_frame_alloc = MutOriginCastExternalFunction[
+    "av_frame_alloc", fn() -> UnsafePointer[AVFrame, MutAnyOrigin], AVFrame
 ]
 
 
 comptime av_frame_free = ExternalFunction[
     "av_frame_free",
-    fn(frame: UnsafePointer[AVFrame, MutAnyOrigin]),
+    fn(
+        frame: UnsafePointer[UnsafePointer[AVFrame, MutAnyOrigin], MutAnyOrigin]
+    ),
 ]
 
 
@@ -284,11 +288,12 @@ comptime av_frame_replace = ExternalFunction[
 ]
 
 
-comptime av_frame_clone = ExternalFunction[
+comptime av_frame_clone = MutOriginCastExternalFunction[
     "av_frame_clone",
     fn(
         src: UnsafePointer[AVFrame, ImmutAnyOrigin]
     ) -> UnsafePointer[AVFrame, MutAnyOrigin],
+    AVFrame,
 ]
 
 
@@ -343,40 +348,44 @@ comptime av_frame_copy_props = ExternalFunction[
 ]
 
 
-comptime av_frame_get_plane_buffer = ExternalFunction[
+comptime av_frame_get_plane_buffer = MutOriginCastExternalFunction[
     "av_frame_get_plane_buffer",
     fn(
         frame: UnsafePointer[AVFrame, ImmutAnyOrigin], plane: c_int
     ) -> UnsafePointer[AVBufferRef, MutAnyOrigin],
+    AVBufferRef,
 ]
 
 
-comptime av_frame_new_side_data = ExternalFunction[
+comptime av_frame_new_side_data = MutOriginCastExternalFunction[
     "av_frame_new_side_data",
     fn(
         frame: UnsafePointer[AVFrame, MutAnyOrigin],
         type: AVFrameSideDataType.ENUM_DTYPE,
         size: c_size_t,
     ) -> UnsafePointer[AVFrameSideData, MutAnyOrigin],
+    AVFrameSideData,
 ]
 
 
-comptime av_frame_new_side_data_from_buf = ExternalFunction[
+comptime av_frame_new_side_data_from_buf = MutOriginCastExternalFunction[
     "av_frame_new_side_data_from_buf",
     fn(
         frame: UnsafePointer[AVFrame, MutAnyOrigin],
         type: AVFrameSideDataType.ENUM_DTYPE,
         buf: UnsafePointer[AVBufferRef, MutAnyOrigin],
     ) -> UnsafePointer[AVFrameSideData, MutAnyOrigin],
+    AVFrameSideData,
 ]
 
 
-comptime av_frame_get_side_data = ExternalFunction[
+comptime av_frame_get_side_data = MutOriginCastExternalFunction[
     "av_frame_get_side_data",
     fn(
         frame: UnsafePointer[AVFrame, ImmutAnyOrigin],
         type: AVFrameSideDataType.ENUM_DTYPE,
     ) -> UnsafePointer[AVFrameSideData, MutAnyOrigin],
+    AVFrameSideData,
 ]
 
 
@@ -401,27 +410,28 @@ comptime av_frame_apply_cropping = ExternalFunction[
 ]
 
 
-comptime av_frame_side_data_name = ExternalFunction[
+comptime av_frame_side_data_name = ImmutOriginCastExternalFunction[
     "av_frame_side_data_name",
     fn(
         type: AVFrameSideDataType.ENUM_DTYPE,
     ) -> UnsafePointer[c_char, ImmutAnyOrigin],
+    c_char,
 ]
 
 
-comptime av_frame_side_data_desc = ExternalFunction[
+comptime av_frame_side_data_desc = ImmutOriginCastExternalFunction[
     "av_frame_side_data_desc",
     fn(
         type: AVFrameSideDataType.ENUM_DTYPE,
     ) -> UnsafePointer[AVSideDataDescriptor, ImmutAnyOrigin],
+    AVSideDataDescriptor,
 ]
-
 
 comptime av_frame_side_data_free = ExternalFunction[
     "av_frame_side_data_free",
     fn(
-        sd: UnsafePointer[AVFrameSideData, MutAnyOrigin],
-        nb_sd: UnsafePointer[c_int, MutAnyOrigin],
+        sd: UnsafePointer[UnsafePointer[UnsafePointer[AVFrameSideData,]]],
+        nb_sd: UnsafePointer[c_int],
     ),
 ]
 
@@ -435,34 +445,51 @@ comptime AV_FRAME_SIDE_DATA_FLAG_REPLACE = Int(1 << 1)
 comptime AV_FRAME_SIDE_DATA_FLAG_NEW_REF = Int(1 << 2)
 
 
-comptime av_frame_side_data_new = ExternalFunction[
+comptime av_frame_side_data_new = MutOriginCastExternalFunction[
     "av_frame_side_data_new",
     fn(
-        sd: UnsafePointer[AVFrameSideData, MutAnyOrigin],
+        sd: UnsafePointer[
+            UnsafePointer[
+                UnsafePointer[AVFrameSideData, MutAnyOrigin], MutAnyOrigin
+            ],
+            MutAnyOrigin,
+        ],
         nb_sd: UnsafePointer[c_int, MutAnyOrigin],
         type: AVFrameSideDataType.ENUM_DTYPE,
         size: c_size_t,
         flags: c_int,
     ) -> UnsafePointer[AVFrameSideData, MutAnyOrigin],
+    AVFrameSideData,
 ]
 
 
-comptime av_frame_side_data_add = ExternalFunction[
+comptime av_frame_side_data_add = MutOriginCastExternalFunction[
     "av_frame_side_data_add",
     fn(
-        sd: UnsafePointer[AVFrameSideData, MutAnyOrigin],
+        sd: UnsafePointer[
+            UnsafePointer[
+                UnsafePointer[AVFrameSideData, MutAnyOrigin], MutAnyOrigin
+            ],
+            MutAnyOrigin,
+        ],
         nb_sd: UnsafePointer[c_int, MutAnyOrigin],
         type: AVFrameSideDataType.ENUM_DTYPE,
         buf: UnsafePointer[AVBufferRef, MutAnyOrigin],
         flags: c_int,
     ) -> UnsafePointer[AVFrameSideData, MutAnyOrigin],
+    AVFrameSideData,
 ]
 
 
 comptime av_frame_side_data_clone = ExternalFunction[
     "av_frame_side_data_clone",
     fn(
-        sd: UnsafePointer[AVFrameSideData, MutAnyOrigin],
+        sd: UnsafePointer[
+            UnsafePointer[
+                UnsafePointer[AVFrameSideData, MutAnyOrigin], MutAnyOrigin
+            ],
+            MutAnyOrigin,
+        ],
         nb_sd: UnsafePointer[c_int, MutAnyOrigin],
         src: UnsafePointer[AVFrameSideData, ImmutAnyOrigin],
         flags: c_int,
@@ -472,13 +499,16 @@ comptime av_frame_side_data_clone = ExternalFunction[
 
 # TODO: This is an inline function and probably shouldn't be a
 # "external function". This needs to be handled in the dlhandle.
-comptime av_frame_side_data_get_c = ExternalFunction[
+comptime av_frame_side_data_get_c = ImmutOriginCastExternalFunction[
     "av_frame_side_data_get_c",
     fn(
-        sd: UnsafePointer[AVFrameSideData, ImmutAnyOrigin],
+        sd: UnsafePointer[
+            UnsafePointer[AVFrameSideData, ImmutAnyOrigin], ImmutAnyOrigin
+        ],
         nb_sd: c_int,
         type: AVFrameSideDataType.ENUM_DTYPE,
     ) -> UnsafePointer[AVFrameSideData, ImmutAnyOrigin],
+    AVFrameSideData,
 ]
 
 # TODO: This is an inline function and probably shouldn't be a
@@ -496,7 +526,12 @@ comptime av_frame_side_data_get_c = ExternalFunction[
 comptime av_frame_side_data_remove = ExternalFunction[
     "av_frame_side_data_remove",
     fn(
-        sd: UnsafePointer[AVFrameSideData, MutAnyOrigin],
+        sd: UnsafePointer[
+            UnsafePointer[
+                UnsafePointer[AVFrameSideData, MutAnyOrigin], MutAnyOrigin
+            ],
+            MutAnyOrigin,
+        ],
         nb_sd: UnsafePointer[c_int, MutAnyOrigin],
         type: AVFrameSideDataType.ENUM_DTYPE,
     ),
@@ -506,7 +541,12 @@ comptime av_frame_side_data_remove = ExternalFunction[
 comptime av_frame_side_data_remove_by_props = ExternalFunction[
     "av_frame_side_data_remove_by_props",
     fn(
-        sd: UnsafePointer[AVFrameSideData, MutAnyOrigin],
+        sd: UnsafePointer[
+            UnsafePointer[
+                UnsafePointer[AVFrameSideData, MutAnyOrigin], MutAnyOrigin
+            ],
+            MutAnyOrigin,
+        ],
         nb_sd: UnsafePointer[c_int, MutAnyOrigin],
         props: c_int,
     ),

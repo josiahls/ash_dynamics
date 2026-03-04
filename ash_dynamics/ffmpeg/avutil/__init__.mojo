@@ -139,11 +139,11 @@ struct Avutil:
     var av_channel_layout_retype: av_channel_layout_retype.type
 
     # Frame functions
-    var _av_frame_alloc: av_frame_alloc.type
+    var av_frame_alloc: av_frame_alloc
     var av_frame_free: av_frame_free.type
     var av_frame_ref: av_frame_ref.type
     var av_frame_replace: av_frame_replace.type
-    var av_frame_clone: av_frame_clone.type
+    var av_frame_clone: av_frame_clone
     var av_frame_unref: av_frame_unref.type
     var av_frame_move_ref: av_frame_move_ref.type
     var av_frame_get_buffer: av_frame_get_buffer.type
@@ -151,23 +151,23 @@ struct Avutil:
     var av_frame_make_writable: av_frame_make_writable.type
     var av_frame_copy: av_frame_copy.type
     var av_frame_copy_props: av_frame_copy_props.type
-    var av_frame_get_plane_buffer: av_frame_get_plane_buffer.type
-    var av_frame_new_side_data: av_frame_new_side_data.type
-    var av_frame_new_side_data_from_buf: av_frame_new_side_data_from_buf.type
-    var av_frame_get_side_data: av_frame_get_side_data.type
+    var av_frame_get_plane_buffer: av_frame_get_plane_buffer
+    var av_frame_new_side_data: av_frame_new_side_data
+    var av_frame_new_side_data_from_buf: av_frame_new_side_data_from_buf
+    var av_frame_get_side_data: av_frame_get_side_data
     var av_frame_remove_side_data: av_frame_remove_side_data.type
     var av_frame_apply_cropping: av_frame_apply_cropping.type
-    var av_frame_side_data_name: av_frame_side_data_name.type
-    var av_frame_side_data_desc: av_frame_side_data_desc.type
+    var av_frame_side_data_name: av_frame_side_data_name
+    var av_frame_side_data_desc: av_frame_side_data_desc
     var av_frame_side_data_free: av_frame_side_data_free.type
-    var av_frame_side_data_new: av_frame_side_data_new.type
-    var av_frame_side_data_add: av_frame_side_data_add.type
+    var av_frame_side_data_new: av_frame_side_data_new
+    var av_frame_side_data_add: av_frame_side_data_add
     var av_frame_side_data_clone: av_frame_side_data_clone.type
     # NOTE: There are av_frame_side_data_get_c and av_frame_side_data_get.
     # av_frame_side_data_get is a inline function for av_frame_side_data_get_c
     # that handles an issue of const casting.
     # var av_frame_side_data_get_c: av_frame_side_data_get_c.type
-    var av_frame_side_data_get: av_frame_side_data_get_c.type
+    var av_frame_side_data_get: av_frame_side_data_get_c
     var av_frame_side_data_remove: av_frame_side_data_remove.type
     var av_frame_side_data_remove_by_props: av_frame_side_data_remove_by_props.type
 
@@ -258,7 +258,7 @@ struct Avutil:
         self.av_channel_layout_retype = av_channel_layout_retype.load(self.lib)
 
         # Frame functions
-        self._av_frame_alloc = av_frame_alloc.load(self.lib)
+        self.av_frame_alloc = av_frame_alloc.load(self.lib)
         self.av_frame_free = av_frame_free.load(self.lib)
         self.av_frame_ref = av_frame_ref.load(self.lib)
         self.av_frame_replace = av_frame_replace.load(self.lib)
@@ -284,7 +284,7 @@ struct Avutil:
         self.av_frame_apply_cropping = av_frame_apply_cropping.load(self.lib)
         self.av_frame_side_data_name = av_frame_side_data_name.load(self.lib)
         self.av_frame_side_data_desc = av_frame_side_data_desc.load(self.lib)
-        self.av_frame_side_data_free = av_frame_side_data_free.load(self.lib)
+        # self.av_frame_side_data_free = av_frame_side_data_free.load(self.lib)
         self.av_frame_side_data_new = av_frame_side_data_new.load(self.lib)
         self.av_frame_side_data_add = av_frame_side_data_add.load(self.lib)
         self.av_frame_side_data_clone = av_frame_side_data_clone.load(self.lib)
@@ -304,10 +304,52 @@ struct Avutil:
         # Error functions
         self.av_strerror = av_strerror.load(self.lib)
 
+    fn immut_triple_ptr[
+        T: AnyType
+    ](self) -> UnsafePointer[
+        UnsafePointer[UnsafePointer[T, ImmutAnyOrigin], ImmutAnyOrigin],
+        ImmutAnyOrigin,
+    ]:
+        var ptr = (
+            alloc[T](1).as_immutable().unsafe_origin_cast[origin_of(self.lib)]()
+        )
+        var ptr2 = UnsafePointer(to=ptr).as_immutable()
+        var ptr3 = UnsafePointer(to=ptr2).as_immutable()
+        return ptr3
+
+    fn mut_triple_ptr[
+        T: AnyType
+    ](mut self) -> UnsafePointer[
+        UnsafePointer[
+            UnsafePointer[T, origin_of(self.lib)], origin_of(self.lib)
+        ],
+        origin_of(self.lib),
+    ]:
+        """Triple pointer tied to self.lib. _libc pattern: unsafe_origin_mutcast for MutOrigin.
+        """
+        var ptr = alloc[T](1).unsafe_origin_cast[origin_of(self.lib)]()
+        var ptr2 = UnsafePointer(to=ptr).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+        var ptr3 = UnsafePointer(to=ptr2).unsafe_origin_cast[
+            origin_of(self.lib)
+        ]()
+        return ptr3
+
     fn av_buffer_unref(
         self, buf: UnsafePointer[AVBufferRef, MutAnyOrigin]
     ) raises:
         raise Error("av_buffer_unref is not implemented")
+
+    fn av_frame_side_data_free(
+        self,
+        sd: TripleMutPointer[AVFrameSideData, origin_of(self.lib)],
+        nb_sd: UnsafePointer[c_int, origin_of(self.lib)],
+    ) raises:
+        return self._av_frame_side_data_free(
+            sd,
+            nb_sd,
+        )
 
     fn av_compare_ts(
         self,
