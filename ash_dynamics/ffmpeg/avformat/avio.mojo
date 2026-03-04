@@ -468,8 +468,7 @@ comptime avio_seek_time = fn(
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct AVBPrint:
+struct AVBPrint(Movable, Writable):
     "Avoid a warning. The header can not be included because it breaks c++."
     pass
 
