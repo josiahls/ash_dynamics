@@ -1,4 +1,4 @@
-"https://www.ffmpeg.org/doxygen/8.0/avcodec_8h.html"
+"See https://www.ffmpeg.org/doxygen/8.0/avcodec_8h.html."
 from ffi import (
     c_int,
     c_float,
@@ -51,7 +51,7 @@ from ash_dynamics.primitives.mojo_compat import (
 
 @fieldwise_init
 struct RcOverride(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structRcOverride.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structRcOverride.html."
     var start_frame: c_int
     var end_frame: c_int
     var qscale: c_int
@@ -67,7 +67,7 @@ comptime AV_CODEC_FLAG_UNALIGNED = c_int(1 << 0)
 comptime AV_CODEC_FLAG_QSCALE = c_int(1 << 1)
 comptime AV_CODEC_FLAG_4MV = c_int(1 << 2)
 comptime AV_CODEC_FLAG_OUTPUT_CORRUPT = c_int(1 << 3)
-"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#gad406c2774f1334e474256c7f04e1345e"
+"See https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#gad406c2774f1334e474256c7f04e1345e."
 comptime AV_CODEC_FLAG_QPEL = c_int(1 << 4)
 comptime AV_CODEC_FLAG_RECON_FRAME = c_int(1 << 6)
 comptime AV_CODEC_FLAG_COPY_OPAQUE = c_int(1 << 7)
@@ -105,15 +105,15 @@ comptime AV_CODEC_FLAG2_ICC_PROFILES = c_int(1 << 31)
 ########################################################
 
 comptime AV_CODEC_EXPORT_DATA_MVS = c_int(1 << 0)
-"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#gace654396302da34e598d4192403326ea"
+"See https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#gace654396302da34e598d4192403326ea."
 comptime AV_CODEC_EXPORT_DATA_PRFT = c_int(1 << 1)
-"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga3f723db5c7db407c53a61ddfed1f55d8"
+"See https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga3f723db5c7db407c53a61ddfed1f55d8."
 comptime AV_CODEC_EXPORT_DATA_VIDEO_ENC_PARAMS = c_int(1 << 2)
-"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#gaf2ee3be17d31e2e6ef8b8096e7789ec5"
+"See https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#gaf2ee3be17d31e2e6ef8b8096e7789ec5."
 comptime AV_CODEC_EXPORT_DATA_FILM_GRAIN = c_int(1 << 3)
-"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga8aeef83bf8b28d1e06d67b50c9d3a994"
+"See https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga8aeef83bf8b28d1e06d67b50c9d3a994."
 comptime AV_CODEC_EXPORT_DATA_ENHANCEMENTS = c_int(1 << 4)
-"https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga4e1603e9861297330284d530796a14e1"
+"See https://www.ffmpeg.org/doxygen/8.0/group__lavc__core.html#ga4e1603e9861297330284d530796a14e1."
 
 comptime AV_GET_BUFFER_FLAG_REF = c_int(1 << 0)
 comptime AV_GET_ENCODE_BUFFER_FLAG_REF = c_int(1 << 0)
@@ -130,7 +130,7 @@ comptime AVCodecInternal = OpaquePointer[MutExternalOrigin]
 
 @fieldwise_init
 struct AVCodecContext(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVCodecContext.html."
 
     var av_class: UnsafePointer[AVClass, origin=ImmutExternalOrigin]
     var log_level_offset: c_int
@@ -481,7 +481,7 @@ struct AVCodecContext(Movable, Writable):
 
 @fieldwise_init
 struct AVHWAccel(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVHWAccel.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVHWAccel.html."
 
     var name: UnsafePointer[c_char, ImmutExternalOrigin]
 
@@ -520,7 +520,7 @@ comptime AV_SUBTITLE_FLAG_FORCED = c_int(0x00000001)
 
 @fieldwise_init
 struct AVSubtitleRect(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVSubtitleRect.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVSubtitleRect.html."
     var x: c_int
     var y: c_int
     var w: c_int
@@ -537,7 +537,7 @@ struct AVSubtitleRect(Movable, Writable):
 
 @fieldwise_init
 struct AVSubtitle(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVSubtitle.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVSubtitle.html."
     var format: c_ushort
     var start_display_time: c_uint
     var end_display_time: c_uint
@@ -765,7 +765,7 @@ struct AVPictureStructure(Movable, Writable):
 
 @fieldwise_init
 struct AVCodecParserContext(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecParserContext.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVCodecParserContext.html."
     comptime AV_PARSER_PTS_NB = Int(4)
     comptime PARSER_FLAG_COMPLETE_FRAMES = Int(0x0001)
     comptime PARSER_FLAG_ONCE = Int(0x0002)
@@ -832,7 +832,7 @@ struct AVCodecParserContext(Movable, Writable):
 
 @fieldwise_init
 struct AVCodecParser(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecParser.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVCodecParser.html."
     var codec_ids: StaticTuple[c_int, 7]
     var priv_data_size: c_int
     var parser_init: fn(

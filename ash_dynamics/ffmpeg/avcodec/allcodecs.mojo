@@ -1,4 +1,4 @@
-"https://www.ffmpeg.org/doxygen/8.0/allcodecs_8c.html"
+"See https://www.ffmpeg.org/doxygen/8.0/allcodecs_8c.html."
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 from ash_dynamics.ffmpeg.avcodec.codec import AVCodec
 

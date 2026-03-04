@@ -1,4 +1,4 @@
-"https://www.ffmpeg.org/doxygen/8.0/hwcontext_8h.html"
+"See https://www.ffmpeg.org/doxygen/8.0/hwcontext_8h.html."
 from ffi import c_char, c_int, c_uchar
 from ash_dynamics.primitives._clib import ExternalFunction
 
@@ -37,7 +37,7 @@ struct AVHWDeviceType(Movable, Writable):
 
 @fieldwise_init
 struct AVHWDeviceContext(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVHWDeviceContext.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVHWDeviceContext.html."
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var type: AVHWDeviceType.ENUM_DTYPE
     var hwctx: UnsafePointer[
@@ -57,7 +57,7 @@ struct AVHWDeviceContext(Movable, Writable):
 
 @fieldwise_init
 struct AVHWFramesContext(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVHWFramesContext.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVHWFramesContext.html."
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var device_ref: UnsafePointer[AVBufferRef, MutExternalOrigin]
     var device_ctx: UnsafePointer[AVHWDeviceContext, MutExternalOrigin]

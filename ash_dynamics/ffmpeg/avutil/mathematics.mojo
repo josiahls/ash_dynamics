@@ -1,4 +1,4 @@
-"https://www.ffmpeg.org/doxygen/8.0/mathematics_8h.html"
+"See https://www.ffmpeg.org/doxygen/8.0/mathematics_8h.html."
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
 from ffi import c_long_long
 from ash_dynamics.primitives._clib import ExternalFunction

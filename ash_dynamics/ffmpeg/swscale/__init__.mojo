@@ -1,4 +1,4 @@
-"""https://www.ffmpeg.org/doxygen/8.0/swscale_8h_source.html"""
+"""See https://www.ffmpeg.org/doxygen/8.0/swscale_8h_source.html."""
 
 from ffi import OwnedDLHandle, c_int, c_float, c_char
 from os.env import getenv

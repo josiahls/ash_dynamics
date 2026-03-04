@@ -64,7 +64,7 @@ comptime av_append_packet = ExternalFunction[
 
 @fieldwise_init
 struct AVProbeData(Movable, Writable):
-    """https://www.ffmpeg.org/doxygen/8.0/structAVProbeData.html"""
+    """See https://www.ffmpeg.org/doxygen/8.0/structAVProbeData.html."""
 
     var filename: UnsafePointer[c_char, origin=ImmutExternalOrigin]
     var buf: UnsafePointer[c_uchar, origin=MutExternalOrigin]
@@ -105,7 +105,7 @@ comptime AVFMT_SEEK_TO_PTS = 0x4000000
 
 @fieldwise_init
 struct AVOutputFormat(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVOutputFormat.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVOutputFormat.html."
     var name: UnsafePointer[c_char, origin=ImmutExternalOrigin]
     var long_name: UnsafePointer[c_char, origin=ImmutExternalOrigin]
     var mime_type: UnsafePointer[c_char, origin=ImmutExternalOrigin]
@@ -125,7 +125,7 @@ struct AVOutputFormat(Movable, Writable):
 
 @fieldwise_init
 struct AVInputFormat(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVInputFormat.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVInputFormat.html."
     var name: UnsafePointer[c_char, origin=ImmutExternalOrigin]
     var long_name: UnsafePointer[c_char, origin=ImmutExternalOrigin]
     var flags: c_int
@@ -152,7 +152,7 @@ struct AVStreamParseType(Movable, Writable):
 
 @fieldwise_init
 struct AVIndexEntry(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVIndexEntry.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVIndexEntry.html."
     var pos: c_long_long
     var timestamp: c_long_long
 
@@ -203,7 +203,7 @@ comptime AV_PTS_WRAP_SUB_OFFSET = -1
 
 @fieldwise_init
 struct AVStream(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVStream.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVStream.html."
 
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var index: c_int
@@ -253,7 +253,7 @@ struct _AVStreamGroupTileGrid_offsets(Movable, Writable):
 
 @fieldwise_init
 struct AVStreamGroupTileGrid(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVStreamGroupTileGrid.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVStreamGroupTileGrid.html."
 
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var nb_tiles: c_uint
@@ -274,7 +274,7 @@ struct AVStreamGroupTileGrid(Movable, Writable):
 
 @fieldwise_init
 struct AVStreamGroupLCEVC(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVStreamGroupLCEVC.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVStreamGroupLCEVC.html."
 
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var lcevc_index: c_uint
@@ -301,7 +301,7 @@ struct AVStreamGroupParamsType(Movable, Writable):
 
 @fieldwise_init
 struct AVStreamGroup(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVStreamGroup.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVStreamGroup.html."
 
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var priv_data: OpaquePointer[MutExternalOrigin]
@@ -334,7 +334,7 @@ comptime AV_PROGRAM_RUNNING = 1
 
 @fieldwise_init
 struct AVProgram(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVProgram.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVProgram.html."
 
     var id: c_int
     var flags: c_int
@@ -366,7 +366,7 @@ comptime AVFMTCTX_UNSEEKABLE = 0x0002
 
 @fieldwise_init
 struct AVChapter(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVChapter.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVChapter.html."
     var id: c_long_long
     var time_base: AVRational
     var start: c_long_long
@@ -413,7 +413,7 @@ struct AVDurationEstimationMethod(Movable, Writable):
 # @register_passable("trivial")
 @fieldwise_init
 struct AVFormatContext(Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVFormatContext.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVFormatContext.html."
 
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var iformat: UnsafePointer[AVInputFormat, ImmutExternalOrigin]

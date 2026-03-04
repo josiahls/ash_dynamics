@@ -1,4 +1,4 @@
-"https://www.ffmpeg.org/doxygen/8.0/libavformat_2internal_8h_source.html"
+"See https://www.ffmpeg.org/doxygen/8.0/libavformat_2internal_8h_source.html."
 from ffi import c_uint, c_char, c_long_long, c_int
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 from ash_dynamics.ffmpeg.avformat.avformat import AVFormatContext
@@ -9,7 +9,7 @@ from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
 comptime MAX_URL_SIZE = 4096
 
 comptime PROBE_BUF_MIN = 2048
-"Size of the probe buffer, for guessing file type from file contents"
+"Size of the probe buffer, for guessing file type from file contents."
 comptime PROBE_BUF_MAX = 1 << 20
 
 

@@ -1,4 +1,4 @@
-"https://www.ffmpeg.org/doxygen/8.0/buffer_8h.html"
+"See https://www.ffmpeg.org/doxygen/8.0/buffer_8h.html."
 from ffi import c_uchar, c_uint, c_int, c_size_t
 from os.atomic import Atomic
 from ash_dynamics.primitives._clib import ExternalFunction
@@ -10,7 +10,7 @@ struct AVBuffer(Movable):
 
 @fieldwise_init
 struct AVBufferRef(TrivialRegisterPassable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVBufferRef.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVBufferRef.html."
     var buffer: UnsafePointer[AVBuffer, origin=MutExternalOrigin]
     var data: UnsafePointer[c_uchar, origin=MutExternalOrigin]
     var size: c_uint

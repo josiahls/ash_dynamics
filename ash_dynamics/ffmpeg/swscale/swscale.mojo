@@ -1,4 +1,4 @@
-"https://www.ffmpeg.org/doxygen/8.0/swscale_8h.html"
+"See https://www.ffmpeg.org/doxygen/8.0/swscale_8h.html."
 from ffi import (
     c_int,
     c_char,
@@ -143,7 +143,7 @@ struct SwsIntent(Movable, Writable):
 
 @fieldwise_init
 struct SwsContext(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structSwsContext.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structSwsContext.html."
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var opaque: OpaquePointer[MutExternalOrigin]
     var flags: SwsFlags.ENUM_DTYPE
@@ -274,14 +274,14 @@ comptime sws_getCoefficients = ExternalFunction[
 
 @fieldwise_init
 struct SwsVector(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structSwsVector.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structSwsVector.html."
     var coeff: UnsafePointer[c_double, ImmutExternalOrigin]
     var length: c_int
 
 
 @fieldwise_init
 struct SwsFilter(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structSwsFilter.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structSwsFilter.html."
     var lumH: UnsafePointer[SwsVector, ImmutExternalOrigin]
     var lumV: UnsafePointer[SwsVector, ImmutExternalOrigin]
     var chrH: UnsafePointer[SwsVector, ImmutExternalOrigin]

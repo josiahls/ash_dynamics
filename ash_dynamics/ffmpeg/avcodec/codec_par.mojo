@@ -1,4 +1,4 @@
-"https://www.ffmpeg.org/doxygen/8.0/codec__par_8h.html"
+"See https://www.ffmpeg.org/doxygen/8.0/codec__par_8h.html."
 
 from ash_dynamics.ffmpeg.avcodec.defs import AVFieldOrder
 from ash_dynamics.ffmpeg.avutil.pixfmt import (
@@ -19,7 +19,7 @@ from ash_dynamics.ffmpeg.avcodec.packet import AVPacketSideData
 
 @fieldwise_init
 struct AVCodecParameters(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecParameters.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVCodecParameters.html."
 
     var codec_type: AVMediaType.ENUM_DTYPE
     var codec_id: AVCodecID.ENUM_DTYPE
