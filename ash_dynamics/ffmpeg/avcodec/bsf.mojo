@@ -8,8 +8,7 @@ from utils import StaticTuple
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct AVBSFContext(Writable):
+struct AVBSFContext(Movable, Writable):
     "See https://www.ffmpeg.org/doxygen/8.0/structAVBSFContext.html."
 
     var av_class: UnsafePointer[AVClass, origin=ImmutExternalOrigin]
@@ -22,8 +21,7 @@ struct AVBSFContext(Writable):
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct AVBitStreamFilter(Writable):
+struct AVBitStreamFilter(Movable, Writable):
     "See https://www.ffmpeg.org/doxygen/8.0/structAVBitStreamFilter.html."
     var name: UnsafePointer[c_char, origin=ImmutExternalOrigin]
 
