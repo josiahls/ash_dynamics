@@ -1,4 +1,4 @@
-"https://www.ffmpeg.org/doxygen/8.0/libavcodec_2version__major_8h.html"
+"See https://www.ffmpeg.org/doxygen/8.0/libavcodec_2version__major_8h.html."
 # NOTE: For binding to FFmpeg, this is critical to match.
 # TODO: Look for a mechanism that validates this
 # matches the FFmpeg version we are dynamically linking to.

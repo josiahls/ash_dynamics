@@ -1,4 +1,4 @@
-"https://www.ffmpeg.org/doxygen/8.0/avutil_8h.html"
+"See https://www.ffmpeg.org/doxygen/8.0/avutil_8h.html."
 from ffi import (
     c_int,
     c_char,
@@ -30,7 +30,7 @@ struct AVIAMFAnimationType(Movable, Writable):
 
 @fieldwise_init
 struct AVIAMFMixGain(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFMixGain.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVIAMFMixGain.html."
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var subblock_duration: c_uint
     var animation_type: AVIAMFAnimationType.ENUM_DTYPE
@@ -42,7 +42,7 @@ struct AVIAMFMixGain(Movable, Writable):
 
 @fieldwise_init
 struct AVIAMFReconGain(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFReconGain.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVIAMFReconGain.html."
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var subblock_duration: c_uint
     var recon_gain: StaticTuple[StaticTuple[c_uchar, 12], 6]
@@ -60,7 +60,7 @@ struct AVIAMFParamDefinitionType(Movable, Writable):
 
 @fieldwise_init
 struct AVIAMFParamDefinition(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFParamDefinition.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVIAMFParamDefinition.html."
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var subblocks_offset: c_size_t
     var subblock_size: c_size_t
@@ -109,7 +109,7 @@ comptime AV_IAMF_LAYER_FLAG_RECON_GAIN = c_uint(1 << 0)
 
 @fieldwise_init
 struct AVIAMFLayer(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFLayer.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVIAMFLayer.html."
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var ch_layout: AVChannelLayout
     var flags: c_uint
@@ -131,7 +131,7 @@ struct AVIAMFAudioElementType(Movable, Writable):
 
 @fieldwise_init
 struct AVIAMFAudioElement(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFAudioElement.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVIAMFAudioElement.html."
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var layers: UnsafePointer[
         UnsafePointer[AVIAMFLayer, MutExternalOrigin], MutExternalOrigin
@@ -183,7 +183,7 @@ struct AVIAMFHeadphonesMode(Movable, Writable):
 
 @fieldwise_init
 struct AVIAMFSubmixElement(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFSubmixElement.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVIAMFSubmixElement.html."
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var audio_element_id: c_uint
     var element_mix_config: UnsafePointer[
@@ -205,7 +205,7 @@ struct AVIAMFSubmixLayoutType(Movable, Writable):
 
 @fieldwise_init
 struct AVIAMFSubmixLayout(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFSubmixLayout.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVIAMFSubmixLayout.html."
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var layout_type: AVIAMFSubmixLayoutType.ENUM_DTYPE
     var sound_system: AVChannelLayout
@@ -218,7 +218,7 @@ struct AVIAMFSubmixLayout(Movable, Writable):
 
 @fieldwise_init
 struct AVIAMFSubmix(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFSubmix.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVIAMFSubmix.html."
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var elements: UnsafePointer[
         UnsafePointer[AVIAMFSubmixElement, MutExternalOrigin],
@@ -238,7 +238,7 @@ struct AVIAMFSubmix(Movable, Writable):
 
 @fieldwise_init
 struct AVIAMFMixPresentation(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVIAMFMixPresentation.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVIAMFMixPresentation.html."
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var submixes: UnsafePointer[
         UnsafePointer[AVIAMFSubmix, MutExternalOrigin], MutExternalOrigin

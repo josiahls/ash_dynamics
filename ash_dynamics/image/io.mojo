@@ -215,7 +215,7 @@ fn encode(
 fn image_save(image: ImageData, path: Path) raises:
     """Saves an image to a file.
 
-    Parameters:
+    Args:
         image: The image to save.
         path: The path to save the image to.
     """

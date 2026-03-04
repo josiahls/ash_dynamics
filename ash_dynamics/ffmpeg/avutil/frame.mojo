@@ -1,4 +1,4 @@
-"https://www.ffmpeg.org/doxygen/8.0/frame_8h.html"
+"See https://www.ffmpeg.org/doxygen/8.0/frame_8h.html."
 
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
 from ash_dynamics.ffmpeg.avutil.buffer import AVBufferRef
@@ -106,7 +106,7 @@ struct AVActiveFormatDescription(Movable, Writable):
 
 @fieldwise_init
 struct AVFrameSideData(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVFrameSideData.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVFrameSideData.html."
     var type: AVFrameSideDataType.ENUM_DTYPE
     var data: UnsafePointer[c_uchar, MutExternalOrigin]
     var size: c_size_t
@@ -128,14 +128,14 @@ struct AVSideDataProps(Movable, Writable):
 
 @fieldwise_init
 struct AVSideDataDescriptor(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVSideDataDescriptor.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVSideDataDescriptor.html."
     var name: UnsafePointer[c_char, MutExternalOrigin]
     var props: AVSideDataProps.ENUM_DTYPE
 
 
 @fieldwise_init
 struct AVRegionOfInterest(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVRegionOfInterest.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVRegionOfInterest.html."
     var self_size: c_uint
     var top: c_int
     var bottom: c_int
@@ -147,7 +147,7 @@ struct AVRegionOfInterest(Movable, Writable):
 
 @fieldwise_init
 struct AVFrame(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVFrame.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVFrame.html."
     comptime AV_NUM_DATA_POINTERS = Int(8)
 
     var data: StaticTuple[

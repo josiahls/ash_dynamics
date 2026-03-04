@@ -1,4 +1,4 @@
-"https://www.ffmpeg.org/doxygen/8.0/log_8h.html"
+"See https://www.ffmpeg.org/doxygen/8.0/log_8h.html."
 from ffi import c_char, c_int
 from ash_dynamics.ffmpeg.avutil.opt import AVOption, AVOptionRanges
 
@@ -34,7 +34,7 @@ comptime AVClass_child_class_iterate_fn[T: AnyType] = fn(
 
 
 struct AVClass(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVClass.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVClass.html."
     var class_name: UnsafePointer[c_char, ImmutExternalOrigin]
 
     # TODO: Is this correct or do we need to additionally wrap item_name in a

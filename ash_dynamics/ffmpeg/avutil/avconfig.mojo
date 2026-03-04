@@ -1,4 +1,4 @@
-"https://www.ffmpeg.org/doxygen/8.0/avutil_8h.html"
+"See https://www.ffmpeg.org/doxygen/8.0/avutil_8h.html."
 from ffi import c_int
 
 # TODO: Swap the asisgnments for parameterized functions once the need arises.

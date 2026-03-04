@@ -1,4 +1,4 @@
-"https://www.ffmpeg.org/doxygen/8.0/channel__layout_8h.html"
+"See https://www.ffmpeg.org/doxygen/8.0/channel__layout_8h.html."
 from ffi import c_int, c_char, c_ulong_long, c_size_t
 from ash_dynamics.primitives._clib import C_Union, ExternalFunction
 from utils import StaticTuple
@@ -406,7 +406,7 @@ struct AVMatrixEncoding(Movable, Writable):
 
 @fieldwise_init
 struct AVChannelCustom(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVChannelCustom.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVChannelCustom.html."
     var id: AVChannel.ENUM_DTYPE
     var name: StaticTuple[c_char, 16]
     var opaque: OpaquePointer[MutExternalOrigin]
@@ -414,7 +414,7 @@ struct AVChannelCustom(Movable, Writable):
 
 @fieldwise_init
 struct AVChannelLayout(ImplicitlyCopyable, Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVChannelLayout.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVChannelLayout.html."
     var order: AVChannelOrder.ENUM_DTYPE
     var nb_channels: c_int
 

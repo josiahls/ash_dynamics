@@ -1,4 +1,4 @@
-"https://www.ffmpeg.org/doxygen/8.0/error_8h.html"
+"See https://www.ffmpeg.org/doxygen/8.0/error_8h.html."
 from ffi import c_int
 from ash_dynamics.ffmpeg.avutil import avconfig
 from ash_dynamics.ffmpeg.avutil.macros import MKTAG

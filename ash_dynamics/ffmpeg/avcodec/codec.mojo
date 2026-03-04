@@ -1,4 +1,4 @@
-"https://www.ffmpeg.org/doxygen/8.0/codec_8h.html"
+"See https://www.ffmpeg.org/doxygen/8.0/codec_8h.html."
 from ffi import c_char, c_int, c_uchar
 from ash_dynamics.primitives._clib import (
     ExternalFunction,
@@ -51,7 +51,7 @@ comptime AV_CODEC_CAP_ENCODER_RECON_FRAME = c_int(1 << 22)
 
 
 struct AVProfile(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVProfile.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVProfile.html."
 
     var profile: c_int
     var name: UnsafePointer[c_char, ImmutExternalOrigin]
@@ -59,7 +59,7 @@ struct AVProfile(Movable, Writable):
 
 @fieldwise_init
 struct AVCodec(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVCodec.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVCodec.html."
 
     var name: UnsafePointer[c_char, ImmutExternalOrigin]
     var long_name: UnsafePointer[c_char, ImmutExternalOrigin]
@@ -155,7 +155,7 @@ comptime AV_CODEC_HW_CONFIG_METHOD_AD_HOC = c_int(0x08)
 
 @fieldwise_init
 struct AVCodecHWConfig(Movable, Writable):
-    "https://www.ffmpeg.org/doxygen/8.0/structAVCodecHWConfig.html"
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVCodecHWConfig.html."
 
     var pix_fmt: AVPixelFormat.ENUM_DTYPE
     var methods: c_int

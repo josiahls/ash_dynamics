@@ -26,11 +26,10 @@ struct ExternalFunction[
     name: StaticString,
     type: __TypeOfAllTypes,
 ]:
-    """
+    """Loads external functions from a dynamic library.
 
     References:
     - https://github.com/modular/modular/blob/d2dadf1a723d7e341f84d34e93223517b23bfca3/mojo/stdlib/stdlib/python/_cpython.mojo#L756
-
     """
 
     @staticmethod

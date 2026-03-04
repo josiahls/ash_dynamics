@@ -1,4 +1,4 @@
-"https://www.ffmpeg.org/doxygen/8.0/avutil_8h.html"
+"See https://www.ffmpeg.org/doxygen/8.0/avutil_8h.html."
 from ffi import c_int, c_uint, c_long_long, c_ulong_long
 
 

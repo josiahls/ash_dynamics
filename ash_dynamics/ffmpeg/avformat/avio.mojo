@@ -1,4 +1,4 @@
-"https://www.ffmpeg.org/doxygen/8.0/avio_8h.html"
+"See https://www.ffmpeg.org/doxygen/8.0/avio_8h.html."
 from ffi import (
     c_int,
     c_char,
@@ -49,7 +49,7 @@ struct AVIODirEntryType(Movable, Writable):
 
 @fieldwise_init
 struct AVIODirEntry(Movable, Writable):
-    """https://www.ffmpeg.org/doxygen/8.0/structAVIODirEntry.html"""
+    """See https://www.ffmpeg.org/doxygen/8.0/structAVIODirEntry.html."""
 
     var name: UnsafePointer[c_char, MutExternalOrigin]
     var type: AVIODirEntryType.ENUM_DTYPE
@@ -85,7 +85,7 @@ struct AVIODataMarkerType(Movable, Writable):
 
 @fieldwise_init
 struct AVIOContext(Movable, Writable):
-    """https://www.ffmpeg.org/doxygen/8.0/structAVIOContext.html"""
+    """See https://www.ffmpeg.org/doxygen/8.0/structAVIOContext.html."""
 
     var av_class: UnsafePointer[AVClass, MutExternalOrigin]
     var buffer: UnsafePointer[c_uchar, MutExternalOrigin]
