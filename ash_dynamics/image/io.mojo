@@ -4,11 +4,11 @@ from pathlib import Path
 import sys
 import os
 from ash_dynamics.ffmpeg.avcodec.packet import AVPacket
-from ash_dynamics.ffmpeg.avformat import Avformat
-from ash_dynamics.ffmpeg.avcodec import Avcodec
-from ash_dynamics.ffmpeg.avutil import Avutil
-from ash_dynamics.ffmpeg.swscale import Swscale
-from ash_dynamics.ffmpeg.swrsample import Swrsample
+from ash_dynamics.ffmpeg import avformat
+from ash_dynamics.ffmpeg import avcodec
+from ash_dynamics.ffmpeg import avutil
+from ash_dynamics.ffmpeg import swscale
+from ash_dynamics.ffmpeg import swrsample
 from ash_dynamics.ffmpeg.avformat import AVFormatContext
 from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
 from ash_dynamics.ffmpeg.avcodec.defs import AV_INPUT_BUFFER_PADDING_SIZE
@@ -56,7 +56,6 @@ struct ImageInfo(Writable):
 
 
 fn decode(
-    mut avcodec: Avcodec,
     dec_ctx: UnsafePointer[AVCodecContext, origin=MutExternalOrigin],
     frame: UnsafePointer[AVFrame, origin=MutExternalOrigin],
     pkt: UnsafePointer[AVPacket, origin=MutExternalOrigin],
@@ -96,11 +95,6 @@ fn image_read[in_buffer_size: c_int = 4096](path: Path) raises -> ImageData:
 
     """
     _logger.info("Reading image from path: ", path)
-    var avformat = Avformat()
-    var avcodec = Avcodec()
-    var avutil = Avutil()
-    var swscale = Swscale()
-    var swrsample = Swrsample()
 
     var oc = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     var dict = alloc[AVDictionary](0)
@@ -122,13 +116,17 @@ fn image_read[in_buffer_size: c_int = 4096](path: Path) raises -> ImageData:
     var codec = avcodec.avcodec_find_decoder_by_name(extension)
     var parser = avcodec.av_parser_init(codec[].id)
     var context = avcodec.avcodec_alloc_context3(codec)
-    avcodec.avcodec_open2(context, codec, dict)
-    var frame = avcodec.av_frame_alloc()
+    _ = avcodec.avcodec_open2(context, codec, dict)
+    var frame = avutil.av_frame_alloc()
     var image_info = ImageInfo()
 
     with open(path, "r") as f:
         while True:
-            var data = input_buffer.unsafe_ptr()
+            var data = (
+                input_buffer.unsafe_ptr()
+                .as_immutable()
+                .unsafe_origin_cast[ImmutExternalOrigin]()
+            )
             var data_size = c_int(f.read(buffer=input_buffer))
             if data_size == 0:
                 break
@@ -154,7 +152,6 @@ fn image_read[in_buffer_size: c_int = 4096](path: Path) raises -> ImageData:
                 if packet[].size > 0:
                     _logger.debug("Packet size is: ", packet[].size)
                     decode(
-                        avcodec,
                         context,
                         frame,
                         packet,
@@ -166,14 +163,9 @@ fn image_read[in_buffer_size: c_int = 4096](path: Path) raises -> ImageData:
     _logger.debug("Output buffer: ", len(output_buffer))
     # _ = codec
     _ = context
-    _ = avformat
-    _ = avutil
-    _ = swscale
-    _ = swrsample
     _ = oc
     _ = input_buffer
     _ = packet
-    _ = avcodec
     _ = parser
     var data = output_buffer.unsafe_ptr().unsafe_origin_cast[
         MutExternalOrigin
@@ -188,7 +180,6 @@ fn image_read[in_buffer_size: c_int = 4096](path: Path) raises -> ImageData:
 
 
 fn encode(
-    mut avcodec: Avcodec,
     enc_ctx: UnsafePointer[AVCodecContext, origin=MutExternalOrigin],
     frame: UnsafePointer[AVFrame, origin=MutExternalOrigin],
     pkt: UnsafePointer[AVPacket, origin=MutExternalOrigin],
@@ -220,11 +211,6 @@ fn image_save(image: ImageData, path: Path) raises:
         path: The path to save the image to.
     """
     _logger.info("Saving image to path: ", path)
-    var avformat = Avformat()
-    var avcodec = Avcodec()
-    var avutil = Avutil()
-    var swscale = Swscale()
-    var swrsample = Swrsample()
 
     var dict = alloc[AVDictionary](0)
     var extension = path.suffix()
@@ -240,10 +226,10 @@ fn image_save(image: ImageData, path: Path) raises:
     var packet = avcodec.av_packet_alloc()
 
     print("Opening codec")
-    avcodec.avcodec_open2(context, codec, dict)
+    _ = avcodec.avcodec_open2(context, codec, dict)
 
     print("Opened codec")
-    var frame = avcodec.av_frame_alloc()
+    var frame = avutil.av_frame_alloc()
     print("Allocated frame")
     frame[].format = context[].pix_fmt
     frame[].width = context[].width
@@ -272,7 +258,6 @@ fn image_save(image: ImageData, path: Path) raises:
         i += 1
 
         encode(
-            avcodec,
             context,
             frame,
             packet,
@@ -280,16 +265,10 @@ fn image_save(image: ImageData, path: Path) raises:
         )
 
         encode(
-            avcodec,
             context,
             UnsafePointer[AVFrame, origin=MutExternalOrigin](),
             packet,
             f,
         )
 
-        _ = avformat
-        _ = avutil
-        _ = swscale
-        _ = swrsample
         _ = packet
-        _ = avcodec
