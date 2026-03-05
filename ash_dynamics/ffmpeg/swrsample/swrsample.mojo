@@ -1,5 +1,5 @@
 "See https://www.ffmpeg.org/doxygen/8.0/swresample_8h.html."
-from ffi import c_int, c_uchar, c_long_long, c_double, c_size_t
+from ffi import c_int, c_uchar, c_long_long, c_double, c_size_t, external_call
 from ash_dynamics.primitives._clib import ExternalFunction, c_ptrdiff_t
 from ash_dynamics.ffmpeg.avutil.log import AVClass
 from ash_dynamics.ffmpeg.avutil.channel_layout import (
@@ -66,114 +66,129 @@ struct SwrContext(Movable, Writable):
     pass
 
 
-comptime swr_get_class = ExternalFunction[
-    "swr_get_class",
-    fn() -> UnsafePointer[AVClass, ImmutExternalOrigin],
-]
+fn swr_get_class() -> UnsafePointer[AVClass, ImmutExternalOrigin]:
+    return external_call[
+        "swr_get_class", UnsafePointer[AVClass, ImmutExternalOrigin]
+    ]()
 
 
-comptime swr_alloc = ExternalFunction[
-    "swr_alloc",
-    fn() -> UnsafePointer[SwrContext, MutExternalOrigin],
-]
-
-comptime swr_init = ExternalFunction[
-    "swr_init",
-    fn(context: UnsafePointer[SwrContext, MutExternalOrigin]) -> c_int,
-]
-
-comptime swr_is_initialized = ExternalFunction[
-    "swr_is_initialized",
-    fn(context: UnsafePointer[SwrContext, ImmutExternalOrigin]) -> c_int,
-]
-
-comptime swr_alloc_set_opts2 = ExternalFunction[
-    "swr_alloc_set_opts2",
-    fn(
-        context: UnsafePointer[
-            UnsafePointer[SwrContext, MutExternalOrigin], MutExternalOrigin
-        ],
-        out_ch_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
-        out_sample_fmt: AVSampleFormat.ENUM_DTYPE,
-        out_sample_rate: c_int,
-        in_ch_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
-        in_sample_fmt: AVSampleFormat.ENUM_DTYPE,
-        in_sample_rate: c_int,
-        log_offset: c_int,
-        log_ctx: UnsafePointer[AVClass, ImmutExternalOrigin],
-    ) -> c_int,
-]
+fn swr_alloc() -> UnsafePointer[SwrContext, MutExternalOrigin]:
+    return external_call[
+        "swr_alloc", UnsafePointer[SwrContext, MutExternalOrigin]
+    ]()
 
 
-comptime swr_free = ExternalFunction[
-    "swr_free",
-    fn(
-        context: UnsafePointer[
-            UnsafePointer[SwrContext, MutExternalOrigin], MutExternalOrigin
-        ]
-    ),
-]
-
-comptime swr_close = ExternalFunction[
-    "swr_close",
-    fn(context: UnsafePointer[SwrContext, MutExternalOrigin]),
-]
-
-comptime swr_convert = ExternalFunction[
-    "swr_convert",
-    fn(
-        s: UnsafePointer[SwrContext, MutExternalOrigin],
-        out_: UnsafePointer[
-            UnsafePointer[c_uchar, MutExternalOrigin], ImmutExternalOrigin
-        ],
-        out_count: c_int,
-        in_: UnsafePointer[
-            UnsafePointer[c_uchar, ImmutExternalOrigin], ImmutExternalOrigin
-        ],
-        in_count: c_int,
-    ) -> c_int,
-]
-
-comptime swr_next_pts = ExternalFunction[
-    "swr_next_pts",
-    fn(
-        s: UnsafePointer[SwrContext, MutExternalOrigin],
-        pts: c_long_long,
-    ) -> c_long_long,
-]
+fn swr_init(context: UnsafePointer[SwrContext, MutExternalOrigin]) -> c_int:
+    return external_call["swr_init", c_int](context)
 
 
-comptime swr_set_compensation = ExternalFunction[
-    "swr_set_compensation",
-    fn(
-        s: UnsafePointer[SwrContext, MutExternalOrigin],
-        sample_delta: c_int,
-        compensation_distance: c_int,
-    ) -> c_int,
-]
+fn swr_is_initialized(
+    context: UnsafePointer[SwrContext, ImmutExternalOrigin]
+) -> c_int:
+    return external_call["swr_is_initialized", c_int](context)
 
 
-comptime swr_set_channel_mapping = ExternalFunction[
-    "swr_set_channel_mapping",
-    fn(
-        s: UnsafePointer[SwrContext, MutExternalOrigin],
-        channel_map: UnsafePointer[c_int, ImmutExternalOrigin],
-    ) -> c_int,
-]
+fn swr_alloc_set_opts2(
+    context: UnsafePointer[
+        UnsafePointer[SwrContext, MutExternalOrigin], MutExternalOrigin
+    ],
+    out_ch_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
+    out_sample_fmt: AVSampleFormat.ENUM_DTYPE,
+    out_sample_rate: c_int,
+    in_ch_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
+    in_sample_fmt: AVSampleFormat.ENUM_DTYPE,
+    in_sample_rate: c_int,
+    log_offset: c_int,
+    log_ctx: UnsafePointer[AVClass, ImmutExternalOrigin],
+) -> c_int:
+    return external_call["swr_alloc_set_opts2", c_int](
+        context,
+        out_ch_layout,
+        out_sample_fmt,
+        out_sample_rate,
+        in_ch_layout,
+        in_sample_fmt,
+        in_sample_rate,
+        log_offset,
+        log_ctx,
+    )
 
-comptime swr_build_matrix2 = ExternalFunction[
-    "swr_build_matrix2",
-    fn(
-        in_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
-        out_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
-        center_mix_level: c_double,
-        surround_mix_level: c_double,
-        lfe_mix_level: c_double,
-        rematrix_maxval: c_double,
-        rematrix_volume: c_double,
-        matrix: UnsafePointer[c_double, MutExternalOrigin],
-        stride: c_ptrdiff_t,
-        matrix_encoding: AVMatrixEncoding.ENUM_DTYPE,
-        log_ctx: UnsafePointer[AVClass, ImmutExternalOrigin],
-    ) -> c_int,
-]
+
+fn swr_free(
+    context: UnsafePointer[
+        UnsafePointer[SwrContext, MutExternalOrigin], MutExternalOrigin
+    ]
+):
+    external_call["swr_free", NoneType](context)
+
+
+fn swr_close(context: UnsafePointer[SwrContext, MutExternalOrigin]):
+    external_call["swr_close", NoneType](context)
+
+
+fn swr_convert(
+    s: UnsafePointer[SwrContext, MutExternalOrigin],
+    out_: UnsafePointer[
+        UnsafePointer[c_uchar, MutExternalOrigin], ImmutExternalOrigin
+    ],
+    out_count: c_int,
+    in_: UnsafePointer[
+        UnsafePointer[c_uchar, ImmutExternalOrigin], ImmutExternalOrigin
+    ],
+    in_count: c_int,
+) -> c_int:
+    return external_call["swr_convert", c_int](
+        s, out_, out_count, in_, in_count
+    )
+
+
+fn swr_next_pts(
+    s: UnsafePointer[SwrContext, MutExternalOrigin],
+    pts: c_long_long,
+) -> c_long_long:
+    return external_call["swr_next_pts", c_long_long](s, pts)
+
+
+fn swr_set_compensation(
+    s: UnsafePointer[SwrContext, MutExternalOrigin],
+    sample_delta: c_int,
+    compensation_distance: c_int,
+) -> c_int:
+    return external_call["swr_set_compensation", c_int](
+        s, sample_delta, compensation_distance
+    )
+
+
+fn swr_set_channel_mapping(
+    s: UnsafePointer[SwrContext, MutExternalOrigin],
+    channel_map: UnsafePointer[c_int, ImmutExternalOrigin],
+) -> c_int:
+    return external_call["swr_set_channel_mapping", c_int](s, channel_map)
+
+
+fn swr_build_matrix2(
+    in_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
+    out_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
+    center_mix_level: c_double,
+    surround_mix_level: c_double,
+    lfe_mix_level: c_double,
+    rematrix_maxval: c_double,
+    rematrix_volume: c_double,
+    matrix: UnsafePointer[c_double, MutExternalOrigin],
+    stride: c_ptrdiff_t,
+    matrix_encoding: AVMatrixEncoding.ENUM_DTYPE,
+    log_ctx: UnsafePointer[AVClass, ImmutExternalOrigin],
+) -> c_int:
+    return external_call["swr_build_matrix2", c_int](
+        in_layout,
+        out_layout,
+        center_mix_level,
+        surround_mix_level,
+        lfe_mix_level,
+        rematrix_maxval,
+        rematrix_volume,
+        matrix,
+        stride,
+        matrix_encoding,
+        log_ctx,
+    )
