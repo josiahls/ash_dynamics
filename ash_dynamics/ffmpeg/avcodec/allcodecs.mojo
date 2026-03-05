@@ -2,10 +2,12 @@
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 from ash_dynamics.ffmpeg.avcodec.codec import AVCodec
 
-from ash_dynamics.primitives._clib import ExternalFunction
+from ffi import external_call
 
-comptime avcodec_find_decoder = ExternalFunction[
-    "avcodec_find_decoder",
-    fn(id: AVCodecID.ENUM_DTYPE,) -> UnsafePointer[AVCodec, ImmutExternalOrigin]
-    # fn (id: AVCodecID.ENUM_DTYPE) -> OpaquePointer[ImmutExternalOrigin]
-]
+
+fn avcodec_find_decoder(
+    id: AVCodecID.ENUM_DTYPE,
+) -> UnsafePointer[AVCodec, ImmutExternalOrigin]:
+    return external_call[
+        "avcodec_find_decoder", UnsafePointer[AVCodec, ImmutExternalOrigin]
+    ](id)

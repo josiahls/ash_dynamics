@@ -1,8 +1,5 @@
 "See https://www.ffmpeg.org/doxygen/8.0/codec_8h.html."
-from ffi import c_char, c_int, c_uchar
-from ash_dynamics.primitives._clib import (
-    ExternalFunction,
-)
+from ffi import c_char, c_int, c_uchar, external_call
 
 from reflection import get_type_name
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
@@ -87,61 +84,94 @@ struct AVCodec(Movable, Writable):
     var ch_layouts: UnsafePointer[AVChannelLayout, ImmutExternalOrigin]
 
 
-comptime av_codec_iterate = ExternalFunction[
-    "av_codec_iterate",
-    fn(
-        opaque: UnsafePointer[
-            OpaquePointer[MutExternalOrigin], MutExternalOrigin
-        ],
-    ) -> UnsafePointer[AVCodec, ImmutExternalOrigin],
-]
+fn av_codec_iterate(
+    opaque: UnsafePointer[OpaquePointer[MutExternalOrigin], MutExternalOrigin]
+) -> UnsafePointer[AVCodec, ImmutExternalOrigin]:
+    return external_call[
+        "av_codec_iterate", UnsafePointer[AVCodec, ImmutExternalOrigin]
+    ](opaque)
 
 
-comptime avcodec_find_decoder = ExternalFunction[
-    "avcodec_find_decoder",
-    fn(
-        id: AVCodecID.ENUM_DTYPE,
-    ) -> UnsafePointer[AVCodec, ImmutExternalOrigin],
-]
+fn avcodec_find_decoder(
+    id: AVCodecID.ENUM_DTYPE,
+) -> UnsafePointer[AVCodec, ImmutExternalOrigin]:
+    return external_call[
+        "avcodec_find_decoder", UnsafePointer[AVCodec, ImmutExternalOrigin]
+    ](id)
 
-comptime avcodec_find_decoder_by_name = ExternalFunction[
-    "avcodec_find_decoder_by_name",
-    fn(
-        name: UnsafePointer[c_char, ImmutAnyOrigin],
-    ) -> UnsafePointer[AVCodec, ImmutExternalOrigin],
-]
 
-comptime avcodec_find_encoder = ExternalFunction[
-    "avcodec_find_encoder",
-    fn(
-        id: AVCodecID.ENUM_DTYPE,
-    ) -> UnsafePointer[AVCodec, ImmutExternalOrigin],
-]
+fn avcodec_find_decoder_by_name(
+    name: UnsafePointer[c_char, ImmutExternalOrigin]
+) -> UnsafePointer[AVCodec, ImmutExternalOrigin]:
+    return external_call[
+        "avcodec_find_decoder_by_name",
+        UnsafePointer[AVCodec, ImmutExternalOrigin],
+    ](name)
 
-comptime avcodec_find_encoder_by_name = ExternalFunction[
-    "avcodec_find_encoder_by_name",
-    fn(
-        name: UnsafePointer[c_char, ImmutAnyOrigin],
-    ) -> UnsafePointer[AVCodec, ImmutExternalOrigin],
-]
 
-comptime av_codec_is_encoder = ExternalFunction[
-    "av_codec_is_encoder",
-    fn(codec: UnsafePointer[AVCodec, ImmutExternalOrigin],) -> c_int,
-]
+fn avcodec_find_decoder_by_name(
+    mut extension: String,
+) raises Error -> UnsafePointer[AVCodec, ImmutExternalOrigin]:
+    var stripped_extension: String = String(StringSlice(extension).lstrip("."))
+    var ptr = avcodec_find_decoder_by_name(
+        stripped_extension.as_c_string_slice()
+        .unsafe_ptr()
+        .unsafe_origin_cast[ImmutExternalOrigin]()
+    )
+    if not ptr:
+        raise Error("Failed to find decoder by name: ", extension)
+    return ptr
 
-comptime av_codec_is_decoder = ExternalFunction[
-    "av_codec_is_decoder",
-    fn(codec: UnsafePointer[AVCodec, ImmutExternalOrigin],) -> c_int,
-]
 
-comptime av_get_profile_name = ExternalFunction[
-    "av_get_profile_name",
-    fn(
-        codec: UnsafePointer[AVCodec, ImmutExternalOrigin],
-        profile: c_int,
-    ) -> UnsafePointer[c_char, ImmutExternalOrigin],
-]
+fn avcodec_find_encoder_by_name(
+    mut extension: String,
+) raises Error -> UnsafePointer[AVCodec, ImmutExternalOrigin]:
+    var stripped_extension: String = String(StringSlice(extension).lstrip("."))
+    var ptr = avcodec_find_encoder_by_name(
+        stripped_extension.as_c_string_slice()
+        .unsafe_ptr()
+        .unsafe_origin_cast[ImmutExternalOrigin]()
+    )
+    if not ptr:
+        raise Error("Failed to find encoder by name: ", extension)
+    return ptr
+
+
+fn avcodec_find_encoder(
+    id: AVCodecID.ENUM_DTYPE,
+) -> UnsafePointer[AVCodec, ImmutExternalOrigin]:
+    return external_call[
+        "avcodec_find_encoder", UnsafePointer[AVCodec, ImmutExternalOrigin]
+    ](id)
+
+
+fn avcodec_find_encoder_by_name(
+    name: UnsafePointer[c_char, ImmutExternalOrigin]
+) -> UnsafePointer[AVCodec, ImmutExternalOrigin]:
+    return external_call[
+        "avcodec_find_encoder_by_name",
+        UnsafePointer[AVCodec, ImmutExternalOrigin],
+    ](name)
+
+
+fn av_codec_is_encoder(
+    codec: UnsafePointer[AVCodec, ImmutExternalOrigin]
+) -> c_int:
+    return external_call["av_codec_is_encoder", c_int](codec)
+
+
+fn av_codec_is_decoder(
+    codec: UnsafePointer[AVCodec, ImmutExternalOrigin]
+) -> c_int:
+    return external_call["av_codec_is_decoder", c_int](codec)
+
+
+fn av_get_profile_name(
+    codec: UnsafePointer[AVCodec, ImmutExternalOrigin], profile: c_int
+) -> UnsafePointer[c_char, ImmutExternalOrigin]:
+    return external_call[
+        "av_get_profile_name", UnsafePointer[c_char, ImmutExternalOrigin]
+    ](codec, profile)
 
 
 comptime AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX = c_int(0x01)
@@ -163,10 +193,10 @@ struct AVCodecHWConfig(Movable, Writable):
     var device_type: AVHWDeviceType.ENUM_DTYPE
 
 
-comptime avcodec_get_hw_config = ExternalFunction[
-    "avcodec_get_hw_config",
-    fn(
-        codec: UnsafePointer[AVCodec, ImmutExternalOrigin],
-        index: c_int,
-    ) -> UnsafePointer[AVCodecHWConfig, ImmutExternalOrigin],
-]
+fn avcodec_get_hw_config(
+    codec: UnsafePointer[AVCodec, ImmutExternalOrigin], index: c_int
+) -> UnsafePointer[AVCodecHWConfig, ImmutExternalOrigin]:
+    return external_call[
+        "avcodec_get_hw_config",
+        UnsafePointer[AVCodecHWConfig, ImmutExternalOrigin],
+    ](codec, index)
