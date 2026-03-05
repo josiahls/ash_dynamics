@@ -1,6 +1,6 @@
 "See https://www.ffmpeg.org/doxygen/8.0/channel__layout_8h.html."
-from ffi import c_int, c_char, c_ulong_long, c_size_t
-from ash_dynamics.primitives._clib import C_Union, ExternalFunction
+from ffi import c_int, c_char, c_ulong_long, c_size_t, external_call
+from ash_dynamics.primitives._clib import C_Union
 from utils import StaticTuple
 
 from ash_dynamics.primitives.mojo_compat import (
@@ -572,28 +572,27 @@ fn AV_CHANNEL_LAYOUT_AMBISONIC_FIRST_ORDER() -> AVChannelLayout:
     )
 
 
-comptime av_channel_name = ExternalFunction[
-    "av_channel_name",
-    fn(
-        buf: UnsafePointer[c_char, MutExternalOrigin],
-        buf_size: c_size_t,
-        channel: AVChannel.ENUM_DTYPE,
-    ) -> c_int,
-]
+fn av_channel_name(
+    buf: UnsafePointer[c_char, MutExternalOrigin],
+    buf_size: c_size_t,
+    channel: AVChannel.ENUM_DTYPE,
+) -> c_int:
+    return external_call["av_channel_name", c_int](buf, buf_size, channel)
+
 
 # bprint variant of av_channel_name().
 # @note the string will be appended to the bprint buffer.
 # void av_channel_name_bprint(struct AVBPrint *bp, enum AVChannel channel_id);
 
 
-comptime av_channel_description = ExternalFunction[
-    "av_channel_description",
-    fn(
-        buf: UnsafePointer[c_char, MutExternalOrigin],
-        buf_size: c_size_t,
-        channel: AVChannel.ENUM_DTYPE,
-    ) -> c_int,
-]
+fn av_channel_description(
+    buf: UnsafePointer[c_char, MutExternalOrigin],
+    buf_size: c_size_t,
+    channel: AVChannel.ENUM_DTYPE,
+) -> c_int:
+    return external_call["av_channel_description", c_int](
+        buf, buf_size, channel
+    )
 
 
 # bprint variant of av_channel_description().
@@ -601,81 +600,78 @@ comptime av_channel_description = ExternalFunction[
 # void av_channel_description_bprint(struct AVBPrint *bp, enum AVChannel channel_id);
 
 
-comptime av_channel_from_string = ExternalFunction[
-    "av_channel_from_string",
-    fn(
-        str: UnsafePointer[c_char, ImmutExternalOrigin],
-    ) -> AVChannel.ENUM_DTYPE,
-]
-
-comptime av_channel_layout_custom_init = ExternalFunction[
-    "av_channel_layout_custom_init",
-    fn(
-        channel_layout: UnsafePointer[AVChannelLayout, MutExternalOrigin],
-        nb_channels: c_int,
-    ) -> c_int,
-]
+fn av_channel_from_string(
+    str: UnsafePointer[c_char, ImmutExternalOrigin]
+) -> AVChannel.ENUM_DTYPE:
+    return external_call["av_channel_from_string", AVChannel.ENUM_DTYPE](str)
 
 
-comptime av_channel_layout_from_mask = ExternalFunction[
-    "av_channel_layout_from_mask",
-    fn(
-        channel_layout: UnsafePointer[AVChannelLayout, MutExternalOrigin],
-        mask: c_ulong_long,
-    ) -> c_int,
-]
+fn av_channel_layout_custom_init(
+    channel_layout: UnsafePointer[AVChannelLayout, MutExternalOrigin],
+    nb_channels: c_int,
+) -> c_int:
+    return external_call["av_channel_layout_custom_init", c_int](
+        channel_layout, nb_channels
+    )
 
 
-comptime av_channel_layout_from_string = ExternalFunction[
-    "av_channel_layout_from_string",
-    fn(
-        channel_layout: UnsafePointer[AVChannelLayout, MutExternalOrigin],
-        str: UnsafePointer[c_char, ImmutExternalOrigin],
-    ) -> c_int,
-]
-
-comptime av_channel_layout_default = ExternalFunction[
-    "av_channel_layout_default",
-    fn(
-        channel_layout: UnsafePointer[AVChannelLayout, MutExternalOrigin],
-        nb_channels: c_int,
-    ),
-]
+fn av_channel_layout_from_mask(
+    channel_layout: UnsafePointer[AVChannelLayout, MutExternalOrigin],
+    mask: c_ulong_long,
+) -> c_int:
+    return external_call["av_channel_layout_from_mask", c_int](
+        channel_layout, mask
+    )
 
 
-comptime av_channel_layout_standard = ExternalFunction[
-    "av_channel_layout_standard",
-    fn(
-        opaque: UnsafePointer[
-            OpaquePointer[MutExternalOrigin], MutExternalOrigin
-        ],
-    ) -> UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
-]
+fn av_channel_layout_from_string(
+    channel_layout: UnsafePointer[AVChannelLayout, MutExternalOrigin],
+    str: UnsafePointer[c_char, ImmutExternalOrigin],
+) -> c_int:
+    return external_call["av_channel_layout_from_string", c_int](
+        channel_layout, str
+    )
 
 
-comptime av_channel_layout_uninit = ExternalFunction[
-    "av_channel_layout_uninit",
-    fn(channel_layout: UnsafePointer[AVChannelLayout, MutExternalOrigin],),
-]
+fn av_channel_layout_default(
+    channel_layout: UnsafePointer[AVChannelLayout, MutExternalOrigin],
+    nb_channels: c_int,
+):
+    external_call["av_channel_layout_default", NoneType](
+        channel_layout, nb_channels
+    )
 
 
-comptime av_channel_layout_copy = ExternalFunction[
-    "av_channel_layout_copy",
-    fn(
-        dst: UnsafePointer[AVChannelLayout, MutExternalOrigin],
-        src: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
-    ) -> c_int,
-]
+fn av_channel_layout_standard(
+    opaque: UnsafePointer[OpaquePointer[MutExternalOrigin], MutExternalOrigin]
+) -> UnsafePointer[AVChannelLayout, ImmutExternalOrigin]:
+    return external_call[
+        "av_channel_layout_standard",
+        UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
+    ](opaque)
 
 
-comptime av_channel_layout_describe = ExternalFunction[
-    "av_channel_layout_describe",
-    fn(
-        channel_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
-        buf: UnsafePointer[c_char, MutExternalOrigin],
-        buf_size: c_size_t,
-    ) -> c_int,
-]
+fn av_channel_layout_uninit(
+    channel_layout: UnsafePointer[AVChannelLayout, MutExternalOrigin]
+):
+    external_call["av_channel_layout_uninit", NoneType](channel_layout)
+
+
+fn av_channel_layout_copy(
+    dst: UnsafePointer[AVChannelLayout, MutExternalOrigin],
+    src: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
+) -> c_int:
+    return external_call["av_channel_layout_copy", c_int](dst, src)
+
+
+fn av_channel_layout_describe(
+    channel_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
+    buf: UnsafePointer[c_char, MutExternalOrigin],
+    buf_size: c_size_t,
+) -> c_int:
+    return external_call["av_channel_layout_describe", c_int](
+        channel_layout, buf, buf_size
+    )
 
 
 # bprint variant of av_channel_layout_describe().
@@ -686,85 +682,82 @@ comptime av_channel_layout_describe = ExternalFunction[
 #   struct AVBPrint *bp);
 
 
-comptime av_channel_layout_channel_from_index = ExternalFunction[
-    "av_channel_layout_channel_from_index",
-    fn(
-        channel_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
-        idx: c_int,
-    ) -> AVChannel.ENUM_DTYPE,
-]
+fn av_channel_layout_channel_from_index(
+    channel_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
+    idx: c_int,
+) -> AVChannel.ENUM_DTYPE:
+    return external_call[
+        "av_channel_layout_channel_from_index", AVChannel.ENUM_DTYPE
+    ](channel_layout, idx)
 
 
-comptime av_channel_layout_index_from_channel = ExternalFunction[
-    "av_channel_layout_index_from_channel",
-    fn(
-        channel_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
-        channel: AVChannel.ENUM_DTYPE,
-    ) -> c_int,
-]
+fn av_channel_layout_index_from_channel(
+    channel_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
+    channel: AVChannel.ENUM_DTYPE,
+) -> c_int:
+    return external_call["av_channel_layout_index_from_channel", c_int](
+        channel_layout, channel
+    )
 
 
-comptime av_channel_layout_index_from_string = ExternalFunction[
-    "av_channel_layout_index_from_string",
-    fn(
-        channel_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
-        str: UnsafePointer[c_char, ImmutExternalOrigin],
-    ) -> c_int,
-]
+fn av_channel_layout_index_from_string(
+    channel_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
+    str: UnsafePointer[c_char, ImmutExternalOrigin],
+) -> c_int:
+    return external_call["av_channel_layout_index_from_string", c_int](
+        channel_layout, str
+    )
 
 
-comptime av_channel_layout_channel_from_string = ExternalFunction[
-    "av_channel_layout_channel_from_string",
-    fn(
-        channel_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
-        str: UnsafePointer[c_char, ImmutExternalOrigin],
-    ) -> AVChannel.ENUM_DTYPE,
-]
+fn av_channel_layout_channel_from_string(
+    channel_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
+    str: UnsafePointer[c_char, ImmutExternalOrigin],
+) -> AVChannel.ENUM_DTYPE:
+    return external_call[
+        "av_channel_layout_channel_from_string", AVChannel.ENUM_DTYPE
+    ](channel_layout, str)
 
 
-comptime av_channel_layout_subset = ExternalFunction[
-    "av_channel_layout_subset",
-    fn(
-        channel_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
-        mask: c_ulong_long,
-    ) -> c_ulong_long,
-]
+fn av_channel_layout_subset(
+    channel_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
+    mask: c_ulong_long,
+) -> c_ulong_long:
+    return external_call["av_channel_layout_subset", c_ulong_long](
+        channel_layout, mask
+    )
 
 
-comptime av_channel_layout_check = ExternalFunction[
-    "av_channel_layout_check",
-    fn(
-        channel_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
-    ) -> c_int,
-]
+fn av_channel_layout_check(
+    channel_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin]
+) -> c_int:
+    return external_call["av_channel_layout_check", c_int](channel_layout)
 
 
-comptime av_channel_layout_compare = ExternalFunction[
-    "av_channel_layout_compare",
-    fn(
-        chl: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
-        chl1: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
-    ) -> c_int,
-]
+fn av_channel_layout_compare(
+    chl: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
+    chl1: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
+) -> c_int:
+    return external_call["av_channel_layout_compare", c_int](chl, chl1)
 
 
-comptime av_channel_layout_ambisonic_order = ExternalFunction[
-    "av_channel_layout_ambisonic_order",
-    fn(
-        channel_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
-    ) -> c_int,
-]
+fn av_channel_layout_ambisonic_order(
+    channel_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin]
+) -> c_int:
+    return external_call["av_channel_layout_ambisonic_order", c_int](
+        channel_layout
+    )
 
 
 comptime AV_CHANNEL_LAYOUT_RETYPE_FLAG_LOSSLESS = (1 << 0)
 
 comptime AV_CHANNEL_LAYOUT_RETYPE_FLAG_CANONICAL = (1 << 1)
 
-comptime av_channel_layout_retype = ExternalFunction[
-    "av_channel_layout_retype",
-    fn(
-        channel_layout: UnsafePointer[AVChannelLayout, MutExternalOrigin],
-        order: AVChannelOrder.ENUM_DTYPE,
-        flags: c_int,
-    ) -> c_int,
-]
+
+fn av_channel_layout_retype(
+    channel_layout: UnsafePointer[AVChannelLayout, MutExternalOrigin],
+    order: AVChannelOrder.ENUM_DTYPE,
+    flags: c_int,
+) -> c_int:
+    return external_call["av_channel_layout_retype", c_int](
+        channel_layout, order, flags
+    )
