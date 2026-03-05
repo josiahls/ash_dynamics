@@ -4,10 +4,18 @@ Main libavformat public API header
 
 I/O and Muxing/Demuxing Library
 """
-from ffi import c_int, c_char, c_uchar, c_long_long, c_uint, c_size_t
+from ffi import (
+    c_int,
+    c_char,
+    c_uchar,
+    c_long_long,
+    c_uint,
+    c_size_t,
+    external_call,
+)
 from sys._libc import dup, fclose, fdopen, fflush, FILE_ptr
 from utils import StaticTuple
-from ash_dynamics.primitives._clib import C_Union, ExternalFunction
+from ash_dynamics.primitives._clib import C_Union
 from ash_dynamics.ffmpeg.avutil.frame import AVFrame
 from ash_dynamics.ffmpeg.avcodec.codec import AVCodec
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
@@ -38,23 +46,21 @@ from ash_dynamics.ffmpeg.avutil.iamf import (
 )
 
 
-comptime av_get_packet = ExternalFunction[
-    "av_get_packet",
-    fn(
-        s: UnsafePointer[AVIOContext, origin=MutExternalOrigin],
-        pkt: UnsafePointer[AVPacket, origin=MutExternalOrigin],
-        size: c_int,
-    ) -> c_int,
-]
+fn av_get_packet(
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
+    pkt: UnsafePointer[AVPacket, MutExternalOrigin],
+    size: c_int,
+) -> c_int:
+    return external_call["av_get_packet", c_int](s, pkt, size)
 
-comptime av_append_packet = ExternalFunction[
-    "av_append_packet",
-    fn(
-        s: UnsafePointer[AVIOContext, origin=MutExternalOrigin],
-        pkt: UnsafePointer[AVPacket, origin=MutExternalOrigin],
-        size: c_int,
-    ) -> c_int,
-]
+
+fn av_append_packet(
+    s: UnsafePointer[AVIOContext, MutExternalOrigin],
+    pkt: UnsafePointer[AVPacket, MutExternalOrigin],
+    size: c_int,
+) -> c_int:
+    return external_call["av_append_packet", c_int](s, pkt, size)
+
 
 ########################## input / output formats ##############################
 
@@ -183,17 +189,20 @@ comptime AV_DISPOSITION_DEPENDENT = 1 << 19
 comptime AV_DISPOSITION_STILL_IMAGE = 1 << 20
 comptime AV_DISPOSITION_MULTILAYER = 1 << 21
 
-comptime av_disposition_from_string = ExternalFunction[
-    "av_disposition_from_string",
-    fn(disp: UnsafePointer[c_char, origin=ImmutExternalOrigin]) -> c_int,
-]
 
-comptime av_disposition_to_string = ExternalFunction[
-    "av_disposition_to_string",
-    fn(
-        disposition: c_int,
-    ) -> UnsafePointer[c_char, origin=ImmutExternalOrigin],
-]
+fn av_disposition_from_string(
+    disp: UnsafePointer[c_char, ImmutExternalOrigin]
+) -> c_int:
+    return external_call["av_disposition_from_string", c_int](disp)
+
+
+fn av_disposition_to_string(
+    disposition: c_int,
+) -> UnsafePointer[c_char, ImmutExternalOrigin]:
+    return external_call[
+        "av_disposition_to_string", UnsafePointer[c_char, ImmutExternalOrigin]
+    ](disposition)
+
 
 # Options for behavior on timestamp wrap detection.
 comptime AV_PTS_WRAP_IGNORE = 0
@@ -322,12 +331,14 @@ struct AVStreamGroup(Movable, Writable):
     var disposition: c_int
 
 
-comptime av_stream_get_parser = ExternalFunction[
-    "av_stream_get_parser",
-    fn(
-        s: UnsafePointer[AVStream, ImmutExternalOrigin],
-    ) -> UnsafePointer[AVCodecParserContext, ImmutExternalOrigin],
-]
+fn av_stream_get_parser(
+    s: UnsafePointer[AVStream, ImmutExternalOrigin]
+) -> UnsafePointer[AVCodecParserContext, ImmutExternalOrigin]:
+    return external_call[
+        "av_stream_get_parser",
+        UnsafePointer[AVCodecParserContext, ImmutExternalOrigin],
+    ](s)
+
 
 comptime AV_PROGRAM_RUNNING = 1
 
@@ -556,302 +567,343 @@ struct AVFormatContext(Writable):
     var duration_probesize: c_long_long
 
 
-comptime avformat_version = ExternalFunction[
-    "avformat_version",
-    fn() -> c_int,
-]
-
-comptime avformat_configuration = ExternalFunction[
-    "avformat_configuration",
-    fn() -> UnsafePointer[c_char, ImmutExternalOrigin],
-]
-
-comptime avformat_license = ExternalFunction[
-    "avformat_license",
-    fn() -> UnsafePointer[c_char, ImmutExternalOrigin],
-]
-
-comptime avformat_network_init = ExternalFunction[
-    "avformat_network_init",
-    fn() -> c_int,
-]
-
-comptime avformat_network_deinit = ExternalFunction[
-    "avformat_network_deinit",
-    fn() -> c_int,
-]
-
-comptime av_muxer_iterate = ExternalFunction[
-    "av_muxer_iterate",
-    fn(
-        opaque: UnsafePointer[
-            OpaquePointer[MutExternalOrigin], MutExternalOrigin
-        ],
-    ) -> UnsafePointer[AVOutputFormat, ImmutExternalOrigin],
-]
-
-comptime av_demuxer_iterate = ExternalFunction[
-    "av_demuxer_iterate",
-    fn(
-        opaque: UnsafePointer[
-            OpaquePointer[MutExternalOrigin], MutExternalOrigin
-        ],
-    ) -> UnsafePointer[AVInputFormat, ImmutExternalOrigin],
-]
-
-comptime avformat_alloc_context = ExternalFunction[
-    "avformat_alloc_context",
-    fn() -> UnsafePointer[AVFormatContext, MutExternalOrigin],
-]
-
-comptime avformat_free_context = ExternalFunction[
-    "avformat_free_context",
-    fn(s: UnsafePointer[AVFormatContext, MutExternalOrigin],),
-]
-
-comptime avformat_get_class = ExternalFunction[
-    "avformat_get_class",
-    fn() -> UnsafePointer[AVClass, ImmutExternalOrigin],
-]
-
-comptime av_stream_get_class = ExternalFunction[
-    "av_stream_get_class",
-    fn() -> UnsafePointer[AVClass, ImmutExternalOrigin],
-]
-
-comptime av_stream_group_get_class = ExternalFunction[
-    "av_stream_group_get_class",
-    fn() -> UnsafePointer[AVClass, ImmutExternalOrigin],
-]
-
-comptime avformat_stream_group_name = ExternalFunction[
-    "avformat_stream_group_name",
-    fn(
-        type: AVStreamGroupParamsType.ENUM_DTYPE,
-    ) -> UnsafePointer[c_char, ImmutExternalOrigin],
-]
-
-comptime avformat_stream_group_create = ExternalFunction[
-    "avformat_stream_group_create",
-    fn(
-        s: UnsafePointer[AVFormatContext, MutExternalOrigin],
-        type: AVStreamGroupParamsType.ENUM_DTYPE,
-        options: UnsafePointer[
-            UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
-        ],
-    ) -> UnsafePointer[AVStreamGroup, MutExternalOrigin],
-]
-
-comptime avformat_new_stream = ExternalFunction[
-    "avformat_new_stream",
-    fn(
-        s: UnsafePointer[AVFormatContext, MutExternalOrigin],
-        c: UnsafePointer[AVCodec, ImmutExternalOrigin],
-    ) -> UnsafePointer[AVStream, MutExternalOrigin],
-]
-
-comptime avformat_stream_group_add_stream = ExternalFunction[
-    "avformat_stream_group_add_stream",
-    fn(
-        stg: UnsafePointer[AVStreamGroup, MutExternalOrigin],
-        st: UnsafePointer[AVStream, MutExternalOrigin],
-    ) -> c_int,
-]
-
-comptime av_new_program = ExternalFunction[
-    "av_new_program",
-    fn(
-        s: UnsafePointer[AVFormatContext, MutExternalOrigin],
-        id: c_int,
-    ) -> UnsafePointer[AVProgram, MutExternalOrigin],
-]
-
-comptime avformat_alloc_output_context2 = ExternalFunction[
-    "avformat_alloc_output_context2",
-    fn(
-        ctx: UnsafePointer[
-            UnsafePointer[AVFormatContext, MutExternalOrigin],
-            MutAnyOrigin,
-        ],
-        oformat: UnsafePointer[AVOutputFormat, ImmutExternalOrigin],
-        format_name: UnsafePointer[c_char, ImmutExternalOrigin],
-        filename: UnsafePointer[c_char, ImmutAnyOrigin],
-    ) -> c_int,
-]
-comptime av_find_input_format = ExternalFunction[
-    "av_find_input_format",
-    fn(
-        short_name: UnsafePointer[c_char, ImmutExternalOrigin],
-    ) -> UnsafePointer[AVInputFormat, ImmutExternalOrigin],
-]
-
-comptime av_probe_input_format = ExternalFunction[
-    "av_probe_input_format",
-    fn(
-        pd: UnsafePointer[AVProbeData, ImmutExternalOrigin],
-        is_opened: c_int,
-    ) -> UnsafePointer[AVInputFormat, ImmutExternalOrigin],
-]
-
-comptime av_probe_input_format2 = ExternalFunction[
-    "av_probe_input_format2",
-    fn(
-        pd: UnsafePointer[AVProbeData, ImmutExternalOrigin],
-        is_opened: c_int,
-        score_max: UnsafePointer[c_int, MutExternalOrigin],
-    ) -> UnsafePointer[AVInputFormat, ImmutExternalOrigin],
-]
-
-comptime av_probe_input_format3 = ExternalFunction[
-    "av_probe_input_format3",
-    fn(
-        pd: UnsafePointer[AVProbeData, ImmutExternalOrigin],
-        is_opened: c_int,
-        score_ret: UnsafePointer[c_int, MutExternalOrigin],
-    ) -> UnsafePointer[AVInputFormat, ImmutExternalOrigin],
-]
-
-comptime av_probe_input_buffer2 = ExternalFunction[
-    "av_probe_input_buffer2",
-    fn(
-        pb: UnsafePointer[AVIOContext, MutExternalOrigin],
-        fmt: UnsafePointer[
-            UnsafePointer[AVInputFormat, ImmutExternalOrigin],
-            ImmutExternalOrigin,
-        ],
-        url: UnsafePointer[c_char, ImmutExternalOrigin],
-        logctx: OpaquePointer[MutExternalOrigin],
-        offset: c_uint,
-        max_probe_size: c_uint,
-    ) -> c_int,
-]
-
-comptime av_probe_input_buffer = ExternalFunction[
-    "av_probe_input_buffer",
-    fn(
-        pb: UnsafePointer[AVIOContext, MutExternalOrigin],
-        fmt: UnsafePointer[
-            UnsafePointer[AVInputFormat, ImmutExternalOrigin],
-            ImmutExternalOrigin,
-        ],
-        url: UnsafePointer[c_char, ImmutExternalOrigin],
-        logctx: OpaquePointer[MutExternalOrigin],
-        offset: c_uint,
-        max_probe_size: c_uint,
-    ) -> c_int,
-]
+fn avformat_version() -> c_int:
+    return external_call["avformat_version", c_int]()
 
 
-comptime avformat_open_input = ExternalFunction[
-    "avformat_open_input",
-    fn(
-        s: UnsafePointer[
-            UnsafePointer[AVFormatContext, MutExternalOrigin],
-            MutExternalOrigin,
-        ],
-        url: UnsafePointer[c_char, ImmutExternalOrigin],
-        fmt: UnsafePointer[AVInputFormat, ImmutExternalOrigin],
-        options: UnsafePointer[
-            UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
-        ],
-    ) -> c_int,
-]
+fn avformat_configuration() -> UnsafePointer[c_char, ImmutExternalOrigin]:
+    return external_call[
+        "avformat_configuration", UnsafePointer[c_char, ImmutExternalOrigin]
+    ]()
 
-comptime avformat_find_stream_info = ExternalFunction[
-    "avformat_find_stream_info",
-    fn(
-        ic: UnsafePointer[AVFormatContext, MutExternalOrigin],
-        options: UnsafePointer[
-            UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
-        ],
-    ) -> c_int,
-]
 
-comptime av_find_program_from_stream = ExternalFunction[
-    "av_find_program_from_stream",
-    fn(
-        ic: UnsafePointer[AVFormatContext, MutExternalOrigin],
-        last: UnsafePointer[AVProgram, MutExternalOrigin],
-        s: c_int,
-    ) -> UnsafePointer[AVProgram, MutExternalOrigin],
-]
+fn avformat_license() -> UnsafePointer[c_char, ImmutExternalOrigin]:
+    return external_call[
+        "avformat_license", UnsafePointer[c_char, ImmutExternalOrigin]
+    ]()
 
-comptime av_program_add_stream_index = ExternalFunction[
-    "av_program_add_stream_index",
-    fn(
-        ac: UnsafePointer[AVFormatContext, MutExternalOrigin],
-        progid: c_int,
-        idx: c_uint,
-    ),
-]
 
-comptime av_find_best_stream = ExternalFunction[
-    "av_find_best_stream",
-    fn(
-        ic: UnsafePointer[AVFormatContext, MutExternalOrigin],
-        type: AVMediaType.ENUM_DTYPE,
-        wanted_stream_nb: c_int,
-        related_stream: c_int,
-        decoder_ret: UnsafePointer[
-            UnsafePointer[AVCodec, ImmutExternalOrigin], ImmutExternalOrigin
-        ],
-        flags: c_int,
-    ) -> c_int,
-]
+fn avformat_network_init() -> c_int:
+    return external_call["avformat_network_init", c_int]()
 
-comptime av_read_frame = ExternalFunction[
-    "av_read_frame",
-    fn(
-        s: UnsafePointer[AVFormatContext, MutExternalOrigin],
-        pkt: UnsafePointer[AVPacket, MutExternalOrigin],
-    ) -> c_int,
-]
 
-comptime av_seek_frame = ExternalFunction[
-    "av_seek_frame",
-    fn(
-        s: UnsafePointer[AVFormatContext, MutExternalOrigin],
-        stream_index: c_int,
-        timestamp: c_long_long,
-        flags: c_int,
-    ) -> c_int,
-]
+fn avformat_network_deinit() -> c_int:
+    return external_call["avformat_network_deinit", c_int]()
 
-comptime avformat_seek_file = ExternalFunction[
-    "avformat_seek_file",
-    fn(
-        s: UnsafePointer[AVFormatContext, MutExternalOrigin],
-        stream_index: c_int,
-        min_ts: c_long_long,
-        ts: c_long_long,
-        max_ts: c_long_long,
-        flags: c_int,
-    ) -> c_int,
-]
 
-comptime avformat_flush = ExternalFunction[
-    "avformat_flush",
-    fn(s: UnsafePointer[AVFormatContext, MutExternalOrigin],),
-]
-comptime av_read_play = ExternalFunction[
-    "av_read_play",
-    fn(s: UnsafePointer[AVFormatContext, MutExternalOrigin],),
-]
+fn av_muxer_iterate(
+    opaque: UnsafePointer[OpaquePointer[MutExternalOrigin], MutExternalOrigin]
+) -> UnsafePointer[AVOutputFormat, ImmutExternalOrigin]:
+    return external_call[
+        "av_muxer_iterate", UnsafePointer[AVOutputFormat, ImmutExternalOrigin]
+    ](opaque)
 
-comptime av_read_pause = ExternalFunction[
-    "av_read_pause",
-    fn(s: UnsafePointer[AVFormatContext, MutExternalOrigin],),
-]
 
-comptime avformat_close_input = ExternalFunction[
-    "avformat_close_input",
-    fn(
-        s: UnsafePointer[
-            UnsafePointer[AVFormatContext, MutExternalOrigin],
-            MutExternalOrigin,
-        ],
-    ),
-]
+fn av_demuxer_iterate(
+    opaque: UnsafePointer[OpaquePointer[MutExternalOrigin], MutExternalOrigin]
+) -> UnsafePointer[AVInputFormat, ImmutExternalOrigin]:
+    return external_call[
+        "av_demuxer_iterate", UnsafePointer[AVInputFormat, ImmutExternalOrigin]
+    ](opaque)
+
+
+fn avformat_alloc_context() -> (
+    UnsafePointer[AVFormatContext, MutExternalOrigin]
+):
+    return external_call[
+        "avformat_alloc_context",
+        UnsafePointer[AVFormatContext, MutExternalOrigin],
+    ]()
+
+
+fn avformat_free_context(s: UnsafePointer[AVFormatContext, MutExternalOrigin]):
+    external_call["avformat_free_context", NoneType](s)
+
+
+fn avformat_get_class() -> UnsafePointer[AVClass, ImmutExternalOrigin]:
+    return external_call[
+        "avformat_get_class", UnsafePointer[AVClass, ImmutExternalOrigin]
+    ]()
+
+
+fn av_stream_get_class() -> UnsafePointer[AVClass, ImmutExternalOrigin]:
+    return external_call[
+        "av_stream_get_class", UnsafePointer[AVClass, ImmutExternalOrigin]
+    ]()
+
+
+fn av_stream_group_get_class() -> UnsafePointer[AVClass, ImmutExternalOrigin]:
+    return external_call[
+        "av_stream_group_get_class", UnsafePointer[AVClass, ImmutExternalOrigin]
+    ]()
+
+
+fn avformat_stream_group_name(
+    type: AVStreamGroupParamsType.ENUM_DTYPE,
+) -> UnsafePointer[c_char, ImmutExternalOrigin]:
+    return external_call[
+        "avformat_stream_group_name", UnsafePointer[c_char, ImmutExternalOrigin]
+    ](type)
+
+
+fn avformat_stream_group_create(
+    s: UnsafePointer[AVFormatContext, MutExternalOrigin],
+    type: AVStreamGroupParamsType.ENUM_DTYPE,
+    options: UnsafePointer[
+        UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
+    ],
+) -> UnsafePointer[AVStreamGroup, MutExternalOrigin]:
+    return external_call[
+        "avformat_stream_group_create",
+        UnsafePointer[AVStreamGroup, MutExternalOrigin],
+    ](s, type, options)
+
+
+fn avformat_new_stream(
+    s: UnsafePointer[AVFormatContext, MutExternalOrigin],
+    c: UnsafePointer[AVCodec, ImmutExternalOrigin],
+) -> UnsafePointer[AVStream, MutExternalOrigin]:
+    return external_call[
+        "avformat_new_stream", UnsafePointer[AVStream, MutExternalOrigin]
+    ](s, c)
+
+
+fn avformat_stream_group_add_stream(
+    stg: UnsafePointer[AVStreamGroup, MutExternalOrigin],
+    st: UnsafePointer[AVStream, MutExternalOrigin],
+) -> c_int:
+    return external_call["avformat_stream_group_add_stream", c_int](stg, st)
+
+
+fn av_new_program(
+    s: UnsafePointer[AVFormatContext, MutExternalOrigin], id: c_int
+) -> UnsafePointer[AVProgram, MutExternalOrigin]:
+    return external_call[
+        "av_new_program", UnsafePointer[AVProgram, MutExternalOrigin]
+    ](s, id)
+
+
+fn avformat_alloc_output_context2(
+    ctx: UnsafePointer[
+        UnsafePointer[AVFormatContext, MutExternalOrigin],
+        MutExternalOrigin,
+    ],
+    oformat: UnsafePointer[AVOutputFormat, ImmutExternalOrigin],
+    format_name: UnsafePointer[c_char, ImmutExternalOrigin],
+    filename: UnsafePointer[c_char, ImmutAnyOrigin],
+) -> c_int:
+    return external_call["avformat_alloc_output_context2", c_int](
+        ctx, oformat, format_name, filename
+    )
+
+
+fn alloc_output_context(
+    ctx: UnsafePointer[
+        UnsafePointer[AVFormatContext, MutExternalOrigin], MutExternalOrigin
+    ],
+    oformat: UnsafePointer[AVOutputFormat, ImmutExternalOrigin],
+    format_name: UnsafePointer[c_char, ImmutExternalOrigin],
+    mut filename: String,
+) -> c_int:
+    return avformat_alloc_output_context2(
+        ctx=ctx,
+        oformat=oformat,
+        format_name=format_name,
+        filename=filename.as_c_string_slice().unsafe_ptr().as_immutable(),
+    )
+
+
+fn alloc_output_context(
+    ctx: UnsafePointer[
+        UnsafePointer[AVFormatContext, MutExternalOrigin], MutExternalOrigin
+    ],
+    mut filename: String,
+) -> c_int:
+    return avformat_alloc_output_context2(
+        ctx=ctx,
+        oformat=UnsafePointer[AVOutputFormat, ImmutExternalOrigin](),
+        format_name=UnsafePointer[c_char, ImmutExternalOrigin](),
+        filename=filename.as_c_string_slice().unsafe_ptr().as_immutable(),
+    )
+
+
+fn av_find_input_format(
+    short_name: UnsafePointer[c_char, ImmutExternalOrigin]
+) -> UnsafePointer[AVInputFormat, ImmutExternalOrigin]:
+    return external_call[
+        "av_find_input_format",
+        UnsafePointer[AVInputFormat, ImmutExternalOrigin],
+    ](short_name)
+
+
+fn av_probe_input_format(
+    pd: UnsafePointer[AVProbeData, ImmutExternalOrigin], is_opened: c_int
+) -> UnsafePointer[AVInputFormat, ImmutExternalOrigin]:
+    return external_call[
+        "av_probe_input_format",
+        UnsafePointer[AVInputFormat, ImmutExternalOrigin],
+    ](pd, is_opened)
+
+
+fn av_probe_input_format2(
+    pd: UnsafePointer[AVProbeData, ImmutExternalOrigin],
+    is_opened: c_int,
+    score_max: UnsafePointer[c_int, MutExternalOrigin],
+) -> UnsafePointer[AVInputFormat, ImmutExternalOrigin]:
+    return external_call[
+        "av_probe_input_format2",
+        UnsafePointer[AVInputFormat, ImmutExternalOrigin],
+    ](pd, is_opened, score_max)
+
+
+fn av_probe_input_format3(
+    pd: UnsafePointer[AVProbeData, ImmutExternalOrigin],
+    is_opened: c_int,
+    score_ret: UnsafePointer[c_int, MutExternalOrigin],
+) -> UnsafePointer[AVInputFormat, ImmutExternalOrigin]:
+    return external_call[
+        "av_probe_input_format3",
+        UnsafePointer[AVInputFormat, ImmutExternalOrigin],
+    ](pd, is_opened, score_ret)
+
+
+fn av_probe_input_buffer2(
+    pb: UnsafePointer[AVIOContext, MutExternalOrigin],
+    fmt: UnsafePointer[
+        UnsafePointer[AVInputFormat, ImmutExternalOrigin], MutExternalOrigin
+    ],
+    url: UnsafePointer[c_char, ImmutExternalOrigin],
+    logctx: OpaquePointer[MutExternalOrigin],
+    offset: c_uint,
+    max_probe_size: c_uint,
+) -> c_int:
+    return external_call["av_probe_input_buffer2", c_int](
+        pb, fmt, url, logctx, offset, max_probe_size
+    )
+
+
+fn av_probe_input_buffer(
+    pb: UnsafePointer[AVIOContext, MutExternalOrigin],
+    fmt: UnsafePointer[
+        UnsafePointer[AVInputFormat, ImmutExternalOrigin], MutExternalOrigin
+    ],
+    url: UnsafePointer[c_char, ImmutExternalOrigin],
+    logctx: OpaquePointer[MutExternalOrigin],
+    offset: c_uint,
+    max_probe_size: c_uint,
+) -> c_int:
+    return external_call["av_probe_input_buffer", c_int](
+        pb, fmt, url, logctx, offset, max_probe_size
+    )
+
+
+fn avformat_open_input(
+    s: UnsafePointer[
+        UnsafePointer[AVFormatContext, MutExternalOrigin], MutExternalOrigin
+    ],
+    url: UnsafePointer[c_char, ImmutExternalOrigin],
+    fmt: UnsafePointer[AVInputFormat, ImmutExternalOrigin],
+    options: UnsafePointer[
+        UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
+    ],
+) -> c_int:
+    return external_call["avformat_open_input", c_int](s, url, fmt, options)
+
+
+fn avformat_find_stream_info(
+    ic: UnsafePointer[AVFormatContext, MutExternalOrigin],
+    options: UnsafePointer[
+        UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
+    ],
+) -> c_int:
+    return external_call["avformat_find_stream_info", c_int](ic, options)
+
+
+fn av_find_program_from_stream(
+    ic: UnsafePointer[AVFormatContext, MutExternalOrigin],
+    last: UnsafePointer[AVProgram, MutExternalOrigin],
+    s: c_int,
+) -> UnsafePointer[AVProgram, MutExternalOrigin]:
+    return external_call[
+        "av_find_program_from_stream",
+        UnsafePointer[AVProgram, MutExternalOrigin],
+    ](ic, last, s)
+
+
+fn av_program_add_stream_index(
+    ac: UnsafePointer[AVFormatContext, MutExternalOrigin],
+    progid: c_int,
+    idx: c_uint,
+):
+    external_call["av_program_add_stream_index", NoneType](ac, progid, idx)
+
+
+fn av_find_best_stream(
+    ic: UnsafePointer[AVFormatContext, MutExternalOrigin],
+    type: AVMediaType.ENUM_DTYPE,
+    wanted_stream_nb: c_int,
+    related_stream: c_int,
+    # TODO: I think only 1 of these needs to be immut.
+    decoder_ret: UnsafePointer[
+        UnsafePointer[AVCodec, ImmutExternalOrigin], ImmutExternalOrigin
+    ],
+    flags: c_int,
+) -> c_int:
+    return external_call["av_find_best_stream", c_int](
+        ic, type, wanted_stream_nb, related_stream, decoder_ret, flags
+    )
+
+
+fn av_read_frame(
+    s: UnsafePointer[AVFormatContext, MutExternalOrigin],
+    pkt: UnsafePointer[AVPacket, MutExternalOrigin],
+) -> c_int:
+    return external_call["av_read_frame", c_int](s, pkt)
+
+
+fn av_seek_frame(
+    s: UnsafePointer[AVFormatContext, MutExternalOrigin],
+    stream_index: c_int,
+    timestamp: c_long_long,
+    flags: c_int,
+) -> c_int:
+    return external_call["av_seek_frame", c_int](
+        s, stream_index, timestamp, flags
+    )
+
+
+fn avformat_seek_file(
+    s: UnsafePointer[AVFormatContext, MutExternalOrigin],
+    stream_index: c_int,
+    min_ts: c_long_long,
+    ts: c_long_long,
+    max_ts: c_long_long,
+    flags: c_int,
+) -> c_int:
+    return external_call["avformat_seek_file", c_int](
+        s, stream_index, min_ts, ts, max_ts, flags
+    )
+
+
+fn avformat_flush(s: UnsafePointer[AVFormatContext, MutExternalOrigin]):
+    external_call["avformat_flush", NoneType](s)
+
+
+fn av_read_play(s: UnsafePointer[AVFormatContext, MutExternalOrigin]):
+    external_call["av_read_play", NoneType](s)
+
+
+fn av_read_pause(s: UnsafePointer[AVFormatContext, MutExternalOrigin]):
+    external_call["av_read_pause", NoneType](s)
+
+
+fn avformat_close_input(
+    s: UnsafePointer[
+        UnsafePointer[AVFormatContext, MutExternalOrigin], MutExternalOrigin
+    ]
+):
+    external_call["avformat_close_input", NoneType](s)
+
 
 comptime AVSEEK_FLAG_BACKWARD = 1
 comptime AVSEEK_FLAG_BYTE = 2
@@ -860,310 +912,315 @@ comptime AVSEEK_FLAG_FRAME = 8
 comptime AVSTREAM_INIT_IN_WRITE_HEADER = 0
 comptime AVSTREAM_INIT_IN_INIT_OUTPUT = 1
 
-comptime avformat_write_header = ExternalFunction[
-    "avformat_write_header",
-    fn(
-        s: UnsafePointer[AVFormatContext, MutExternalOrigin],
-        options: UnsafePointer[
-            UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
-        ],
-    ) -> c_int,
-]
 
-comptime avformat_init_output = ExternalFunction[
-    "avformat_init_output",
-    fn(
-        s: UnsafePointer[AVFormatContext, MutExternalOrigin],
-        options: UnsafePointer[
-            UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
-        ],
-    ) -> c_int,
-]
-
-comptime av_write_frame = ExternalFunction[
-    "av_write_frame",
-    fn(
-        s: UnsafePointer[AVFormatContext, MutExternalOrigin],
-        pkt: UnsafePointer[AVPacket, MutExternalOrigin],
-    ) -> c_int,
-]
-
-comptime av_interleaved_write_frame = ExternalFunction[
-    "av_interleaved_write_frame",
-    fn(
-        s: UnsafePointer[AVFormatContext, MutExternalOrigin],
-        pkt: UnsafePointer[AVPacket, MutExternalOrigin],
-    ) -> c_int,
-]
-
-comptime av_write_uncoded_frame = ExternalFunction[
-    "av_write_uncoded_frame",
-    fn(
-        s: UnsafePointer[AVFormatContext, MutExternalOrigin],
-        stream_index: c_int,
-        frame: UnsafePointer[AVFrame, MutExternalOrigin],
-    ) -> c_int,
-]
-
-comptime av_interleaved_write_uncoded_frame = ExternalFunction[
-    "av_interleaved_write_uncoded_frame",
-    fn(
-        s: UnsafePointer[AVFormatContext, MutExternalOrigin],
-        stream_index: c_int,
-        frame: UnsafePointer[AVFrame, MutExternalOrigin],
-    ) -> c_int,
-]
-
-comptime av_write_uncoded_frame_query = ExternalFunction[
-    "av_write_uncoded_frame_query",
-    fn(
-        s: UnsafePointer[AVFormatContext, MutExternalOrigin],
-        stream_index: c_int,
-    ) -> c_int,
-]
-comptime av_write_trailer = ExternalFunction[
-    "av_write_trailer",
-    fn(s: UnsafePointer[AVFormatContext, MutExternalOrigin],) -> c_int,
-]
-
-comptime av_guess_format = ExternalFunction[
-    "av_guess_format",
-    fn(
-        short_name: UnsafePointer[c_char, ImmutAnyOrigin],
-        filename: UnsafePointer[c_char, ImmutAnyOrigin],
-        mime_type: UnsafePointer[c_char, ImmutAnyOrigin],
-    ) -> UnsafePointer[AVOutputFormat, ImmutExternalOrigin],
-]
-
-comptime av_guess_codec = ExternalFunction[
-    "av_guess_codec",
-    fn(
-        fmt: UnsafePointer[AVOutputFormat, ImmutExternalOrigin],
-        short_name: UnsafePointer[c_char, ImmutExternalOrigin],
-        filename: UnsafePointer[c_char, ImmutExternalOrigin],
-        mime_type: UnsafePointer[c_char, ImmutExternalOrigin],
-        type: AVMediaType.ENUM_DTYPE,
-    ) -> AVCodecID.ENUM_DTYPE,
-]
-
-comptime av_get_output_timestamp = ExternalFunction[
-    "av_get_output_timestamp",
-    fn(
-        s: UnsafePointer[AVFormatContext, MutExternalOrigin],
-        stream: c_int,
-        dts: UnsafePointer[c_long_long, MutExternalOrigin],
-        wall: UnsafePointer[c_long_long, MutExternalOrigin],
-    ) -> c_int,
-]
-
-comptime av_hex_dump = ExternalFunction[
-    "av_hex_dump",
-    fn(
-        f: FILE_ptr,
-        buf: UnsafePointer[c_uchar, ImmutExternalOrigin],
-        size: c_int,
-    ),
-]
-
-comptime av_hex_dump_log = ExternalFunction[
-    "av_hex_dump_log",
-    fn(
-        avcl: OpaquePointer[MutExternalOrigin],
-        level: c_int,
-        buf: UnsafePointer[c_uchar, ImmutExternalOrigin],
-        size: c_int,
-    ),
-]
-
-comptime av_pkt_dump2 = ExternalFunction[
-    "av_pkt_dump2",
-    fn(
-        f: FILE_ptr,
-        pkt: UnsafePointer[AVPacket, ImmutExternalOrigin],
-        dump_payload: c_int,
-        st: UnsafePointer[AVStream, ImmutExternalOrigin],
-    ),
-]
-
-comptime av_pkt_dump_log2 = ExternalFunction[
-    "av_pkt_dump_log2",
-    fn(
-        avcl: OpaquePointer[MutExternalOrigin],
-        level: c_int,
-        pkt: UnsafePointer[AVPacket, ImmutExternalOrigin],
-        dump_payload: c_int,
-        st: UnsafePointer[AVStream, ImmutExternalOrigin],
-    ),
-]
-
-comptime av_codec_get_id = ExternalFunction[
-    "av_codec_get_id",
-    fn(
-        tags: UnsafePointer[
-            UnsafePointer[AVCodecTag, ImmutExternalOrigin],
-            ImmutExternalOrigin,
-        ],
-        tag: c_uint,
-    ) -> AVCodecID.ENUM_DTYPE,
-]
-
-comptime av_codec_get_tag = ExternalFunction[
-    "av_codec_get_tag",
-    fn(
-        tags: UnsafePointer[
-            UnsafePointer[AVCodecTag, ImmutExternalOrigin],
-            ImmutExternalOrigin,
-        ],
-        id: AVCodecID.ENUM_DTYPE,
-    ) -> c_uint,
-]
-
-comptime av_codec_get_tag2 = ExternalFunction[
-    "av_codec_get_tag2",
-    fn(
-        tags: UnsafePointer[
-            UnsafePointer[AVCodecTag, ImmutExternalOrigin],
-            ImmutExternalOrigin,
-        ],
-        id: AVCodecID.ENUM_DTYPE,
-        tag: UnsafePointer[c_uint, MutExternalOrigin],
-    ) -> c_int,
-]
-
-comptime av_find_default_stream_index = ExternalFunction[
-    "av_find_default_stream_index",
-    fn(s: UnsafePointer[AVFormatContext, MutExternalOrigin],) -> c_int,
-]
+fn avformat_write_header(
+    s: UnsafePointer[AVFormatContext, MutExternalOrigin],
+    options: UnsafePointer[
+        UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
+    ],
+) -> c_int:
+    return external_call["avformat_write_header", c_int](s, options)
 
 
-comptime av_index_search_timestamp = ExternalFunction[
-    "av_index_search_timestamp",
-    fn(
-        st: UnsafePointer[AVStream, MutExternalOrigin],
-        timestamp: c_long_long,
-        flags: c_int,
-    ) -> c_int,
-]
+fn avformat_init_output(
+    s: UnsafePointer[AVFormatContext, MutExternalOrigin],
+    options: UnsafePointer[
+        UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
+    ],
+) -> c_int:
+    return external_call["avformat_init_output", c_int](s, options)
 
-comptime avformat_index_get_entries_count = ExternalFunction[
-    "avformat_index_get_entries_count",
-    fn(st: UnsafePointer[AVStream, MutExternalOrigin],) -> c_int,
-]
 
-comptime avformat_index_get_entry = ExternalFunction[
-    "avformat_index_get_entry",
-    fn(
-        st: UnsafePointer[AVStream, MutExternalOrigin],
-        idx: c_int,
-    ) -> UnsafePointer[AVIndexEntry, ImmutExternalOrigin],
-]
+fn av_write_frame(
+    s: UnsafePointer[AVFormatContext, MutExternalOrigin],
+    pkt: UnsafePointer[AVPacket, MutExternalOrigin],
+) -> c_int:
+    return external_call["av_write_frame", c_int](s, pkt)
 
-comptime avformat_index_get_entry_from_timestamp = ExternalFunction[
-    "avformat_index_get_entry_from_timestamp",
-    fn(
-        st: UnsafePointer[AVStream, MutExternalOrigin],
-        timestamp: c_long_long,
-        flags: c_int,
-    ) -> UnsafePointer[AVIndexEntry, ImmutExternalOrigin],
-]
 
-comptime av_add_index_entry = ExternalFunction[
-    "av_add_index_entry",
-    fn(
-        st: UnsafePointer[AVStream, MutExternalOrigin],
-        pos: c_long_long,
-        timestamp: c_long_long,
-        size: c_int,
-        distance: c_int,
-        flags: c_int,
-    ) -> c_int,
-]
+fn av_interleaved_write_frame(
+    s: UnsafePointer[AVFormatContext, MutExternalOrigin],
+    pkt: UnsafePointer[AVPacket, MutExternalOrigin],
+) -> c_int:
+    return external_call["av_interleaved_write_frame", c_int](s, pkt)
 
-comptime av_url_split = ExternalFunction[
-    "av_url_split",
-    fn(
-        proto: UnsafePointer[c_char, MutExternalOrigin],
-        proto_size: c_int,
-        authorization: UnsafePointer[c_char, MutExternalOrigin],
-        authorization_size: c_int,
-        hostname: UnsafePointer[c_char, MutExternalOrigin],
-        hostname_size: c_int,
-        port_ptr: UnsafePointer[c_int, MutExternalOrigin],
-        path: UnsafePointer[c_char, MutExternalOrigin],
-        path_size: c_int,
-        url: UnsafePointer[c_char, ImmutExternalOrigin],
-    ) -> c_int,
-]
 
-comptime av_dump_format = ExternalFunction[
-    "av_dump_format",
-    fn(
-        ic: UnsafePointer[AVFormatContext, MutExternalOrigin],
-        index: c_int,
-        url: UnsafePointer[c_char, ImmutAnyOrigin],
-        is_output: c_int,
-    ),
-]
+fn av_write_uncoded_frame(
+    s: UnsafePointer[AVFormatContext, MutExternalOrigin],
+    stream_index: c_int,
+    frame: UnsafePointer[AVFrame, MutExternalOrigin],
+) -> c_int:
+    return external_call["av_write_uncoded_frame", c_int](
+        s, stream_index, frame
+    )
+
+
+fn av_interleaved_write_uncoded_frame(
+    s: UnsafePointer[AVFormatContext, MutExternalOrigin],
+    stream_index: c_int,
+    frame: UnsafePointer[AVFrame, MutExternalOrigin],
+) -> c_int:
+    return external_call["av_interleaved_write_uncoded_frame", c_int](
+        s, stream_index, frame
+    )
+
+
+fn av_write_uncoded_frame_query(
+    s: UnsafePointer[AVFormatContext, MutExternalOrigin], stream_index: c_int
+) -> c_int:
+    return external_call["av_write_uncoded_frame_query", c_int](s, stream_index)
+
+
+fn av_write_trailer(
+    s: UnsafePointer[AVFormatContext, MutExternalOrigin]
+) -> c_int:
+    return external_call["av_write_trailer", c_int](s)
+
+
+fn av_guess_format(
+    short_name: UnsafePointer[c_char, ImmutExternalOrigin],
+    filename: UnsafePointer[c_char, ImmutExternalOrigin],
+    mime_type: UnsafePointer[c_char, ImmutExternalOrigin],
+) -> UnsafePointer[AVOutputFormat, ImmutExternalOrigin]:
+    return external_call[
+        "av_guess_format", UnsafePointer[AVOutputFormat, ImmutExternalOrigin]
+    ](short_name, filename, mime_type)
+
+
+fn av_guess_codec(
+    fmt: UnsafePointer[AVOutputFormat, ImmutExternalOrigin],
+    short_name: UnsafePointer[c_char, ImmutExternalOrigin],
+    filename: UnsafePointer[c_char, ImmutExternalOrigin],
+    mime_type: UnsafePointer[c_char, ImmutExternalOrigin],
+    type: AVMediaType.ENUM_DTYPE,
+) -> AVCodecID.ENUM_DTYPE:
+    return external_call["av_guess_codec", AVCodecID.ENUM_DTYPE](
+        fmt, short_name, filename, mime_type, type
+    )
+
+
+fn av_get_output_timestamp(
+    s: UnsafePointer[AVFormatContext, MutExternalOrigin],
+    stream: c_int,
+    dts: UnsafePointer[c_long_long, MutExternalOrigin],
+    wall: UnsafePointer[c_long_long, MutExternalOrigin],
+) -> c_int:
+    return external_call["av_get_output_timestamp", c_int](s, stream, dts, wall)
+
+
+fn av_hex_dump(
+    f: FILE_ptr, buf: UnsafePointer[c_uchar, ImmutExternalOrigin], size: c_int
+):
+    external_call["av_hex_dump", NoneType](f, buf, size)
+
+
+fn av_hex_dump_log(
+    avcl: OpaquePointer[MutExternalOrigin],
+    level: c_int,
+    buf: UnsafePointer[c_uchar, ImmutExternalOrigin],
+    size: c_int,
+):
+    external_call["av_hex_dump_log", NoneType](avcl, level, buf, size)
+
+
+fn av_pkt_dump2(
+    f: FILE_ptr,
+    pkt: UnsafePointer[AVPacket, ImmutExternalOrigin],
+    dump_payload: c_int,
+    st: UnsafePointer[AVStream, ImmutExternalOrigin],
+):
+    external_call["av_pkt_dump2", NoneType](f, pkt, dump_payload, st)
+
+
+fn av_pkt_dump_log2(
+    avcl: OpaquePointer[MutExternalOrigin],
+    level: c_int,
+    pkt: UnsafePointer[AVPacket, ImmutExternalOrigin],
+    dump_payload: c_int,
+    st: UnsafePointer[AVStream, ImmutExternalOrigin],
+):
+    external_call["av_pkt_dump_log2", NoneType](
+        avcl, level, pkt, dump_payload, st
+    )
+
+
+fn av_codec_get_id(
+    tags: UnsafePointer[
+        UnsafePointer[AVCodecTag, ImmutExternalOrigin], ImmutExternalOrigin
+    ],
+    tag: c_uint,
+) -> AVCodecID.ENUM_DTYPE:
+    return external_call["av_codec_get_id", AVCodecID.ENUM_DTYPE](tags, tag)
+
+
+fn av_codec_get_tag(
+    tags: UnsafePointer[
+        UnsafePointer[AVCodecTag, ImmutExternalOrigin], ImmutExternalOrigin
+    ],
+    id: AVCodecID.ENUM_DTYPE,
+) -> c_uint:
+    return external_call["av_codec_get_tag", c_uint](tags, id)
+
+
+fn av_codec_get_tag2(
+    tags: UnsafePointer[
+        UnsafePointer[AVCodecTag, ImmutExternalOrigin], ImmutExternalOrigin
+    ],
+    id: AVCodecID.ENUM_DTYPE,
+    tag: UnsafePointer[c_uint, MutExternalOrigin],
+) -> c_int:
+    return external_call["av_codec_get_tag2", c_int](tags, id, tag)
+
+
+fn av_find_default_stream_index(
+    s: UnsafePointer[AVFormatContext, MutExternalOrigin]
+) -> c_int:
+    return external_call["av_find_default_stream_index", c_int](s)
+
+
+fn av_index_search_timestamp(
+    st: UnsafePointer[AVStream, MutExternalOrigin],
+    timestamp: c_long_long,
+    flags: c_int,
+) -> c_int:
+    return external_call["av_index_search_timestamp", c_int](
+        st, timestamp, flags
+    )
+
+
+fn avformat_index_get_entries_count(
+    st: UnsafePointer[AVStream, MutExternalOrigin]
+) -> c_int:
+    return external_call["avformat_index_get_entries_count", c_int](st)
+
+
+fn avformat_index_get_entry(
+    st: UnsafePointer[AVStream, MutExternalOrigin], idx: c_int
+) -> UnsafePointer[AVIndexEntry, ImmutExternalOrigin]:
+    return external_call[
+        "avformat_index_get_entry",
+        UnsafePointer[AVIndexEntry, ImmutExternalOrigin],
+    ](st, idx)
+
+
+fn avformat_index_get_entry_from_timestamp(
+    st: UnsafePointer[AVStream, MutExternalOrigin],
+    timestamp: c_long_long,
+    flags: c_int,
+) -> UnsafePointer[AVIndexEntry, ImmutExternalOrigin]:
+    return external_call[
+        "avformat_index_get_entry_from_timestamp",
+        UnsafePointer[AVIndexEntry, ImmutExternalOrigin],
+    ](st, timestamp, flags)
+
+
+fn av_add_index_entry(
+    st: UnsafePointer[AVStream, MutExternalOrigin],
+    pos: c_long_long,
+    timestamp: c_long_long,
+    size: c_int,
+    distance: c_int,
+    flags: c_int,
+) -> c_int:
+    return external_call["av_add_index_entry", c_int](
+        st, pos, timestamp, size, distance, flags
+    )
+
+
+fn av_url_split(
+    proto: UnsafePointer[c_char, MutExternalOrigin],
+    proto_size: c_int,
+    authorization: UnsafePointer[c_char, MutExternalOrigin],
+    authorization_size: c_int,
+    hostname: UnsafePointer[c_char, MutExternalOrigin],
+    hostname_size: c_int,
+    port_ptr: UnsafePointer[c_int, MutExternalOrigin],
+    path: UnsafePointer[c_char, MutExternalOrigin],
+    path_size: c_int,
+    url: UnsafePointer[c_char, ImmutExternalOrigin],
+) -> c_int:
+    return external_call["av_url_split", c_int](
+        proto,
+        proto_size,
+        authorization,
+        authorization_size,
+        hostname,
+        hostname_size,
+        port_ptr,
+        path,
+        path_size,
+        url,
+    )
+
+
+fn av_dump_format(
+    ic: UnsafePointer[AVFormatContext, MutExternalOrigin],
+    index: c_int,
+    url: UnsafePointer[c_char, ImmutExternalOrigin],
+    is_output: c_int,
+):
+    external_call["av_dump_format", NoneType](ic, index, url, is_output)
+
 
 comptime AV_FRAME_FILENAME_FLAGS_MULTIPLE = 1
 
-comptime av_get_frame_filename2 = ExternalFunction[
-    "av_get_frame_filename2",
-    fn(
-        buf: UnsafePointer[c_char, MutExternalOrigin],
-        buf_size: c_int,
-        path: UnsafePointer[c_char, ImmutExternalOrigin],
-        number: c_int,
-        flags: c_int,
-    ) -> c_int,
-]
 
-comptime av_get_frame_filename = ExternalFunction[
-    "av_get_frame_filename",
-    fn(
-        buf: UnsafePointer[c_char, MutExternalOrigin],
-        buf_size: c_int,
-        path: UnsafePointer[c_char, ImmutExternalOrigin],
-        number: c_int,
-    ) -> c_int,
-]
+fn av_get_frame_filename2(
+    buf: UnsafePointer[c_char, MutExternalOrigin],
+    buf_size: c_int,
+    path: UnsafePointer[c_char, ImmutExternalOrigin],
+    number: c_int,
+    flags: c_int,
+) -> c_int:
+    return external_call["av_get_frame_filename2", c_int](
+        buf, buf_size, path, number, flags
+    )
 
 
-comptime av_filename_number_test = ExternalFunction[
-    "av_filename_number_test",
-    fn(filename: UnsafePointer[c_char, ImmutExternalOrigin],) -> c_int,
-]
-
-comptime av_sdp_create = ExternalFunction[
-    "av_sdp_create",
-    fn(
-        ac: UnsafePointer[
-            UnsafePointer[AVFormatContext, MutExternalOrigin],
-            MutExternalOrigin,
-        ],
-        n_files: c_int,
-        buf: UnsafePointer[c_char, MutExternalOrigin],
-        size: c_int,
-    ) -> c_int,
-]
-
-comptime av_match_ext = ExternalFunction[
-    "av_match_ext",
-    fn(
-        filename: UnsafePointer[c_char, ImmutExternalOrigin],
-        extensions: UnsafePointer[c_char, ImmutExternalOrigin],
-    ) -> c_int,
-]
+fn av_get_frame_filename(
+    buf: UnsafePointer[c_char, MutExternalOrigin],
+    buf_size: c_int,
+    path: UnsafePointer[c_char, ImmutExternalOrigin],
+    number: c_int,
+) -> c_int:
+    return external_call["av_get_frame_filename", c_int](
+        buf, buf_size, path, number
+    )
 
 
-comptime avformat_query_codec = ExternalFunction[
-    "avformat_query_codec",
-    fn(
-        ofmt: UnsafePointer[AVOutputFormat, ImmutExternalOrigin],
-        codec_id: AVCodecID.ENUM_DTYPE,
-        std_compliance: c_int,
-    ) -> c_int,
-]
+fn av_filename_number_test(
+    filename: UnsafePointer[c_char, ImmutExternalOrigin]
+) -> c_int:
+    return external_call["av_filename_number_test", c_int](filename)
+
+
+fn av_sdp_create(
+    ac: UnsafePointer[
+        UnsafePointer[AVFormatContext, MutExternalOrigin], MutExternalOrigin
+    ],
+    n_files: c_int,
+    buf: UnsafePointer[c_char, MutExternalOrigin],
+    size: c_int,
+) -> c_int:
+    return external_call["av_sdp_create", c_int](ac, n_files, buf, size)
+
+
+fn av_match_ext(
+    filename: UnsafePointer[c_char, ImmutExternalOrigin],
+    extensions: UnsafePointer[c_char, ImmutExternalOrigin],
+) -> c_int:
+    return external_call["av_match_ext", c_int](filename, extensions)
+
+
+fn avformat_query_codec(
+    ofmt: UnsafePointer[AVOutputFormat, ImmutExternalOrigin],
+    codec_id: AVCodecID.ENUM_DTYPE,
+    std_compliance: c_int,
+) -> c_int:
+    return external_call["avformat_query_codec", c_int](
+        ofmt, codec_id, std_compliance
+    )
+
 
 # Get the tables mapping RIFF FourCCs for video to libavcodec AVCodecID. The
 # tables are meant to be passed to av_codec_get_id()/av_codec_get_tag() as in the
@@ -1173,57 +1230,72 @@ comptime avformat_query_codec = ExternalFunction[
 # const struct AVCodecTag *table[] = { avformat_get_riff_video_tags(), 0 };
 # enum AVCodecID id = av_codec_get_id(table, tag);
 # @endcode
-comptime avformat_get_riff_video_tags = ExternalFunction[
-    "avformat_get_riff_video_tags",
-    fn() -> UnsafePointer[AVCodecTag, ImmutExternalOrigin],
-]
+fn avformat_get_riff_video_tags() -> (
+    UnsafePointer[AVCodecTag, ImmutExternalOrigin]
+):
+    return external_call[
+        "avformat_get_riff_video_tags",
+        UnsafePointer[AVCodecTag, ImmutExternalOrigin],
+    ]()
 
-comptime avformat_get_riff_audio_tags = ExternalFunction[
-    "avformat_get_riff_audio_tags",
-    fn() -> UnsafePointer[AVCodecTag, ImmutExternalOrigin],
-]
 
-comptime avformat_get_mov_video_tags = ExternalFunction[
-    "avformat_get_mov_video_tags",
-    fn() -> UnsafePointer[AVCodecTag, ImmutExternalOrigin],
-]
+fn avformat_get_riff_audio_tags() -> (
+    UnsafePointer[AVCodecTag, ImmutExternalOrigin]
+):
+    return external_call[
+        "avformat_get_riff_audio_tags",
+        UnsafePointer[AVCodecTag, ImmutExternalOrigin],
+    ]()
 
-comptime avformat_get_mov_audio_tags = ExternalFunction[
-    "avformat_get_mov_audio_tags",
-    fn() -> UnsafePointer[AVCodecTag, ImmutExternalOrigin],
-]
 
-comptime av_guess_sample_aspect_ratio = ExternalFunction[
-    "av_guess_sample_aspect_ratio",
-    fn(
-        format: UnsafePointer[AVFormatContext, MutExternalOrigin],
-        stream: UnsafePointer[AVStream, MutExternalOrigin],
-        frame: UnsafePointer[AVFrame, MutExternalOrigin],
-    ) -> AVRational,
-]
+fn avformat_get_mov_video_tags() -> (
+    UnsafePointer[AVCodecTag, ImmutExternalOrigin]
+):
+    return external_call[
+        "avformat_get_mov_video_tags",
+        UnsafePointer[AVCodecTag, ImmutExternalOrigin],
+    ]()
 
-comptime av_guess_frame_rate = ExternalFunction[
-    "av_guess_frame_rate",
-    fn(
-        ctx: UnsafePointer[AVFormatContext, MutExternalOrigin],
-        stream: UnsafePointer[AVStream, MutExternalOrigin],
-        frame: UnsafePointer[AVFrame, MutExternalOrigin],
-    ) -> AVRational,
-]
 
-comptime avformat_match_stream_specifier = ExternalFunction[
-    "avformat_match_stream_specifier",
-    fn(
-        s: UnsafePointer[AVFormatContext, MutExternalOrigin],
-        st: UnsafePointer[AVStream, MutExternalOrigin],
-        spec: UnsafePointer[c_char, ImmutExternalOrigin],
-    ) -> c_int,
-]
+fn avformat_get_mov_audio_tags() -> (
+    UnsafePointer[AVCodecTag, ImmutExternalOrigin]
+):
+    return external_call[
+        "avformat_get_mov_audio_tags",
+        UnsafePointer[AVCodecTag, ImmutExternalOrigin],
+    ]()
 
-comptime avformat_queue_attached_pictures = ExternalFunction[
-    "avformat_queue_attached_pictures",
-    fn(s: UnsafePointer[AVFormatContext, MutExternalOrigin],) -> c_int,
-]
+
+fn av_guess_sample_aspect_ratio(
+    format: UnsafePointer[AVFormatContext, MutExternalOrigin],
+    stream: UnsafePointer[AVStream, MutExternalOrigin],
+    frame: UnsafePointer[AVFrame, MutExternalOrigin],
+) -> AVRational:
+    return external_call["av_guess_sample_aspect_ratio", AVRational](
+        format, stream, frame
+    )
+
+
+fn av_guess_frame_rate(
+    ctx: UnsafePointer[AVFormatContext, MutExternalOrigin],
+    stream: UnsafePointer[AVStream, MutExternalOrigin],
+    frame: UnsafePointer[AVFrame, MutExternalOrigin],
+) -> AVRational:
+    return external_call["av_guess_frame_rate", AVRational](ctx, stream, frame)
+
+
+fn avformat_match_stream_specifier(
+    s: UnsafePointer[AVFormatContext, MutExternalOrigin],
+    st: UnsafePointer[AVStream, MutExternalOrigin],
+    spec: UnsafePointer[c_char, ImmutExternalOrigin],
+) -> c_int:
+    return external_call["avformat_match_stream_specifier", c_int](s, st, spec)
+
+
+fn avformat_queue_attached_pictures(
+    s: UnsafePointer[AVFormatContext, MutExternalOrigin]
+) -> c_int:
+    return external_call["avformat_queue_attached_pictures", c_int](s)
 
 
 # Note: this section is in the original header file, however is being deprecated.

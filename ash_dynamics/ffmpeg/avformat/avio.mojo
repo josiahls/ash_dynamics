@@ -8,12 +8,13 @@ from ffi import (
     c_ulong_long,
     c_uint,
     c_size_t,
+    external_call,
 )
 import os
 from utils import StaticTuple
 from ash_dynamics.ffmpeg.avutil.log import AVClass
 from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
-from ash_dynamics.primitives._clib import C_Union, ExternalFunction
+from ash_dynamics.primitives._clib import C_Union
 
 
 comptime AVIO_SEEKABLE_NORMAL = 1 << 0
@@ -388,16 +389,16 @@ comptime AVIO_FLAG_READ_WRITE = AVIO_FLAG_READ | AVIO_FLAG_WRITE
 comptime AVIO_FLAG_NONBLOCK = 8
 comptime AVIO_FLAG_DIRECT = 0x8000
 
-comptime avio_open = ExternalFunction[
-    "avio_open",
-    fn(
-        s: UnsafePointer[
-            UnsafePointer[AVIOContext, MutExternalOrigin], MutExternalOrigin
-        ],
-        url: UnsafePointer[c_char, ImmutAnyOrigin],
-        flags: c_int,
-    ) -> c_int,
-]
+
+fn avio_open(
+    s: UnsafePointer[
+        UnsafePointer[AVIOContext, MutExternalOrigin], MutExternalOrigin
+    ],
+    url: UnsafePointer[c_char, ImmutExternalOrigin],
+    flags: c_int,
+) -> c_int:
+    return external_call["avio_open", c_int](s, url, flags)
+
 
 comptime avio_open2 = fn(
     s: UnsafePointer[
@@ -411,19 +412,18 @@ comptime avio_open2 = fn(
     ],
 ) -> c_int
 
-comptime avio_close = ExternalFunction[
-    "avio_close",
-    fn(s: UnsafePointer[AVIOContext, MutExternalOrigin],) -> c_int,
-]
 
-comptime avio_closep = ExternalFunction[
-    "avio_closep",
-    fn(
-        s: UnsafePointer[
-            UnsafePointer[AVIOContext, MutExternalOrigin], MutExternalOrigin
-        ],
-    ) -> c_int,
-]
+fn avio_close(s: UnsafePointer[AVIOContext, MutExternalOrigin]) -> c_int:
+    return external_call["avio_close", c_int](s)
+
+
+fn avio_closep(
+    s: UnsafePointer[
+        UnsafePointer[AVIOContext, MutExternalOrigin], MutExternalOrigin
+    ]
+) -> c_int:
+    return external_call["avio_closep", c_int](s)
+
 
 comptime avio_open_dyn_buf = fn(
     s: UnsafePointer[
