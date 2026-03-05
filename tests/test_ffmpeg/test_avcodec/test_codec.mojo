@@ -3,22 +3,19 @@ from testing.testing import assert_equal, assert_true
 
 from memory import alloc, memset
 
-from ash_dynamics.ffmpeg.avcodec import Avcodec
+from ash_dynamics.ffmpeg import avcodec
 from ash_dynamics.ffmpeg.avcodec.codec import AVCodec
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 
 
 def test_avcodec_find_encoder():
-    var avcodec = Avcodec()
     var codec = avcodec.avcodec_find_encoder(
         AVCodecID.AV_CODEC_ID_H264._value,
     )
     assert_true(Bool(codec))
-    _ = avcodec
 
 
 def test_av_codec_iterate():
-    var avcodec = Avcodec()
     var opaque = alloc[OpaquePointer[MutExternalOrigin]](1)
     memset(opaque, 0, 1)
     var count = 0
@@ -30,27 +27,21 @@ def test_av_codec_iterate():
             break
         count += 1
     assert_true(count > 0)
-    _ = avcodec
 
 
 def test_avcodec_find_decoder_by_name():
-    var avcodec = Avcodec()
     var name = String("h264")
     var codec = avcodec.avcodec_find_decoder_by_name(name)
     assert_true(Bool(codec))
-    _ = avcodec
 
 
 def test_avcodec_find_encoder_by_name():
-    var avcodec = Avcodec()
     var name = String("mpeg4")
     var codec = avcodec.avcodec_find_encoder_by_name(name)
     assert_true(Bool(codec))
-    _ = avcodec
 
 
 def test_av_codec_is_encoder():
-    var avcodec = Avcodec()
     var encoder = avcodec.avcodec_find_encoder(
         AVCodecID.AV_CODEC_ID_H264._value,
     )
@@ -67,11 +58,9 @@ def test_av_codec_is_encoder():
         decoder.unsafe_origin_cast[ImmutExternalOrigin](),
     )
     assert_equal(is_enc, 0)
-    _ = avcodec
 
 
 def test_av_codec_is_decoder():
-    var avcodec = Avcodec()
     var decoder = avcodec.avcodec_find_decoder(
         AVCodecID.AV_CODEC_ID_H264._value,
     )
@@ -88,11 +77,9 @@ def test_av_codec_is_decoder():
         encoder.unsafe_origin_cast[ImmutExternalOrigin](),
     )
     assert_equal(is_dec, 0)
-    _ = avcodec
 
 
 def test_av_get_profile_name():
-    var avcodec = Avcodec()
     var codec = avcodec.avcodec_find_decoder(
         AVCodecID.AV_CODEC_ID_H264._value,
     )
@@ -107,11 +94,9 @@ def test_av_get_profile_name():
     )
     _ = name
     _ = name_main
-    _ = avcodec
 
 
 def test_avcodec_get_hw_config():
-    var avcodec = Avcodec()
     var codec = avcodec.avcodec_find_decoder(
         AVCodecID.AV_CODEC_ID_H264._value,
     )
@@ -121,7 +106,6 @@ def test_avcodec_get_hw_config():
         0,
     )
     _ = config
-    _ = avcodec
 
 
 def main():

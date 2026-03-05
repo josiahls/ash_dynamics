@@ -9,11 +9,9 @@ from ffi import (
     c_ulong_long,
     c_uint,
     c_size_t,
+    external_call,
 )
-from ash_dynamics.primitives._clib import (
-    ExternalFunction,
-    TrivialOptionalField,
-)
+from ash_dynamics.primitives._clib import TrivialOptionalField
 from reflection import get_type_name
 from ash_dynamics.ffmpeg.avutil.avutil import AVMediaType
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
@@ -548,184 +546,167 @@ struct AVSubtitle(Movable, Writable):
     var pts: c_long_long
 
 
-comptime avcodec_version = ExternalFunction[
-    "avcodec_version",
-    fn() -> c_int,
-]
-
-comptime avcodec_configuration = ExternalFunction[
-    "avcodec_configuration",
-    fn() -> UnsafePointer[c_char, ImmutExternalOrigin],
-]
-
-comptime avcodec_license = ExternalFunction[
-    "avcodec_license",
-    fn() -> UnsafePointer[c_char, ImmutExternalOrigin],
-]
-
-comptime avcodec_alloc_context3 = ExternalFunction[
-    "avcodec_alloc_context3",
-    fn(
-        codec: UnsafePointer[AVCodec, ImmutExternalOrigin]
-    ) -> UnsafePointer[AVCodecContext, MutExternalOrigin],
-]
+fn avcodec_version() -> c_int:
+    return external_call["avcodec_version", c_int]()
 
 
-comptime avcodec_free_context = ExternalFunction[
-    "avcodec_free_context",
-    fn(
-        avctx: UnsafePointer[
-            UnsafePointer[AVCodecContext, MutExternalOrigin],
-            MutExternalOrigin,
-        ],
-    ),
-]
+fn avcodec_configuration() -> UnsafePointer[c_char, ImmutExternalOrigin]:
+    return external_call[
+        "avcodec_configuration", UnsafePointer[c_char, ImmutExternalOrigin]
+    ]()
 
 
-comptime avcodec_get_class = ExternalFunction[
-    "avcodec_get_class",
-    fn() -> UnsafePointer[AVClass, ImmutExternalOrigin],
-]
-
-comptime avcodec_get_subtitle_rect_class = ExternalFunction[
-    "avcodec_get_subtitle_rect_class",
-    fn() -> UnsafePointer[AVClass, ImmutExternalOrigin],
-]
+fn avcodec_license() -> UnsafePointer[c_char, ImmutExternalOrigin]:
+    return external_call[
+        "avcodec_license", UnsafePointer[c_char, ImmutExternalOrigin]
+    ]()
 
 
-comptime avcodec_parameters_from_context = ExternalFunction[
-    "avcodec_parameters_from_context",
-    fn(
-        par: UnsafePointer[AVCodecParameters, MutExternalOrigin],
-        codec: UnsafePointer[AVCodecContext, ImmutExternalOrigin],
-    ) -> c_int,
-]
-
-comptime avcodec_parameters_to_context = ExternalFunction[
-    "avcodec_parameters_to_context",
-    fn(
-        codec: UnsafePointer[AVCodecContext, MutExternalOrigin],
-        par: UnsafePointer[AVCodecParameters, ImmutExternalOrigin],
-    ) -> c_int,
-]
-
-comptime avcodec_open2 = ExternalFunction[
-    "avcodec_open2",
-    fn(
-        context: UnsafePointer[AVCodecContext, MutExternalOrigin],
-        codec: UnsafePointer[AVCodec, ImmutExternalOrigin],
-        options: UnsafePointer[AVDictionary, ImmutExternalOrigin],
-    ) -> c_int,
-]
+fn avcodec_alloc_context3(
+    codec: UnsafePointer[AVCodec, ImmutExternalOrigin]
+) -> UnsafePointer[AVCodecContext, MutExternalOrigin]:
+    return external_call[
+        "avcodec_alloc_context3",
+        UnsafePointer[AVCodecContext, MutExternalOrigin],
+    ](codec)
 
 
-comptime avsubtitle_free = ExternalFunction[
-    "avsubtitle_free",
-    fn(sub: UnsafePointer[AVSubtitle, MutExternalOrigin],),
-]
+fn avcodec_free_context(
+    avctx: UnsafePointer[
+        UnsafePointer[AVCodecContext, MutExternalOrigin], MutExternalOrigin
+    ]
+):
+    external_call["avcodec_free_context", NoneType](avctx)
 
 
-comptime avcodec_default_get_buffer2 = ExternalFunction[
-    "avcodec_default_get_buffer2",
-    fn(
-        s: UnsafePointer[AVCodecContext, MutExternalOrigin],
-        frame: UnsafePointer[AVFrame, MutExternalOrigin],
-        flags: c_int,
-    ) -> c_int,
-]
+fn avcodec_get_class() -> UnsafePointer[AVClass, ImmutExternalOrigin]:
+    return external_call[
+        "avcodec_get_class", UnsafePointer[AVClass, ImmutExternalOrigin]
+    ]()
 
 
-comptime avcodec_default_get_encode_buffer = ExternalFunction[
-    "avcodec_default_get_encode_buffer",
-    fn(
-        s: UnsafePointer[AVCodecContext, MutExternalOrigin],
-        pkt: UnsafePointer[AVPacket, MutExternalOrigin],
-        flags: c_int,
-    ) -> c_int,
-]
+fn avcodec_get_subtitle_rect_class() -> (
+    UnsafePointer[AVClass, ImmutExternalOrigin]
+):
+    return external_call[
+        "avcodec_get_subtitle_rect_class",
+        UnsafePointer[AVClass, ImmutExternalOrigin],
+    ]()
 
 
-comptime avcodec_align_dimensions = ExternalFunction[
-    "avcodec_align_dimensions",
-    fn(
-        s: UnsafePointer[AVCodecContext, MutExternalOrigin],
-        width: UnsafePointer[c_int, MutExternalOrigin],
-        height: UnsafePointer[c_int, MutExternalOrigin],
-    ) -> c_int,
-]
+fn avcodec_parameters_from_context(
+    par: UnsafePointer[AVCodecParameters, MutExternalOrigin],
+    codec: UnsafePointer[AVCodecContext, ImmutExternalOrigin],
+) -> c_int:
+    return external_call["avcodec_parameters_from_context", c_int](par, codec)
 
 
-comptime avcodec_align_dimensions2 = ExternalFunction[
-    "avcodec_align_dimensions2",
-    fn(
-        s: UnsafePointer[AVCodecContext, MutExternalOrigin],
-        width: UnsafePointer[c_int, MutExternalOrigin],
-        height: UnsafePointer[c_int, MutExternalOrigin],
-        # TODO: linesize_align should be a StaticTuple[AV_NUM_DATA_POINTERS]
-        # I think? Not sure how this plays
-        # with passed in parameters.
-        linesize_align: UnsafePointer[c_int, MutExternalOrigin],
-    ) -> c_int,
-]
+fn avcodec_parameters_to_context(
+    codec: UnsafePointer[AVCodecContext, MutExternalOrigin],
+    par: UnsafePointer[AVCodecParameters, ImmutExternalOrigin],
+) -> c_int:
+    return external_call["avcodec_parameters_to_context", c_int](codec, par)
 
 
-comptime avcodec_decode_subtitle2 = ExternalFunction[
-    "avcodec_decode_subtitle2",
-    fn(
-        avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
-        sub: UnsafePointer[AVSubtitle, MutExternalOrigin],
-        got_sub_ptr: UnsafePointer[c_int, MutExternalOrigin],
-        avpkt: UnsafePointer[AVPacket, ImmutExternalOrigin],
-    ) -> c_int,
-]
-
-comptime avcodec_send_packet = ExternalFunction[
-    "avcodec_send_packet",
-    fn(
-        avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
-        avpkt: UnsafePointer[AVPacket, ImmutExternalOrigin],
-    ) -> c_int,
-]
+fn avcodec_open2(
+    context: UnsafePointer[AVCodecContext, MutExternalOrigin],
+    codec: UnsafePointer[AVCodec, ImmutExternalOrigin],
+    options: UnsafePointer[AVDictionary, ImmutExternalOrigin],
+) -> c_int:
+    return external_call["avcodec_open2", c_int](context, codec, options)
 
 
-comptime avcodec_receive_frame = ExternalFunction[
-    "avcodec_receive_frame",
-    fn(
-        avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
-        frame: UnsafePointer[AVFrame, MutExternalOrigin],
-    ) -> c_int,
-]
+fn avsubtitle_free(sub: UnsafePointer[AVSubtitle, MutExternalOrigin]):
+    external_call["avsubtitle_free", NoneType](sub)
 
 
-comptime avcodec_send_frame = ExternalFunction[
-    "avcodec_send_frame",
-    fn(
-        avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
-        frame: UnsafePointer[AVFrame, ImmutExternalOrigin],
-    ) -> c_int,
-]
+fn avcodec_default_get_buffer2(
+    s: UnsafePointer[AVCodecContext, MutExternalOrigin],
+    frame: UnsafePointer[AVFrame, MutExternalOrigin],
+    flags: c_int,
+) -> c_int:
+    return external_call["avcodec_default_get_buffer2", c_int](s, frame, flags)
 
 
-comptime avcodec_receive_packet = ExternalFunction[
-    "avcodec_receive_packet",
-    fn(
-        avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
-        pkt: UnsafePointer[AVPacket, MutExternalOrigin],
-    ) -> c_int,
-]
+fn avcodec_default_get_encode_buffer(
+    s: UnsafePointer[AVCodecContext, MutExternalOrigin],
+    pkt: UnsafePointer[AVPacket, MutExternalOrigin],
+    flags: c_int,
+) -> c_int:
+    return external_call["avcodec_default_get_encode_buffer", c_int](
+        s, pkt, flags
+    )
 
 
-comptime avcodec_get_hw_frames_parameters = ExternalFunction[
-    "avcodec_get_hw_frames_parameters",
-    fn(
-        avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
-        device_ref: UnsafePointer[AVBufferRef, ImmutExternalOrigin],
-        hw_pix_fmt: AVPixelFormat.ENUM_DTYPE,
-        out_frames_ref: UnsafePointer[
-            UnsafePointer[AVBufferRef, MutExternalOrigin], MutExternalOrigin
-        ],
-    ) -> c_int,
-]
+fn avcodec_align_dimensions(
+    s: UnsafePointer[AVCodecContext, MutExternalOrigin],
+    width: UnsafePointer[c_int, MutExternalOrigin],
+    height: UnsafePointer[c_int, MutExternalOrigin],
+) -> c_int:
+    return external_call["avcodec_align_dimensions", c_int](s, width, height)
+
+
+fn avcodec_align_dimensions2(
+    s: UnsafePointer[AVCodecContext, MutExternalOrigin],
+    width: UnsafePointer[c_int, MutExternalOrigin],
+    height: UnsafePointer[c_int, MutExternalOrigin],
+    linesize_align: UnsafePointer[c_int, MutExternalOrigin],
+) -> c_int:
+    return external_call["avcodec_align_dimensions2", c_int](
+        s, width, height, linesize_align
+    )
+
+
+fn avcodec_decode_subtitle2(
+    avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
+    sub: UnsafePointer[AVSubtitle, MutExternalOrigin],
+    got_sub_ptr: UnsafePointer[c_int, MutExternalOrigin],
+    avpkt: UnsafePointer[AVPacket, ImmutExternalOrigin],
+) -> c_int:
+    return external_call["avcodec_decode_subtitle2", c_int](
+        avctx, sub, got_sub_ptr, avpkt
+    )
+
+
+fn avcodec_send_packet(
+    avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
+    avpkt: UnsafePointer[AVPacket, ImmutExternalOrigin],
+) -> c_int:
+    return external_call["avcodec_send_packet", c_int](avctx, avpkt)
+
+
+fn avcodec_receive_frame(
+    avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
+    frame: UnsafePointer[AVFrame, MutExternalOrigin],
+) -> c_int:
+    return external_call["avcodec_receive_frame", c_int](avctx, frame)
+
+
+fn avcodec_send_frame(
+    avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
+    frame: UnsafePointer[AVFrame, ImmutExternalOrigin],
+) -> c_int:
+    return external_call["avcodec_send_frame", c_int](avctx, frame)
+
+
+fn avcodec_receive_packet(
+    avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
+    pkt: UnsafePointer[AVPacket, MutExternalOrigin],
+) -> c_int:
+    return external_call["avcodec_receive_packet", c_int](avctx, pkt)
+
+
+fn avcodec_get_hw_frames_parameters(
+    avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
+    device_ref: UnsafePointer[AVBufferRef, ImmutExternalOrigin],
+    hw_pix_fmt: AVPixelFormat.ENUM_DTYPE,
+    out_frames_ref: UnsafePointer[
+        UnsafePointer[AVBufferRef, MutExternalOrigin], MutExternalOrigin
+    ],
+) -> c_int:
+    return external_call["avcodec_get_hw_frames_parameters", c_int](
+        avctx, device_ref, hw_pix_fmt, out_frames_ref
+    )
 
 
 @fieldwise_init
@@ -742,14 +723,14 @@ struct AVCodecConfig(Movable, Writable):
     comptime AV_CODEC_CONFIG_COLOR_SPACE = Self(6)
 
 
-comptime avcodec_get_supported_config = ExternalFunction[
-    "avcodec_get_supported_config",
-    fn(
-        avctx: UnsafePointer[AVCodecContext, ImmutExternalOrigin],
-        codec: UnsafePointer[AVCodec, ImmutExternalOrigin],
-        config: AVCodecConfig.ENUM_DTYPE,
-    ) -> c_int,
-]
+fn avcodec_get_supported_config(
+    avctx: UnsafePointer[AVCodecContext, ImmutExternalOrigin],
+    codec: UnsafePointer[AVCodec, ImmutExternalOrigin],
+    config: AVCodecConfig.ENUM_DTYPE,
+) -> c_int:
+    return external_call["avcodec_get_supported_config", c_int](
+        avctx, codec, config
+    )
 
 
 @fieldwise_init
@@ -858,177 +839,166 @@ struct AVCodecParser(Movable, Writable):
     ) -> c_int
 
 
-comptime av_parser_iterate = ExternalFunction[
-    "av_parser_iterate",
-    fn(
-        opaque: UnsafePointer[
-            OpaquePointer[MutExternalOrigin], MutExternalOrigin
-        ],
-    ) -> UnsafePointer[AVCodecParser, ImmutExternalOrigin],
-]
+fn av_parser_iterate(
+    opaque: UnsafePointer[OpaquePointer[MutExternalOrigin], MutExternalOrigin]
+) -> UnsafePointer[AVCodecParser, ImmutExternalOrigin]:
+    return external_call[
+        "av_parser_iterate", UnsafePointer[AVCodecParser, ImmutExternalOrigin]
+    ](opaque)
 
 
-comptime av_parser_init = ExternalFunction[
-    "av_parser_init",
-    fn(
-        codec_id: AVCodecID.ENUM_DTYPE,
-    ) -> UnsafePointer[AVCodecParserContext, MutExternalOrigin],
-]
+fn av_parser_init(
+    codec_id: AVCodecID.ENUM_DTYPE,
+) -> UnsafePointer[AVCodecParserContext, MutExternalOrigin]:
+    return external_call[
+        "av_parser_init", UnsafePointer[AVCodecParserContext, MutExternalOrigin]
+    ](codec_id)
 
 
-comptime av_parser_parse2 = ExternalFunction[
-    "av_parser_parse2",
-    fn(
-        s: UnsafePointer[AVCodecParserContext, MutExternalOrigin],
-        avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
-        poutbuf: UnsafePointer[
-            UnsafePointer[c_uchar, MutExternalOrigin], MutExternalOrigin
-        ],
-        poutbuf_size: UnsafePointer[c_int, MutExternalOrigin],
-        buf: UnsafePointer[c_uchar, ImmutAnyOrigin],
-        buf_size: c_int,
-        pts: c_long_long,
-        dts: c_long_long,
-        pos: c_long_long,
+fn av_parser_parse2(
+    s: UnsafePointer[AVCodecParserContext, MutExternalOrigin],
+    avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
+    poutbuf: UnsafePointer[
+        UnsafePointer[c_uchar, MutExternalOrigin], MutExternalOrigin
+    ],
+    poutbuf_size: UnsafePointer[c_int, MutExternalOrigin],
+    buf: UnsafePointer[c_uchar, ImmutExternalOrigin],
+    buf_size: c_int,
+    pts: c_long_long,
+    dts: c_long_long,
+    pos: c_long_long,
+) -> c_int:
+    return external_call["av_parser_parse2", c_int](
+        s, avctx, poutbuf, poutbuf_size, buf, buf_size, pts, dts, pos
+    )
+
+
+fn av_parser_close(s: UnsafePointer[AVCodecParserContext, MutExternalOrigin]):
+    external_call["av_parser_close", NoneType](s)
+
+
+fn avcodec_encode_subtitle(
+    avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
+    buf: UnsafePointer[c_uchar, MutExternalOrigin],
+    buf_size: c_int,
+    sub: UnsafePointer[AVSubtitle, ImmutExternalOrigin],
+) -> c_int:
+    return external_call["avcodec_encode_subtitle", c_int](
+        avctx, buf, buf_size, sub
+    )
+
+
+fn avcodec_pix_fmt_to_codec_tag(pix_fmt: AVPixelFormat.ENUM_DTYPE) -> c_int:
+    return external_call["avcodec_pix_fmt_to_codec_tag", c_int](pix_fmt)
+
+
+fn avcodec_find_best_pix_fmt_of_list(
+    pix_fmt_list: UnsafePointer[AVPixelFormat.ENUM_DTYPE, ImmutExternalOrigin],
+    src_pix_fmt: AVPixelFormat.ENUM_DTYPE,
+    has_alpha: c_int,
+    loss_ptr: UnsafePointer[c_int, MutExternalOrigin],
+) -> AVPixelFormat.ENUM_DTYPE:
+    return external_call[
+        "avcodec_find_best_pix_fmt_of_list", AVPixelFormat.ENUM_DTYPE
+    ](pix_fmt_list, src_pix_fmt, has_alpha, loss_ptr)
+
+
+fn avcodec_default_get_format(
+    s: UnsafePointer[AVCodecContext, MutExternalOrigin],
+    fmt: UnsafePointer[AVPixelFormat.ENUM_DTYPE, ImmutExternalOrigin],
+) -> AVPixelFormat.ENUM_DTYPE:
+    return external_call[
+        "avcodec_default_get_format", AVPixelFormat.ENUM_DTYPE
+    ](s, fmt)
+
+
+fn avcodec_string(
+    buf: UnsafePointer[c_char, MutExternalOrigin],
+    buf_size: c_int,
+    enc: UnsafePointer[AVCodecContext, ImmutExternalOrigin],
+    encode: c_int,
+):
+    external_call["avcodec_string", NoneType](buf, buf_size, enc, encode)
+
+
+fn avcodec_default_execute(
+    c: UnsafePointer[AVCodecContext, MutExternalOrigin],
+    func: fn(
+        UnsafePointer[AVCodecContext, MutExternalOrigin],
+        OpaquePointer[MutExternalOrigin],
     ) -> c_int,
-]
+    arg: OpaquePointer[MutExternalOrigin],
+    ret: UnsafePointer[c_int, MutExternalOrigin],
+    count: c_int,
+    size: c_int,
+) -> c_int:
+    return external_call["avcodec_default_execute", c_int](
+        c, func, arg, ret, count, size
+    )
 
 
-comptime av_parser_close = ExternalFunction[
-    "av_parser_close",
-    fn(s: UnsafePointer[AVCodecParserContext, MutExternalOrigin],) -> NoneType,
-]
-
-
-comptime avcodec_encode_subtitle = ExternalFunction[
-    "avcodec_encode_subtitle",
-    fn(
-        avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],
-        buf: UnsafePointer[c_uchar, MutExternalOrigin],
-        buf_size: c_int,
-        sub: UnsafePointer[AVSubtitle, ImmutExternalOrigin],
+fn avcodec_default_execute2(
+    c: UnsafePointer[AVCodecContext, MutExternalOrigin],
+    func: fn(
+        UnsafePointer[AVCodecContext, MutExternalOrigin],
+        OpaquePointer[MutExternalOrigin],
+        c_int,
+        c_int,
     ) -> c_int,
-]
+    arg: OpaquePointer[MutExternalOrigin],
+    ret: UnsafePointer[c_int, MutExternalOrigin],
+    count: c_int,
+) -> c_int:
+    return external_call["avcodec_default_execute2", c_int](
+        c, func, arg, ret, count
+    )
 
 
-comptime avcodec_pix_fmt_to_codec_tag = ExternalFunction[
-    "avcodec_pix_fmt_to_codec_tag",
-    fn(pix_fmt: AVPixelFormat.ENUM_DTYPE,) -> c_int,
-]
+fn avcodec_fill_audio_frame(
+    frame: UnsafePointer[AVFrame, MutExternalOrigin],
+    nb_channels: c_int,
+    sample_fmt: AVSampleFormat.ENUM_DTYPE,
+    buf: UnsafePointer[c_uchar, MutExternalOrigin],
+    buf_size: c_int,
+    align: c_int,
+) -> c_int:
+    return external_call["avcodec_fill_audio_frame", c_int](
+        frame, nb_channels, sample_fmt, buf, buf_size, align
+    )
 
 
-comptime avcodec_find_best_pix_fmt_of_list = ExternalFunction[
-    "avcodec_find_best_pix_fmt_of_list",
-    fn(
-        pix_fmt_list: UnsafePointer[
-            AVPixelFormat.ENUM_DTYPE, ImmutExternalOrigin
-        ],
-        src_pix_fmt: AVPixelFormat.ENUM_DTYPE,
-        has_alpha: c_int,
-        loss_ptr: UnsafePointer[c_int, MutExternalOrigin],
-    ) -> AVPixelFormat.ENUM_DTYPE,
-]
+fn avcodec_flush_buffers(
+    avctx: UnsafePointer[AVCodecContext, MutExternalOrigin]
+):
+    external_call["avcodec_flush_buffers", NoneType](avctx)
 
 
-comptime avcodec_default_get_format = ExternalFunction[
-    "avcodec_default_get_format",
-    fn(
-        s: UnsafePointer[AVCodecContext, MutExternalOrigin],
-        fmt: UnsafePointer[AVPixelFormat.ENUM_DTYPE, ImmutExternalOrigin],
-    ) -> AVPixelFormat.ENUM_DTYPE,
-]
+fn av_get_audio_frame_duration(
+    avctx: UnsafePointer[AVCodecContext, ImmutExternalOrigin],
+    frame_bytes: c_int,
+) -> c_int:
+    return external_call["av_get_audio_frame_duration", c_int](
+        avctx, frame_bytes
+    )
 
 
-comptime avcodec_string = ExternalFunction[
-    "avcodec_string",
-    fn(
-        buf: UnsafePointer[c_char, MutExternalOrigin],
-        buf_size: c_int,
-        enc: UnsafePointer[AVCodecContext, ImmutExternalOrigin],
-        encode: c_int,
-    ),
-]
+fn av_fast_padded_malloc(
+    ptr: OpaquePointer[MutExternalOrigin],
+    size: UnsafePointer[c_int, MutExternalOrigin],
+    min_size: c_size_t,
+):
+    external_call["av_fast_padded_malloc", NoneType](ptr, size, min_size)
 
 
-comptime avcodec_default_execute = ExternalFunction[
-    "avcodec_default_execute",
-    fn(
-        c: UnsafePointer[AVCodecContext, MutExternalOrigin],
-        func: fn(
-            UnsafePointer[AVCodecContext, MutExternalOrigin],
-            OpaquePointer[MutExternalOrigin],
-        ) -> c_int,
-        arg: OpaquePointer[MutExternalOrigin],
-        ret: UnsafePointer[c_int, MutExternalOrigin],
-        count: c_int,
-        size: c_int,
-    ) -> c_int,
-]
-comptime avcodec_default_execute2 = ExternalFunction[
-    "avcodec_default_execute2",
-    fn(
-        c: UnsafePointer[AVCodecContext, MutExternalOrigin],
-        func: fn(
-            UnsafePointer[AVCodecContext, MutExternalOrigin],
-            OpaquePointer[MutExternalOrigin],
-            c_int,
-            c_int,
-        ) -> c_int,
-        arg: OpaquePointer[MutExternalOrigin],
-        ret: UnsafePointer[c_int, MutExternalOrigin],
-        count: c_int,
-    ) -> c_int,
-]
+fn av_fast_padded_mallocz(
+    ptr: OpaquePointer[MutExternalOrigin],
+    size: UnsafePointer[c_int, MutExternalOrigin],
+    min_size: c_size_t,
+):
+    external_call["av_fast_padded_mallocz", NoneType](ptr, size, min_size)
 
 
-comptime avcodec_fill_audio_frame = ExternalFunction[
-    "avcodec_fill_audio_frame",
-    fn(
-        frame: UnsafePointer[AVFrame, MutExternalOrigin],
-        nb_channels: c_int,
-        sample_fmt: AVSampleFormat.ENUM_DTYPE,
-        buf: UnsafePointer[c_uchar, MutExternalOrigin],
-        buf_size: c_int,
-        align: c_int,
-    ) -> c_int,
-]
-
-
-comptime avcodec_flush_buffers = ExternalFunction[
-    "avcodec_flush_buffers",
-    fn(avctx: UnsafePointer[AVCodecContext, MutExternalOrigin],) -> NoneType,
-]
-
-comptime av_get_audio_frame_duration = ExternalFunction[
-    "av_get_audio_frame_duration",
-    fn(
-        avctx: UnsafePointer[AVCodecContext, ImmutExternalOrigin],
-        frame_bytes: c_int,
-    ) -> c_int,
-]
-
-
-comptime av_fast_padded_malloc = ExternalFunction[
-    "av_fast_padded_malloc",
-    fn(
-        ptr: OpaquePointer[MutExternalOrigin],
-        size: UnsafePointer[c_int, MutExternalOrigin],
-        min_size: c_size_t,
-    ) -> NoneType,
-]
-
-
-comptime av_fast_padded_mallocz = ExternalFunction[
-    "av_fast_padded_mallocz",
-    fn(
-        ptr: OpaquePointer[MutExternalOrigin],
-        size: UnsafePointer[c_int, MutExternalOrigin],
-        min_size: c_size_t,
-    ) -> NoneType,
-]
-
-
-comptime avcodec_is_open = ExternalFunction[
-    "avcodec_is_open",
-    fn(avctx: UnsafePointer[AVCodecContext, ImmutExternalOrigin],) -> c_int,
-]
+fn avcodec_is_open(
+    avctx: UnsafePointer[AVCodecContext, ImmutExternalOrigin]
+) -> c_int:
+    return external_call["avcodec_is_open", c_int](avctx)

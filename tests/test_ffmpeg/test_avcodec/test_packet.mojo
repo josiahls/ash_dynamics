@@ -4,7 +4,7 @@ from testing.testing import assert_equal, assert_true
 from memory import alloc, memset
 from ffi import c_uchar, c_int, c_char, c_size_t
 
-from ash_dynamics.ffmpeg.avcodec import Avcodec
+from ash_dynamics.ffmpeg import avcodec
 from ash_dynamics.ffmpeg.avcodec.packet import (
     AVPacket,
     AVPacketSideDataType,
@@ -14,17 +14,14 @@ from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
 
 
 def test_av_packet_alloc():
-    var avcodec = Avcodec()
     var packet = avcodec.av_packet_alloc()
     assert_true(Bool(packet))
     var pkt_ptr = alloc[UnsafePointer[AVPacket, MutExternalOrigin]](1)
     pkt_ptr[0] = packet
     avcodec.av_packet_free(pkt_ptr)
-    _ = avcodec
 
 
 def test_av_packet_clone():
-    var avcodec = Avcodec()
     var src = avcodec.av_packet_alloc()
     assert_true(Bool(src))
     var ret = avcodec.av_new_packet(src, 64)
@@ -40,20 +37,16 @@ def test_av_packet_clone():
     var clone_ptr = alloc[UnsafePointer[AVPacket, MutExternalOrigin]](1)
     clone_ptr[0] = clone
     avcodec.av_packet_free(clone_ptr)
-    _ = avcodec
 
 
 def test_av_packet_free():
-    var avcodec = Avcodec()
     var packet = avcodec.av_packet_alloc()
     var pkt_ptr = alloc[UnsafePointer[AVPacket, MutExternalOrigin]](1)
     pkt_ptr[0] = packet
     avcodec.av_packet_free(pkt_ptr)
-    _ = avcodec
 
 
 def test_av_new_packet():
-    var avcodec = Avcodec()
     var packet = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(packet, 128)
     assert_equal(ret, 0)
@@ -62,11 +55,9 @@ def test_av_new_packet():
     var pkt_ptr = alloc[UnsafePointer[AVPacket, MutExternalOrigin]](1)
     pkt_ptr[0] = packet
     avcodec.av_packet_free(pkt_ptr)
-    _ = avcodec
 
 
 def test_av_shrink_packet():
-    var avcodec = Avcodec()
     var packet = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(packet, 64)
     assert_equal(ret, 0)
@@ -75,11 +66,9 @@ def test_av_shrink_packet():
     var pkt_ptr = alloc[UnsafePointer[AVPacket, MutExternalOrigin]](1)
     pkt_ptr[0] = packet
     avcodec.av_packet_free(pkt_ptr)
-    _ = avcodec
 
 
 def test_av_grow_packet():
-    var avcodec = Avcodec()
     var packet = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(packet, 32)
     assert_equal(ret, 0)
@@ -89,11 +78,9 @@ def test_av_grow_packet():
     var pkt_ptr = alloc[UnsafePointer[AVPacket, MutExternalOrigin]](1)
     pkt_ptr[0] = packet
     avcodec.av_packet_free(pkt_ptr)
-    _ = avcodec
 
 
 def test_av_packet_new_side_data():
-    var avcodec = Avcodec()
     var packet = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(packet, 16)
     assert_equal(ret, 0)
@@ -107,11 +94,9 @@ def test_av_packet_new_side_data():
     var pkt_ptr = alloc[UnsafePointer[AVPacket, MutExternalOrigin]](1)
     pkt_ptr[0] = packet
     avcodec.av_packet_free(pkt_ptr)
-    _ = avcodec
 
 
 def test_av_packet_shrink_side_data():
-    var avcodec = Avcodec()
     var packet = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(packet, 16)
     assert_equal(ret, 0)
@@ -130,11 +115,9 @@ def test_av_packet_shrink_side_data():
     var pkt_ptr = alloc[UnsafePointer[AVPacket, MutExternalOrigin]](1)
     pkt_ptr[0] = packet
     avcodec.av_packet_free(pkt_ptr)
-    _ = avcodec
 
 
 def test_av_packet_get_side_data():
-    var avcodec = Avcodec()
     var packet = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(packet, 16)
     assert_equal(ret, 0)
@@ -156,11 +139,9 @@ def test_av_packet_get_side_data():
     var pkt_ptr = alloc[UnsafePointer[AVPacket, MutExternalOrigin]](1)
     pkt_ptr[0] = packet
     avcodec.av_packet_free(pkt_ptr)
-    _ = avcodec
 
 
 def test_av_packet_pack_dictionary():
-    var avcodec = Avcodec()
     var size_out = alloc[c_size_t](1)
     size_out[0] = 0
     var data = avcodec.av_packet_pack_dictionary(
@@ -169,22 +150,18 @@ def test_av_packet_pack_dictionary():
     )
     assert_equal(Bool(data), False)
     assert_equal(size_out[], 0)
-    _ = avcodec
 
 
 def test_av_packet_unpack_dictionary():
-    var avcodec = Avcodec()
     var ret = avcodec.av_packet_unpack_dictionary(
         UnsafePointer[c_uchar, ImmutExternalOrigin](unsafe_from_address=0),
         c_size_t(0),
         UnsafePointer[AVDictionary, MutExternalOrigin](unsafe_from_address=0),
     )
     assert_equal(ret, 0)
-    _ = avcodec
 
 
 def test_av_packet_free_side_data():
-    var avcodec = Avcodec()
     var packet = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(packet, 16)
     assert_equal(ret, 0)
@@ -199,11 +176,9 @@ def test_av_packet_free_side_data():
     var pkt_ptr = alloc[UnsafePointer[AVPacket, MutExternalOrigin]](1)
     pkt_ptr[0] = packet
     avcodec.av_packet_free(pkt_ptr)
-    _ = avcodec
 
 
 def test_av_packet_ref():
-    var avcodec = Avcodec()
     var src = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(src, 32)
     assert_equal(ret, 0)
@@ -221,11 +196,9 @@ def test_av_packet_ref():
     var dst_ptr = alloc[UnsafePointer[AVPacket, MutExternalOrigin]](1)
     dst_ptr[0] = dst
     avcodec.av_packet_free(dst_ptr)
-    _ = avcodec
 
 
 def test_av_packet_unref():
-    var avcodec = Avcodec()
     var packet = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(packet, 32)
     assert_equal(ret, 0)
@@ -233,11 +206,9 @@ def test_av_packet_unref():
     var pkt_ptr = alloc[UnsafePointer[AVPacket, MutExternalOrigin]](1)
     pkt_ptr[0] = packet
     avcodec.av_packet_free(pkt_ptr)
-    _ = avcodec
 
 
 def test_av_packet_move_ref():
-    var avcodec = Avcodec()
     var src = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(src, 32)
     assert_equal(ret, 0)
@@ -253,11 +224,9 @@ def test_av_packet_move_ref():
     var dst_ptr = alloc[UnsafePointer[AVPacket, MutExternalOrigin]](1)
     dst_ptr[0] = dst
     avcodec.av_packet_free(dst_ptr)
-    _ = avcodec
 
 
 def test_av_packet_copy_props():
-    var avcodec = Avcodec()
     var src = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(src, 32)
     assert_equal(ret, 0)
@@ -281,11 +250,9 @@ def test_av_packet_copy_props():
     var dst_ptr = alloc[UnsafePointer[AVPacket, MutExternalOrigin]](1)
     dst_ptr[0] = dst
     avcodec.av_packet_free(dst_ptr)
-    _ = avcodec
 
 
 def test_av_packet_make_refcounted():
-    var avcodec = Avcodec()
     var packet = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(packet, 32)
     assert_equal(ret, 0)
@@ -294,11 +261,9 @@ def test_av_packet_make_refcounted():
     var pkt_ptr = alloc[UnsafePointer[AVPacket, MutExternalOrigin]](1)
     pkt_ptr[0] = packet
     avcodec.av_packet_free(pkt_ptr)
-    _ = avcodec
 
 
 def test_av_packet_make_writable():
-    var avcodec = Avcodec()
     var packet = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(packet, 32)
     assert_equal(ret, 0)
@@ -307,11 +272,9 @@ def test_av_packet_make_writable():
     var pkt_ptr = alloc[UnsafePointer[AVPacket, MutExternalOrigin]](1)
     pkt_ptr[0] = packet
     avcodec.av_packet_free(pkt_ptr)
-    _ = avcodec
 
 
 def test_av_packet_rescale_ts():
-    var avcodec = Avcodec()
     var packet = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(packet, 32)
     assert_equal(ret, 0)
@@ -329,14 +292,11 @@ def test_av_packet_rescale_ts():
     var pkt_ptr = alloc[UnsafePointer[AVPacket, MutExternalOrigin]](1)
     pkt_ptr[0] = packet
     avcodec.av_packet_free(pkt_ptr)
-    _ = avcodec
 
 
 def test_av_container_fifo_alloc_avpacket():
-    var avcodec = Avcodec()
     var fifo = avcodec.av_container_fifo_alloc_avpacket(0)
     assert_true(Bool(fifo))
-    _ = avcodec
 
 
 def main():
