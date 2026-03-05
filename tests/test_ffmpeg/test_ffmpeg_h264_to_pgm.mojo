@@ -20,7 +20,8 @@ from ash_dynamics.ffmpeg.avcodec.packet import (
 )
 from ash_dynamics.ffmpeg.avcodec.defs import AV_INPUT_BUFFER_PADDING_SIZE
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
-from ash_dynamics.ffmpeg.avcodec import Avcodec
+from ash_dynamics.ffmpeg import avcodec
+from ash_dynamics.ffmpeg import avutil
 from ash_dynamics.ffmpeg.avutil.error import AVERROR, AVERROR_EOF
 
 
@@ -40,7 +41,6 @@ def pgm_save(
 
 
 fn decode(
-    mut avcodec: Avcodec,
     dec_ctx: UnsafePointer[AVCodecContext, origin=MutExternalOrigin],
     frame: UnsafePointer[AVFrame, origin=MutExternalOrigin],
     pkt: UnsafePointer[AVPacket, origin=MutExternalOrigin],
@@ -82,8 +82,6 @@ def test_av_decode_video_example():
         Int(INBUF_SIZE + AV_INPUT_BUFFER_PADDING_SIZE)
     )
 
-    var avcodec = Avcodec()
-
     # Set the padding portion of the input_buffer to zero.
     memset(
         input_buffer + INBUF_SIZE,
@@ -103,7 +101,7 @@ def test_av_decode_video_example():
     print(context[])
 
     ptr = alloc[AVDictionary](0)
-    avcodec.avcodec_open2(context, codec, ptr)
+    _ = avcodec.avcodec_open2(context, codec, ptr)
     print("Opened codec")
 
     var test_data_root = os.getenv("PIXI_PROJECT_ROOT")
@@ -111,7 +109,7 @@ def test_av_decode_video_example():
         "{}/test_data/testsrc_320x180_30fps_2s_decoded".format(test_data_root)
     )
 
-    var frame = avcodec.av_frame_alloc()
+    var frame = avutil.av_frame_alloc()
 
     with open(
         "{}/test_data/testsrc_320x180_30fps_2s.h264".format(test_data_root), "r"
@@ -151,11 +149,9 @@ def test_av_decode_video_example():
 
                 if packet[].size > 0:
                     print("Packet size: ", packet[].size)
-                    decode(avcodec, context, frame, packet, out_filename)
+                    decode(context, frame, packet, out_filename)
 
     _ = codec
-
-    _ = avcodec  # Need this to keep the ffi bind alive
 
 
 def main():

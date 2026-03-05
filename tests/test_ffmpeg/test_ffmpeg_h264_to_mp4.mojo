@@ -32,7 +32,7 @@ from ash_dynamics.ffmpeg.avcodec.packet import (
 )
 from ash_dynamics.ffmpeg.avcodec.defs import AV_INPUT_BUFFER_PADDING_SIZE
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
-from ash_dynamics.ffmpeg.avcodec import Avcodec
+from ash_dynamics.ffmpeg import avcodec
 from ash_dynamics.ffmpeg.avutil.error import AVERROR, AVERROR_EOF
 from ash_dynamics.ffmpeg.avformat.avformat import AVFormatContext, AVStream
 from ash_dynamics.ffmpeg.avformat.avio import AVIOContext
@@ -48,10 +48,11 @@ from ash_dynamics.ffmpeg.avformat.avformat import (
     AVFMT_GLOBALHEADER,
     AVFMT_NOFILE,
 )
-from ash_dynamics.ffmpeg.avformat import Avformat, AVIO_FLAG_WRITE
+from ash_dynamics.ffmpeg.avformat import AVIO_FLAG_WRITE
+from ash_dynamics.ffmpeg import avformat
 from ash_dynamics.ffmpeg.avutil.avutil import AVMediaType
 from ash_dynamics.ffmpeg.avutil.samplefmt import AVSampleFormat
-from ash_dynamics.ffmpeg.avutil import Avutil
+from ash_dynamics.ffmpeg import avutil
 from ash_dynamics.ffmpeg.avutil.channel_layout import (
     AVChannelLayout,
     AV_CHANNEL_LAYOUT_STEREO,
@@ -60,9 +61,10 @@ from ash_dynamics.ffmpeg.avutil.pixfmt import AVPixelFormat
 from ash_dynamics.ffmpeg.swscale.swscale import SwsFlags
 from ash_dynamics.ffmpeg.avcodec.avcodec import AV_CODEC_FLAG_GLOBAL_HEADER
 from ash_dynamics.ffmpeg.avutil.error import AVERROR, AVERROR_EOF
-from ash_dynamics.ffmpeg.swscale import Swscale, SwsFilter
-from ash_dynamics.ffmpeg.swrsample import Swrsample
-from ash_dynamics.ffmpeg.swrsample.swrsample import SwrContext
+from ash_dynamics.ffmpeg.swscale import SwsFilter, SwsContext
+from ash_dynamics.ffmpeg import swscale
+from ash_dynamics.ffmpeg import swrsample
+from ash_dynamics.ffmpeg.swrsample import SwrContext
 from utils import StaticTuple
 
 
@@ -74,8 +76,7 @@ comptime SCALE_FLAGS = SwsFlags.SWS_BICUBIC
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct OutputStream:
+struct OutputStream(TrivialRegisterPassable):
     var st: UnsafePointer[AVStream, origin=MutExternalOrigin]
     var enc: UnsafePointer[AVCodecContext, origin=MutExternalOrigin]
     var next_pts: c_long_long
@@ -105,11 +106,10 @@ struct OutputStream:
 
 
 def alloc_frame(
-    mut avutil: Avutil,
     pix_fmt: AVPixelFormat.ENUM_DTYPE,
     width: c_int,
     height: c_int,
-) -> UnsafePointer[AVFrame, origin_of(avutil)]:
+) -> UnsafePointer[AVFrame, MutExternalOrigin]:
     # var frame = alloc[AVFrame](1)
 
     var frame = avutil.av_frame_alloc()
@@ -128,26 +128,23 @@ def alloc_frame(
 
 
 def open_video(
-    avformat: Avformat,
-    avcodec: Avcodec,
     oc: UnsafePointer[AVFormatContext, MutExternalOrigin],
     video_codec: UnsafePointer[AVCodec, ImmutExternalOrigin],
     mut ost: OutputStream,
     opt_arg: UnsafePointer[AVDictionary, ImmutExternalOrigin],
 ):
     var ret: c_int = 0
-    var avutil = Avutil()
     var c = ost.enc
     # NOTE: We need to add an override to avcodec_open2 that makes
     # an internal null pointer. Debug mode otherwise fails on this.
     var opt = UnsafePointer[AVDictionary, MutExternalOrigin]()
     print("im opening a video")
 
-    avcodec.avcodec_open2(c, video_codec, opt)
+    _ = avcodec.avcodec_open2(c, video_codec, opt)
     # av_dict_free(&opt);
 
     ost.frame = alloc_frame(
-        avutil, c[].pix_fmt, c[].width, c[].height
+        c[].pix_fmt, c[].width, c[].height
     ).unsafe_origin_cast[MutExternalOrigin]()
     if not ost.frame:
         os.abort("Failed to allocate video frame")
@@ -155,7 +152,6 @@ def open_video(
     ost.tmp_frame = UnsafePointer[AVFrame, MutExternalOrigin]()
     if c[].pix_fmt != AVPixelFormat.AV_PIX_FMT_YUV420P._value:
         ost.tmp_frame = alloc_frame(
-            avutil,
             AVPixelFormat.AV_PIX_FMT_YUV420P._value,
             c[].width,
             c[].height,
@@ -171,8 +167,6 @@ def open_video(
 
 
 def add_stream(
-    avformat: Avformat,
-    avcodec: Avcodec,
     mut ost: OutputStream,
     oc: UnsafePointer[AVFormatContext, MutExternalOrigin],
     codec: UnsafePointer[
@@ -206,8 +200,6 @@ def add_stream(
         os.abort("Failed to allocate encoding context")
 
     ost.enc = c
-
-    avutil = Avutil()
 
     ref codec_type = codec[][].type
     if codec_type == AVMediaType.AVMEDIA_TYPE_AUDIO._value:
@@ -309,10 +301,6 @@ def fill_yuv_image(
 
 
 def get_video_frame(
-    swrsample: Swrsample,
-    swscale: Swscale,
-    avutil: Avutil,
-    avcodec: Avcodec,
     mut ost: OutputStream,
 ) -> UnsafePointer[AVFrame, MutExternalOrigin]:
     var c = ost.enc
@@ -400,8 +388,6 @@ def get_video_frame(
 
 
 def write_frame(
-    avformat: Avformat,
-    avcodec: Avcodec,
     fmt_ctx: UnsafePointer[AVFormatContext, MutExternalOrigin],
     c: UnsafePointer[AVCodecContext, MutExternalOrigin],
     st: UnsafePointer[AVStream, MutExternalOrigin],
@@ -420,7 +406,6 @@ def write_frame(
         if ret == AVERROR(ErrNo.EAGAIN.value) or ret == Int32(AVERROR_EOF):
             break
         elif ret < 0:
-            var avutil = Avutil()
             print(avutil.av_err2str(ret))
             os.abort(
                 "Failed to receive packet from encoder with ret val: {}".format(
@@ -442,21 +427,14 @@ def write_frame(
 
 
 def write_video_frame(
-    avformat: Avformat,
-    avcodec: Avcodec,
-    avutil: Avutil,
-    swrsample: Swrsample,
-    swscale: Swscale,
     oc: UnsafePointer[AVFormatContext, MutExternalOrigin],
     mut ost: OutputStream,
 ) -> c_int:
     var ret = write_frame(
-        avformat=avformat,
-        avcodec=avcodec,
         fmt_ctx=oc,
         c=ost.enc,
         st=ost.st,
-        frame=get_video_frame(swrsample, swscale, avutil, avcodec, ost),
+        frame=get_video_frame(ost),
         pkt=ost.tmp_pkt,
     )
     return ret
@@ -489,12 +467,6 @@ def test_av_mux_example():
     ]()  # NULL, let FFmpeg manage
     var i = c_int(0)
 
-    var avformat = Avformat()
-    var avcodec = Avcodec()
-    var avutil = Avutil()
-    var swscale = Swscale()
-    var swrsample = Swrsample()
-
     var test_data_root = os.getenv("PIXI_PROJECT_ROOT")
     var input_filename: String = (
         "{}/test_data/testsrc_320x180_30fps_2s.h264".format(test_data_root)
@@ -525,9 +497,7 @@ def test_av_mux_example():
 
     if fmt[][].video_codec != AVCodecID.AV_CODEC_ID_NONE._value:
         print("video codec is not none: ", fmt[][].video_codec)
-        add_stream(
-            avformat, avcodec, video_st, oc[], video_codec, fmt[][].video_codec
-        )
+        add_stream(video_st, oc[], video_codec, fmt[][].video_codec)
         have_video = 1
         encode_video = 1
     else:
@@ -538,20 +508,27 @@ def test_av_mux_example():
     #     print("audio codec is none")
 
     if have_video:
-        open_video(avformat, avcodec, oc[], video_codec[], video_st, opt[])
+        open_video(oc[], video_codec[], video_st, opt[])
 
     # Not interested in audio at the moment.
     # if have_audio:
     #     open_audio(avformat, avcodec, oc[], audio_codec[], audio_st, opt[])
 
     avformat.av_dump_format(
-        oc[], 0, output_filename.as_c_string_slice().unsafe_ptr(), 1
+        oc[],
+        0,
+        output_filename.as_c_string_slice()
+        .unsafe_ptr()
+        .unsafe_origin_cast[MutExternalOrigin](),
+        1,
     )
 
     if not (fmt[][].flags & AVFMT_NOFILE):
         ret = avformat.avio_open(
             UnsafePointer(to=oc[][].pb),
-            output_filename.as_c_string_slice().unsafe_ptr(),
+            output_filename.as_c_string_slice()
+            .unsafe_ptr()
+            .unsafe_origin_cast[MutExternalOrigin](),
             AVIO_FLAG_WRITE,
         )
         if ret < 0:
@@ -583,9 +560,7 @@ def test_av_mux_example():
         #     audio_st.enc->time_base
         # ) <= 0:
         if encode_video:
-            var result = write_video_frame(
-                avformat, avcodec, avutil, swrsample, swscale, oc[], video_st
-            )
+            var result = write_video_frame(oc[], video_st)
             # print("Result: {}".format(result))
             encode_video = c_int(result == 0)
         # else:
@@ -600,11 +575,6 @@ def test_av_mux_example():
     _ = ret
     _ = fmt
     _ = oc
-    _ = avformat
-    _ = avcodec
-    _ = swscale
-    _ = swrsample
-    _ = avutil
 
 
 def main():
