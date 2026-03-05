@@ -1,6 +1,6 @@
 from testing.suite import TestSuite
 from testing.testing import assert_equal
-from ash_dynamics.ffmpeg.avutil import Avutil
+from ash_dynamics.ffmpeg import avutil
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
 from ash_dynamics.ffmpeg.avutil.mathematics import AVRounding
 
@@ -15,7 +15,6 @@ def test_AVRounding():
 
 
 def test_av_compare_ts():
-    var avutil = Avutil()
     var tb = AVRational(num=1, den=1)
     # ts_a < ts_b -> -1
     assert_equal(avutil.av_compare_ts(0, tb, 1, tb), -1)
@@ -23,11 +22,9 @@ def test_av_compare_ts():
     assert_equal(avutil.av_compare_ts(1, tb, 1, tb), 0)
     # ts_a > ts_b -> 1
     assert_equal(avutil.av_compare_ts(2, tb, 1, tb), 1)
-    _ = avutil
 
 
 def test_av_rescale_rnd():
-    var avutil = Avutil()
     var rnd = AVRounding.AV_ROUND_NEAR_INF.value
     # a * b / c: 100 * 2 / 2 = 100
     assert_equal(avutil.av_rescale_rnd(100, 2, 2, rnd), 100)
@@ -35,11 +32,9 @@ def test_av_rescale_rnd():
     assert_equal(avutil.av_rescale_rnd(50, 4, 2, rnd), 100)
     # 0 * anything = 0
     assert_equal(avutil.av_rescale_rnd(0, 1000, 1, rnd), 0)
-    _ = avutil
 
 
 def test_av_rescale_q_rnd():
-    var avutil = Avutil()
     var rnd = AVRounding.AV_ROUND_NEAR_INF.value
     # a=0 -> 0
     var bq = AVRational(num=1, den=25)
@@ -51,7 +46,6 @@ def test_av_rescale_q_rnd():
     # a * (1/1) / (2/1) = a/2
     var two = AVRational(num=2, den=1)
     assert_equal(avutil.av_rescale_q_rnd(100, one, two, rnd), 50)
-    _ = avutil
 
 
 def main():

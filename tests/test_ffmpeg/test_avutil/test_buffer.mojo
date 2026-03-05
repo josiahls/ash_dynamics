@@ -7,7 +7,7 @@ from ash_dynamics.ffmpeg.avutil.buffer import (
     AVBufferRef,
     AVBufferPool,
 )
-from ash_dynamics.ffmpeg.avutil import Avutil
+from ash_dynamics.ffmpeg import avutil
 
 
 fn my_free(
@@ -74,26 +74,21 @@ fn my_pool_free(opaque: OpaquePointer[MutExternalOrigin]) -> NoneType:
     return
 
 
-def test_av_buffer_alloc():
-    var avutil = Avutil()
-    var buf = avutil._av_buffer_alloc(128)
+def testav_buffer_alloc():
+    var buf = avutil.av_buffer_alloc(128)
     assert_true(Bool(buf))
     assert_equal(Int(buf[].size), 128)
-    _ = avutil
 
 
-def test_av_buffer_allocz():
-    var avutil = Avutil()
+def testav_buffer_allocz():
     var buf = avutil.av_buffer_allocz(128)
     assert_true(Bool(buf))
     assert_equal(Int(buf[].size), 128)
     # allocz zeroes the data
     assert_equal(Int(buf[].data[0]), 0)
-    _ = avutil
 
 
 def test_av_buffer_create():
-    var avutil = Avutil()
     var data = alloc[c_uchar](128)
     var buf = avutil.av_buffer_create(
         data.unsafe_origin_cast[MutExternalOrigin](),
@@ -104,12 +99,10 @@ def test_av_buffer_create():
     )
     assert_true(Bool(buf))
     assert_equal(Int(buf[].size), 128)
-    _ = avutil
 
 
 def test_av_buffer_ref():
-    var avutil = Avutil()
-    var buf = avutil._av_buffer_alloc(128)
+    var buf = avutil.av_buffer_alloc(128)
     assert_true(Bool(buf))
     var ref_ = avutil.av_buffer_ref(
         buf.as_immutable().unsafe_origin_cast[ImmutExternalOrigin]()
@@ -121,56 +114,46 @@ def test_av_buffer_ref():
         ),
         2,
     )
-    _ = avutil
 
 
 def test_av_buffer_unref():
-    var avutil = Avutil()
-    var buf = avutil._av_buffer_alloc(128)
+    var buf = avutil.av_buffer_alloc(128)
     assert_true(Bool(buf))
     var buf_ptr = alloc[UnsafePointer[AVBufferRef, MutExternalOrigin]](1)
     buf_ptr[] = buf
     avutil.av_buffer_unref(buf_ptr.unsafe_origin_cast[MutExternalOrigin]())
-    _ = avutil
 
 
 def test_av_buffer_is_writable():
-    var avutil = Avutil()
-    var buf = avutil._av_buffer_alloc(128)
+    var buf = avutil.av_buffer_alloc(128)
     assert_equal(
         avutil.av_buffer_is_writable(
             buf.as_immutable().unsafe_origin_cast[ImmutExternalOrigin]()
         ),
         1,
     )
-    _ = avutil
 
 
 def test_av_buffer_get_opaque():
-    var avutil = Avutil()
-    var buf = avutil._av_buffer_alloc(128)
+    var buf = avutil.av_buffer_alloc(128)
     # Default alloc sets opaque to NULL -- just check it doesn't crash.
     _ = avutil.av_buffer_get_opaque(
         buf.as_immutable().unsafe_origin_cast[ImmutExternalOrigin]()
     )
-    _ = avutil
 
 
 def test_av_buffer_get_ref_count():
-    var avutil = Avutil()
-    var buf = avutil._av_buffer_alloc(128)
+    var buf = avutil.av_buffer_alloc(128)
     assert_equal(
         avutil.av_buffer_get_ref_count(
             buf.as_immutable().unsafe_origin_cast[ImmutExternalOrigin]()
         ),
         1,
     )
-    _ = avutil
 
 
 def test_av_buffer_make_writable():
-    var avutil = Avutil()
-    var buf = avutil._av_buffer_alloc(128)
+    var buf = avutil.av_buffer_alloc(128)
     var buf_ptr = alloc[UnsafePointer[AVBufferRef, MutExternalOrigin]](1)
     buf_ptr[] = buf
     # Single ref -- already writable, so this is a no-op returning 0.
@@ -180,12 +163,10 @@ def test_av_buffer_make_writable():
         ),
         0,
     )
-    _ = avutil
 
 
 def test_av_buffer_realloc():
-    var avutil = Avutil()
-    var buf = avutil._av_buffer_alloc(128)
+    var buf = avutil.av_buffer_alloc(128)
     var buf_ptr = alloc[UnsafePointer[AVBufferRef, MutExternalOrigin]](1)
     buf_ptr[] = buf
     assert_equal(
@@ -195,12 +176,10 @@ def test_av_buffer_realloc():
         0,
     )
     assert_equal(Int(buf_ptr[][].size), 256)
-    _ = avutil
 
 
 def test_av_buffer_replace():
-    var avutil = Avutil()
-    var src = avutil._av_buffer_alloc(128)
+    var src = avutil.av_buffer_alloc(128)
     var dst = alloc[UnsafePointer[AVBufferRef, MutExternalOrigin]](1)
     memset(dst, 0, 1)
     assert_equal(
@@ -211,11 +190,9 @@ def test_av_buffer_replace():
         0,
     )
     assert_equal(Int(dst[][].size), 128)
-    _ = avutil
 
 
 def test_av_buffer_pool_init():
-    var avutil = Avutil()
     var pool = avutil.av_buffer_pool_init(128, my_alloc)
     assert_true(Bool(pool))
     var buf = avutil.av_buffer_pool_get(
@@ -224,11 +201,9 @@ def test_av_buffer_pool_init():
     assert_true(Bool(buf))
     # my_alloc doubled the size -- proves our fn was called, not FFmpeg's default.
     assert_equal(Int(buf[].size), 256)
-    _ = avutil
 
 
 def test_av_buffer_pool_init2():
-    var avutil = Avutil()
     var pool = avutil.av_buffer_pool_init2(
         128,
         OpaquePointer[MutExternalOrigin](unsafe_from_address=0),
@@ -241,11 +216,9 @@ def test_av_buffer_pool_init2():
     )
     assert_true(Bool(buf))
     assert_equal(Int(buf[].size), 256)
-    _ = avutil
 
 
 def test_av_buffer_pool_uninit():
-    var avutil = Avutil()
     var pool = avutil.av_buffer_pool_init(128, my_alloc)
     assert_true(Bool(pool))
     var pool_ptr = alloc[UnsafePointer[AVBufferPool, MutExternalOrigin]](1)
@@ -253,11 +226,9 @@ def test_av_buffer_pool_uninit():
     avutil.av_buffer_pool_uninit(
         pool_ptr.unsafe_origin_cast[MutExternalOrigin]()
     )
-    _ = avutil
 
 
 def test_av_buffer_pool_get():
-    var avutil = Avutil()
     var pool = avutil.av_buffer_pool_init(128, my_alloc)
     var buf1 = avutil.av_buffer_pool_get(
         pool.as_immutable().unsafe_origin_cast[ImmutExternalOrigin]()
@@ -267,11 +238,9 @@ def test_av_buffer_pool_get():
     )
     assert_true(Bool(buf1))
     assert_true(Bool(buf2))
-    _ = avutil
 
 
 def test_av_buffer_pool_buffer_get_opaque():
-    var avutil = Avutil()
     var pool = avutil.av_buffer_pool_init(128, my_alloc)
     var buf = avutil.av_buffer_pool_get(
         pool.as_immutable().unsafe_origin_cast[ImmutExternalOrigin]()
@@ -281,13 +250,12 @@ def test_av_buffer_pool_buffer_get_opaque():
     _ = avutil.av_buffer_pool_buffer_get_opaque(
         buf.as_immutable().unsafe_origin_cast[ImmutExternalOrigin]()
     )
-    _ = avutil
 
 
 def main():
     TestSuite.discover_tests[__functions_in_module()]().run()
-    # test_av_buffer_alloc()
-    # test_av_buffer_allocz()
+    # testav_buffer_alloc()
+    # testav_buffer_allocz()
     # test_av_buffer_create()
     # test_av_buffer_ref()
     # test_av_buffer_unref()

@@ -1,9 +1,9 @@
 "See https://www.ffmpeg.org/doxygen/8.0/error_8h.html."
 from ffi import c_int
-from ash_dynamics.ffmpeg.avutil import avconfig
 from ash_dynamics.ffmpeg.avutil.macros import MKTAG
 from utils import Variant
-from ash_dynamics.primitives._clib import ExternalFunction
+import os
+from ffi import external_call
 
 
 # NOTE: There is a macro conditional: EDOM > 0. Not sure if we need to do this.
@@ -14,21 +14,21 @@ fn AVERROR(err: c_int) -> c_int:
 comptime IntOrStr = Variant[Int, c_int, String, StaticString]
 
 
-__extension Variant:
-    fn get_int(self) -> Int:
-        if self.isa[Int]():
-            return self[Int]
-        elif self.isa[c_int]():
-            return Int(self[c_int])
-        elif self.isa[String]():
-            return ord(self[String])
-        else:
-            return ord(self[StaticString])
+@always_inline
+fn get_int(a: IntOrStr) -> Int:
+    if a.isa[Int]():
+        return a[Int]
+    elif a.isa[c_int]():
+        return Int(a[c_int])
+    elif a.isa[String]():
+        return ord(a[String])
+    else:
+        return ord(a[StaticString])
 
 
 @always_inline
 fn FFERRTAG(a: IntOrStr, b: IntOrStr, c: IntOrStr, d: IntOrStr) -> Int:
-    return -MKTAG(a.get_int(), b.get_int(), c.get_int(), d.get_int())
+    return -MKTAG(get_int(a), get_int(b), get_int(c), get_int(d))
 
 
 comptime AVERROR_BSF_NOT_FOUND = FFERRTAG(0xF8, "B", "S", "F")
@@ -91,11 +91,19 @@ comptime AVERROR_HTTP_SERVER_ERROR = FFERRTAG(0xF8, "5", "X", "X")
 comptime AV_ERROR_MAX_STRING_SIZE = 64
 
 
-comptime av_strerror = ExternalFunction[
-    "av_strerror",
-    fn(
-        err: c_int,
-        errbuf: UnsafePointer[c_char, MutAnyOrigin],
-        errbuf_size: c_int,
-    ) -> c_int,
-]
+fn av_strerror(
+    err: c_int, errbuf: UnsafePointer[c_char, MutAnyOrigin], errbuf_size: c_int
+) -> c_int:
+    return external_call["av_strerror", c_int](err, errbuf, errbuf_size)
+
+
+fn av_err2str(err: c_int) -> String:
+    var s = alloc[c_char](AV_ERROR_MAX_STRING_SIZE)
+    var ret = av_strerror(
+        err,
+        s,
+        AV_ERROR_MAX_STRING_SIZE,
+    )
+    if ret < 0:
+        os.abort("Failed to get error string for error code: {}".format(err))
+    return String(unsafe_from_utf8_ptr=s)
