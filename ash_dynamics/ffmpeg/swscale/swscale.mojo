@@ -8,10 +8,11 @@ from ffi import (
     c_size_t,
     c_double,
     c_float,
+    external_call,
 )
 from sys._libc import dup, fclose, fdopen, fflush, FILE_ptr
 from utils import StaticTuple
-from ash_dynamics.primitives._clib import C_Union, ExternalFunction
+from ash_dynamics.primitives._clib import C_Union
 from ash_dynamics.ffmpeg.avutil.frame import AVFrame
 from ash_dynamics.ffmpeg.avcodec.codec import AVCodec
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
@@ -47,20 +48,27 @@ from ash_dynamics.ffmpeg.avutil.iamf import (
 )
 
 
-comptime swscale_version = ExternalFunction["swscale_version", fn() -> c_uint]
+fn swscale_version() -> c_uint:
+    return external_call["swscale_version", c_uint]()
 
-comptime swscale_configuration = ExternalFunction[
-    "swscale_configuration",
-    fn() -> UnsafePointer[c_char, ImmutExternalOrigin],
-]
 
-comptime swscale_license = ExternalFunction[
-    "swscale_license", fn() -> UnsafePointer[c_char, ImmutExternalOrigin]
-]
+fn swscale_configuration() -> UnsafePointer[c_char, ImmutExternalOrigin]:
+    return external_call[
+        "swscale_configuration", UnsafePointer[c_char, ImmutExternalOrigin]
+    ]()
 
-comptime sws_get_class = ExternalFunction[
-    "sws_get_class", fn() -> UnsafePointer[AVClass, ImmutExternalOrigin]
-]
+
+fn swscale_license() -> UnsafePointer[c_char, ImmutExternalOrigin]:
+    return external_call[
+        "swscale_license", UnsafePointer[c_char, ImmutExternalOrigin]
+    ]()
+
+
+fn sws_get_class() -> UnsafePointer[AVClass, ImmutExternalOrigin]:
+    return external_call[
+        "sws_get_class", UnsafePointer[AVClass, ImmutExternalOrigin]
+    ]()
+
 
 #############################
 # Flags and quality settings #
@@ -177,75 +185,61 @@ struct SwsContext(Movable, Writable):
 ####################################################
 
 
-comptime sws_test_format = ExternalFunction[
-    "sws_test_format",
-    fn(
-        format: AVPixelFormat.ENUM_DTYPE,
-        output: c_int,
-    ) -> c_int,
-]
+fn sws_test_format(format: AVPixelFormat.ENUM_DTYPE, output: c_int) -> c_int:
+    return external_call["sws_test_format", c_int](format, output)
 
-comptime sws_test_colorspace = ExternalFunction[
-    "sws_test_colorspace",
-    fn(
-        colorspace: AVColorSpace.ENUM_DTYPE,
-        output: c_int,
-    ) -> c_int,
-]
 
-comptime sws_test_primaries = ExternalFunction[
-    "sws_test_primaries",
-    fn(
-        primaries: AVColorPrimaries.ENUM_DTYPE,
-        output: c_int,
-    ) -> c_int,
-]
+fn sws_test_colorspace(
+    colorspace: AVColorSpace.ENUM_DTYPE, output: c_int
+) -> c_int:
+    return external_call["sws_test_colorspace", c_int](colorspace, output)
 
-comptime sws_test_transfer = ExternalFunction[
-    "sws_test_transfer",
-    fn(
-        transfer: AVColorTransferCharacteristic.ENUM_DTYPE,
-        output: c_int,
-    ) -> c_int,
-]
 
-comptime sws_test_frame = ExternalFunction[
-    "sws_test_frame",
-    fn(
-        frame: UnsafePointer[AVFrame, ImmutExternalOrigin],
-        output: c_int,
-    ) -> c_int,
-]
+fn sws_test_primaries(
+    primaries: AVColorPrimaries.ENUM_DTYPE, output: c_int
+) -> c_int:
+    return external_call["sws_test_primaries", c_int](primaries, output)
 
-comptime sws_frame_setup = ExternalFunction[
-    "sws_frame_setup",
-    fn(
-        ctx: UnsafePointer[SwsContext, MutExternalOrigin],
-        dst: UnsafePointer[AVFrame, ImmutExternalOrigin],
-        src: UnsafePointer[AVFrame, ImmutExternalOrigin],
-    ) -> c_int,
-]
+
+fn sws_test_transfer(
+    transfer: AVColorTransferCharacteristic.ENUM_DTYPE, output: c_int
+) -> c_int:
+    return external_call["sws_test_transfer", c_int](transfer, output)
+
+
+fn sws_test_frame(
+    frame: UnsafePointer[AVFrame, ImmutExternalOrigin], output: c_int
+) -> c_int:
+    return external_call["sws_test_frame", c_int](frame, output)
+
+
+fn sws_frame_setup(
+    ctx: UnsafePointer[SwsContext, MutExternalOrigin],
+    dst: UnsafePointer[AVFrame, ImmutExternalOrigin],
+    src: UnsafePointer[AVFrame, ImmutExternalOrigin],
+) -> c_int:
+    return external_call["sws_frame_setup", c_int](ctx, dst, src)
+
 
 ####################################################
 # Main scaling API #
 ####################################################
 
-comptime sws_is_noop = ExternalFunction[
-    "sws_is_noop",
-    fn(
-        dst: UnsafePointer[AVFrame, ImmutExternalOrigin],
-        src: UnsafePointer[AVFrame, ImmutExternalOrigin],
-    ) -> c_int,
-]
 
-comptime sws_scale_frame = ExternalFunction[
-    "sws_scale_frame",
-    fn(
-        ctx: UnsafePointer[SwsContext, MutExternalOrigin],
-        dst: UnsafePointer[AVFrame, MutExternalOrigin],
-        src: UnsafePointer[AVFrame, ImmutExternalOrigin],
-    ) -> c_int,
-]
+fn sws_is_noop(
+    dst: UnsafePointer[AVFrame, ImmutExternalOrigin],
+    src: UnsafePointer[AVFrame, ImmutExternalOrigin],
+) -> c_int:
+    return external_call["sws_is_noop", c_int](dst, src)
+
+
+fn sws_scale_frame(
+    ctx: UnsafePointer[SwsContext, MutExternalOrigin],
+    dst: UnsafePointer[AVFrame, MutExternalOrigin],
+    src: UnsafePointer[AVFrame, ImmutExternalOrigin],
+) -> c_int:
+    return external_call["sws_scale_frame", c_int](ctx, dst, src)
+
 
 ####################################################
 # Legacy (stateful) API #
@@ -266,10 +260,13 @@ comptime SWS_CS_SMPTE240M = 7
 comptime SWS_CS_DEFAULT = 5
 comptime SWS_CS_BT2020 = 9
 
-comptime sws_getCoefficients = ExternalFunction[
-    "sws_getCoefficients",
-    fn(colorspace: c_int,) -> UnsafePointer[c_int, ImmutExternalOrigin],
-]
+
+fn sws_getCoefficients(
+    colorspace: c_int,
+) -> UnsafePointer[c_int, ImmutExternalOrigin]:
+    return external_call[
+        "sws_getCoefficients", UnsafePointer[c_int, ImmutExternalOrigin]
+    ](colorspace)
 
 
 @fieldwise_init
@@ -288,208 +285,241 @@ struct SwsFilter(Movable, Writable):
     var chrV: UnsafePointer[SwsVector, ImmutExternalOrigin]
 
 
-comptime sws_isSupportedInput = ExternalFunction[
-    "sws_isSupportedInput", fn(pix_fmt: AVPixelFormat.ENUM_DTYPE,) -> c_int
-]
-
-comptime sws_isSupportedOutput = ExternalFunction[
-    "sws_isSupportedOutput", fn(pix_fmt: AVPixelFormat.ENUM_DTYPE,) -> c_int
-]
-
-comptime sws_isSupportedEndiannessConversion = ExternalFunction[
-    "sws_isSupportedEndiannessConversion",
-    fn(pix_fmt: AVPixelFormat.ENUM_DTYPE,) -> c_int,
-]
-
-comptime sws_init_context = ExternalFunction[
-    "sws_init_context",
-    fn(
-        ctx: UnsafePointer[SwsContext, MutExternalOrigin],
-        srcFilter: UnsafePointer[SwsFilter, MutExternalOrigin],
-        dstFilter: UnsafePointer[SwsFilter, MutExternalOrigin],
-    ) -> c_int,
-]
-
-comptime sws_freeContext = ExternalFunction[
-    "sws_freeContext", fn(ctx: UnsafePointer[SwsContext, MutExternalOrigin],)
-]
-
-comptime sws_getContext = ExternalFunction[
-    "sws_getContext",
-    fn(
-        srcW: c_int,
-        srcH: c_int,
-        srcFormat: AVPixelFormat.ENUM_DTYPE,
-        dstW: c_int,
-        dstH: c_int,
-        dstFormat: AVPixelFormat.ENUM_DTYPE,
-        flags: c_int,
-        srcFilter: UnsafePointer[SwsFilter, MutExternalOrigin],
-        dstFilter: UnsafePointer[SwsFilter, MutExternalOrigin],
-        param: UnsafePointer[c_double, ImmutExternalOrigin],
-    ) -> UnsafePointer[SwsContext, MutExternalOrigin],
-]
-
-comptime sws_scale = ExternalFunction[
-    "sws_scale",
-    fn(
-        ctx: UnsafePointer[SwsContext, MutExternalOrigin],
-        # NOTE: This is a const pointer to an array. I think this is "ok"
-        srcSlice: UnsafePointer[
-            UnsafePointer[c_uchar, ImmutExternalOrigin], ImmutExternalOrigin
-        ],
-        # NOTE: This is a const pointer to an array. I think this is "ok"
-        srcStride: UnsafePointer[c_int, ImmutExternalOrigin],
-        srcSliceY: c_int,
-        srcSliceH: c_int,
-        # NOTE: This is a pointer to an array. I think this is "ok"
-        dst: UnsafePointer[
-            UnsafePointer[c_uchar, MutExternalOrigin], MutExternalOrigin
-        ],
-        # NOTE: This is a const pointer to an array. I think this is "ok"
-        dstStride: UnsafePointer[c_int, ImmutExternalOrigin],
-    ) -> c_int,
-]
-
-comptime sws_frame_start = ExternalFunction[
-    "sws_frame_start",
-    fn(
-        ctx: UnsafePointer[SwsContext, MutExternalOrigin],
-        dst: UnsafePointer[AVFrame, MutExternalOrigin],
-        src: UnsafePointer[AVFrame, ImmutExternalOrigin],
-    ) -> c_int,
-]
-
-comptime sws_frame_end = ExternalFunction[
-    "sws_frame_end", fn(ctx: UnsafePointer[SwsContext, MutExternalOrigin],)
-]
-
-comptime sws_send_slice = ExternalFunction[
-    "sws_send_slice",
-    fn(
-        ctx: UnsafePointer[SwsContext, MutExternalOrigin],
-        slice_start: c_uint,
-        slice_height: c_uint,
-    ) -> c_int,
-]
-
-comptime sws_receive_slice = ExternalFunction[
-    "sws_receive_slice",
-    fn(
-        ctx: UnsafePointer[SwsContext, MutExternalOrigin],
-        slice_start: c_uint,
-        slice_height: c_uint,
-    ) -> c_int,
-]
-
-comptime sws_receive_slice_alignment = ExternalFunction[
-    "sws_receive_slice_alignment",
-    fn(ctx: UnsafePointer[SwsContext, ImmutExternalOrigin],) -> c_uint,
-]
-
-comptime sws_setColorspaceDetails = ExternalFunction[
-    "sws_setColorspaceDetails",
-    fn(
-        ctx: UnsafePointer[SwsContext, MutExternalOrigin],
-        inv_table: UnsafePointer[c_int, ImmutExternalOrigin],
-        srcRange: c_int,
-        table: UnsafePointer[c_int, ImmutExternalOrigin],
-        dstRange: c_int,
-        brightness: c_int,
-        contrast: c_int,
-        saturation: c_int,
-    ) -> c_int,
-]
+fn sws_isSupportedInput(pix_fmt: AVPixelFormat.ENUM_DTYPE) -> c_int:
+    return external_call["sws_isSupportedInput", c_int](pix_fmt)
 
 
-comptime sws_allocVec = ExternalFunction[
-    "sws_allocVec",
-    fn(length: c_int,) -> UnsafePointer[SwsVector, MutExternalOrigin],
-]
+fn sws_isSupportedOutput(pix_fmt: AVPixelFormat.ENUM_DTYPE) -> c_int:
+    return external_call["sws_isSupportedOutput", c_int](pix_fmt)
 
 
-comptime sws_getGaussianVec = ExternalFunction[
-    "sws_getGaussianVec",
-    fn(
-        variance: c_double,
-        quality: c_double,
-    ) -> UnsafePointer[SwsVector, ImmutExternalOrigin],
-]
+fn sws_isSupportedEndiannessConversion(
+    pix_fmt: AVPixelFormat.ENUM_DTYPE,
+) -> c_int:
+    return external_call["sws_isSupportedEndiannessConversion", c_int](pix_fmt)
 
 
-comptime sws_scaleVec = ExternalFunction[
-    "sws_scaleVec",
-    fn(
-        a: UnsafePointer[SwsVector, MutExternalOrigin],
-        scalar: c_double,
-    ),
-]
-
-comptime sws_normalizeVec = ExternalFunction[
-    "sws_normalizeVec",
-    fn(
-        a: UnsafePointer[SwsVector, MutExternalOrigin],
-        height: c_double,
-    ),
-]
-
-comptime sws_freeVec = ExternalFunction[
-    "sws_freeVec", fn(a: UnsafePointer[SwsVector, MutExternalOrigin],)
-]
+fn sws_init_context(
+    ctx: UnsafePointer[SwsContext, MutExternalOrigin],
+    srcFilter: UnsafePointer[SwsFilter, MutExternalOrigin],
+    dstFilter: UnsafePointer[SwsFilter, MutExternalOrigin],
+) -> c_int:
+    return external_call["sws_init_context", c_int](ctx, srcFilter, dstFilter)
 
 
-comptime sws_getDefaultFilter = ExternalFunction[
-    "sws_getDefaultFilter",
-    fn(
-        lumaGBlur: c_float,
-        chromaGBlur: c_float,
-        lumaSharpen: c_float,
-        chromaSharpen: c_float,
-        chromaHShift: c_float,
-        chromaVShift: c_float,
-        verbose: c_int,
-    ) -> UnsafePointer[SwsFilter, MutExternalOrigin],
-]
-
-comptime sws_freeFilter = ExternalFunction[
-    "sws_freeFilter", fn(filter: UnsafePointer[SwsFilter, MutExternalOrigin],)
-]
-
-comptime sws_getCachedContext = ExternalFunction[
-    "sws_getCachedContext",
-    fn(
-        ctx: UnsafePointer[SwsContext, MutExternalOrigin],
-        srcW: c_int,
-        srcH: c_int,
-        srcFormat: AVPixelFormat.ENUM_DTYPE,
-        dstW: c_int,
-        dstH: c_int,
-        dstFormat: AVPixelFormat.ENUM_DTYPE,
-        flags: c_int,
-        srcFilter: UnsafePointer[SwsFilter, MutExternalOrigin],
-        dstFilter: UnsafePointer[SwsFilter, MutExternalOrigin],
-        param: UnsafePointer[c_double, ImmutExternalOrigin],
-    ) -> UnsafePointer[SwsContext, ImmutExternalOrigin],
-]
+fn sws_freeContext(ctx: UnsafePointer[SwsContext, MutExternalOrigin]):
+    external_call["sws_freeContext", NoneType](ctx)
 
 
-comptime sws_convertPalette8ToPacked32 = ExternalFunction[
-    "sws_convertPalette8ToPacked32",
-    fn(
-        src: UnsafePointer[c_uchar, ImmutExternalOrigin],
-        dst: UnsafePointer[c_uchar, MutExternalOrigin],
-        num_pixels: c_int,
-        palette: UnsafePointer[c_uchar, ImmutExternalOrigin],
-    ),
-]
+fn sws_getContext(
+    srcW: c_int,
+    srcH: c_int,
+    srcFormat: AVPixelFormat.ENUM_DTYPE,
+    dstW: c_int,
+    dstH: c_int,
+    dstFormat: AVPixelFormat.ENUM_DTYPE,
+    flags: c_int,
+    srcFilter: UnsafePointer[SwsFilter, MutExternalOrigin],
+    dstFilter: UnsafePointer[SwsFilter, MutExternalOrigin],
+    param: UnsafePointer[c_double, ImmutExternalOrigin],
+) -> UnsafePointer[SwsContext, MutExternalOrigin]:
+    return external_call[
+        "sws_getContext", UnsafePointer[SwsContext, MutExternalOrigin]
+    ](
+        srcW,
+        srcH,
+        srcFormat,
+        dstW,
+        dstH,
+        dstFormat,
+        flags,
+        srcFilter,
+        dstFilter,
+        param,
+    )
 
 
-comptime sws_convertPalette8ToPacked24 = ExternalFunction[
-    "sws_convertPalette8ToPacked24",
-    fn(
-        src: UnsafePointer[c_uchar, ImmutExternalOrigin],
-        dst: UnsafePointer[c_uchar, MutExternalOrigin],
-        num_pixels: c_int,
-        palette: UnsafePointer[c_uchar, ImmutExternalOrigin],
-    ),
-]
+fn sws_scale(
+    ctx: UnsafePointer[SwsContext, MutExternalOrigin],
+    srcSlice: UnsafePointer[
+        UnsafePointer[c_uchar, ImmutExternalOrigin], ImmutExternalOrigin
+    ],
+    srcStride: UnsafePointer[c_int, ImmutExternalOrigin],
+    srcSliceY: c_int,
+    srcSliceH: c_int,
+    dst: UnsafePointer[
+        UnsafePointer[c_uchar, MutExternalOrigin], MutExternalOrigin
+    ],
+    dstStride: UnsafePointer[c_int, ImmutExternalOrigin],
+) -> c_int:
+    return external_call["sws_scale", c_int](
+        ctx, srcSlice, srcStride, srcSliceY, srcSliceH, dst, dstStride
+    )
+
+
+fn sws_frame_start(
+    ctx: UnsafePointer[SwsContext, MutExternalOrigin],
+    dst: UnsafePointer[AVFrame, MutExternalOrigin],
+    src: UnsafePointer[AVFrame, ImmutExternalOrigin],
+) -> c_int:
+    return external_call["sws_frame_start", c_int](ctx, dst, src)
+
+
+fn sws_frame_end(ctx: UnsafePointer[SwsContext, MutExternalOrigin]):
+    external_call["sws_frame_end", NoneType](ctx)
+
+
+fn sws_send_slice(
+    ctx: UnsafePointer[SwsContext, MutExternalOrigin],
+    slice_start: c_uint,
+    slice_height: c_uint,
+) -> c_int:
+    return external_call["sws_send_slice", c_int](
+        ctx, slice_start, slice_height
+    )
+
+
+fn sws_receive_slice(
+    ctx: UnsafePointer[SwsContext, MutExternalOrigin],
+    slice_start: c_uint,
+    slice_height: c_uint,
+) -> c_int:
+    return external_call["sws_receive_slice", c_int](
+        ctx, slice_start, slice_height
+    )
+
+
+fn sws_receive_slice_alignment(
+    ctx: UnsafePointer[SwsContext, ImmutExternalOrigin]
+) -> c_uint:
+    return external_call["sws_receive_slice_alignment", c_uint](ctx)
+
+
+fn sws_setColorspaceDetails(
+    ctx: UnsafePointer[SwsContext, MutExternalOrigin],
+    inv_table: UnsafePointer[c_int, ImmutExternalOrigin],
+    srcRange: c_int,
+    table: UnsafePointer[c_int, ImmutExternalOrigin],
+    dstRange: c_int,
+    brightness: c_int,
+    contrast: c_int,
+    saturation: c_int,
+) -> c_int:
+    return external_call["sws_setColorspaceDetails", c_int](
+        ctx,
+        inv_table,
+        srcRange,
+        table,
+        dstRange,
+        brightness,
+        contrast,
+        saturation,
+    )
+
+
+fn sws_allocVec(length: c_int) -> UnsafePointer[SwsVector, MutExternalOrigin]:
+    return external_call[
+        "sws_allocVec", UnsafePointer[SwsVector, MutExternalOrigin]
+    ](length)
+
+
+fn sws_getGaussianVec(
+    variance: c_double, quality: c_double
+) -> UnsafePointer[SwsVector, ImmutExternalOrigin]:
+    return external_call[
+        "sws_getGaussianVec", UnsafePointer[SwsVector, ImmutExternalOrigin]
+    ](variance, quality)
+
+
+fn sws_scaleVec(
+    a: UnsafePointer[SwsVector, MutExternalOrigin], scalar: c_double
+):
+    external_call["sws_scaleVec", NoneType](a, scalar)
+
+
+fn sws_normalizeVec(
+    a: UnsafePointer[SwsVector, MutExternalOrigin], height: c_double
+):
+    external_call["sws_normalizeVec", NoneType](a, height)
+
+
+fn sws_freeVec(a: UnsafePointer[SwsVector, MutExternalOrigin]):
+    external_call["sws_freeVec", NoneType](a)
+
+
+fn sws_getDefaultFilter(
+    lumaGBlur: c_float,
+    chromaGBlur: c_float,
+    lumaSharpen: c_float,
+    chromaSharpen: c_float,
+    chromaHShift: c_float,
+    chromaVShift: c_float,
+    verbose: c_int,
+) -> UnsafePointer[SwsFilter, MutExternalOrigin]:
+    return external_call[
+        "sws_getDefaultFilter", UnsafePointer[SwsFilter, MutExternalOrigin]
+    ](
+        lumaGBlur,
+        chromaGBlur,
+        lumaSharpen,
+        chromaSharpen,
+        chromaHShift,
+        chromaVShift,
+        verbose,
+    )
+
+
+fn sws_freeFilter(filter: UnsafePointer[SwsFilter, MutExternalOrigin]):
+    external_call["sws_freeFilter", NoneType](filter)
+
+
+fn sws_getCachedContext(
+    ctx: UnsafePointer[SwsContext, MutExternalOrigin],
+    srcW: c_int,
+    srcH: c_int,
+    srcFormat: AVPixelFormat.ENUM_DTYPE,
+    dstW: c_int,
+    dstH: c_int,
+    dstFormat: AVPixelFormat.ENUM_DTYPE,
+    flags: c_int,
+    srcFilter: UnsafePointer[SwsFilter, MutExternalOrigin],
+    dstFilter: UnsafePointer[SwsFilter, MutExternalOrigin],
+    param: UnsafePointer[c_double, ImmutExternalOrigin],
+) -> UnsafePointer[SwsContext, ImmutExternalOrigin]:
+    return external_call[
+        "sws_getCachedContext", UnsafePointer[SwsContext, ImmutExternalOrigin]
+    ](
+        ctx,
+        srcW,
+        srcH,
+        srcFormat,
+        dstW,
+        dstH,
+        dstFormat,
+        flags,
+        srcFilter,
+        dstFilter,
+        param,
+    )
+
+
+fn sws_convertPalette8ToPacked32(
+    src: UnsafePointer[c_uchar, ImmutExternalOrigin],
+    dst: UnsafePointer[c_uchar, MutExternalOrigin],
+    num_pixels: c_int,
+    palette: UnsafePointer[c_uchar, ImmutExternalOrigin],
+):
+    external_call["sws_convertPalette8ToPacked32", NoneType](
+        src, dst, num_pixels, palette
+    )
+
+
+fn sws_convertPalette8ToPacked24(
+    src: UnsafePointer[c_uchar, ImmutExternalOrigin],
+    dst: UnsafePointer[c_uchar, MutExternalOrigin],
+    num_pixels: c_int,
+    palette: UnsafePointer[c_uchar, ImmutExternalOrigin],
+):
+    external_call["sws_convertPalette8ToPacked24", NoneType](
+        src, dst, num_pixels, palette
+    )
