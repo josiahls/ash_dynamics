@@ -107,7 +107,7 @@ args = ["file"]
 depends-on = [ { task = "build_debug", args = ["{{ file }}"] } ]
 
 [tasks.valgrind]
-cmd = "valgrind --leak-check=yes --track-origins=yes $(tools/mojo_build_ex.sh {{ file }})"
+cmd = "valgrind --leak-check=full --track-origins=yes -s $(tools/mojo_build_ex.sh {{ file }})"
 args = ["file"]
 depends-on = [ { task = "build_valgrind", args = ["{{ file }}"] } ]
 
