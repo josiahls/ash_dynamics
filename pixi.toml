@@ -90,6 +90,14 @@ args = ["file"]
 cmd = "pixi run mojo build $ASH_DYNAMICS_LINKERS $ASH_DYNAMICS_INCLUDES --debug-level=line-tables {{ file }} -o $(tools/mojo_build_ex.sh {{ file }})"
 args = ["file"]
 
+[tasks.build_valgrind]
+cmd = "pixi run mojo build $ASH_DYNAMICS_LINKERS $ASH_DYNAMICS_INCLUDES --debug-level=line-tables {{ file }} --march=x86-64-v2 -o $(tools/mojo_build_ex.sh {{ file }})"
+args = ["file"]
+
+[tasks.build_sanitize]
+cmd = "pixi run mojo build $ASH_DYNAMICS_LINKERS $ASH_DYNAMICS_INCLUDES --debug-level=line-tables {{ file }} --sanitize=address -o $(tools/mojo_build_ex.sh {{ file }})"
+args = ["file"]
+
 [tasks.format]
 cmd = "pixi run mojo format ash_dynamics"
 
@@ -97,6 +105,11 @@ cmd = "pixi run mojo format ash_dynamics"
 cmd = "./$(tools/mojo_build_ex.sh {{ file }})"
 args = ["file"]
 depends-on = [ { task = "build_debug", args = ["{{ file }}"] } ]
+
+[tasks.valgrind]
+cmd = "valgrind --leak-check=full --track-origins=yes -s $(tools/mojo_build_ex.sh {{ file }})"
+args = ["file"]
+depends-on = [ { task = "build_valgrind", args = ["{{ file }}"] } ]
 
 [tasks.debug]
 cmd = "pixi run mojo debug ./$(tools/mojo_build_ex.sh {{ file }})"
