@@ -26,7 +26,7 @@ ASH_DYNAMICS_INCLUDES = " -I . -I third_party/NuMojo"
 ASH_DYNAMICS_SO_INSTALL_PREFIX = "$PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib"
 LIBRARY_PATH = "$PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib:$LIBRARY_PATH"
 LD_LIBRARY_PATH = "$PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib:$LD_LIBRARY_PATH"
-ASH_DYNAMICS_LINKERS = " -Xlinker $PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib/libswresample.so -Xlinker $PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib/libswscale.so -Xlinker $PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib/libavformat.so -Xlinker $PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib/libavcodec.so -Xlinker $PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib/libavutil.so"
+ASH_DYNAMICS_LINKERS = " -Xlinker $PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib/libavutil.so -Xlinker $PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib/libavcodec.so -Xlinker $PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib/libswresample.so -Xlinker $PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib/libswscale.so -Xlinker $PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib/libavformat.so"
 MOJO_ENABLE_STACK_TRACE_ON_ERROR="1"
 LOGGING_LEVEL="DEBUG"
 
