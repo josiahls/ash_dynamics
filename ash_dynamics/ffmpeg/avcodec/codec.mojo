@@ -69,11 +69,13 @@ struct AVCodec(Movable, Writable):
 
     var supported_framerates: UnsafePointer[AVRational, ImmutExternalOrigin]
 
-    var pix_fmts: UnsafePointer[AVPixelFormat.ENUM_DTYPE, MutExternalOrigin]
+    var pix_fmts: UnsafePointer[AVPixelFormat.ENUM_DTYPE, ImmutExternalOrigin]
 
     var supported_samplerates: UnsafePointer[c_int, ImmutExternalOrigin]
 
-    var sample_fmts: UnsafePointer[AVSampleFormat.ENUM_DTYPE, MutExternalOrigin]
+    var sample_fmts: UnsafePointer[
+        AVSampleFormat.ENUM_DTYPE, ImmutExternalOrigin
+    ]
 
     var priv_class: UnsafePointer[AVClass, ImmutExternalOrigin]
 

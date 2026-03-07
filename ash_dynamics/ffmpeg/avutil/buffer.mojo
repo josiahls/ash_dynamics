@@ -12,7 +12,7 @@ struct AVBufferRef(TrivialRegisterPassable, Writable):
     "See https://www.ffmpeg.org/doxygen/8.0/structAVBufferRef.html."
     var buffer: UnsafePointer[AVBuffer, origin=MutExternalOrigin]
     var data: UnsafePointer[c_uchar, origin=MutExternalOrigin]
-    var size: c_uint
+    var size: c_size_t
 
 
 fn av_buffer_alloc(
@@ -154,7 +154,7 @@ fn av_buffer_pool_uninit(
 
 
 fn av_buffer_pool_get(
-    pool: UnsafePointer[AVBufferPool, ImmutExternalOrigin]
+    pool: UnsafePointer[AVBufferPool, MutExternalOrigin]
 ) -> UnsafePointer[AVBufferRef, MutExternalOrigin]:
     return external_call[
         "av_buffer_pool_get", UnsafePointer[AVBufferRef, MutExternalOrigin]

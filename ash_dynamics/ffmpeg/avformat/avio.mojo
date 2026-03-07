@@ -120,7 +120,7 @@ struct AVIOContext(Movable, Writable):
     var update_checksum: fn(
         checksum: c_ulong,
         buf: UnsafePointer[c_uchar, ImmutExternalOrigin],
-        size: c_int,
+        size: c_uint,
     ) -> c_ulong
     var read_pause: fn(
         opaque: OpaquePointer[MutExternalOrigin],
@@ -186,7 +186,7 @@ comptime avio_free_directory_entry = fn(
     entry: UnsafePointer[
         UnsafePointer[AVIODirEntry, MutExternalOrigin], MutExternalOrigin
     ],
-) -> c_int
+) -> NoneType
 
 comptime avio_alloc_context = fn(
     buffer: UnsafePointer[c_uchar, MutExternalOrigin],
@@ -214,49 +214,49 @@ comptime avio_context_free = fn(
     s: UnsafePointer[
         UnsafePointer[AVIOContext, MutExternalOrigin], MutExternalOrigin
     ],
-) -> c_int
+) -> NoneType
 
 comptime avio_w8 = fn(
     s: UnsafePointer[AVIOContext, MutExternalOrigin],
     b: c_int,
-) -> c_int
+) -> NoneType
 comptime avio_write = fn(
     s: UnsafePointer[AVIOContext, MutExternalOrigin],
     buf: UnsafePointer[c_uchar, ImmutExternalOrigin],
     size: c_int,
-) -> c_int
+) -> NoneType
 comptime avio_wl64 = fn(
     s: UnsafePointer[AVIOContext, MutExternalOrigin],
     val: c_ulong_long,
-) -> c_int
+) -> NoneType
 comptime avio_wb64 = fn(
     s: UnsafePointer[AVIOContext, MutExternalOrigin],
     val: c_ulong_long,
-) -> c_int
+) -> NoneType
 comptime avio_wl32 = fn(
     s: UnsafePointer[AVIOContext, MutExternalOrigin],
     val: c_uint,
-) -> c_int
+) -> NoneType
 comptime avio_wb32 = fn(
     s: UnsafePointer[AVIOContext, MutExternalOrigin],
     val: c_uint,
-) -> c_int
+) -> NoneType
 comptime avio_wl24 = fn(
     s: UnsafePointer[AVIOContext, MutExternalOrigin],
     val: c_uint,
-) -> c_int
+) -> NoneType
 comptime avio_wb24 = fn(
     s: UnsafePointer[AVIOContext, MutExternalOrigin],
     val: c_uint,
-) -> c_int
+) -> NoneType
 comptime avio_wl16 = fn(
     s: UnsafePointer[AVIOContext, MutExternalOrigin],
     val: c_uint,
-) -> c_int
+) -> NoneType
 comptime avio_wb16 = fn(
     s: UnsafePointer[AVIOContext, MutExternalOrigin],
     val: c_uint,
-) -> c_int
+) -> NoneType
 
 comptime avio_put_str = fn(
     s: UnsafePointer[AVIOContext, MutExternalOrigin],
@@ -277,7 +277,7 @@ comptime avio_write_marker = fn(
     s: UnsafePointer[AVIOContext, MutExternalOrigin],
     time: c_long_long,
     type: AVIODataMarkerType.ENUM_DTYPE,
-) -> c_int
+) -> NoneType
 
 comptime AVSEEK_SIZE = 0x10000
 comptime AVSEEK_FORCE = 0x20000
@@ -326,7 +326,8 @@ comptime avio_print_string_array = fn(
     strings: UnsafePointer[
         UnsafePointer[c_char, ImmutExternalOrigin], ImmutExternalOrigin
     ],
-) -> c_int
+) -> NoneType
+# NOTE: The docs have it as `int void` which doesn't make sense.
 
 # TODO: Not sure if we can support this.
 # Mojo has no way of accessing the __VA_ARGS__ or va_lists.
@@ -335,7 +336,7 @@ comptime avio_print_string_array = fn(
 
 comptime avio_flush = fn(
     s: UnsafePointer[AVIOContext, MutExternalOrigin],
-) -> c_int
+) -> NoneType
 
 comptime avio_read = fn(
     s: UnsafePointer[AVIOContext, MutExternalOrigin],
@@ -406,7 +407,7 @@ comptime avio_open2 = fn(
     ],
     url: UnsafePointer[c_char, ImmutExternalOrigin],
     flags: c_int,
-    int_cb: UnsafePointer[AVIOInterruptCB, MutExternalOrigin],
+    int_cb: UnsafePointer[AVIOInterruptCB, ImmutExternalOrigin],
     options: UnsafePointer[
         UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
     ],

@@ -153,10 +153,14 @@ def test_av_packet_pack_dictionary():
 
 
 def test_av_packet_unpack_dictionary():
+    var dict_ptr = alloc[AVDictionary](0)
+    var dict_ptr_ptr = alloc[UnsafePointer[AVDictionary, MutExternalOrigin]](1)
+    dict_ptr_ptr[] = dict_ptr
+
     var ret = avcodec.av_packet_unpack_dictionary(
         UnsafePointer[c_uchar, ImmutExternalOrigin](unsafe_from_address=0),
         c_size_t(0),
-        UnsafePointer[AVDictionary, MutExternalOrigin](unsafe_from_address=0),
+        dict_ptr_ptr,
     )
     assert_equal(ret, 0)
 

@@ -136,9 +136,11 @@ def open_video(
     # NOTE: We need to add an override to avcodec_open2 that makes
     # an internal null pointer. Debug mode otherwise fails on this.
     var opt = UnsafePointer[AVDictionary, MutExternalOrigin]()
+    var opt_ptr = alloc[UnsafePointer[AVDictionary, MutExternalOrigin]](1)
+    opt_ptr[] = opt
     print("im opening a video")
 
-    _ = avcodec.avcodec_open2(c, video_codec, opt)
+    _ = avcodec.avcodec_open2(c, video_codec, opt_ptr)
     # av_dict_free(&opt);
 
     ost.frame = alloc_frame(

@@ -546,8 +546,8 @@ struct AVSubtitle(Movable, Writable):
     var pts: c_long_long
 
 
-fn avcodec_version() -> c_int:
-    return external_call["avcodec_version", c_int]()
+fn avcodec_version() -> c_uint:
+    return external_call["avcodec_version", c_uint]()
 
 
 fn avcodec_configuration() -> UnsafePointer[c_char, ImmutExternalOrigin]:
@@ -611,7 +611,9 @@ fn avcodec_parameters_to_context(
 fn avcodec_open2(
     context: UnsafePointer[AVCodecContext, MutExternalOrigin],
     codec: UnsafePointer[AVCodec, ImmutExternalOrigin],
-    options: UnsafePointer[AVDictionary, ImmutExternalOrigin],
+    options: UnsafePointer[
+        UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
+    ],
 ) -> c_int:
     return external_call["avcodec_open2", c_int](context, codec, options)
 
@@ -642,8 +644,8 @@ fn avcodec_align_dimensions(
     s: UnsafePointer[AVCodecContext, MutExternalOrigin],
     width: UnsafePointer[c_int, MutExternalOrigin],
     height: UnsafePointer[c_int, MutExternalOrigin],
-) -> c_int:
-    return external_call["avcodec_align_dimensions", c_int](s, width, height)
+):
+    external_call["avcodec_align_dimensions", NoneType](s, width, height)
 
 
 fn avcodec_align_dimensions2(
@@ -651,8 +653,8 @@ fn avcodec_align_dimensions2(
     width: UnsafePointer[c_int, MutExternalOrigin],
     height: UnsafePointer[c_int, MutExternalOrigin],
     linesize_align: UnsafePointer[c_int, MutExternalOrigin],
-) -> c_int:
-    return external_call["avcodec_align_dimensions2", c_int](
+):
+    external_call["avcodec_align_dimensions2", NoneType](
         s, width, height, linesize_align
     )
 
@@ -727,9 +729,12 @@ fn avcodec_get_supported_config(
     avctx: UnsafePointer[AVCodecContext, ImmutExternalOrigin],
     codec: UnsafePointer[AVCodec, ImmutExternalOrigin],
     config: AVCodecConfig.ENUM_DTYPE,
+    flags: c_uint,
+    out: UnsafePointer[OpaquePointer[ImmutExternalOrigin], MutExternalOrigin],
+    out_num: UnsafePointer[c_int, MutExternalOrigin],
 ) -> c_int:
     return external_call["avcodec_get_supported_config", c_int](
-        avctx, codec, config
+        avctx, codec, config, flags, out, out_num
     )
 
 
@@ -888,8 +893,8 @@ fn avcodec_encode_subtitle(
     )
 
 
-fn avcodec_pix_fmt_to_codec_tag(pix_fmt: AVPixelFormat.ENUM_DTYPE) -> c_int:
-    return external_call["avcodec_pix_fmt_to_codec_tag", c_int](pix_fmt)
+fn avcodec_pix_fmt_to_codec_tag(pix_fmt: AVPixelFormat.ENUM_DTYPE) -> c_uint:
+    return external_call["avcodec_pix_fmt_to_codec_tag", c_uint](pix_fmt)
 
 
 fn avcodec_find_best_pix_fmt_of_list(
@@ -958,7 +963,7 @@ fn avcodec_fill_audio_frame(
     frame: UnsafePointer[AVFrame, MutExternalOrigin],
     nb_channels: c_int,
     sample_fmt: AVSampleFormat.ENUM_DTYPE,
-    buf: UnsafePointer[c_uchar, MutExternalOrigin],
+    buf: UnsafePointer[c_uchar, ImmutExternalOrigin],
     buf_size: c_int,
     align: c_int,
 ) -> c_int:
@@ -984,7 +989,7 @@ fn av_get_audio_frame_duration(
 
 fn av_fast_padded_malloc(
     ptr: OpaquePointer[MutExternalOrigin],
-    size: UnsafePointer[c_int, MutExternalOrigin],
+    size: UnsafePointer[c_uint, MutExternalOrigin],
     min_size: c_size_t,
 ):
     external_call["av_fast_padded_malloc", NoneType](ptr, size, min_size)
@@ -992,7 +997,7 @@ fn av_fast_padded_malloc(
 
 fn av_fast_padded_mallocz(
     ptr: OpaquePointer[MutExternalOrigin],
-    size: UnsafePointer[c_int, MutExternalOrigin],
+    size: UnsafePointer[c_uint, MutExternalOrigin],
     min_size: c_size_t,
 ):
     external_call["av_fast_padded_mallocz", NoneType](ptr, size, min_size)

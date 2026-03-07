@@ -99,7 +99,7 @@ fn swr_alloc_set_opts2(
     in_sample_fmt: AVSampleFormat.ENUM_DTYPE,
     in_sample_rate: c_int,
     log_offset: c_int,
-    log_ctx: UnsafePointer[AVClass, ImmutExternalOrigin],
+    log_ctx: OpaquePointer[MutExternalOrigin],
 ) -> c_int:
     return external_call["swr_alloc_set_opts2", c_int](
         context,
@@ -177,7 +177,7 @@ fn swr_build_matrix2(
     matrix: UnsafePointer[c_double, MutExternalOrigin],
     stride: c_ptrdiff_t,
     matrix_encoding: AVMatrixEncoding.ENUM_DTYPE,
-    log_ctx: UnsafePointer[AVClass, ImmutExternalOrigin],
+    log_ctx: OpaquePointer[MutExternalOrigin],
 ) -> c_int:
     return external_call["swr_build_matrix2", c_int](
         in_layout,

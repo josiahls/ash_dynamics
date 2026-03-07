@@ -567,8 +567,8 @@ struct AVFormatContext(Writable):
     var duration_probesize: c_long_long
 
 
-fn avformat_version() -> c_int:
-    return external_call["avformat_version", c_int]()
+fn avformat_version() -> c_uint:
+    return external_call["avformat_version", c_uint]()
 
 
 fn avformat_configuration() -> UnsafePointer[c_char, ImmutExternalOrigin]:
@@ -845,7 +845,7 @@ fn av_find_best_stream(
     related_stream: c_int,
     # TODO: I think only 1 of these needs to be immut.
     decoder_ret: UnsafePointer[
-        UnsafePointer[AVCodec, ImmutExternalOrigin], ImmutExternalOrigin
+        UnsafePointer[AVCodec, ImmutExternalOrigin], MutExternalOrigin
     ],
     flags: c_int,
 ) -> c_int:
@@ -889,12 +889,12 @@ fn avformat_flush(s: UnsafePointer[AVFormatContext, MutExternalOrigin]):
     external_call["avformat_flush", NoneType](s)
 
 
-fn av_read_play(s: UnsafePointer[AVFormatContext, MutExternalOrigin]):
-    external_call["av_read_play", NoneType](s)
+fn av_read_play(s: UnsafePointer[AVFormatContext, MutExternalOrigin]) -> c_int:
+    return external_call["av_read_play", c_int](s)
 
 
-fn av_read_pause(s: UnsafePointer[AVFormatContext, MutExternalOrigin]):
-    external_call["av_read_pause", NoneType](s)
+fn av_read_pause(s: UnsafePointer[AVFormatContext, MutExternalOrigin]) -> c_int:
+    return external_call["av_read_pause", c_int](s)
 
 
 fn avformat_close_input(
@@ -1138,8 +1138,8 @@ fn av_url_split(
     path: UnsafePointer[c_char, MutExternalOrigin],
     path_size: c_int,
     url: UnsafePointer[c_char, ImmutExternalOrigin],
-) -> c_int:
-    return external_call["av_url_split", c_int](
+):
+    external_call["av_url_split", NoneType](
         proto,
         proto_size,
         authorization,

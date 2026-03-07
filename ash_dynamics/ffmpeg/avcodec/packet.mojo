@@ -337,7 +337,9 @@ fn av_packet_pack_dictionary(
 fn av_packet_unpack_dictionary(
     data: UnsafePointer[c_uchar, ImmutExternalOrigin],
     size: c_size_t,
-    dict: UnsafePointer[AVDictionary, MutExternalOrigin],
+    dict: UnsafePointer[
+        UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
+    ],
 ) -> c_int:
     return external_call["av_packet_unpack_dictionary", c_int](data, size, dict)
 

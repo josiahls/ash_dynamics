@@ -74,9 +74,12 @@ def test_avcodec_parameters_from_context():
     ctx[].height = 240
     ctx[].pix_fmt = AVPixelFormat.AV_PIX_FMT_YUV420P._value
     ctx[].codec_type = AVMediaType.AVMEDIA_TYPE_VIDEO._value
-    _ = avcodec.avcodec_open2(
-        ctx, codec, UnsafePointer[AVDictionary, ImmutExternalOrigin]()
-    )
+
+    var dict = alloc[AVDictionary](0)
+    var dict_ptr = alloc[UnsafePointer[AVDictionary, MutExternalOrigin]](1)
+    dict_ptr[] = dict
+
+    _ = avcodec.avcodec_open2(ctx, codec, dict_ptr)
     var par = alloc[AVCodecParameters](1)
     memset(par, 0, 1)
     var ret = avcodec.avcodec_parameters_from_context(
@@ -115,9 +118,10 @@ def test_avcodec_parameters_to_context():
 def test_avcodec_open2():
     var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264._value)
     var ctx = avcodec.avcodec_alloc_context3(codec)
-    _ = avcodec.avcodec_open2(
-        ctx, codec, UnsafePointer[AVDictionary, ImmutExternalOrigin]()
-    )
+    var dict = alloc[AVDictionary](0)
+    var dict_ptr = alloc[UnsafePointer[AVDictionary, MutExternalOrigin]](1)
+    dict_ptr[] = dict
+    _ = avcodec.avcodec_open2(ctx, codec, dict_ptr)
     var ctx_ptr = alloc[UnsafePointer[AVCodecContext, MutExternalOrigin]](1)
     ctx_ptr[0] = ctx
     avcodec.avcodec_free_context(ctx_ptr)
@@ -132,9 +136,10 @@ def test_avsubtitle_free():
 def test_avcodec_send_packet():
     var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264._value)
     var ctx = avcodec.avcodec_alloc_context3(codec)
-    _ = avcodec.avcodec_open2(
-        ctx, codec, UnsafePointer[AVDictionary, ImmutExternalOrigin]()
-    )
+    var dict = alloc[AVDictionary](0)
+    var dict_ptr = alloc[UnsafePointer[AVDictionary, MutExternalOrigin]](1)
+    dict_ptr[] = dict
+    _ = avcodec.avcodec_open2(ctx, codec, dict_ptr)
     var null_pkt = UnsafePointer[AVPacket, MutExternalOrigin]()
     var ret = avcodec.avcodec_send_packet(ctx, null_pkt)
     assert_equal(ret, 0)
@@ -146,13 +151,16 @@ def test_avcodec_send_packet():
 def test_avcodec_receive_frame():
     var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264._value)
     var ctx = avcodec.avcodec_alloc_context3(codec)
-    _ = avcodec.avcodec_open2(
-        ctx, codec, UnsafePointer[AVDictionary, ImmutExternalOrigin]()
-    )
+    var dict = alloc[AVDictionary](0)
+    var dict_ptr = alloc[UnsafePointer[AVDictionary, MutExternalOrigin]](1)
+    dict_ptr[] = dict
+    _ = avcodec.avcodec_open2(ctx, codec, dict_ptr)
     var frame = avutil.av_frame_alloc()
     var ret = avcodec.avcodec_receive_frame(ctx, frame)
     _ = ret
-    avutil.av_frame_free(frame.unsafe_origin_cast[MutExternalOrigin]())
+    var frame_ptr = alloc[UnsafePointer[AVFrame, MutExternalOrigin]](1)
+    frame_ptr[] = frame
+    avutil.av_frame_free(frame_ptr)
     var ctx_ptr = alloc[UnsafePointer[AVCodecContext, MutExternalOrigin]](1)
     ctx_ptr[0] = ctx
     avcodec.avcodec_free_context(ctx_ptr)
@@ -165,9 +173,10 @@ def test_avcodec_send_frame():
     ctx[].height = 240
     ctx[].pix_fmt = AVPixelFormat.AV_PIX_FMT_YUV420P._value
     ctx[].time_base = AVRational(num=1, den=25)
-    _ = avcodec.avcodec_open2(
-        ctx, codec, UnsafePointer[AVDictionary, ImmutExternalOrigin]()
-    )
+    var dict = alloc[AVDictionary](0)
+    var dict_ptr = alloc[UnsafePointer[AVDictionary, MutExternalOrigin]](1)
+    dict_ptr[] = dict
+    _ = avcodec.avcodec_open2(ctx, codec, dict_ptr)
     var null_frame = UnsafePointer[AVFrame, ImmutExternalOrigin]()
     var ret = avcodec.avcodec_send_frame(ctx, null_frame)
     assert_equal(ret, 0)
@@ -183,9 +192,10 @@ def test_avcodec_receive_packet():
     ctx[].height = 240
     ctx[].pix_fmt = AVPixelFormat.AV_PIX_FMT_YUV420P._value
     ctx[].time_base = AVRational(num=1, den=25)
-    _ = avcodec.avcodec_open2(
-        ctx, codec, UnsafePointer[AVDictionary, ImmutExternalOrigin]()
-    )
+    var dict = alloc[AVDictionary](0)
+    var dict_ptr = alloc[UnsafePointer[AVDictionary, MutExternalOrigin]](1)
+    dict_ptr[] = dict
+    _ = avcodec.avcodec_open2(ctx, codec, dict_ptr)
     var pkt = avcodec.av_packet_alloc()
     var ret = avcodec.avcodec_receive_packet(ctx, pkt)
     _ = ret
@@ -203,9 +213,10 @@ def test_avcodec_align_dimensions():
     ctx[].width = 321
     ctx[].height = 241
     ctx[].pix_fmt = AVPixelFormat.AV_PIX_FMT_YUV420P._value
-    _ = avcodec.avcodec_open2(
-        ctx, codec, UnsafePointer[AVDictionary, ImmutExternalOrigin]()
-    )
+    var dict = alloc[AVDictionary](0)
+    var dict_ptr = alloc[UnsafePointer[AVDictionary, MutExternalOrigin]](1)
+    dict_ptr[] = dict
+    _ = avcodec.avcodec_open2(ctx, codec, dict_ptr)
     var w = alloc[c_int](1)
     var h = alloc[c_int](1)
     w[0] = 321
@@ -222,9 +233,10 @@ def test_avcodec_align_dimensions2():
     ctx[].width = 321
     ctx[].height = 241
     ctx[].pix_fmt = AVPixelFormat.AV_PIX_FMT_YUV420P._value
-    _ = avcodec.avcodec_open2(
-        ctx, codec, UnsafePointer[AVDictionary, ImmutExternalOrigin]()
-    )
+    var dict = alloc[AVDictionary](0)
+    var dict_ptr = alloc[UnsafePointer[AVDictionary, MutExternalOrigin]](1)
+    dict_ptr[] = dict
+    _ = avcodec.avcodec_open2(ctx, codec, dict_ptr)
     var w = alloc[c_int](1)
     var h = alloc[c_int](1)
     var linesize = alloc[c_int](16)
@@ -243,16 +255,19 @@ def test_avcodec_default_get_buffer2():
     ctx[].width = 320
     ctx[].height = 240
     ctx[].pix_fmt = AVPixelFormat.AV_PIX_FMT_YUV420P._value
-    _ = avcodec.avcodec_open2(
-        ctx, codec, UnsafePointer[AVDictionary, ImmutExternalOrigin]()
-    )
+    var dict = alloc[AVDictionary](0)
+    var dict_ptr = alloc[UnsafePointer[AVDictionary, MutExternalOrigin]](1)
+    dict_ptr[] = dict
+    _ = avcodec.avcodec_open2(ctx, codec, dict_ptr)
     var frame = avutil.av_frame_alloc()
     frame[].format = AVPixelFormat.AV_PIX_FMT_YUV420P._value
     frame[].width = 320
     frame[].height = 240
     var ret = avcodec.avcodec_default_get_buffer2(ctx, frame, 0)
     assert_equal(ret, 0)
-    avutil.av_frame_free(frame.unsafe_origin_cast[MutExternalOrigin]())
+    var frame_ptr = alloc[UnsafePointer[AVFrame, MutExternalOrigin]](1)
+    frame_ptr[] = frame
+    avutil.av_frame_free(frame_ptr)
     var ctx_ptr = alloc[UnsafePointer[AVCodecContext, MutExternalOrigin]](1)
     ctx_ptr[0] = ctx
     avcodec.avcodec_free_context(ctx_ptr)
@@ -265,9 +280,10 @@ def test_avcodec_default_get_encode_buffer():
     ctx[].height = 240
     ctx[].pix_fmt = AVPixelFormat.AV_PIX_FMT_YUV420P._value
     ctx[].time_base = AVRational(num=1, den=25)
-    _ = avcodec.avcodec_open2(
-        ctx, codec, UnsafePointer[AVDictionary, ImmutExternalOrigin]()
-    )
+    var dict = alloc[AVDictionary](0)
+    var dict_ptr = alloc[UnsafePointer[AVDictionary, MutExternalOrigin]](1)
+    dict_ptr[] = dict
+    _ = avcodec.avcodec_open2(ctx, codec, dict_ptr)
     var pkt = avcodec.av_packet_alloc()
     var ret = avcodec.avcodec_default_get_encode_buffer(ctx, pkt, 0)
     assert_equal(ret, 0)
@@ -344,7 +360,9 @@ def test_avcodec_fill_audio_frame():
     # Must unref first so av_frame_free (which receives frame* but C expects frame**)
     # does not try to free our Mojo-allocated buffer.
     avutil.av_frame_unref(frame.unsafe_origin_cast[MutExternalOrigin]())
-    avutil.av_frame_free(frame.unsafe_origin_cast[MutExternalOrigin]())
+    var frame_ptr = alloc[UnsafePointer[AVFrame, MutExternalOrigin]](1)
+    frame_ptr[] = frame
+    avutil.av_frame_free(frame_ptr)
 
 
 def test_av_parser_iterate():
@@ -399,9 +417,10 @@ def test_avcodec_find_best_pix_fmt_of_list():
 def test_avcodec_string():
     var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264._value)
     var ctx = avcodec.avcodec_alloc_context3(codec)
-    _ = avcodec.avcodec_open2(
-        ctx, codec, UnsafePointer[AVDictionary, ImmutExternalOrigin]()
-    )
+    var dict = alloc[AVDictionary](0)
+    var dict_ptr = alloc[UnsafePointer[AVDictionary, MutExternalOrigin]](1)
+    dict_ptr[] = dict
+    _ = avcodec.avcodec_open2(ctx, codec, dict_ptr)
     var buf = alloc[c_char](256)
     memset(buf, 0, 256)
     avcodec.avcodec_string(
@@ -418,9 +437,10 @@ def test_avcodec_string():
 def test_avcodec_flush_buffers():
     var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264._value)
     var ctx = avcodec.avcodec_alloc_context3(codec)
-    _ = avcodec.avcodec_open2(
-        ctx, codec, UnsafePointer[AVDictionary, ImmutExternalOrigin]()
-    )
+    var dict = alloc[AVDictionary](0)
+    var dict_ptr = alloc[UnsafePointer[AVDictionary, MutExternalOrigin]](1)
+    dict_ptr[] = dict
+    _ = avcodec.avcodec_open2(ctx, codec, dict_ptr)
     avcodec.avcodec_flush_buffers(ctx)
     var ctx_ptr = alloc[UnsafePointer[AVCodecContext, MutExternalOrigin]](1)
     ctx_ptr[0] = ctx
@@ -449,9 +469,10 @@ def test_avcodec_is_open():
         ctx.as_immutable().unsafe_origin_cast[ImmutExternalOrigin](),
     )
     assert_equal(open_before, 0)
-    _ = avcodec.avcodec_open2(
-        ctx, codec, UnsafePointer[AVDictionary, ImmutExternalOrigin]()
-    )
+    var dict = alloc[AVDictionary](0)
+    var dict_ptr = alloc[UnsafePointer[AVDictionary, MutExternalOrigin]](1)
+    dict_ptr[] = dict
+    _ = avcodec.avcodec_open2(ctx, codec, dict_ptr)
     var open_after = avcodec.avcodec_is_open(
         ctx.as_immutable().unsafe_origin_cast[ImmutExternalOrigin](),
     )

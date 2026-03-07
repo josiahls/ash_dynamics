@@ -425,9 +425,9 @@ fn sws_allocVec(length: c_int) -> UnsafePointer[SwsVector, MutExternalOrigin]:
 
 fn sws_getGaussianVec(
     variance: c_double, quality: c_double
-) -> UnsafePointer[SwsVector, ImmutExternalOrigin]:
+) -> UnsafePointer[SwsVector, MutExternalOrigin]:
     return external_call[
-        "sws_getGaussianVec", UnsafePointer[SwsVector, ImmutExternalOrigin]
+        "sws_getGaussianVec", UnsafePointer[SwsVector, MutExternalOrigin]
     ](variance, quality)
 
 
@@ -485,9 +485,9 @@ fn sws_getCachedContext(
     srcFilter: UnsafePointer[SwsFilter, MutExternalOrigin],
     dstFilter: UnsafePointer[SwsFilter, MutExternalOrigin],
     param: UnsafePointer[c_double, ImmutExternalOrigin],
-) -> UnsafePointer[SwsContext, ImmutExternalOrigin]:
+) -> UnsafePointer[SwsContext, MutExternalOrigin]:
     return external_call[
-        "sws_getCachedContext", UnsafePointer[SwsContext, ImmutExternalOrigin]
+        "sws_getCachedContext", UnsafePointer[SwsContext, MutExternalOrigin]
     ](
         ctx,
         srcW,

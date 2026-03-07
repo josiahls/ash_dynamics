@@ -101,7 +101,9 @@ def test_av_decode_video_example():
     print(context[])
 
     ptr = alloc[AVDictionary](0)
-    _ = avcodec.avcodec_open2(context, codec, ptr)
+    ptr_ptr = alloc[UnsafePointer[AVDictionary, MutExternalOrigin]](1)
+    ptr_ptr[] = ptr
+    _ = avcodec.avcodec_open2(context, codec, ptr_ptr)
     print("Opened codec")
 
     var test_data_root = os.getenv("PIXI_PROJECT_ROOT")

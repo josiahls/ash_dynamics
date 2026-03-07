@@ -840,7 +840,11 @@ def test_av_guess_sample_aspect_ratio():
     )
     # assert_true(ret_rational.num > 0)
     # assert_true(ret_rational.den > 0)
-    avutil.av_frame_free(frame.unsafe_origin_cast[MutExternalOrigin]())
+    var frame_ptr = alloc[UnsafePointer[AVFrame, MutExternalOrigin]](1)
+    frame_ptr[] = frame
+    var frame_ptr_ptr = alloc[type_of(frame_ptr)](1)
+    frame_ptr_ptr[] = frame_ptr
+    avutil.av_frame_free(frame_ptr_ptr)
     avformat.avformat_close_input(
         ctx_ptr.unsafe_origin_cast[MutExternalOrigin]()
     )
