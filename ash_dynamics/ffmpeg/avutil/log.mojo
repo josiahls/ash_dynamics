@@ -16,7 +16,9 @@ comptime AVClass_get_category_fn = fn(
 ) -> AVClassCategory.ENUM_DTYPE
 
 comptime AVClass_query_ranges_fn = fn(
-    ranges: UnsafePointer[AVOptionRanges, MutExternalOrigin],
+    ranges: UnsafePointer[
+        UnsafePointer[AVOptionRanges, MutExternalOrigin], MutExternalOrigin
+    ],
     obj: OpaquePointer[MutExternalOrigin],
     key: UnsafePointer[c_char, ImmutExternalOrigin],
     flags: c_int,
@@ -39,17 +41,19 @@ struct AVClass(Movable, Writable):
 
     # TODO: Is this correct or do we need to additionally wrap item_name in a
     # unsafe pointer?
-    var item_name: AVClass_item_name_fn
+    var item_name: UnsafePointer[AVClass_item_name_fn, MutExternalOrigin]
 
     var option: UnsafePointer[AVOption, ImmutExternalOrigin]
     var version: c_int
     var log_level_offset_offset: c_int
     var parent_log_context_offset: c_int
     var category: AVClassCategory.ENUM_DTYPE
-    var get_category: AVClass_get_category_fn
-    var query_ranges: AVClass_query_ranges_fn
-    var child_next: AVClass_child_next_fn
-    var child_class_iterate: AVClass_child_class_iterate_fn[Self]
+    var get_category: UnsafePointer[AVClass_get_category_fn, MutExternalOrigin]
+    var query_ranges: UnsafePointer[AVClass_query_ranges_fn, MutExternalOrigin]
+    var child_next: UnsafePointer[AVClass_child_next_fn, MutExternalOrigin]
+    var child_class_iterate: UnsafePointer[
+        AVClass_child_class_iterate_fn[Self], MutExternalOrigin
+    ]
     var state_flags_offset: c_int
 
 

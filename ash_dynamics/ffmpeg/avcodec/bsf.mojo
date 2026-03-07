@@ -14,8 +14,8 @@ struct AVBSFContext(Movable, Writable):
     var av_class: UnsafePointer[AVClass, origin=ImmutExternalOrigin]
     var filter: UnsafePointer[AVBitStreamFilter, origin=ImmutExternalOrigin]
     var priv_data: OpaquePointer[MutExternalOrigin]
-    var par_in: UnsafePointer[AVCodecParameters, origin=ImmutExternalOrigin]
-    var par_out: UnsafePointer[AVCodecParameters, origin=ImmutExternalOrigin]
+    var par_in: UnsafePointer[AVCodecParameters, origin=MutExternalOrigin]
+    var par_out: UnsafePointer[AVCodecParameters, origin=MutExternalOrigin]
     var time_base_in: AVRational
     var time_base_out: AVRational
 

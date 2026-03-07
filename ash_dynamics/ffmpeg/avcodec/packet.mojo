@@ -92,7 +92,7 @@ struct AVPacketSideData(Movable, Writable):
     "See https://www.ffmpeg.org/doxygen/8.0/structAVPacketSideData.html."
 
     var data: UnsafePointer[c_uchar, MutAnyOrigin]
-    var size: c_uint
+    var size: c_size_t
     var type: AVPacketSideDataType.ENUM_DTYPE
 
 
@@ -238,6 +238,13 @@ fn av_packet_free(
     external_call["av_packet_free", NoneType](pkt)
 
 
+fn av_packet_free(pkt: UnsafePointer[AVPacket, MutExternalOrigin]):
+    var pkt_ptr = alloc[type_of(pkt)](1)
+    pkt_ptr[] = pkt
+    av_packet_free(pkt_ptr)
+    pkt_ptr.free()
+
+
 # NOTE: av_init_packet is an optional function that is being deprecated.
 # I don't think we need to implement this, but leaving this here as a reference.
 # #if FF_API_INIT_PACKET
@@ -337,7 +344,9 @@ fn av_packet_pack_dictionary(
 fn av_packet_unpack_dictionary(
     data: UnsafePointer[c_uchar, ImmutExternalOrigin],
     size: c_size_t,
-    dict: UnsafePointer[AVDictionary, MutExternalOrigin],
+    dict: UnsafePointer[
+        UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
+    ],
 ) -> c_int:
     return external_call["av_packet_unpack_dictionary", c_int](data, size, dict)
 
@@ -359,7 +368,7 @@ fn av_packet_unref(pkt: UnsafePointer[AVPacket, MutExternalOrigin]):
 
 fn av_packet_move_ref(
     dst: UnsafePointer[AVPacket, MutExternalOrigin],
-    src: UnsafePointer[AVPacket, ImmutExternalOrigin],
+    src: UnsafePointer[AVPacket, MutExternalOrigin],
 ):
     external_call["av_packet_move_ref", NoneType](dst, src)
 
@@ -414,3 +423,11 @@ fn av_container_fifo_alloc_avpacket(
         "av_container_fifo_alloc_avpacket",
         UnsafePointer[AVContainerFifo, MutExternalOrigin],
     ](flags)
+
+
+fn av_container_fifo_free(
+    cf: UnsafePointer[
+        UnsafePointer[AVContainerFifo, MutExternalOrigin], MutExternalOrigin
+    ],
+):
+    external_call["av_container_fifo_free", NoneType](cf)

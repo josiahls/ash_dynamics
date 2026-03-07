@@ -198,10 +198,10 @@ struct AVPixelFormat(Movable, Writable):
 
     comptime AV_PIX_FMT_Y400A = Self(
         Self.AV_PIX_FMT_YA8._value
-    ).inc()  # alias for AV_PIX_FMT_YA8
+    )  # alias for AV_PIX_FMT_YA8
     comptime AV_PIX_FMT_GRAY8A = Self(
         Self.AV_PIX_FMT_YA8._value
-    ).inc()  # alias for AV_PIX_FMT_YA8
+    )  # alias for AV_PIX_FMT_YA8
 
     comptime AV_PIX_FMT_BGR48BE = Self(
         Self.AV_PIX_FMT_GRAY8A._value

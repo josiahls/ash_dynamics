@@ -1,5 +1,5 @@
 "See https://www.ffmpeg.org/doxygen/8.0/channel__layout_8h.html."
-from ffi import c_int, c_char, c_ulong_long, c_size_t, external_call
+from ffi import c_int, c_char, c_ulong_long, c_size_t, c_uint, external_call
 from ash_dynamics.primitives._clib import C_Union
 from utils import StaticTuple
 
@@ -684,7 +684,7 @@ fn av_channel_layout_describe(
 
 fn av_channel_layout_channel_from_index(
     channel_layout: UnsafePointer[AVChannelLayout, ImmutExternalOrigin],
-    idx: c_int,
+    idx: c_uint,
 ) -> AVChannel.ENUM_DTYPE:
     return external_call[
         "av_channel_layout_channel_from_index", AVChannel.ENUM_DTYPE

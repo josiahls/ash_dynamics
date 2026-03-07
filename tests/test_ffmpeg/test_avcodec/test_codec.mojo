@@ -21,7 +21,7 @@ def test_av_codec_iterate():
     var count = 0
     while True:
         var codec = avcodec.av_codec_iterate(
-            opaque.unsafe_origin_cast[MutExternalOrigin](),
+            opaque,
         )
         if not Bool(codec):
             break
@@ -47,7 +47,7 @@ def test_av_codec_is_encoder():
     )
     assert_true(Bool(encoder))
     var is_enc = avcodec.av_codec_is_encoder(
-        encoder.unsafe_origin_cast[ImmutExternalOrigin](),
+        encoder.as_immutable(),
     )
     assert_equal(is_enc, 1)
     var decoder = avcodec.avcodec_find_decoder(
@@ -55,7 +55,7 @@ def test_av_codec_is_encoder():
     )
     assert_true(Bool(decoder))
     is_enc = avcodec.av_codec_is_encoder(
-        decoder.unsafe_origin_cast[ImmutExternalOrigin](),
+        decoder.as_immutable(),
     )
     assert_equal(is_enc, 0)
 
@@ -66,7 +66,7 @@ def test_av_codec_is_decoder():
     )
     assert_true(Bool(decoder))
     var is_dec = avcodec.av_codec_is_decoder(
-        decoder.unsafe_origin_cast[ImmutExternalOrigin](),
+        decoder.as_immutable(),
     )
     assert_equal(is_dec, 1)
     var encoder = avcodec.avcodec_find_encoder(
@@ -74,7 +74,7 @@ def test_av_codec_is_decoder():
     )
     assert_true(Bool(encoder))
     is_dec = avcodec.av_codec_is_decoder(
-        encoder.unsafe_origin_cast[ImmutExternalOrigin](),
+        encoder.as_immutable(),
     )
     assert_equal(is_dec, 0)
 
@@ -85,11 +85,11 @@ def test_av_get_profile_name():
     )
     assert_true(Bool(codec))
     var name = avcodec.av_get_profile_name(
-        codec.unsafe_origin_cast[ImmutExternalOrigin](),
+        codec.as_immutable(),
         -99,
     )
     var name_main = avcodec.av_get_profile_name(
-        codec.unsafe_origin_cast[ImmutExternalOrigin](),
+        codec.as_immutable(),
         66,
     )
     _ = name
@@ -102,7 +102,7 @@ def test_avcodec_get_hw_config():
     )
     assert_true(Bool(codec))
     var config = avcodec.avcodec_get_hw_config(
-        codec.unsafe_origin_cast[ImmutExternalOrigin](),
+        codec.as_immutable(),
         0,
     )
     _ = config

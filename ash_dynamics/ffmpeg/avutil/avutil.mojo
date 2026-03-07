@@ -23,7 +23,7 @@ struct AVPictureType(Movable, Writable):
 
 @fieldwise_init("implicit")
 struct AVMediaType(Movable, Writable):
-    comptime ENUM_DTYPE = c_uint
+    comptime ENUM_DTYPE = c_int
 
     var _value: Self.ENUM_DTYPE
 

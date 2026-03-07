@@ -2,7 +2,7 @@ from testing.suite import TestSuite
 from testing.testing import assert_equal, assert_true
 
 from ffi import c_char, c_int, c_uint, c_uchar, c_long_long
-from sys._libc import fdopen, fflush
+from sys._libc import dup, fclose, fdopen, fflush
 from memory import alloc, memset
 from sys import size_of
 import os
@@ -31,42 +31,19 @@ from ash_dynamics.ffmpeg.avutil.frame import AVFrame
 
 def test_AVOutputFormat():
     var short_name = "mp4"
-    var short_name_ptr = (
-        short_name.as_c_string_slice()
-        .unsafe_ptr()
-        .unsafe_origin_cast[ImmutExternalOrigin]()
-    )
 
-    var fmt = avformat.av_guess_format(
-        short_name=short_name_ptr,
-        filename=UnsafePointer[c_char, ImmutExternalOrigin](),
-        mime_type=UnsafePointer[c_char, ImmutExternalOrigin](),
-    )
+    var fmt = avformat.av_guess_format(short_name=short_name)
     assert_equal(fmt[].video_codec, AVCodecID.AV_CODEC_ID_MPEG4._value)
 
     var filename = "some/path/to/test.mp4"
-    var filename_ptr = (
-        filename.as_c_string_slice()
-        .unsafe_ptr()
-        .unsafe_origin_cast[ImmutExternalOrigin]()
-    )
     var fmt2 = avformat.av_guess_format(
-        short_name=UnsafePointer[c_char, ImmutExternalOrigin](),
-        filename=filename_ptr,
-        mime_type=UnsafePointer[c_char, ImmutExternalOrigin](),
+        filename=filename,
     )
     assert_equal(fmt2[].video_codec, AVCodecID.AV_CODEC_ID_MPEG4._value)
 
     var mime_type = "video/mp4"
-    var mime_type_ptr = (
-        mime_type.as_c_string_slice()
-        .unsafe_ptr()
-        .unsafe_origin_cast[ImmutExternalOrigin]()
-    )
     var fmt3 = avformat.av_guess_format(
-        short_name=UnsafePointer[c_char, ImmutExternalOrigin](),
-        filename=UnsafePointer[c_char, ImmutExternalOrigin](),
-        mime_type=mime_type_ptr,
+        mime_type=mime_type,
     )
     # It is h264 here since we are directly indiciating this contains
     # video.
@@ -134,7 +111,8 @@ def test_alloc_output_context():
         "AVFormatContext",
     )
     assert_equal(ctx[][].av_class[].state_flags_offset, 0)
-    _ = ctx
+    avformat.avformat_free_context(ctx[])
+    ctx.free()
     _ = ret
 
 
@@ -180,7 +158,7 @@ def test_av_muxer_iterate():
     var count = 0
     while True:
         var fmt = avformat.av_muxer_iterate(
-            opaque.unsafe_origin_cast[MutExternalOrigin](),
+            opaque,
         )
         if not Bool(fmt):
             break
@@ -194,7 +172,7 @@ def test_av_demuxer_iterate():
     var count = 0
     while True:
         var fmt = avformat.av_demuxer_iterate(
-            opaque.unsafe_origin_cast[MutExternalOrigin](),
+            opaque,
         )
         if not Bool(fmt):
             break
@@ -210,9 +188,8 @@ def test_avformat_alloc_free_context():
 
 def test_av_find_input_format():
     var name = "mp4"
-    var ptr = name.as_c_string_slice().unsafe_ptr().as_immutable()
     var fmt = avformat.av_find_input_format(
-        ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        name,
     )
     assert_true(Bool(fmt))
     assert_equal(
@@ -222,9 +199,8 @@ def test_av_find_input_format():
 
 def test_av_disposition_from_string_to_string():
     var disp_str = "default"
-    var ptr = disp_str.as_c_string_slice().unsafe_ptr().as_immutable()
     var disp = avformat.av_disposition_from_string(
-        ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        disp_str,
     )
     assert_equal(disp, 1)
     var back = avformat.av_disposition_to_string(disp)
@@ -235,18 +211,15 @@ def test_av_disposition_from_string_to_string():
 def test_av_match_ext():
     var filename = "test.mp4"
     var ext = "mp4,mov,m4a"
-    var fn_ptr = filename.as_c_string_slice().unsafe_ptr().as_immutable()
-    var ext_ptr = ext.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.av_match_ext(
-        fn_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
-        ext_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        filename,
+        ext,
     )
     assert_true(ret > 0)
     var txt_ext = "txt,log"
-    var txt_ptr = txt_ext.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret2 = avformat.av_match_ext(
-        fn_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
-        txt_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        filename,
+        txt_ext,
     )
     assert_equal(ret2, 0)
 
@@ -272,12 +245,12 @@ def test_av_codec_get_id_and_tag():
     # MKTAG('H','2','6','4') = 0x34363248 on little-endian
     var tag = c_uint(0x34363248)
     var codec_id = avformat.av_codec_get_id(
-        table.as_immutable().unsafe_origin_cast[ImmutExternalOrigin](),
+        table.as_immutable(),
         tag,
     )
     assert_equal(codec_id, AVCodecID.AV_CODEC_ID_H264._value)
     var tag_out = avformat.av_codec_get_tag(
-        table.as_immutable().unsafe_origin_cast[ImmutExternalOrigin](),
+        table.as_immutable(),
         AVCodecID.AV_CODEC_ID_H264._value,
     )
     assert_equal(Int(tag_out), Int(tag))
@@ -285,15 +258,13 @@ def test_av_codec_get_id_and_tag():
 
 def test_av_filename_number_test():
     var valid = "frame_%03d.png"
-    var valid_ptr = valid.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.av_filename_number_test(
-        valid_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        valid,
     )
     assert_equal(ret, 1)
     var invalid = "frame.png"
-    var invalid_ptr = invalid.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret2 = avformat.av_filename_number_test(
-        invalid_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        invalid,
     )
     assert_equal(ret2, 0)
 
@@ -301,11 +272,11 @@ def test_av_filename_number_test():
 def test_av_stream_get_parser():
     var ctx = avformat.avformat_alloc_context()
     var st = avformat.avformat_new_stream(
-        ctx.unsafe_origin_cast[MutExternalOrigin](),
+        ctx,
         UnsafePointer[AVCodec, ImmutExternalOrigin](unsafe_from_address=0),
     )
     var parser = avformat.av_stream_get_parser(
-        st.as_immutable().unsafe_origin_cast[ImmutExternalOrigin](),
+        st.as_immutable(),
     )
     assert_equal(Bool(parser), False)
     avformat.avformat_free_context(ctx)
@@ -314,7 +285,7 @@ def test_av_stream_get_parser():
 def test_av_find_default_stream_index():
     var ctx = avformat.avformat_alloc_context()
     var idx = avformat.av_find_default_stream_index(
-        ctx.unsafe_origin_cast[MutExternalOrigin](),
+        ctx,
     )
     assert_equal(idx, -1)
     avformat.avformat_free_context(ctx)
@@ -324,13 +295,16 @@ def test_av_hex_dump():
     var buf = alloc[c_uchar](16)
     for i in range(16):
         buf[i] = c_uchar(i)
-    var f = fdopen(1, "w".as_c_string_slice().unsafe_ptr().as_immutable())
+    var fd = dup(1)
+    var f = fdopen(fd, "w".as_c_string_slice().unsafe_ptr().as_immutable())
     avformat.av_hex_dump(
         f,
-        buf.as_immutable().unsafe_origin_cast[ImmutExternalOrigin](),
+        buf.as_immutable(),
         16,
     )
     _ = fflush(f)
+    fclose(f)
+    buf.free()
 
 
 def test_av_dump_format():
@@ -339,10 +313,9 @@ def test_av_dump_format():
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
         os.getenv("PIXI_PROJECT_ROOT"),
     )
-    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.avformat_open_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin](),
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        ctx_ptr,
+        path,
         UnsafePointer[AVInputFormat, ImmutExternalOrigin](
             unsafe_from_address=0
         ),
@@ -354,14 +327,12 @@ def test_av_dump_format():
     )
     if ret == 0:
         avformat.av_dump_format(
-            ctx_ptr[].unsafe_origin_cast[MutExternalOrigin](),
+            ctx_ptr[],
             -1,
-            path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+            path,
             0,
         )
-        avformat.avformat_close_input(
-            ctx_ptr.unsafe_origin_cast[MutExternalOrigin]()
-        )
+        avformat.avformat_close_input(ctx_ptr)
 
 
 def test_av_stream_get_class():
@@ -388,7 +359,7 @@ def test_avformat_stream_group_create_new_stream_add_stream():
     var ctx = avformat.avformat_alloc_context()
     assert_true(Bool(ctx))
     var stg = avformat.avformat_stream_group_create(
-        ctx.unsafe_origin_cast[MutExternalOrigin](),
+        ctx,
         AVStreamGroupParamsType.AV_STREAM_GROUP_PARAMS_TILE_GRID.value,
         UnsafePointer[
             UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
@@ -398,13 +369,13 @@ def test_avformat_stream_group_create_new_stream_add_stream():
     )
     assert_true(Bool(stg))
     var st = avformat.avformat_new_stream(
-        ctx.unsafe_origin_cast[MutExternalOrigin](),
+        ctx,
         UnsafePointer[AVCodec, ImmutExternalOrigin](unsafe_from_address=0),
     )
     assert_true(Bool(st))
     var ret = avformat.avformat_stream_group_add_stream(
-        stg.unsafe_origin_cast[MutExternalOrigin](),
-        st.unsafe_origin_cast[MutExternalOrigin](),
+        stg,
+        st,
     )
     assert_equal(ret, 0)
     avformat.avformat_free_context(ctx)
@@ -414,7 +385,7 @@ def test_av_new_program():
     var ctx = avformat.avformat_alloc_context()
     assert_true(Bool(ctx))
     var prog = avformat.av_new_program(
-        ctx.unsafe_origin_cast[MutExternalOrigin](),
+        ctx,
         1,
     )
     assert_true(Bool(prog))
@@ -423,18 +394,13 @@ def test_av_new_program():
 
 def test_av_guess_codec():
     var short_name = "mp4"
-    var short_ptr = short_name.as_c_string_slice().unsafe_ptr().as_immutable()
-    var fmt = avformat.av_guess_format(
-        short_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
-        UnsafePointer[c_char, ImmutExternalOrigin](),
-        UnsafePointer[c_char, ImmutExternalOrigin](),
-    )
+    var fmt = avformat.av_guess_format(short_name)
     assert_true(Bool(fmt))
     var codec_id = avformat.av_guess_codec(
         fmt,
-        short_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
-        UnsafePointer[c_char, ImmutExternalOrigin](),
-        UnsafePointer[c_char, ImmutExternalOrigin](),
+        short_name,
+        None,
+        None,
         AVMediaType.AVMEDIA_TYPE_VIDEO._value,
     )
     assert_true(
@@ -446,11 +412,7 @@ def test_av_guess_codec():
 def test_avformat_query_codec():
     var short_name = "mp4"
     var short_ptr = short_name.as_c_string_slice().unsafe_ptr().as_immutable()
-    var fmt = avformat.av_guess_format(
-        short_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
-        UnsafePointer[c_char, ImmutExternalOrigin](),
-        UnsafePointer[c_char, ImmutExternalOrigin](),
-    )
+    var fmt = avformat.av_guess_format(short_name)
     assert_true(Bool(fmt))
     var ret = avformat.avformat_query_codec(
         fmt,
@@ -469,9 +431,9 @@ def test_av_codec_get_tag2():
     )
     var tag_out = alloc[c_uint](1)
     var ret = avformat.av_codec_get_tag2(
-        table.as_immutable().unsafe_origin_cast[ImmutExternalOrigin](),
+        table.as_immutable(),
         AVCodecID.AV_CODEC_ID_H264._value,
-        tag_out.unsafe_origin_cast[MutExternalOrigin](),
+        tag_out,
     )
     assert_true(ret > 0)
     assert_equal(Int(tag_out[]), 0x34363248)
@@ -481,11 +443,10 @@ def test_av_get_frame_filename():
     var buf = alloc[c_char](256)
     memset(buf, 0, 256)
     var path = "frame_%03d.png"
-    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.av_get_frame_filename(
-        buf.unsafe_origin_cast[MutExternalOrigin](),
+        buf,
         256,
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        path,
         42,
     )
     assert_equal(ret, 0)
@@ -496,11 +457,10 @@ def test_av_get_frame_filename2():
     var buf = alloc[c_char](256)
     memset(buf, 0, 256)
     var path = "frame_%03d.png"
-    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.av_get_frame_filename2(
-        buf.unsafe_origin_cast[MutExternalOrigin](),
+        buf,
         256,
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        path,
         42,
         0,
     )
@@ -511,15 +471,15 @@ def test_av_get_frame_filename2():
 def test_avformat_match_stream_specifier():
     var ctx = avformat.avformat_alloc_context()
     var st = avformat.avformat_new_stream(
-        ctx.unsafe_origin_cast[MutExternalOrigin](),
+        ctx,
         UnsafePointer[AVCodec, ImmutExternalOrigin](unsafe_from_address=0),
     )
     var spec = "v:0"
-    var spec_ptr = spec.as_c_string_slice().unsafe_ptr().as_immutable()
+    # var spec_ptr = spec.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.avformat_match_stream_specifier(
-        ctx.unsafe_origin_cast[MutExternalOrigin](),
-        st.unsafe_origin_cast[MutExternalOrigin](),
-        spec_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        ctx,
+        st,
+        spec,
     )
     assert_true(ret >= 0)
     avformat.avformat_free_context(ctx)
@@ -537,19 +497,18 @@ def test_av_url_split():
     memset(path, 0, 256)
     var url = "https://example.com:443/path/to/resource"
     var url_ptr = url.as_c_string_slice().unsafe_ptr().as_immutable()
-    var ret = avformat.av_url_split(
-        proto.unsafe_origin_cast[MutExternalOrigin](),
+    avformat.av_url_split(
+        proto,
         256,
-        auth.unsafe_origin_cast[MutExternalOrigin](),
+        auth,
         256,
-        host.unsafe_origin_cast[MutExternalOrigin](),
+        host,
         256,
-        port.unsafe_origin_cast[MutExternalOrigin](),
-        path.unsafe_origin_cast[MutExternalOrigin](),
+        port,
+        path,
         256,
-        url_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        url_ptr,
     )
-    assert_true(ret >= 0)
     assert_equal(String(unsafe_from_utf8_ptr=proto), "https")
     assert_equal(String(unsafe_from_utf8_ptr=host), "example.com")
     assert_equal(port[], 443)
@@ -561,10 +520,9 @@ def test_avformat_find_stream_info():
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
         os.getenv("PIXI_PROJECT_ROOT"),
     )
-    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.avformat_open_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin](),
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        ctx_ptr,
+        path,
         UnsafePointer[AVInputFormat, ImmutExternalOrigin](
             unsafe_from_address=0
         ),
@@ -576,15 +534,13 @@ def test_avformat_find_stream_info():
     )
     assert_equal(ret, 0)
     ret = avformat.avformat_find_stream_info(
-        ctx_ptr[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx_ptr[],
         UnsafePointer[
             UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
         ](unsafe_from_address=0),
     )
     assert_true(ret >= 0)
-    avformat.avformat_close_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin]()
-    )
+    avformat.avformat_close_input(ctx_ptr)
 
 
 def test_av_find_best_stream():
@@ -593,10 +549,9 @@ def test_av_find_best_stream():
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
         os.getenv("PIXI_PROJECT_ROOT"),
     )
-    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.avformat_open_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin](),
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        ctx_ptr,
+        path,
         UnsafePointer[AVInputFormat, ImmutExternalOrigin](
             unsafe_from_address=0
         ),
@@ -608,26 +563,24 @@ def test_av_find_best_stream():
     )
     assert_equal(ret, 0)
     ret = avformat.avformat_find_stream_info(
-        ctx_ptr[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx_ptr[],
         UnsafePointer[
             UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
         ](unsafe_from_address=0),
     )
     assert_true(ret >= 0)
     var stream_idx = avformat.av_find_best_stream(
-        ctx_ptr[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx_ptr[],
         AVMediaType.AVMEDIA_TYPE_VIDEO._value,
         -1,
         -1,
         UnsafePointer[
-            UnsafePointer[AVCodec, ImmutExternalOrigin], ImmutExternalOrigin
+            UnsafePointer[AVCodec, ImmutExternalOrigin], MutExternalOrigin
         ](unsafe_from_address=0),
         0,
     )
     assert_true(stream_idx >= 0)
-    avformat.avformat_close_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin]()
-    )
+    avformat.avformat_close_input(ctx_ptr)
 
 
 def test_av_read_frame():
@@ -636,10 +589,9 @@ def test_av_read_frame():
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
         os.getenv("PIXI_PROJECT_ROOT"),
     )
-    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.avformat_open_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin](),
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        ctx_ptr,
+        path,
         UnsafePointer[AVInputFormat, ImmutExternalOrigin](
             unsafe_from_address=0
         ),
@@ -654,15 +606,13 @@ def test_av_read_frame():
     pkt_ptr[0] = avcodec.av_packet_alloc()
     assert_true(Bool(pkt_ptr[0]))
     ret = avformat.av_read_frame(
-        ctx_ptr[].unsafe_origin_cast[MutExternalOrigin](),
-        pkt_ptr[0].unsafe_origin_cast[MutExternalOrigin](),
+        ctx_ptr[],
+        pkt_ptr[0],
     )
     assert_true(ret >= 0)
     avcodec.av_packet_unref(pkt_ptr[0])
     avcodec.av_packet_free(pkt_ptr)
-    avformat.avformat_close_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin]()
-    )
+    avformat.avformat_close_input(ctx_ptr)
 
 
 def test_av_get_packet():
@@ -671,10 +621,9 @@ def test_av_get_packet():
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
         os.getenv("PIXI_PROJECT_ROOT"),
     )
-    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.avformat_open_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin](),
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        ctx_ptr,
+        path,
         UnsafePointer[AVInputFormat, ImmutExternalOrigin](
             unsafe_from_address=0
         ),
@@ -691,16 +640,14 @@ def test_av_get_packet():
     pkt_ptr[0] = avcodec.av_packet_alloc()
     assert_true(Bool(pkt_ptr[0]))
     ret = avformat.av_get_packet(
-        pb.unsafe_origin_cast[MutExternalOrigin](),
-        pkt_ptr[0].unsafe_origin_cast[MutExternalOrigin](),
+        pb,
+        pkt_ptr[0],
         1024,
     )
     assert_true(ret > 0)
     avcodec.av_packet_unref(pkt_ptr[0])
     avcodec.av_packet_free(pkt_ptr)
-    avformat.avformat_close_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin]()
-    )
+    avformat.avformat_close_input(ctx_ptr)
 
 
 def test_av_append_packet():
@@ -709,10 +656,9 @@ def test_av_append_packet():
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
         os.getenv("PIXI_PROJECT_ROOT"),
     )
-    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.avformat_open_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin](),
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        ctx_ptr,
+        path,
         UnsafePointer[AVInputFormat, ImmutExternalOrigin](
             unsafe_from_address=0
         ),
@@ -729,22 +675,20 @@ def test_av_append_packet():
     pkt_ptr[0] = avcodec.av_packet_alloc()
     assert_true(Bool(pkt_ptr[0]))
     ret = avformat.av_get_packet(
-        pb.unsafe_origin_cast[MutExternalOrigin](),
-        pkt_ptr[0].unsafe_origin_cast[MutExternalOrigin](),
+        pb,
+        pkt_ptr[0],
         512,
     )
     assert_true(ret > 0)
     ret = avformat.av_append_packet(
-        pb.unsafe_origin_cast[MutExternalOrigin](),
-        pkt_ptr[0].unsafe_origin_cast[MutExternalOrigin](),
+        pb,
+        pkt_ptr[0],
         256,
     )
     assert_true(ret > 0)
     avcodec.av_packet_unref(pkt_ptr[0])
     avcodec.av_packet_free(pkt_ptr)
-    avformat.avformat_close_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin]()
-    )
+    avformat.avformat_close_input(ctx_ptr)
 
 
 def test_av_hex_dump_log():
@@ -754,7 +698,7 @@ def test_av_hex_dump_log():
     avformat.av_hex_dump_log(
         OpaquePointer[MutExternalOrigin](unsafe_from_address=0),
         0,
-        buf.as_immutable().unsafe_origin_cast[ImmutExternalOrigin](),
+        buf.as_immutable(),
         16,
     )
 
@@ -765,10 +709,9 @@ def test_av_guess_frame_rate():
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
         os.getenv("PIXI_PROJECT_ROOT"),
     )
-    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.avformat_open_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin](),
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        ctx_ptr,
+        path,
         UnsafePointer[AVInputFormat, ImmutExternalOrigin](
             unsafe_from_address=0
         ),
@@ -780,7 +723,7 @@ def test_av_guess_frame_rate():
     )
     assert_equal(ret, 0)
     ret = avformat.avformat_find_stream_info(
-        ctx_ptr[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx_ptr[],
         UnsafePointer[
             UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
         ](unsafe_from_address=0),
@@ -790,15 +733,13 @@ def test_av_guess_frame_rate():
     assert_true(nb_streams > 0)
     var st = ctx_ptr[][].streams[0]
     var ret_rational = avformat.av_guess_frame_rate(
-        ctx_ptr[].unsafe_origin_cast[MutExternalOrigin](),
-        st.unsafe_origin_cast[MutExternalOrigin](),
+        ctx_ptr[],
+        st,
         UnsafePointer[AVFrame, MutExternalOrigin](unsafe_from_address=0),
     )
     assert_true(ret_rational.num > 0)
     assert_true(ret_rational.den > 0)
-    avformat.avformat_close_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin]()
-    )
+    avformat.avformat_close_input(ctx_ptr)
 
 
 def test_av_guess_sample_aspect_ratio():
@@ -807,10 +748,9 @@ def test_av_guess_sample_aspect_ratio():
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
         os.getenv("PIXI_PROJECT_ROOT"),
     )
-    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.avformat_open_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin](),
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        ctx_ptr,
+        path,
         UnsafePointer[AVInputFormat, ImmutExternalOrigin](
             unsafe_from_address=0
         ),
@@ -822,7 +762,7 @@ def test_av_guess_sample_aspect_ratio():
     )
     assert_equal(ret, 0)
     ret = avformat.avformat_find_stream_info(
-        ctx_ptr[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx_ptr[],
         UnsafePointer[
             UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
         ](unsafe_from_address=0),
@@ -834,16 +774,14 @@ def test_av_guess_sample_aspect_ratio():
     var frame = avutil.av_frame_alloc()
     assert_true(Bool(frame))
     _ = avformat.av_guess_sample_aspect_ratio(
-        ctx_ptr[].unsafe_origin_cast[MutExternalOrigin](),
-        st.unsafe_origin_cast[MutExternalOrigin](),
-        frame.unsafe_origin_cast[MutExternalOrigin](),
+        ctx_ptr[],
+        st,
+        frame,
     )
     # assert_true(ret_rational.num > 0)
     # assert_true(ret_rational.den > 0)
-    avutil.av_frame_free(frame.unsafe_origin_cast[MutExternalOrigin]())
-    avformat.avformat_close_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin]()
-    )
+    avutil.av_frame_free(frame)
+    avformat.avformat_close_input(ctx_ptr)
 
 
 def test_av_probe_input_format():
@@ -859,31 +797,28 @@ def test_av_probe_input_format():
         n = f.read(buffer=buf)
     assert_true(n > 0)
     var filename = "test.h264"
-    var filename_ptr = filename.as_c_string_slice().unsafe_ptr().as_immutable()
     var pd_ptr = alloc[AVProbeData](1)
     pd_ptr[0] = AVProbeData(
-        filename=filename_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        filename=filename,
         buf=buf.unsafe_ptr().unsafe_origin_cast[MutExternalOrigin](),
         buf_size=c_int(n),
-        mime_type=UnsafePointer[c_char, ImmutExternalOrigin](
-            unsafe_from_address=0
-        ),
+        mime_type=None,
     )
     var fmt = avformat.av_probe_input_format(
-        pd_ptr.as_immutable().unsafe_origin_cast[ImmutExternalOrigin](),
+        pd_ptr.as_immutable(),
         0,
     )
     var score_max = alloc[c_int](1)
     score_max[0] = 100
     var fmt2 = avformat.av_probe_input_format2(
-        pd_ptr.as_immutable().unsafe_origin_cast[ImmutExternalOrigin](),
+        pd_ptr.as_immutable(),
         0,
         score_max,
     )
     assert_true(n > 0)
     var score_ret = alloc[c_int](1)
     var fmt3 = avformat.av_probe_input_format3(
-        pd_ptr.as_immutable().unsafe_origin_cast[ImmutExternalOrigin](),
+        pd_ptr.as_immutable(),
         0,
         score_ret,
     )
@@ -899,10 +834,9 @@ def test_av_probe_input_buffer2():
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
         os.getenv("PIXI_PROJECT_ROOT"),
     )
-    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.avio_open(
-        pb_ptr.unsafe_origin_cast[MutExternalOrigin](),
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        pb_ptr,
+        path,
         AVIO_FLAG_READ,
     )
     assert_equal(ret, 0)
@@ -910,15 +844,15 @@ def test_av_probe_input_buffer2():
     var fmt_ptr = alloc[UnsafePointer[AVInputFormat, ImmutExternalOrigin]](1)
     memset(fmt_ptr, 0, 1)
     ret = avformat.av_probe_input_buffer2(
-        pb_ptr[0].unsafe_origin_cast[MutExternalOrigin](),
-        fmt_ptr.unsafe_origin_cast[MutExternalOrigin](),
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        pb_ptr[0],
+        fmt_ptr,
+        path,
         OpaquePointer[MutExternalOrigin](unsafe_from_address=0),
         0,
         0,
     )
     assert_true(ret >= 0)
-    ret = avformat.avio_closep(pb_ptr.unsafe_origin_cast[MutExternalOrigin]())
+    ret = avformat.avio_closep(pb_ptr)
     assert_true(ret >= 0)
 
     _ = fmt_ptr
@@ -930,10 +864,9 @@ def test_av_probe_input_buffer():
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
         os.getenv("PIXI_PROJECT_ROOT"),
     )
-    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.avio_open(
-        pb_ptr.unsafe_origin_cast[MutExternalOrigin](),
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        pb_ptr,
+        path,
         AVIO_FLAG_READ,
     )
     assert_equal(ret, 0)
@@ -941,15 +874,15 @@ def test_av_probe_input_buffer():
     var fmt_ptr = alloc[UnsafePointer[AVInputFormat, ImmutExternalOrigin]](1)
     memset(fmt_ptr, 0, 1)
     ret = avformat.av_probe_input_buffer(
-        pb_ptr[0].unsafe_origin_cast[MutExternalOrigin](),
-        fmt_ptr.unsafe_origin_cast[MutExternalOrigin](),
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        pb_ptr[0],
+        fmt_ptr,
+        path,
         OpaquePointer[MutExternalOrigin](unsafe_from_address=0),
         0,
         0,
     )
     assert_equal(ret, 0)
-    ret = avformat.avio_closep(pb_ptr.unsafe_origin_cast[MutExternalOrigin]())
+    ret = avformat.avio_closep(pb_ptr)
     assert_true(ret >= 0)
 
     _ = fmt_ptr
@@ -961,10 +894,9 @@ def test_av_seek_frame():
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
         os.getenv("PIXI_PROJECT_ROOT"),
     )
-    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.avformat_open_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin](),
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        ctx_ptr,
+        path,
         UnsafePointer[AVInputFormat, ImmutExternalOrigin](
             unsafe_from_address=0
         ),
@@ -976,22 +908,20 @@ def test_av_seek_frame():
     )
     assert_equal(ret, 0)
     ret = avformat.avformat_find_stream_info(
-        ctx_ptr[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx_ptr[],
         UnsafePointer[
             UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
         ](unsafe_from_address=0),
     )
     assert_true(ret >= 0)
     _ = avformat.av_seek_frame(
-        ctx_ptr[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx_ptr[],
         -1,
         0,
         0,
     )
     # assert_true(ret >= 0)
-    avformat.avformat_close_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin]()
-    )
+    avformat.avformat_close_input(ctx_ptr)
 
 
 def test_avformat_seek_file():
@@ -1000,10 +930,9 @@ def test_avformat_seek_file():
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
         os.getenv("PIXI_PROJECT_ROOT"),
     )
-    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.avformat_open_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin](),
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        ctx_ptr,
+        path,
         UnsafePointer[AVInputFormat, ImmutExternalOrigin](
             unsafe_from_address=0
         ),
@@ -1015,14 +944,14 @@ def test_avformat_seek_file():
     )
     assert_equal(ret, 0)
     ret = avformat.avformat_find_stream_info(
-        ctx_ptr[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx_ptr[],
         UnsafePointer[
             UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
         ](unsafe_from_address=0),
     )
     assert_true(ret >= 0)
     ret = avformat.avformat_seek_file(
-        ctx_ptr[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx_ptr[],
         -1,
         -9223372036854775808,
         0,
@@ -1030,9 +959,7 @@ def test_avformat_seek_file():
         0,
     )
     _ = ret
-    avformat.avformat_close_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin]()
-    )
+    avformat.avformat_close_input(ctx_ptr)
 
 
 def test_avformat_flush():
@@ -1041,10 +968,9 @@ def test_avformat_flush():
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
         os.getenv("PIXI_PROJECT_ROOT"),
     )
-    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.avformat_open_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin](),
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        ctx_ptr,
+        path,
         UnsafePointer[AVInputFormat, ImmutExternalOrigin](
             unsafe_from_address=0
         ),
@@ -1055,10 +981,8 @@ def test_avformat_flush():
         ),
     )
     assert_equal(ret, 0)
-    avformat.avformat_flush(ctx_ptr[].unsafe_origin_cast[MutExternalOrigin]())
-    avformat.avformat_close_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin]()
-    )
+    avformat.avformat_flush(ctx_ptr[])
+    avformat.avformat_close_input(ctx_ptr)
 
 
 def test_av_read_play_pause():
@@ -1067,10 +991,9 @@ def test_av_read_play_pause():
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
         os.getenv("PIXI_PROJECT_ROOT"),
     )
-    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.avformat_open_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin](),
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        ctx_ptr,
+        path,
         UnsafePointer[AVInputFormat, ImmutExternalOrigin](
             unsafe_from_address=0
         ),
@@ -1081,11 +1004,9 @@ def test_av_read_play_pause():
         ),
     )
     assert_equal(ret, 0)
-    avformat.av_read_play(ctx_ptr[].unsafe_origin_cast[MutExternalOrigin]())
-    avformat.av_read_pause(ctx_ptr[].unsafe_origin_cast[MutExternalOrigin]())
-    avformat.avformat_close_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin]()
-    )
+    avformat.av_read_play(ctx_ptr[])
+    avformat.av_read_pause(ctx_ptr[])
+    avformat.avformat_close_input(ctx_ptr)
 
 
 def test_av_find_program_from_stream():
@@ -1094,10 +1015,9 @@ def test_av_find_program_from_stream():
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
         os.getenv("PIXI_PROJECT_ROOT"),
     )
-    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.avformat_open_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin](),
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        ctx_ptr,
+        path,
         UnsafePointer[AVInputFormat, ImmutExternalOrigin](
             unsafe_from_address=0
         ),
@@ -1109,20 +1029,18 @@ def test_av_find_program_from_stream():
     )
     assert_equal(ret, 0)
     ret = avformat.avformat_find_stream_info(
-        ctx_ptr[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx_ptr[],
         UnsafePointer[
             UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
         ](unsafe_from_address=0),
     )
     assert_true(ret >= 0)
     var prog = avformat.av_find_program_from_stream(
-        ctx_ptr[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx_ptr[],
         UnsafePointer[AVProgram, MutExternalOrigin](unsafe_from_address=0),
         0,
     )
-    avformat.avformat_close_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin]()
-    )
+    avformat.avformat_close_input(ctx_ptr)
 
     _ = prog
 
@@ -1130,12 +1048,12 @@ def test_av_find_program_from_stream():
 def test_av_program_add_stream_index():
     var ctx = avformat.avformat_alloc_context()
     var prog = avformat.av_new_program(
-        ctx.unsafe_origin_cast[MutExternalOrigin](),
+        ctx,
         1,
     )
     assert_true(Bool(prog))
     avformat.av_program_add_stream_index(
-        ctx.unsafe_origin_cast[MutExternalOrigin](),
+        ctx,
         1,
         0,
     )
@@ -1148,10 +1066,9 @@ def test_av_pkt_dump2():
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
         os.getenv("PIXI_PROJECT_ROOT"),
     )
-    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.avformat_open_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin](),
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        ctx_ptr,
+        path,
         UnsafePointer[AVInputFormat, ImmutExternalOrigin](
             unsafe_from_address=0
         ),
@@ -1165,24 +1082,24 @@ def test_av_pkt_dump2():
     var pkt_ptr = alloc[UnsafePointer[AVPacket, MutExternalOrigin]](1)
     pkt_ptr[0] = avcodec.av_packet_alloc()
     ret = avformat.av_read_frame(
-        ctx_ptr[].unsafe_origin_cast[MutExternalOrigin](),
-        pkt_ptr[0].unsafe_origin_cast[MutExternalOrigin](),
+        ctx_ptr[],
+        pkt_ptr[0],
     )
     assert_true(ret >= 0)
     var st = ctx_ptr[][].streams[0]
-    var f = fdopen(1, "w".as_c_string_slice().unsafe_ptr().as_immutable())
+    var fd = dup(1)
+    var f = fdopen(fd, "w".as_c_string_slice().unsafe_ptr().as_immutable())
     avformat.av_pkt_dump2(
         f,
-        pkt_ptr[0].as_immutable().unsafe_origin_cast[ImmutExternalOrigin](),
+        pkt_ptr[0].as_immutable(),
         0,
-        st.as_immutable().unsafe_origin_cast[ImmutExternalOrigin](),
+        st.as_immutable(),
     )
     _ = fflush(f)
+    fclose(f)
     avcodec.av_packet_unref(pkt_ptr[0])
     avcodec.av_packet_free(pkt_ptr)
-    avformat.avformat_close_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin]()
-    )
+    avformat.avformat_close_input(ctx_ptr)
 
 
 def test_av_pkt_dump_log2():
@@ -1191,10 +1108,9 @@ def test_av_pkt_dump_log2():
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
         os.getenv("PIXI_PROJECT_ROOT"),
     )
-    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.avformat_open_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin](),
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        ctx_ptr,
+        path,
         UnsafePointer[AVInputFormat, ImmutExternalOrigin](
             unsafe_from_address=0
         ),
@@ -1208,23 +1124,21 @@ def test_av_pkt_dump_log2():
     var pkt_ptr = alloc[UnsafePointer[AVPacket, MutExternalOrigin]](1)
     pkt_ptr[0] = avcodec.av_packet_alloc()
     ret = avformat.av_read_frame(
-        ctx_ptr[].unsafe_origin_cast[MutExternalOrigin](),
-        pkt_ptr[0].unsafe_origin_cast[MutExternalOrigin](),
+        ctx_ptr[],
+        pkt_ptr[0],
     )
     assert_true(ret >= 0)
     var st = ctx_ptr[][].streams[0]
     avformat.av_pkt_dump_log2(
         OpaquePointer[MutExternalOrigin](unsafe_from_address=0),
         0,
-        pkt_ptr[0].as_immutable().unsafe_origin_cast[ImmutExternalOrigin](),
+        pkt_ptr[0].as_immutable(),
         0,
-        st.as_immutable().unsafe_origin_cast[ImmutExternalOrigin](),
+        st.as_immutable(),
     )
     avcodec.av_packet_unref(pkt_ptr[0])
     avcodec.av_packet_free(pkt_ptr)
-    avformat.avformat_close_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin]()
-    )
+    avformat.avformat_close_input(ctx_ptr)
 
 
 def test_av_index_search_timestamp():
@@ -1233,10 +1147,9 @@ def test_av_index_search_timestamp():
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
         os.getenv("PIXI_PROJECT_ROOT"),
     )
-    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.avformat_open_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin](),
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        ctx_ptr,
+        path,
         UnsafePointer[AVInputFormat, ImmutExternalOrigin](
             unsafe_from_address=0
         ),
@@ -1248,7 +1161,7 @@ def test_av_index_search_timestamp():
     )
     assert_equal(ret, 0)
     ret = avformat.avformat_find_stream_info(
-        ctx_ptr[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx_ptr[],
         UnsafePointer[
             UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
         ](unsafe_from_address=0),
@@ -1256,13 +1169,11 @@ def test_av_index_search_timestamp():
     assert_true(ret >= 0)
     var st = ctx_ptr[][].streams[0]
     var idx = avformat.av_index_search_timestamp(
-        st.unsafe_origin_cast[MutExternalOrigin](),
+        st,
         0,
         0,
     )
-    avformat.avformat_close_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin]()
-    )
+    avformat.avformat_close_input(ctx_ptr)
 
     _ = idx
 
@@ -1273,10 +1184,9 @@ def test_avformat_index_get_entries_count():
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
         os.getenv("PIXI_PROJECT_ROOT"),
     )
-    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.avformat_open_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin](),
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        ctx_ptr,
+        path,
         UnsafePointer[AVInputFormat, ImmutExternalOrigin](
             unsafe_from_address=0
         ),
@@ -1288,7 +1198,7 @@ def test_avformat_index_get_entries_count():
     )
     assert_equal(ret, 0)
     ret = avformat.avformat_find_stream_info(
-        ctx_ptr[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx_ptr[],
         UnsafePointer[
             UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
         ](unsafe_from_address=0),
@@ -1296,12 +1206,10 @@ def test_avformat_index_get_entries_count():
     assert_true(ret >= 0)
     var st = ctx_ptr[][].streams[0]
     var count = avformat.avformat_index_get_entries_count(
-        st.unsafe_origin_cast[MutExternalOrigin](),
+        st,
     )
     assert_true(count >= 0)
-    avformat.avformat_close_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin]()
-    )
+    avformat.avformat_close_input(ctx_ptr)
 
 
 def test_avformat_index_get_entry():
@@ -1310,10 +1218,9 @@ def test_avformat_index_get_entry():
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
         os.getenv("PIXI_PROJECT_ROOT"),
     )
-    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.avformat_open_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin](),
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        ctx_ptr,
+        path,
         UnsafePointer[AVInputFormat, ImmutExternalOrigin](
             unsafe_from_address=0
         ),
@@ -1325,7 +1232,7 @@ def test_avformat_index_get_entry():
     )
     assert_equal(ret, 0)
     ret = avformat.avformat_find_stream_info(
-        ctx_ptr[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx_ptr[],
         UnsafePointer[
             UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
         ](unsafe_from_address=0),
@@ -1333,17 +1240,15 @@ def test_avformat_index_get_entry():
     assert_true(ret >= 0)
     var st = ctx_ptr[][].streams[0]
     var count = avformat.avformat_index_get_entries_count(
-        st.unsafe_origin_cast[MutExternalOrigin](),
+        st,
     )
     if count > 0:
         var entry = avformat.avformat_index_get_entry(
-            st.unsafe_origin_cast[MutExternalOrigin](),
+            st,
             0,
         )
         _ = entry
-    avformat.avformat_close_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin]()
-    )
+    avformat.avformat_close_input(ctx_ptr)
 
 
 def test_avformat_index_get_entry_from_timestamp():
@@ -1352,10 +1257,9 @@ def test_avformat_index_get_entry_from_timestamp():
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
         os.getenv("PIXI_PROJECT_ROOT"),
     )
-    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.avformat_open_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin](),
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        ctx_ptr,
+        path,
         UnsafePointer[AVInputFormat, ImmutExternalOrigin](
             unsafe_from_address=0
         ),
@@ -1367,7 +1271,7 @@ def test_avformat_index_get_entry_from_timestamp():
     )
     assert_equal(ret, 0)
     ret = avformat.avformat_find_stream_info(
-        ctx_ptr[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx_ptr[],
         UnsafePointer[
             UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
         ](unsafe_from_address=0),
@@ -1375,13 +1279,11 @@ def test_avformat_index_get_entry_from_timestamp():
     assert_true(ret >= 0)
     var st = ctx_ptr[][].streams[0]
     var entry = avformat.avformat_index_get_entry_from_timestamp(
-        st.unsafe_origin_cast[MutExternalOrigin](),
+        st,
         0,
         0,
     )
-    avformat.avformat_close_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin]()
-    )
+    avformat.avformat_close_input(ctx_ptr)
 
     _ = entry
 
@@ -1389,11 +1291,11 @@ def test_avformat_index_get_entry_from_timestamp():
 def test_av_add_index_entry():
     var ctx = avformat.avformat_alloc_context()
     var st = avformat.avformat_new_stream(
-        ctx.unsafe_origin_cast[MutExternalOrigin](),
+        ctx,
         UnsafePointer[AVCodec, ImmutExternalOrigin](unsafe_from_address=0),
     )
     var ret = avformat.av_add_index_entry(
-        st.unsafe_origin_cast[MutExternalOrigin](),
+        st,
         0,
         0,
         100,
@@ -1410,10 +1312,9 @@ def test_avformat_queue_attached_pictures():
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
         os.getenv("PIXI_PROJECT_ROOT"),
     )
-    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     var ret = avformat.avformat_open_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin](),
-        path_ptr.unsafe_origin_cast[ImmutExternalOrigin](),
+        ctx_ptr,
+        path,
         UnsafePointer[AVInputFormat, ImmutExternalOrigin](
             unsafe_from_address=0
         ),
@@ -1424,14 +1325,10 @@ def test_avformat_queue_attached_pictures():
         ),
     )
     assert_equal(ret, 0)
-    ret = avformat.avformat_queue_attached_pictures(
-        ctx_ptr[].unsafe_origin_cast[MutExternalOrigin](),
+    avformat.avformat_queue_attached_pictures(
+        ctx_ptr[],
     )
-    avformat.avformat_close_input(
-        ctx_ptr.unsafe_origin_cast[MutExternalOrigin]()
-    )
-
-    _ = ret
+    avformat.avformat_close_input(ctx_ptr)
 
 
 def test_av_get_output_timestamp():
@@ -1442,31 +1339,20 @@ def test_av_get_output_timestamp():
     var dts = alloc[c_long_long](1)
     var wall = alloc[c_long_long](1)
     ret = avformat.av_get_output_timestamp(
-        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx[],
         0,
         dts,
         wall,
     )
     avformat.avformat_free_context(ctx[])
 
-    _ = ret
-    _ = dts
-    _ = wall
+    dts.free()
+    wall.free()
 
 
 def test_avformat_write_header_trailer():
     var ctx = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
-    var fmt = avformat.av_guess_format(
-        short_name="null".as_c_string_slice()
-        .unsafe_ptr()
-        .unsafe_origin_cast[ImmutExternalOrigin](),
-        filename=UnsafePointer[c_char, ImmutExternalOrigin](
-            unsafe_from_address=0
-        ),
-        mime_type=UnsafePointer[c_char, ImmutExternalOrigin](
-            unsafe_from_address=0
-        ),
-    )
+    var fmt = avformat.av_guess_format(short_name="null")
     if not Bool(fmt):
         return
     var filename = String("")
@@ -1481,7 +1367,7 @@ def test_avformat_write_header_trailer():
     if ret < 0:
         return
     var st = avformat.avformat_new_stream(
-        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx[],
         UnsafePointer[AVCodec, ImmutExternalOrigin](unsafe_from_address=0),
     )
     if not Bool(st):
@@ -1500,17 +1386,12 @@ def test_avformat_write_header_trailer():
         unsafe_from_address=0,
     )
     ret = avformat.avformat_write_header(
-        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx[],
         opt,
     )
     if ret >= 0:
-        ret = avformat.av_write_trailer(
-            ctx[].unsafe_origin_cast[MutExternalOrigin]()
-        )
+        ret = avformat.av_write_trailer(ctx[])
     avformat.avformat_free_context(ctx[])
-
-    _ = ret
-    _ = st
 
 
 def test_av_sdp_create():
@@ -1520,30 +1401,20 @@ def test_av_sdp_create():
     var buf = alloc[c_char](256)
     memset(buf, 0, 256)
     var ret = avformat.av_sdp_create(
-        ac.unsafe_origin_cast[MutExternalOrigin](),
+        ac,
         1,
-        buf.unsafe_origin_cast[MutExternalOrigin](),
+        buf,
         256,
     )
     assert_equal(ret, 0)
     avformat.avformat_free_context(ac[0])
-
-    _ = buf
+    buf.free()
+    ac.free()
 
 
 def test_avformat_init_output():
     var ctx = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
-    var fmt = avformat.av_guess_format(
-        short_name="null".as_c_string_slice()
-        .unsafe_ptr()
-        .unsafe_origin_cast[ImmutExternalOrigin](),
-        filename=UnsafePointer[c_char, ImmutExternalOrigin](
-            unsafe_from_address=0
-        ),
-        mime_type=UnsafePointer[c_char, ImmutExternalOrigin](
-            unsafe_from_address=0
-        ),
-    )
+    var fmt = avformat.av_guess_format(short_name="null")
     if not Bool(fmt):
         return
     var filename = String("")
@@ -1558,7 +1429,7 @@ def test_avformat_init_output():
     if ret < 0:
         return
     var st = avformat.avformat_new_stream(
-        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx[],
         UnsafePointer[AVCodec, ImmutExternalOrigin](unsafe_from_address=0),
     )
     if not Bool(st):
@@ -1577,29 +1448,17 @@ def test_avformat_init_output():
         unsafe_from_address=0,
     )
     ret = avformat.avformat_init_output(
-        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx[],
         opt,
     )
     assert_true(ret >= 0)
     # ret may be < 0 for null muxer without pb; we just verify the API call completes
     avformat.avformat_free_context(ctx[])
 
-    _ = st
-
 
 def test_av_write_frame():
     var ctx = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
-    var fmt = avformat.av_guess_format(
-        short_name="null".as_c_string_slice()
-        .unsafe_ptr()
-        .unsafe_origin_cast[ImmutExternalOrigin](),
-        filename=UnsafePointer[c_char, ImmutExternalOrigin](
-            unsafe_from_address=0
-        ),
-        mime_type=UnsafePointer[c_char, ImmutExternalOrigin](
-            unsafe_from_address=0
-        ),
-    )
+    var fmt = avformat.av_guess_format(short_name="null")
     if not Bool(fmt):
         return
     var filename = String("")
@@ -1614,7 +1473,7 @@ def test_av_write_frame():
     if ret < 0:
         return
     var st = avformat.avformat_new_stream(
-        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx[],
         UnsafePointer[AVCodec, ImmutExternalOrigin](unsafe_from_address=0),
     )
     if not Bool(st):
@@ -1633,37 +1492,23 @@ def test_av_write_frame():
         unsafe_from_address=0,
     )
     ret = avformat.avformat_write_header(
-        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx[],
         opt,
     )
     if ret >= 0:
         ret = avformat.av_write_frame(
-            ctx[].unsafe_origin_cast[MutExternalOrigin](),
+            ctx[],
             UnsafePointer[AVPacket, MutExternalOrigin](unsafe_from_address=0),
         )
         assert_true(ret >= 0)
-        ret = avformat.av_write_trailer(
-            ctx[].unsafe_origin_cast[MutExternalOrigin]()
-        )
+        ret = avformat.av_write_trailer(ctx[])
         assert_true(ret >= 0)
     avformat.avformat_free_context(ctx[])
-
-    _ = st
 
 
 def test_av_interleaved_write_frame():
     var ctx = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
-    var fmt = avformat.av_guess_format(
-        short_name="null".as_c_string_slice()
-        .unsafe_ptr()
-        .unsafe_origin_cast[ImmutExternalOrigin](),
-        filename=UnsafePointer[c_char, ImmutExternalOrigin](
-            unsafe_from_address=0
-        ),
-        mime_type=UnsafePointer[c_char, ImmutExternalOrigin](
-            unsafe_from_address=0
-        ),
-    )
+    var fmt = avformat.av_guess_format(short_name="null")
     if not Bool(fmt):
         return
     var filename = String("")
@@ -1678,7 +1523,7 @@ def test_av_interleaved_write_frame():
     if ret < 0:
         return
     var st = avformat.avformat_new_stream(
-        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx[],
         UnsafePointer[AVCodec, ImmutExternalOrigin](unsafe_from_address=0),
     )
     if not Bool(st):
@@ -1697,37 +1542,23 @@ def test_av_interleaved_write_frame():
         unsafe_from_address=0,
     )
     ret = avformat.avformat_write_header(
-        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx[],
         opt,
     )
     if ret >= 0:
         ret = avformat.av_interleaved_write_frame(
-            ctx[].unsafe_origin_cast[MutExternalOrigin](),
+            ctx[],
             UnsafePointer[AVPacket, MutExternalOrigin](unsafe_from_address=0),
         )
         assert_true(ret >= 0)
-        ret = avformat.av_write_trailer(
-            ctx[].unsafe_origin_cast[MutExternalOrigin]()
-        )
+        ret = avformat.av_write_trailer(ctx[])
         assert_true(ret >= 0)
     avformat.avformat_free_context(ctx[])
-
-    _ = st
 
 
 def test_av_write_uncoded_frame_query():
     var ctx = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
-    var fmt = avformat.av_guess_format(
-        short_name="null".as_c_string_slice()
-        .unsafe_ptr()
-        .unsafe_origin_cast[ImmutExternalOrigin](),
-        filename=UnsafePointer[c_char, ImmutExternalOrigin](
-            unsafe_from_address=0
-        ),
-        mime_type=UnsafePointer[c_char, ImmutExternalOrigin](
-            unsafe_from_address=0
-        ),
-    )
+    var fmt = avformat.av_guess_format(short_name="null")
     if not Bool(fmt):
         return
     var filename = String("")
@@ -1742,7 +1573,7 @@ def test_av_write_uncoded_frame_query():
     if ret < 0:
         return
     var st = avformat.avformat_new_stream(
-        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx[],
         UnsafePointer[AVCodec, ImmutExternalOrigin](unsafe_from_address=0),
     )
     if not Bool(st):
@@ -1756,27 +1587,16 @@ def test_av_write_uncoded_frame_query():
     st[].codecpar[].width = 640
     st[].codecpar[].height = 480
     _ = avformat.av_write_uncoded_frame_query(
-        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx[],
         0,
     )
     avformat.avformat_free_context(ctx[])
 
-    _ = st
-
 
 def test_av_write_uncoded_frame():
     var ctx = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
-    var fmt = avformat.av_guess_format(
-        short_name="null".as_c_string_slice()
-        .unsafe_ptr()
-        .unsafe_origin_cast[ImmutExternalOrigin](),
-        filename=UnsafePointer[c_char, ImmutExternalOrigin](
-            unsafe_from_address=0
-        ),
-        mime_type=UnsafePointer[c_char, ImmutExternalOrigin](
-            unsafe_from_address=0
-        ),
-    )
+    var short_name = Optional(String("null"))
+    var fmt = avformat.av_guess_format(short_name=short_name)
     if not Bool(fmt):
         return
     var filename = String("")
@@ -1791,7 +1611,7 @@ def test_av_write_uncoded_frame():
     if ret < 0:
         return
     var st = avformat.avformat_new_stream(
-        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx[],
         UnsafePointer[AVCodec, ImmutExternalOrigin](unsafe_from_address=0),
     )
     if not Bool(st):
@@ -1810,38 +1630,25 @@ def test_av_write_uncoded_frame():
         unsafe_from_address=0,
     )
     ret = avformat.avformat_write_header(
-        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx[],
         opt,
     )
     if ret >= 0:
         _ = avformat.av_write_uncoded_frame(
-            ctx[].unsafe_origin_cast[MutExternalOrigin](),
+            ctx[],
             0,
             UnsafePointer[AVFrame, MutExternalOrigin](unsafe_from_address=0),
         )
         # assert_true(ret >= 0)
-        _ = avformat.av_write_trailer(
-            ctx[].unsafe_origin_cast[MutExternalOrigin]()
-        )
+        _ = avformat.av_write_trailer(ctx[])
         # assert_true(ret >= 0)
     avformat.avformat_free_context(ctx[])
-
-    _ = st
 
 
 def test_av_interleaved_write_uncoded_frame():
     var ctx = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
-    var fmt = avformat.av_guess_format(
-        short_name="null".as_c_string_slice()
-        .unsafe_ptr()
-        .unsafe_origin_cast[ImmutExternalOrigin](),
-        filename=UnsafePointer[c_char, ImmutExternalOrigin](
-            unsafe_from_address=0
-        ),
-        mime_type=UnsafePointer[c_char, ImmutExternalOrigin](
-            unsafe_from_address=0
-        ),
-    )
+    var short_name = Optional(String("null"))
+    var fmt = avformat.av_guess_format(short_name=short_name)
     if not Bool(fmt):
         return
     var filename = String("")
@@ -1856,7 +1663,7 @@ def test_av_interleaved_write_uncoded_frame():
     if ret < 0:
         return
     var st = avformat.avformat_new_stream(
-        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx[],
         UnsafePointer[AVCodec, ImmutExternalOrigin](unsafe_from_address=0),
     )
     if not Bool(st):
@@ -1875,25 +1682,20 @@ def test_av_interleaved_write_uncoded_frame():
         unsafe_from_address=0,
     )
     ret = avformat.avformat_write_header(
-        ctx[].unsafe_origin_cast[MutExternalOrigin](),
+        ctx[],
         opt,
     )
     if ret >= 0:
         _ = avformat.av_interleaved_write_uncoded_frame(
-            ctx[].unsafe_origin_cast[MutExternalOrigin](),
+            ctx[],
             0,
             UnsafePointer[AVFrame, MutExternalOrigin](unsafe_from_address=0),
         )
         # assert_true(ret >= 0)
-        _ = avformat.av_write_trailer(
-            ctx[].unsafe_origin_cast[MutExternalOrigin]()
-        )
+        _ = avformat.av_write_trailer(ctx[])
         # assert_true(ret >= 0)
     avformat.avformat_free_context(ctx[])
-
-    _ = st
 
 
 def main():
     TestSuite.discover_tests[__functions_in_module()]().run()
-    # test_avformat_init_output()

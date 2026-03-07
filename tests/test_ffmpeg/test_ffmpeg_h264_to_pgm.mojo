@@ -100,8 +100,10 @@ def test_av_decode_video_example():
     var context = avcodec.avcodec_alloc_context3(codec)
     print(context[])
 
-    ptr = alloc[AVDictionary](0)
-    _ = avcodec.avcodec_open2(context, codec, ptr)
+    ptr = UnsafePointer[AVDictionary, MutExternalOrigin]()
+    ptr_ptr = alloc[UnsafePointer[AVDictionary, MutExternalOrigin]](1)
+    ptr_ptr[] = ptr
+    _ = avcodec.avcodec_open2(context, codec, ptr_ptr)
     print("Opened codec")
 
     var test_data_root = os.getenv("PIXI_PROJECT_ROOT")
@@ -151,7 +153,11 @@ def test_av_decode_video_example():
                     print("Packet size: ", packet[].size)
                     decode(context, frame, packet, out_filename)
 
-    _ = codec
+    avutil.av_frame_free(frame)
+    avcodec.av_packet_free(packet)
+
+    avcodec.avcodec_free_context(context)
+    avcodec.av_parser_close(parser)
 
 
 def main():

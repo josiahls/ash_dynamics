@@ -75,8 +75,7 @@ fn decode(
     raise Error("Error decoding image.")
 
 
-@fieldwise_init
-struct Image:
+struct Image(Movable, Writable):
     var _data: UnsafePointer[c_uchar, MutAnyOrigin]
 
     var width: c_int
@@ -93,7 +92,7 @@ struct Image:
 
     fn __init__(
         out self,
-        data: UnsafePointer[c_uchar, MutExternalOrigin],
+        var data: UnsafePointer[c_uchar, MutAnyOrigin],
         width: c_int,
         height: c_int,
         format: AVPixelFormat.ENUM_DTYPE,
