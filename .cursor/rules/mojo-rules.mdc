@@ -1,0 +1,20 @@
+---
+description: Rules on how to write new and existing Mojo code
+alwaysApply: true
+---
+
+# Do Not Remove Commented Code
+
+Never remove commented-out code. Leave it in place.
+
+If you are refactoring, cleaning up, or simplifying code, preserve any existing commented sections. The user may have kept them intentionally for reference, debugging, or future use.
+
+# Mojo Commands
+
+Always use `pixi run mojo` for Mojo commands. Never run `mojo` directly.
+
+- **Build**: `pixi run mojo build ...`
+- **Run**: `pixi run mojo run ...`
+- **Test**: `pixi run mojo test ...` (or equivalent via pixi)
+
+Optionally ensure you're in a pixi shell (`pixi shell`) when running multiple commands.
