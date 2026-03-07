@@ -1,5 +1,5 @@
 "See https://www.ffmpeg.org/doxygen/8.0/opt_8h.html."
-from ffi import c_char, c_int, c_double, c_long_long
+from ffi import c_char, c_int, c_uint, c_double, c_long_long
 from ash_dynamics.primitives._clib import C_Union
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
 
@@ -68,15 +68,26 @@ struct AVOptionType(Movable, Writable):
 struct AVOptionArrayDef(Movable, Writable):
     "See https://www.ffmpeg.org/doxygen/8.0/structAVOptionArrayDef.html."
     var def_: UnsafePointer[c_char, ImmutExternalOrigin]
-    var size_min: c_int
-    var size_max: c_int
+    var size_min: c_uint
+    var size_max: c_uint
     var sep: c_char
+
+
+@fieldwise_init
+struct AVOptionRange(Movable, Writable):
+    "See https://www.ffmpeg.org/doxygen/8.0/structAVOptionRange.html."
+    var str: UnsafePointer[c_char, ImmutExternalOrigin]
+    var value_min: c_double
+    var value_max: c_double
+    var component_min: c_double
+    var component_max: c_double
+    var is_range: c_int
 
 
 struct AVOptionRanges(Movable, Writable):
     "See https://www.ffmpeg.org/doxygen/8.0/structAVOptionRanges.html."
     var range: UnsafePointer[
-        UnsafePointer[Self, MutExternalOrigin], MutExternalOrigin
+        UnsafePointer[AVOptionRange, MutExternalOrigin], MutExternalOrigin
     ]
     var nb_ranges: c_int
     var nb_components: c_int

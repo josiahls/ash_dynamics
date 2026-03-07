@@ -36,7 +36,9 @@ def test_av_frame_alloc():
 
 def test_av_frame_free():
     var frame = avutil.av_frame_alloc()
-    avutil.av_frame_free(frame.unsafe_origin_cast[MutExternalOrigin]())
+    var frame_ptr = alloc[type_of(frame)](1)
+    frame_ptr[] = frame
+    avutil.av_frame_free(frame_ptr)
 
 
 def test_av_frame_ref():
@@ -103,7 +105,7 @@ def test_av_frame_move_ref():
     src[].height = 600
     avutil.av_frame_move_ref(
         dst.unsafe_origin_cast[MutExternalOrigin](),
-        src.as_immutable().unsafe_origin_cast[ImmutExternalOrigin](),
+        src.as_immutable(),
     )
     assert_equal(dst[].width, 800)
     assert_equal(dst[].height, 600)
@@ -294,8 +296,10 @@ def test_av_frame_side_data_free():
     var sd = alloc[AVFrameSideData](1)
     memset(sd, 0, 1)
     var nb_sd: c_int = 0
+    var sd_ptr = alloc[UnsafePointer[AVFrameSideData, MutExternalOrigin]](1)
+    sd_ptr[] = sd
     var entry = avutil.av_frame_side_data_new(
-        sd,
+        sd_ptr,
         UnsafePointer(to=nb_sd).unsafe_origin_cast[MutExternalOrigin](),
         AVFrameSideDataType.AV_FRAME_DATA_REPLAYGAIN._value,
         128,
@@ -304,7 +308,7 @@ def test_av_frame_side_data_free():
     assert_true(Bool(entry))
     assert_equal(nb_sd, 1)
     avutil.av_frame_side_data_free(
-        sd,
+        sd_ptr,
         UnsafePointer(to=nb_sd).unsafe_origin_cast[MutExternalOrigin](),
     )
     assert_equal(nb_sd, 0)
@@ -314,8 +318,10 @@ def test_av_frame_side_data_new():
     var sd = alloc[AVFrameSideData](1)
     memset(sd, 0, 1)
     var nb_sd: c_int = 0
+    var sd_ptr = alloc[UnsafePointer[AVFrameSideData, MutExternalOrigin]](1)
+    sd_ptr[] = sd
     var entry = avutil.av_frame_side_data_new(
-        sd,
+        sd_ptr,
         UnsafePointer(to=nb_sd).unsafe_origin_cast[MutExternalOrigin](),
         AVFrameSideDataType.AV_FRAME_DATA_REPLAYGAIN._value,
         128,
@@ -396,11 +402,13 @@ def test_av_frame_side_data_get_c():
 
 
 def test_av_frame_side_data_remove():
-    var sd = alloc[AVFrameSideData](1)
+    var sd = alloc[UnsafePointer[AVFrameSideData, MutExternalOrigin]](0)
+    var sd_ptr = alloc[UnsafePointer[type_of(sd), MutExternalOrigin]](1)
+    sd_ptr[] = sd
     memset(sd, 0, 1)
     var nb_sd: c_int = 0
     var entry = avutil.av_frame_side_data_new(
-        sd,
+        sd_ptr,
         UnsafePointer(to=nb_sd).unsafe_origin_cast[MutExternalOrigin](),
         AVFrameSideDataType.AV_FRAME_DATA_REPLAYGAIN._value,
         128,
@@ -409,7 +417,7 @@ def test_av_frame_side_data_remove():
     assert_true(Bool(entry))
     assert_equal(nb_sd, 1)
     avutil.av_frame_side_data_remove(
-        sd,
+        sd_ptr,
         UnsafePointer(to=nb_sd).unsafe_origin_cast[MutExternalOrigin](),
         AVFrameSideDataType.AV_FRAME_DATA_REPLAYGAIN._value,
     )

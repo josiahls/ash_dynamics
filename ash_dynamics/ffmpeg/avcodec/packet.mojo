@@ -92,7 +92,7 @@ struct AVPacketSideData(Movable, Writable):
     "See https://www.ffmpeg.org/doxygen/8.0/structAVPacketSideData.html."
 
     var data: UnsafePointer[c_uchar, MutAnyOrigin]
-    var size: c_uint
+    var size: c_size_t
     var type: AVPacketSideDataType.ENUM_DTYPE
 
 
@@ -361,7 +361,7 @@ fn av_packet_unref(pkt: UnsafePointer[AVPacket, MutExternalOrigin]):
 
 fn av_packet_move_ref(
     dst: UnsafePointer[AVPacket, MutExternalOrigin],
-    src: UnsafePointer[AVPacket, ImmutExternalOrigin],
+    src: UnsafePointer[AVPacket, MutExternalOrigin],
 ):
     external_call["av_packet_move_ref", NoneType](dst, src)
 

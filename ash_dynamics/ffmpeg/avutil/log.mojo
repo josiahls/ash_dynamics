@@ -16,7 +16,9 @@ comptime AVClass_get_category_fn = fn(
 ) -> AVClassCategory.ENUM_DTYPE
 
 comptime AVClass_query_ranges_fn = fn(
-    ranges: UnsafePointer[AVOptionRanges, MutExternalOrigin],
+    ranges: UnsafePointer[
+        UnsafePointer[AVOptionRanges, MutExternalOrigin], MutExternalOrigin
+    ],
     obj: OpaquePointer[MutExternalOrigin],
     key: UnsafePointer[c_char, ImmutExternalOrigin],
     flags: c_int,
