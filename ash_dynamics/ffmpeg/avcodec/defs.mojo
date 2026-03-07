@@ -40,10 +40,10 @@ struct AVDiscard(Movable, Writable):
     comptime ENUM_DTYPE = c_int
     var _value: Self.ENUM_DTYPE
 
-    comptime AVDISCARD_NONE = -16
-    comptime AVDISCARD_DEFAULT = 0
-    comptime AVDISCARD_NONREF = 8
-    comptime AVDISCARD_BIDIR = 16
-    comptime AVDISCARD_NONINTRA = 24
-    comptime AVDISCARD_NONKEY = 32
-    comptime AVDISCARD_ALL = 48
+    comptime AVDISCARD_NONE = Self(-16)
+    comptime AVDISCARD_DEFAULT = Self(0)
+    comptime AVDISCARD_NONREF = Self(8)
+    comptime AVDISCARD_BIDIR = Self(16)
+    comptime AVDISCARD_NONINTRA = Self(24)
+    comptime AVDISCARD_NONKEY = Self(32)
+    comptime AVDISCARD_ALL = Self(48)

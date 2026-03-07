@@ -1,5 +1,5 @@
 "See https://www.ffmpeg.org/doxygen/8.0/error_8h.html."
-from ffi import c_int
+from ffi import c_int, c_size_t
 from ash_dynamics.ffmpeg.avutil.macros import MKTAG
 from utils import Variant
 import os
@@ -92,7 +92,9 @@ comptime AV_ERROR_MAX_STRING_SIZE = 64
 
 
 fn av_strerror(
-    err: c_int, errbuf: UnsafePointer[c_char, MutAnyOrigin], errbuf_size: c_int
+    err: c_int,
+    errbuf: UnsafePointer[c_char, MutAnyOrigin],
+    errbuf_size: c_size_t,
 ) -> c_int:
     return external_call["av_strerror", c_int](err, errbuf, errbuf_size)
 

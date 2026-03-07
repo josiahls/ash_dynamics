@@ -3,7 +3,7 @@ from testing.testing import assert_equal, assert_true
 from memory import memset
 import sys
 import os
-from ffi import c_uchar, c_int, c_char
+from ffi import c_uchar, c_int, c_char, external_call
 from memory import alloc
 from sys._libc_errno import ErrNo
 from ash_dynamics.ffmpeg.avutil.pixfmt import AVPixelFormat
@@ -26,37 +26,42 @@ def test_av_frame_alloc():
     assert_equal(frame[].nb_side_data, 0)
     assert_equal(frame[].flags, 0)
 
-    fn accept_frame(frame: UnsafePointer[AVFrame, MutAnyOrigin]) raises:
+    fn accept_frame(frame: UnsafePointer[AVFrame, MutExternalOrigin]) raises:
         "Test whether frame survives being passed by reference."
         assert_equal(frame[].width, 0)
 
     accept_frame(frame)
     assert_equal(frame[].flags, 0)
+    avutil.av_frame_free(frame)
 
 
 def test_av_frame_free():
-    var frame = avutil.av_frame_alloc()
-    avutil.av_frame_free(frame.unsafe_origin_cast[MutExternalOrigin]())
+    var frame_ptr = alloc[UnsafePointer[AVFrame, MutExternalOrigin]](1)
+    frame_ptr[] = avutil.av_frame_alloc()
+    avutil.av_frame_free(frame_ptr)
+    frame_ptr.free()
 
 
 def test_av_frame_ref():
     var src = avutil.av_frame_alloc()
-    var dst = alloc[AVFrame](1)
+    var dst = avutil.av_frame_alloc()
     memset(dst, 0, 1)
     src[].width = 640
     src[].height = 480
     src[].format = AVPixelFormat.AV_PIX_FMT_YUV420P._value
-    var ret1 = avutil.av_frame_get_buffer(
-        src.unsafe_origin_cast[MutExternalOrigin](), 0
-    )
+    var ret1 = avutil.av_frame_get_buffer(src, 0)
     assert_equal(ret1, 0)
+    var immut_ptr = src
     var ret2 = avutil.av_frame_ref(
         dst,
-        src.as_immutable().unsafe_origin_cast[ImmutExternalOrigin](),
+        immut_ptr,
     )
     assert_equal(ret2, 0)
     assert_equal(dst[].width, 640)
     assert_equal(dst[].height, 480)
+    avutil.av_frame_unref(dst)
+    avutil.av_frame_free(src)
+    avutil.av_frame_free(dst)
 
 
 def test_av_frame_replace():
@@ -65,12 +70,14 @@ def test_av_frame_replace():
     src[].width = 320
     src[].height = 240
     var ret = avutil.av_frame_replace(
-        dst.unsafe_origin_cast[MutExternalOrigin](),
-        src.as_immutable().unsafe_origin_cast[ImmutExternalOrigin](),
+        dst,
+        src,
     )
     assert_equal(ret, 0)
     assert_equal(dst[].width, 320)
     assert_equal(dst[].height, 240)
+    avutil.av_frame_free(src)
+    avutil.av_frame_free(dst)
 
 
 def test_av_frame_clone():
@@ -78,22 +85,24 @@ def test_av_frame_clone():
     src[].width = 1280
     src[].height = 720
     src[].format = AVPixelFormat.AV_PIX_FMT_YUV420P._value
-    _ = avutil.av_frame_get_buffer(
-        src.unsafe_origin_cast[MutExternalOrigin](), 0
-    )
-    var clone = avutil.av_frame_clone(
-        src.as_immutable().unsafe_origin_cast[ImmutExternalOrigin]()
-    )
+    _ = avutil.av_frame_get_buffer(src, 0)
+    var clone = avutil.av_frame_clone(src)
     assert_true(Bool(clone))
     assert_equal(clone[].width, 1280)
     assert_equal(clone[].height, 720)
+    avutil.av_frame_free(src)
+    var clone_ptr = alloc[UnsafePointer[AVFrame, MutExternalOrigin]](1)
+    clone_ptr[] = clone
+    avutil.av_frame_free(clone_ptr)
+    clone_ptr.free()
 
 
 def test_av_frame_unref():
     var frame = avutil.av_frame_alloc()
     frame[].width = 100
-    avutil.av_frame_unref(frame.unsafe_origin_cast[MutExternalOrigin]())
+    avutil.av_frame_unref(frame)
     assert_equal(frame[].width, 0)
+    avutil.av_frame_free(frame)
 
 
 def test_av_frame_move_ref():
@@ -102,34 +111,62 @@ def test_av_frame_move_ref():
     src[].width = 800
     src[].height = 600
     avutil.av_frame_move_ref(
-        dst.unsafe_origin_cast[MutExternalOrigin](),
-        src.as_immutable().unsafe_origin_cast[ImmutExternalOrigin](),
+        dst,
+        src,
     )
     assert_equal(dst[].width, 800)
     assert_equal(dst[].height, 600)
     assert_equal(src[].width, 0)
+    avutil.av_frame_free(src)
+    avutil.av_frame_free(dst)
 
 
 def test_av_frame_get_buffer():
     var frame = avutil.av_frame_alloc()
     frame[].width = 64
     frame[].height = 64
-    frame[].format = 0  # AV_PIX_FMT_YUV420P
-    var ret = avutil.av_frame_get_buffer(
-        frame.unsafe_origin_cast[MutExternalOrigin](), 0
-    )
+    frame[].format = AVPixelFormat.AV_PIX_FMT_YUV420P._value
+
+    # Side data should be null before buffer init (av_frame_alloc zeroes the frame)
+    assert_equal(frame[].nb_side_data, 0)
+    assert_true(not Bool(frame[].side_data))
+
+    var ret = avutil.av_frame_get_buffer(frame, 0)
     assert_equal(ret, 0)
+
+    # Input fields should be unchanged
+    assert_equal(frame[].width, 64)
+    assert_equal(frame[].height, 64)
+    assert_equal(frame[].format, AVPixelFormat.AV_PIX_FMT_YUV420P._value)
+
+    # YUV420P has 3 planes; data and buf should be populated for each
+    assert_true(Bool(frame[].data[0]))
+    assert_true(Bool(frame[].data[1]))
+    assert_true(Bool(frame[].data[2]))
+    assert_true(Bool(frame[].buf[0]))
+
+    # extended_data should point to the data array
+    assert_true(Bool(frame[].extended_data))
+
+    # linesize should be set for each plane (Y=64, U/V=32 for 64x64)
+    assert_true(frame[].linesize[0] >= 64)
+    assert_true(frame[].linesize[1] >= 32)
+    assert_true(frame[].linesize[2] >= 32)
+
+    # Side data should stay null after buffer init; if corrupted, av_frame_free will crash
+    assert_equal(frame[].nb_side_data, 0)
+    assert_true(not Bool(frame[].side_data))
+    avutil.av_frame_free(frame)
 
 
 def test_av_frame_is_writable():
     var frame = avutil.av_frame_alloc()
     # A frame without a buffer is not writable.
     assert_equal(
-        avutil.av_frame_is_writable(
-            frame.unsafe_origin_cast[MutExternalOrigin]()
-        ),
+        avutil.av_frame_is_writable(frame),
         0,
     )
+    avutil.av_frame_free(frame)
 
 
 def test_av_frame_make_writable():
@@ -137,19 +174,14 @@ def test_av_frame_make_writable():
     frame[].width = 64
     frame[].height = 64
     frame[].format = 0  # AV_PIX_FMT_YUV420P
-    _ = avutil.av_frame_get_buffer(
-        frame.unsafe_origin_cast[MutExternalOrigin](), 0
-    )
-    var ret = avutil.av_frame_make_writable(
-        frame.unsafe_origin_cast[MutExternalOrigin]()
-    )
+    _ = avutil.av_frame_get_buffer(frame, 0)
+    var ret = avutil.av_frame_make_writable(frame)
     assert_equal(ret, 0)
     assert_equal(
-        avutil.av_frame_is_writable(
-            frame.unsafe_origin_cast[MutExternalOrigin]()
-        ),
+        avutil.av_frame_is_writable(frame),
         1,
     )
+    avutil.av_frame_free(frame)
 
 
 def test_av_frame_copy():
@@ -161,17 +193,15 @@ def test_av_frame_copy():
     dst[].width = 64
     dst[].height = 64
     dst[].format = 0
-    _ = avutil.av_frame_get_buffer(
-        src.unsafe_origin_cast[MutExternalOrigin](), 0
-    )
-    _ = avutil.av_frame_get_buffer(
-        dst.unsafe_origin_cast[MutExternalOrigin](), 0
-    )
+    _ = avutil.av_frame_get_buffer(src, 0)
+    _ = avutil.av_frame_get_buffer(dst, 0)
     var ret = avutil.av_frame_copy(
-        dst.unsafe_origin_cast[MutExternalOrigin](),
-        src.as_immutable().unsafe_origin_cast[ImmutExternalOrigin](),
+        dst,
+        src,
     )
     assert_equal(ret, 0)
+    avutil.av_frame_free(src)
+    avutil.av_frame_free(dst)
 
 
 def test_av_frame_copy_props():
@@ -180,12 +210,14 @@ def test_av_frame_copy_props():
     src[].pts = 42
     src[].flags = 1
     var ret = avutil.av_frame_copy_props(
-        dst.unsafe_origin_cast[MutExternalOrigin](),
-        src.as_immutable().unsafe_origin_cast[ImmutExternalOrigin](),
+        dst,
+        src,
     )
     assert_equal(ret, 0)
     assert_equal(dst[].pts, 42)
     assert_equal(dst[].flags, 1)
+    avutil.av_frame_free(src)
+    avutil.av_frame_free(dst)
 
 
 def test_av_frame_get_plane_buffer():
@@ -193,65 +225,66 @@ def test_av_frame_get_plane_buffer():
     frame[].width = 64
     frame[].height = 64
     frame[].format = 0  # AV_PIX_FMT_YUV420P
-    _ = avutil.av_frame_get_buffer(
-        frame.unsafe_origin_cast[MutExternalOrigin](), 0
-    )
-    var buf = avutil.av_frame_get_plane_buffer(
-        frame.as_immutable().unsafe_origin_cast[ImmutExternalOrigin](), 0
-    )
+    _ = avutil.av_frame_get_buffer(frame, 0)
+    var buf = avutil.av_frame_get_plane_buffer(frame, 0)
     assert_true(Bool(buf))
+    avutil.av_frame_free(frame)
 
 
 def test_av_frame_new_side_data():
     var frame = avutil.av_frame_alloc()
     var sd = avutil.av_frame_new_side_data(
-        frame.unsafe_origin_cast[MutExternalOrigin](),
+        frame,
         AVFrameSideDataType.AV_FRAME_DATA_REPLAYGAIN._value,
         128,
     )
     assert_true(Bool(sd))
     assert_equal(frame[].nb_side_data, 1)
+    avutil.av_frame_free(frame)
 
 
 def test_av_frame_new_side_data_from_buf():
     var frame = avutil.av_frame_alloc()
     var buf = avutil.av_buffer_alloc(128)
     var sd = avutil.av_frame_new_side_data_from_buf(
-        frame.unsafe_origin_cast[MutExternalOrigin](),
+        frame,
         AVFrameSideDataType.AV_FRAME_DATA_REPLAYGAIN._value,
         buf,
     )
     assert_true(Bool(sd))
     assert_equal(frame[].nb_side_data, 1)
+    avutil.av_frame_free(frame)
 
 
 def test_av_frame_get_side_data():
     var frame = avutil.av_frame_alloc()
     _ = avutil.av_frame_new_side_data(
-        frame.unsafe_origin_cast[MutExternalOrigin](),
+        frame,
         AVFrameSideDataType.AV_FRAME_DATA_REPLAYGAIN._value,
         128,
     )
     var sd = avutil.av_frame_get_side_data(
-        frame.as_immutable().unsafe_origin_cast[ImmutExternalOrigin](),
+        frame,
         AVFrameSideDataType.AV_FRAME_DATA_REPLAYGAIN._value,
     )
     assert_true(Bool(sd))
+    avutil.av_frame_free(frame)
 
 
 def test_av_frame_remove_side_data():
     var frame = avutil.av_frame_alloc()
     _ = avutil.av_frame_new_side_data(
-        frame.unsafe_origin_cast[MutExternalOrigin](),
+        frame,
         AVFrameSideDataType.AV_FRAME_DATA_REPLAYGAIN._value,
         128,
     )
     assert_equal(frame[].nb_side_data, 1)
     avutil.av_frame_remove_side_data(
-        frame.unsafe_origin_cast[MutExternalOrigin](),
+        frame,
         AVFrameSideDataType.AV_FRAME_DATA_REPLAYGAIN._value,
     )
     assert_equal(frame[].nb_side_data, 0)
+    avutil.av_frame_free(frame)
 
 
 def test_av_frame_apply_cropping():
@@ -259,21 +292,18 @@ def test_av_frame_apply_cropping():
     frame[].width = 64
     frame[].height = 64
     frame[].format = 0  # AV_PIX_FMT_YUV420P
-    _ = avutil.av_frame_get_buffer(
-        frame.unsafe_origin_cast[MutExternalOrigin](), 0
-    )
+    _ = avutil.av_frame_get_buffer(frame, 0)
     frame[].crop_top = 8
     frame[].crop_bottom = 8
     frame[].crop_left = 8
     frame[].crop_right = 8
-    var ret = avutil.av_frame_apply_cropping(
-        frame.unsafe_origin_cast[MutExternalOrigin](), 0
-    )
+    var ret = avutil.av_frame_apply_cropping(frame, 0)
     if ret != 0:
         print(
             "av_frame_apply_cropping error: {}".format(avutil.av_err2str(ret))
         )
     assert_equal(ret, 0)
+    avutil.av_frame_free(frame)
 
 
 def test_av_frame_side_data_name():
@@ -291,154 +321,170 @@ def test_av_frame_side_data_desc():
 
 
 def test_av_frame_side_data_free():
-    var sd = alloc[AVFrameSideData](1)
-    memset(sd, 0, 1)
-    var nb_sd: c_int = 0
+    var sd = AVFrameSideData.alloc_triple_ptr()
+    var nb_sd = alloc[c_int](1)
+    nb_sd[] = 0
     var entry = avutil.av_frame_side_data_new(
         sd,
-        UnsafePointer(to=nb_sd).unsafe_origin_cast[MutExternalOrigin](),
+        nb_sd,
         AVFrameSideDataType.AV_FRAME_DATA_REPLAYGAIN._value,
         128,
         0,
     )
     assert_true(Bool(entry))
-    assert_equal(nb_sd, 1)
+    assert_equal(nb_sd[], 1)
     avutil.av_frame_side_data_free(
         sd,
-        UnsafePointer(to=nb_sd).unsafe_origin_cast[MutExternalOrigin](),
+        nb_sd,
     )
-    assert_equal(nb_sd, 0)
+    assert_equal(nb_sd[], 0)
+    avutil.av_freep(sd)
+    # nb_sd.free()
 
 
 def test_av_frame_side_data_new():
-    var sd = alloc[AVFrameSideData](1)
-    memset(sd, 0, 1)
-    var nb_sd: c_int = 0
+    var sd = AVFrameSideData.alloc_triple_ptr()
+
+    var nb_sd = alloc[c_int](1)
+    nb_sd[] = 0
     var entry = avutil.av_frame_side_data_new(
         sd,
-        UnsafePointer(to=nb_sd).unsafe_origin_cast[MutExternalOrigin](),
+        nb_sd,
         AVFrameSideDataType.AV_FRAME_DATA_REPLAYGAIN._value,
-        128,
+        1,
         0,
     )
     assert_true(Bool(entry))
-    assert_equal(nb_sd, 1)
+    assert_equal(nb_sd[], 1)
+    avutil.av_frame_side_data_free(
+        sd,
+        nb_sd,
+    )
+    assert_equal(nb_sd[], 0)
 
 
 def test_av_frame_side_data_add():
-    var sd = alloc[AVFrameSideData](1)
-    memset(sd, 0, 1)
-    var nb_sd: c_int = 0
-    var buf = avutil.av_buffer_alloc(128)
+    var sd = AVFrameSideData.alloc_triple_ptr()
+    var nb_sd = alloc[c_int](1)
+    nb_sd[] = 0
+    var buf_ptr = alloc[UnsafePointer[AVBufferRef, MutExternalOrigin]](1)
+    buf_ptr[] = avutil.av_buffer_alloc(128)
     var entry = avutil.av_frame_side_data_add(
         sd,
-        UnsafePointer(to=nb_sd).unsafe_origin_cast[MutExternalOrigin](),
+        nb_sd,
         AVFrameSideDataType.AV_FRAME_DATA_REPLAYGAIN._value,
-        buf,
+        buf_ptr,
         0,
     )
     assert_true(Bool(entry))
-    assert_equal(nb_sd, 1)
+    assert_equal(nb_sd[], 1)
+    avutil.av_freep(buf_ptr)
+    avutil.av_frame_side_data_free(sd, nb_sd)
 
 
 def test_av_frame_side_data_clone():
-    var src_sd = alloc[AVFrameSideData](1)
-    memset(src_sd, 0, 1)
+    var src_sd = AVFrameSideData.alloc_triple_ptr()
     var src_nb_sd = alloc[c_int](1)
-    memset(src_nb_sd, 0, 1)
+    src_nb_sd[] = 0
     var src_entry = avutil.av_frame_side_data_new(
         src_sd,
         src_nb_sd,
         AVFrameSideDataType.AV_FRAME_DATA_REPLAYGAIN._value,
-        128,
+        1,
         0,
     )
     assert_true(Bool(src_entry))
     assert_equal(src_nb_sd[], 1)
-    var dst_sd = alloc[AVFrameSideData](1)
-    memset(dst_sd, 0, 1)
+    var dst_sd = AVFrameSideData.alloc_triple_ptr()
     var dst_nb_sd = alloc[c_int](1)
-    memset(dst_nb_sd, 0, 1)
+    dst_nb_sd[] = 0
     var ret = avutil.av_frame_side_data_clone(
         dst_sd,
         dst_nb_sd,
-        src_entry.as_immutable().unsafe_origin_cast[ImmutExternalOrigin](),
+        src_entry.as_immutable(),
         0,
     )
     assert_equal(ret, 0)
     assert_equal(dst_nb_sd[], 1)
+    avutil.av_frame_side_data_free(dst_sd, dst_nb_sd)
+    avutil.av_frame_side_data_free(
+        src_sd,
+        src_nb_sd,
+    )
 
 
 def test_av_frame_side_data_get_c():
-    var sd = alloc[AVFrameSideData](1)
-    memset(sd, 0, 1)
-    var nb_sd: c_int = 0
+    var sd = AVFrameSideData.alloc_triple_ptr()
+    var nb_sd = alloc[c_int](1)
+    nb_sd[] = 0
     var entry = avutil.av_frame_side_data_new(
         sd,
-        UnsafePointer(to=nb_sd).unsafe_origin_cast[MutExternalOrigin](),
+        nb_sd,
         AVFrameSideDataType.AV_FRAME_DATA_REPLAYGAIN._value,
         128,
         0,
     )
     assert_true(Bool(entry))
-    assert_equal(nb_sd, 1)
-    # After av_frame_side_data_new, first 8 bytes of sd hold the AVFrameSideData**
-    # array pointer. Extract it to pass to get_c (which takes AVFrameSideData**).
-    var array_ptr = sd.bitcast[
-        UnsafePointer[AVFrameSideData, ImmutExternalOrigin]
-    ]()[]
+    assert_equal(nb_sd[], 1)
+
     var found = avutil.av_frame_side_data_get_c(
-        array_ptr,
-        nb_sd,
+        sd[].bitcast[UnsafePointer[AVFrameSideData, ImmutExternalOrigin]](),
+        nb_sd[],
         AVFrameSideDataType.AV_FRAME_DATA_REPLAYGAIN._value,
     )
     assert_true(Bool(found))
+    avutil.av_frame_side_data_free(
+        sd,
+        nb_sd,
+    )
 
 
 def test_av_frame_side_data_remove():
-    var sd = alloc[AVFrameSideData](1)
-    memset(sd, 0, 1)
-    var nb_sd: c_int = 0
+    var sd = AVFrameSideData.alloc_triple_ptr()
+    var nb_sd = alloc[c_int](1)
+    nb_sd[] = 0
     var entry = avutil.av_frame_side_data_new(
         sd,
-        UnsafePointer(to=nb_sd).unsafe_origin_cast[MutExternalOrigin](),
+        nb_sd,
         AVFrameSideDataType.AV_FRAME_DATA_REPLAYGAIN._value,
         128,
         0,
     )
     assert_true(Bool(entry))
-    assert_equal(nb_sd, 1)
+    assert_equal(nb_sd[], 1)
     avutil.av_frame_side_data_remove(
         sd,
-        UnsafePointer(to=nb_sd).unsafe_origin_cast[MutExternalOrigin](),
+        nb_sd,
         AVFrameSideDataType.AV_FRAME_DATA_REPLAYGAIN._value,
     )
-    assert_equal(nb_sd, 0)
+    assert_equal(nb_sd[], 0)
+    avutil.av_freep(sd)
 
 
 def test_av_frame_side_data_remove_by_props():
-    var sd = alloc[AVFrameSideData](1)
-    memset(sd, 0, 1)
-    var nb_sd: c_int = 0
+    var sd = AVFrameSideData.alloc_triple_ptr()
+    var nb_sd = alloc[c_int](1)
+    nb_sd[] = 0
     var type = AVFrameSideDataType.AV_FRAME_DATA_REPLAYGAIN._value
     var entry = avutil.av_frame_side_data_new(
         sd,
-        UnsafePointer(to=nb_sd).unsafe_origin_cast[MutExternalOrigin](),
+        nb_sd,
         type,
         128,
         0,
     )
     assert_true(Bool(entry))
-    assert_equal(nb_sd, 1)
+    assert_equal(nb_sd[], 1)
     # AV_FRAME_DATA_REPLAYGAIN has AV_SIDE_DATA_PROP_GLOBAL; removing by its
     # own props should free the entry and reset nb_sd to 0.
     var desc = avutil.av_frame_side_data_desc(type)
     avutil.av_frame_side_data_remove_by_props(
         sd,
-        UnsafePointer(to=nb_sd).unsafe_origin_cast[MutExternalOrigin](),
+        nb_sd,
         desc[].props,
     )
-    assert_equal(nb_sd, 0)
+    assert_equal(nb_sd[], 0)
+    avutil.av_freep(sd)
 
 
 def main():

@@ -46,5 +46,5 @@ def test_image_save():
 
 
 def main():
-    # TestSuite.discover_tests[__functions_in_module()]().run()
-    test_image_save()
+    TestSuite.discover_tests[__functions_in_module()]().run()
+    # test_image_save()

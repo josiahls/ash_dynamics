@@ -86,6 +86,30 @@ struct AVProbeData(Movable, Writable):
 
     comptime AVPROBE_PADDING_SIZE = 32
 
+    fn __init__(
+        out self,
+        var filename: String,
+        buf: UnsafePointer[c_uchar, MutExternalOrigin],
+        buf_size: c_int,
+        mime_type: Optional[String] = None,
+    ):
+        self.filename = (
+            filename.as_c_string_slice()
+            .unsafe_ptr()
+            .unsafe_origin_cast[ImmutExternalOrigin]()
+        )
+        self.buf = buf
+        self.buf_size = buf_size
+        if mime_type:
+            var mime_type_str = mime_type.value()
+            self.mime_type = (
+                mime_type_str.as_c_string_slice()
+                .unsafe_ptr()
+                .unsafe_origin_cast[ImmutExternalOrigin]()
+            )
+        else:
+            self.mime_type = UnsafePointer[c_char, ImmutExternalOrigin]()
+
 
 comptime AVFMT_NOFILE = 0x0001
 comptime AVFMT_NEEDNUMBER = 0x0002
@@ -190,10 +214,9 @@ comptime AV_DISPOSITION_STILL_IMAGE = 1 << 20
 comptime AV_DISPOSITION_MULTILAYER = 1 << 21
 
 
-fn av_disposition_from_string(
-    disp: UnsafePointer[c_char, ImmutExternalOrigin]
-) -> c_int:
-    return external_call["av_disposition_from_string", c_int](disp)
+fn av_disposition_from_string(mut disp: String) -> c_int:
+    var disp_ptr = disp.as_c_string_slice().unsafe_ptr().as_immutable()
+    return external_call["av_disposition_from_string", c_int](disp_ptr)
 
 
 fn av_disposition_to_string(
@@ -567,8 +590,8 @@ struct AVFormatContext(Writable):
     var duration_probesize: c_long_long
 
 
-fn avformat_version() -> c_int:
-    return external_call["avformat_version", c_int]()
+fn avformat_version() -> c_uint:
+    return external_call["avformat_version", c_uint]()
 
 
 fn avformat_configuration() -> UnsafePointer[c_char, ImmutExternalOrigin]:
@@ -728,12 +751,15 @@ fn alloc_output_context(
 
 
 fn av_find_input_format(
-    short_name: UnsafePointer[c_char, ImmutExternalOrigin]
+    mut short_name: String,
 ) -> UnsafePointer[AVInputFormat, ImmutExternalOrigin]:
+    var short_name_ptr = (
+        short_name.as_c_string_slice().unsafe_ptr().as_immutable()
+    )
     return external_call[
         "av_find_input_format",
         UnsafePointer[AVInputFormat, ImmutExternalOrigin],
-    ](short_name)
+    ](short_name_ptr)
 
 
 fn av_probe_input_format(
@@ -772,13 +798,14 @@ fn av_probe_input_buffer2(
     fmt: UnsafePointer[
         UnsafePointer[AVInputFormat, ImmutExternalOrigin], MutExternalOrigin
     ],
-    url: UnsafePointer[c_char, ImmutExternalOrigin],
+    mut url: String,
     logctx: OpaquePointer[MutExternalOrigin],
     offset: c_uint,
     max_probe_size: c_uint,
 ) -> c_int:
+    var url_ptr = url.as_c_string_slice().unsafe_ptr().as_immutable()
     return external_call["av_probe_input_buffer2", c_int](
-        pb, fmt, url, logctx, offset, max_probe_size
+        pb, fmt, url_ptr, logctx, offset, max_probe_size
     )
 
 
@@ -787,13 +814,14 @@ fn av_probe_input_buffer(
     fmt: UnsafePointer[
         UnsafePointer[AVInputFormat, ImmutExternalOrigin], MutExternalOrigin
     ],
-    url: UnsafePointer[c_char, ImmutExternalOrigin],
+    mut url: String,
     logctx: OpaquePointer[MutExternalOrigin],
     offset: c_uint,
     max_probe_size: c_uint,
 ) -> c_int:
+    var url_ptr = url.as_c_string_slice().unsafe_ptr().as_immutable()
     return external_call["av_probe_input_buffer", c_int](
-        pb, fmt, url, logctx, offset, max_probe_size
+        pb, fmt, url_ptr, logctx, offset, max_probe_size
     )
 
 
@@ -801,13 +829,23 @@ fn avformat_open_input(
     s: UnsafePointer[
         UnsafePointer[AVFormatContext, MutExternalOrigin], MutExternalOrigin
     ],
-    url: UnsafePointer[c_char, ImmutExternalOrigin],
-    fmt: UnsafePointer[AVInputFormat, ImmutExternalOrigin],
-    options: UnsafePointer[
-        UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
+    mut url: String,
+    fmt: Optional[UnsafePointer[AVInputFormat, ImmutExternalOrigin]],
+    options: Optional[
+        UnsafePointer[
+            UnsafePointer[AVDictionary, MutExternalOrigin], MutExternalOrigin
+        ]
     ],
 ) -> c_int:
-    return external_call["avformat_open_input", c_int](s, url, fmt, options)
+    var empty_options = options.Element()
+    var empty_fmt = UnsafePointer[AVInputFormat, MutExternalOrigin]()
+    var url_ptr = url.as_c_string_slice().unsafe_ptr().as_immutable()
+    var res = external_call["avformat_open_input", c_int](
+        s, url_ptr, fmt.or_else(empty_fmt), options.or_else(empty_options)
+    )
+    empty_fmt.free()
+    empty_options.free()
+    return res
 
 
 fn avformat_find_stream_info(
@@ -845,7 +883,7 @@ fn av_find_best_stream(
     related_stream: c_int,
     # TODO: I think only 1 of these needs to be immut.
     decoder_ret: UnsafePointer[
-        UnsafePointer[AVCodec, ImmutExternalOrigin], ImmutExternalOrigin
+        UnsafePointer[AVCodec, ImmutExternalOrigin], MutExternalOrigin
     ],
     flags: c_int,
 ) -> c_int:
@@ -889,12 +927,12 @@ fn avformat_flush(s: UnsafePointer[AVFormatContext, MutExternalOrigin]):
     external_call["avformat_flush", NoneType](s)
 
 
-fn av_read_play(s: UnsafePointer[AVFormatContext, MutExternalOrigin]):
-    external_call["av_read_play", NoneType](s)
+fn av_read_play(s: UnsafePointer[AVFormatContext, MutExternalOrigin]) -> c_int:
+    return external_call["av_read_play", c_int](s)
 
 
-fn av_read_pause(s: UnsafePointer[AVFormatContext, MutExternalOrigin]):
-    external_call["av_read_pause", NoneType](s)
+fn av_read_pause(s: UnsafePointer[AVFormatContext, MutExternalOrigin]) -> c_int:
+    return external_call["av_read_pause", c_int](s)
 
 
 fn avformat_close_input(
@@ -978,24 +1016,61 @@ fn av_write_trailer(
 
 
 fn av_guess_format(
-    short_name: UnsafePointer[c_char, ImmutExternalOrigin],
-    filename: UnsafePointer[c_char, ImmutExternalOrigin],
-    mime_type: UnsafePointer[c_char, ImmutExternalOrigin],
+    short_name: Optional[String] = None,
+    filename: Optional[String] = None,
+    mime_type: Optional[String] = None,
 ) -> UnsafePointer[AVOutputFormat, ImmutExternalOrigin]:
+    var short_name_ptr = UnsafePointer[c_char, ImmutAnyOrigin]()
+    var filename_ptr = UnsafePointer[c_char, ImmutAnyOrigin]()
+    var mime_type_ptr = UnsafePointer[c_char, ImmutAnyOrigin]()
+
+    if short_name:
+        var short_name_str = short_name.value()
+        short_name_ptr = (
+            short_name_str.as_c_string_slice().unsafe_ptr().as_immutable()
+        )
+    if filename:
+        var filename_str = filename.value()
+        filename_ptr = (
+            filename_str.as_c_string_slice().unsafe_ptr().as_immutable()
+        )
+    if mime_type:
+        var mime_type_str = mime_type.value()
+        mime_type_ptr = (
+            mime_type_str.as_c_string_slice().unsafe_ptr().as_immutable()
+        )
     return external_call[
         "av_guess_format", UnsafePointer[AVOutputFormat, ImmutExternalOrigin]
-    ](short_name, filename, mime_type)
+    ](short_name_ptr, filename_ptr, mime_type_ptr)
 
 
 fn av_guess_codec(
     fmt: UnsafePointer[AVOutputFormat, ImmutExternalOrigin],
-    short_name: UnsafePointer[c_char, ImmutExternalOrigin],
-    filename: UnsafePointer[c_char, ImmutExternalOrigin],
-    mime_type: UnsafePointer[c_char, ImmutExternalOrigin],
+    short_name: Optional[String],
+    filename: Optional[String],
+    mime_type: Optional[String],
     type: AVMediaType.ENUM_DTYPE,
 ) -> AVCodecID.ENUM_DTYPE:
+    var short_name_ptr = UnsafePointer[c_char, ImmutAnyOrigin]()
+    var filename_ptr = UnsafePointer[c_char, ImmutAnyOrigin]()
+    var mime_type_ptr = UnsafePointer[c_char, ImmutAnyOrigin]()
+    if short_name:
+        var short_name_str = short_name.value()
+        short_name_ptr = (
+            short_name_str.as_c_string_slice().unsafe_ptr().as_immutable()
+        )
+    if filename:
+        var filename_str = filename.value()
+        filename_ptr = (
+            filename_str.as_c_string_slice().unsafe_ptr().as_immutable()
+        )
+    if mime_type:
+        var mime_type_str = mime_type.value()
+        mime_type_ptr = (
+            mime_type_str.as_c_string_slice().unsafe_ptr().as_immutable()
+        )
     return external_call["av_guess_codec", AVCodecID.ENUM_DTYPE](
-        fmt, short_name, filename, mime_type, type
+        fmt, short_name_ptr, filename_ptr, mime_type_ptr, type
     )
 
 
@@ -1137,9 +1212,9 @@ fn av_url_split(
     port_ptr: UnsafePointer[c_int, MutExternalOrigin],
     path: UnsafePointer[c_char, MutExternalOrigin],
     path_size: c_int,
-    url: UnsafePointer[c_char, ImmutExternalOrigin],
-) -> c_int:
-    return external_call["av_url_split", c_int](
+    url: UnsafePointer[c_char, ImmutAnyOrigin],
+):
+    external_call["av_url_split", NoneType](
         proto,
         proto_size,
         authorization,
@@ -1156,10 +1231,11 @@ fn av_url_split(
 fn av_dump_format(
     ic: UnsafePointer[AVFormatContext, MutExternalOrigin],
     index: c_int,
-    url: UnsafePointer[c_char, ImmutExternalOrigin],
+    mut url: String,
     is_output: c_int,
 ):
-    external_call["av_dump_format", NoneType](ic, index, url, is_output)
+    var url_ptr = url.as_c_string_slice().unsafe_ptr().as_immutable()
+    external_call["av_dump_format", NoneType](ic, index, url_ptr, is_output)
 
 
 comptime AV_FRAME_FILENAME_FLAGS_MULTIPLE = 1
@@ -1168,30 +1244,31 @@ comptime AV_FRAME_FILENAME_FLAGS_MULTIPLE = 1
 fn av_get_frame_filename2(
     buf: UnsafePointer[c_char, MutExternalOrigin],
     buf_size: c_int,
-    path: UnsafePointer[c_char, ImmutExternalOrigin],
+    mut path: String,
     number: c_int,
     flags: c_int,
 ) -> c_int:
+    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     return external_call["av_get_frame_filename2", c_int](
-        buf, buf_size, path, number, flags
+        buf, buf_size, path_ptr, number, flags
     )
 
 
 fn av_get_frame_filename(
     buf: UnsafePointer[c_char, MutExternalOrigin],
     buf_size: c_int,
-    path: UnsafePointer[c_char, ImmutExternalOrigin],
+    mut path: String,
     number: c_int,
 ) -> c_int:
+    var path_ptr = path.as_c_string_slice().unsafe_ptr().as_immutable()
     return external_call["av_get_frame_filename", c_int](
-        buf, buf_size, path, number
+        buf, buf_size, path_ptr, number
     )
 
 
-fn av_filename_number_test(
-    filename: UnsafePointer[c_char, ImmutExternalOrigin]
-) -> c_int:
-    return external_call["av_filename_number_test", c_int](filename)
+fn av_filename_number_test(mut filename: String) -> c_int:
+    var filename_ptr = filename.as_c_string_slice().unsafe_ptr().as_immutable()
+    return external_call["av_filename_number_test", c_int](filename_ptr)
 
 
 fn av_sdp_create(
@@ -1206,10 +1283,14 @@ fn av_sdp_create(
 
 
 fn av_match_ext(
-    filename: UnsafePointer[c_char, ImmutExternalOrigin],
-    extensions: UnsafePointer[c_char, ImmutExternalOrigin],
+    mut filename: String,
+    mut extensions: String,
 ) -> c_int:
-    return external_call["av_match_ext", c_int](filename, extensions)
+    var filename_ptr = filename.as_c_string_slice().unsafe_ptr().as_immutable()
+    var extensions_ptr = (
+        extensions.as_c_string_slice().unsafe_ptr().as_immutable()
+    )
+    return external_call["av_match_ext", c_int](filename_ptr, extensions_ptr)
 
 
 fn avformat_query_codec(
@@ -1287,9 +1368,13 @@ fn av_guess_frame_rate(
 fn avformat_match_stream_specifier(
     s: UnsafePointer[AVFormatContext, MutExternalOrigin],
     st: UnsafePointer[AVStream, MutExternalOrigin],
-    spec: UnsafePointer[c_char, ImmutExternalOrigin],
+    # spec: UnsafePointer[c_char, ImmutExternalOrigin],
+    mut spec: String,
 ) -> c_int:
-    return external_call["avformat_match_stream_specifier", c_int](s, st, spec)
+    var spec_ptr = spec.as_c_string_slice().unsafe_ptr().as_immutable()
+    return external_call["avformat_match_stream_specifier", c_int](
+        s, st, spec_ptr
+    )
 
 
 fn avformat_queue_attached_pictures(

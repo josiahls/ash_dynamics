@@ -40,9 +40,7 @@ struct AVHWDeviceContext(Movable, Writable):
     "See https://www.ffmpeg.org/doxygen/8.0/structAVHWDeviceContext.html."
     var av_class: UnsafePointer[AVClass, ImmutExternalOrigin]
     var type: AVHWDeviceType.ENUM_DTYPE
-    var hwctx: UnsafePointer[
-        OpaquePointer[MutExternalOrigin], MutExternalOrigin
-    ]
+    var hwctx: OpaquePointer[MutExternalOrigin]
     var free: UnsafePointer[
         ExternalFunction[
             "free",
@@ -50,9 +48,7 @@ struct AVHWDeviceContext(Movable, Writable):
         ],
         ImmutExternalOrigin,
     ]
-    var user_opaque: UnsafePointer[
-        OpaquePointer[MutExternalOrigin], MutExternalOrigin
-    ]
+    var user_opaque: OpaquePointer[MutExternalOrigin]
 
 
 @fieldwise_init
@@ -69,8 +65,6 @@ struct AVHWFramesContext(Movable, Writable):
         ],
         ImmutExternalOrigin,
     ]
-    var user_opaque: UnsafePointer[
-        OpaquePointer[MutExternalOrigin], MutExternalOrigin
-    ]
+    var user_opaque: OpaquePointer[MutExternalOrigin]
     var pool: UnsafePointer[AVBufferPool, MutExternalOrigin]
     var initial_pool_size: c_int

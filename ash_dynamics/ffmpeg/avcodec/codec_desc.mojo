@@ -16,5 +16,7 @@ struct AVCodecDescriptor(Movable, Writable):
     var name: UnsafePointer[c_char, ImmutExternalOrigin]
     var long_name: UnsafePointer[c_char, ImmutExternalOrigin]
     var props: c_int
-    var mime_types: UnsafePointer[c_char, MutExternalOrigin]
-    var profiles: UnsafePointer[AVProfile, MutExternalOrigin]
+    var mime_types: UnsafePointer[
+        UnsafePointer[c_char, ImmutExternalOrigin], ImmutExternalOrigin
+    ]
+    var profiles: UnsafePointer[AVProfile, ImmutExternalOrigin]

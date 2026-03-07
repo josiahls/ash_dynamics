@@ -76,7 +76,7 @@ comptime SCALE_FLAGS = SwsFlags.SWS_BICUBIC
 
 
 @fieldwise_init
-struct OutputStream(TrivialRegisterPassable):
+struct OutputStream(Movable):
     var st: UnsafePointer[AVStream, origin=MutExternalOrigin]
     var enc: UnsafePointer[AVCodecContext, origin=MutExternalOrigin]
     var next_pts: c_long_long
@@ -91,18 +91,28 @@ struct OutputStream(TrivialRegisterPassable):
     var swr_ctx: UnsafePointer[SwrContext, origin=MutExternalOrigin]
 
     fn __init__(out self) raises:
-        self.st = alloc[AVStream](1)
-        self.enc = alloc[AVCodecContext](1)
+        self.st = UnsafePointer[AVStream, MutExternalOrigin]()
+        self.enc = UnsafePointer[AVCodecContext, MutExternalOrigin]()
         self.next_pts = c_long_long(0)
         self.samples_count = c_int(0)
-        self.frame = alloc[AVFrame](1)
-        self.tmp_frame = alloc[AVFrame](1)
-        self.tmp_pkt = alloc[AVPacket](1)
+        self.frame = UnsafePointer[AVFrame, MutExternalOrigin]()
+        self.tmp_frame = UnsafePointer[AVFrame, MutExternalOrigin]()
+        self.tmp_pkt = UnsafePointer[AVPacket, MutExternalOrigin]()
         self.t = c_float(0)
         self.tincr = c_float(0)
         self.tincr2 = c_float(0)
-        self.sws_ctx = alloc[SwsContext](1)
+        self.sws_ctx = UnsafePointer[SwsContext, MutExternalOrigin]()
         self.swr_ctx = UnsafePointer[SwrContext, MutExternalOrigin]()
+
+    fn __del__(deinit self):
+        if self.frame:
+            avutil.av_frame_free(self.frame)
+        if self.tmp_frame:
+            avutil.av_frame_free(self.tmp_frame)
+        if self.tmp_pkt:
+            avcodec.av_packet_free(self.tmp_pkt)
+        if self.enc:
+            avcodec.avcodec_free_context(self.enc)
 
 
 def alloc_frame(
@@ -136,9 +146,11 @@ def open_video(
     # NOTE: We need to add an override to avcodec_open2 that makes
     # an internal null pointer. Debug mode otherwise fails on this.
     var opt = UnsafePointer[AVDictionary, MutExternalOrigin]()
+    var opt_ptr = alloc[UnsafePointer[AVDictionary, MutExternalOrigin]](1)
+    opt_ptr[] = opt
     print("im opening a video")
 
-    _ = avcodec.avcodec_open2(c, video_codec, opt)
+    _ = avcodec.avcodec_open2(c, video_codec, opt_ptr)
     # av_dict_free(&opt);
 
     ost.frame = alloc_frame(
@@ -516,18 +528,14 @@ def test_av_mux_example():
     avformat.av_dump_format(
         oc[],
         0,
-        output_filename.as_c_string_slice()
-        .unsafe_ptr()
-        .unsafe_origin_cast[MutExternalOrigin](),
+        output_filename,
         1,
     )
 
     if not (fmt[][].flags & AVFMT_NOFILE):
         ret = avformat.avio_open(
             UnsafePointer(to=oc[][].pb),
-            output_filename.as_c_string_slice()
-            .unsafe_ptr()
-            .unsafe_origin_cast[MutExternalOrigin](),
+            output_filename,
             AVIO_FLAG_WRITE,
         )
         if ret < 0:
@@ -569,11 +577,14 @@ def test_av_mux_example():
     if ret < 0:
         os.abort("Failed to write trailer: {}".format(ret))
 
-    _ = opt
-    # _ = opt2
-    _ = ret
-    _ = fmt
-    _ = oc
+    if oc[]:
+        if not (fmt[][].flags & AVFMT_NOFILE) and oc[][].pb:
+            var pb_ptr = alloc[UnsafePointer[AVIOContext, MutExternalOrigin]](1)
+            pb_ptr[] = oc[][].pb
+            _ = avformat.avio_closep(pb_ptr)
+            oc[][].pb = pb_ptr[]
+            pb_ptr.free()
+        avformat.avformat_free_context(oc[])
 
 
 def main():

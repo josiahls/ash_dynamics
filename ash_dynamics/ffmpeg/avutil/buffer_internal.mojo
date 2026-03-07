@@ -1,5 +1,5 @@
 "See https://www.ffmpeg.org/doxygen/8.0/buffer__internal_8h.html."
-from ffi import c_uchar, c_uint, c_int
+from ffi import c_uchar, c_uint, c_int, c_size_t
 from os.atomic import Atomic, Consistency, fence
 
 
@@ -7,7 +7,7 @@ from os.atomic import Atomic, Consistency, fence
 struct AVBuffer(Movable, Writable):
     "See https://www.ffmpeg.org/doxygen/8.0/structAVBuffer.html."
     var data: UnsafePointer[c_uchar, origin=MutExternalOrigin]
-    var size: c_uint
+    var size: c_size_t
     # TODO: Should this just be a c value?
     # var refcount: Atomic[c_uint.dtype]
     var refcount: c_uint
