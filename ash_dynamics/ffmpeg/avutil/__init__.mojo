@@ -5,3 +5,4 @@ from ash_dynamics.ffmpeg.avutil.buffer import *
 from ash_dynamics.ffmpeg.avutil.channel_layout import *
 from ash_dynamics.ffmpeg.avutil.mathematics import *
 from ash_dynamics.ffmpeg.avutil.frame import *
+from ash_dynamics.ffmpeg.avutil.mem import *
