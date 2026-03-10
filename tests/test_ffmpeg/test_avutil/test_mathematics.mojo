@@ -1,5 +1,4 @@
-from testing.suite import TestSuite
-from testing.testing import assert_equal
+from std.testing import TestSuite, assert_equal
 from ash_dynamics.ffmpeg import avutil
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
 from ash_dynamics.ffmpeg.avutil.mathematics import AVRounding

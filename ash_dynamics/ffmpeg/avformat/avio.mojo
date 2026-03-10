@@ -1,5 +1,5 @@
 "See https://www.ffmpeg.org/doxygen/8.0/avio_8h.html."
-from ffi import (
+from std.ffi import (
     c_int,
     c_char,
     c_long_long,
@@ -10,8 +10,7 @@ from ffi import (
     c_size_t,
     external_call,
 )
-import os
-from utils import StaticTuple
+from std.utils import StaticTuple
 from ash_dynamics.ffmpeg.avutil.log import AVClass
 from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
 from ash_dynamics.primitives._clib import C_Union
@@ -300,7 +299,7 @@ comptime avio_skip = fn(
 #     Returns:
 #     - the current position or AVERROR.
 #     """
-#     return avio_seek(s, 0, os.SEEK_CUR)
+#     return avio_seek(s, 0, std.os.SEEK_CUR)
 
 
 comptime avio_size = fn(

@@ -1,10 +1,9 @@
-from testing.suite import TestSuite
-from testing.testing import assert_equal
-from memory import memset
-import sys
-import os
-from ffi import c_uchar, c_int, c_char
-from sys._libc_errno import ErrNo
+from std.testing import TestSuite, assert_equal
+from std.memory import memset
+import std.os
+import std.sys
+from std.ffi import c_uchar, c_int, c_char
+from std.sys._libc_errno import ErrNo
 
 from ash_dynamics.ffmpeg.avcodec.packet import AVPacket
 from ash_dynamics.ffmpeg.avutil.avutil import AV_NOPTS_VALUE
@@ -53,7 +52,7 @@ fn decode(
         if ret == AVERROR(ErrNo.EAGAIN.value) or ret == Int32(AVERROR_EOF):
             break
         elif ret < 0:
-            os.abort("Error receiving frame.")
+            std.os.abort("Error receiving frame.")
         else:
             print("Frame received successfully.")
 
@@ -106,7 +105,7 @@ def test_av_decode_video_example():
     _ = avcodec.avcodec_open2(context, codec, ptr_ptr)
     print("Opened codec")
 
-    var test_data_root = os.getenv("PIXI_PROJECT_ROOT")
+    var test_data_root = std.os.getenv("PIXI_PROJECT_ROOT")
     var out_filename: String = (
         "{}/test_data/testsrc_320x180_30fps_2s_decoded".format(test_data_root)
     )
@@ -141,7 +140,7 @@ def test_av_decode_video_example():
                 )
                 if ret < 0:
                     print("Failed to parse data")
-                    sys.exit(1)
+                    std.sys.exit(1)
                 elif parser[].flags & AVPacket.AV_PKT_FLAG_CORRUPT:
                     print("Parsed data is corrupted")
                 else:

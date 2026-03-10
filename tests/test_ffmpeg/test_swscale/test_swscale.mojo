@@ -1,7 +1,6 @@
-from testing.suite import TestSuite
-from testing.testing import assert_true, assert_equal
-from memory import alloc, memset
-from ffi import c_double, c_int, c_uchar
+from std.testing import TestSuite, assert_true, assert_equal
+from std.memory import alloc, memset
+from std.ffi import c_double, c_int, c_uchar
 from ash_dynamics.ffmpeg.swscale.swscale import SwsFilter
 from ash_dynamics.ffmpeg.swscale import swscale as sws
 from ash_dynamics.ffmpeg import avutil

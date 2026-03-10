@@ -1,5 +1,5 @@
 "See https://www.ffmpeg.org/doxygen/8.0/avutil_8h.html."
-from ffi import c_int, c_uint, c_long_long, c_ulong_long
+from std.ffi import c_int, c_uint, c_long_long, c_ulong_long
 
 
 comptime AV_NOPTS_VALUE = c_long_long(c_ulong_long(0x8000000000000000))

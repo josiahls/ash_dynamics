@@ -1,6 +1,6 @@
 "See https://www.ffmpeg.org/doxygen/8.0/buffer__internal_8h.html."
-from ffi import c_uchar, c_uint, c_int, c_size_t
-from os.atomic import Atomic, Consistency, fence
+from std.ffi import c_uchar, c_uint, c_int, c_size_t
+from std.os.atomic import Atomic, Consistency, fence
 
 
 @fieldwise_init

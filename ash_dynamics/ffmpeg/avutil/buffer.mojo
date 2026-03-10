@@ -1,6 +1,6 @@
 "See https://www.ffmpeg.org/doxygen/8.0/buffer_8h.html."
-from ffi import c_uchar, c_uint, c_int, c_size_t, external_call
-from os.atomic import Atomic
+from std.ffi import c_uchar, c_uint, c_int, c_size_t, external_call
+from std.os.atomic import Atomic
 
 
 struct AVBuffer(Movable):

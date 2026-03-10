@@ -1,12 +1,10 @@
-from testing.suite import TestSuite
-from testing.testing import assert_equal, assert_true
-
-from ffi import c_char, c_int, c_uint, c_uchar, c_long_long
-from sys._libc import dup, fclose, fdopen, fflush
-from memory import alloc, memset
-from sys import size_of
-import os
-from pathlib import Path
+from std.testing import TestSuite, assert_equal, assert_true
+from std.ffi import c_char, c_int, c_uint, c_uchar, c_long_long
+from std.sys._libc import dup, fclose, fdopen, fflush
+from std.memory import alloc, memset
+from std.sys import size_of
+from std.os import getenv
+from std.pathlib import Path
 from ash_dynamics.ffmpeg.avformat.avformat import (
     AVOutputFormat,
     AVFormatContext,
@@ -311,7 +309,7 @@ def test_av_dump_format():
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
-        os.getenv("PIXI_PROJECT_ROOT"),
+        getenv("PIXI_PROJECT_ROOT"),
     )
     var ret = avformat.avformat_open_input(
         ctx_ptr,
@@ -518,7 +516,7 @@ def test_avformat_find_stream_info():
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
-        os.getenv("PIXI_PROJECT_ROOT"),
+        getenv("PIXI_PROJECT_ROOT"),
     )
     var ret = avformat.avformat_open_input(
         ctx_ptr,
@@ -547,7 +545,7 @@ def test_av_find_best_stream():
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
-        os.getenv("PIXI_PROJECT_ROOT"),
+        getenv("PIXI_PROJECT_ROOT"),
     )
     var ret = avformat.avformat_open_input(
         ctx_ptr,
@@ -587,7 +585,7 @@ def test_av_read_frame():
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
-        os.getenv("PIXI_PROJECT_ROOT"),
+        getenv("PIXI_PROJECT_ROOT"),
     )
     var ret = avformat.avformat_open_input(
         ctx_ptr,
@@ -619,7 +617,7 @@ def test_av_get_packet():
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
-        os.getenv("PIXI_PROJECT_ROOT"),
+        getenv("PIXI_PROJECT_ROOT"),
     )
     var ret = avformat.avformat_open_input(
         ctx_ptr,
@@ -654,7 +652,7 @@ def test_av_append_packet():
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
-        os.getenv("PIXI_PROJECT_ROOT"),
+        getenv("PIXI_PROJECT_ROOT"),
     )
     var ret = avformat.avformat_open_input(
         ctx_ptr,
@@ -707,7 +705,7 @@ def test_av_guess_frame_rate():
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
-        os.getenv("PIXI_PROJECT_ROOT"),
+        getenv("PIXI_PROJECT_ROOT"),
     )
     var ret = avformat.avformat_open_input(
         ctx_ptr,
@@ -746,7 +744,7 @@ def test_av_guess_sample_aspect_ratio():
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
-        os.getenv("PIXI_PROJECT_ROOT"),
+        getenv("PIXI_PROJECT_ROOT"),
     )
     var ret = avformat.avformat_open_input(
         ctx_ptr,
@@ -786,7 +784,7 @@ def test_av_guess_sample_aspect_ratio():
 
 def test_av_probe_input_format():
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
-        os.getenv("PIXI_PROJECT_ROOT"),
+        getenv("PIXI_PROJECT_ROOT"),
     )
     var buf_size = 64
     var pad = AVProbeData.AVPROBE_PADDING_SIZE
@@ -832,7 +830,7 @@ def test_av_probe_input_buffer2():
     var pb_ptr = alloc[UnsafePointer[AVIOContext, MutExternalOrigin]](1)
     memset(pb_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
-        os.getenv("PIXI_PROJECT_ROOT"),
+        getenv("PIXI_PROJECT_ROOT"),
     )
     var ret = avformat.avio_open(
         pb_ptr,
@@ -862,7 +860,7 @@ def test_av_probe_input_buffer():
     var pb_ptr = alloc[UnsafePointer[AVIOContext, MutExternalOrigin]](1)
     memset(pb_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
-        os.getenv("PIXI_PROJECT_ROOT"),
+        getenv("PIXI_PROJECT_ROOT"),
     )
     var ret = avformat.avio_open(
         pb_ptr,
@@ -892,7 +890,7 @@ def test_av_seek_frame():
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
-        os.getenv("PIXI_PROJECT_ROOT"),
+        getenv("PIXI_PROJECT_ROOT"),
     )
     var ret = avformat.avformat_open_input(
         ctx_ptr,
@@ -928,7 +926,7 @@ def test_avformat_seek_file():
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
-        os.getenv("PIXI_PROJECT_ROOT"),
+        getenv("PIXI_PROJECT_ROOT"),
     )
     var ret = avformat.avformat_open_input(
         ctx_ptr,
@@ -966,7 +964,7 @@ def test_avformat_flush():
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
-        os.getenv("PIXI_PROJECT_ROOT"),
+        getenv("PIXI_PROJECT_ROOT"),
     )
     var ret = avformat.avformat_open_input(
         ctx_ptr,
@@ -989,7 +987,7 @@ def test_av_read_play_pause():
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
-        os.getenv("PIXI_PROJECT_ROOT"),
+        getenv("PIXI_PROJECT_ROOT"),
     )
     var ret = avformat.avformat_open_input(
         ctx_ptr,
@@ -1013,7 +1011,7 @@ def test_av_find_program_from_stream():
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
-        os.getenv("PIXI_PROJECT_ROOT"),
+        getenv("PIXI_PROJECT_ROOT"),
     )
     var ret = avformat.avformat_open_input(
         ctx_ptr,
@@ -1064,7 +1062,7 @@ def test_av_pkt_dump2():
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
-        os.getenv("PIXI_PROJECT_ROOT"),
+        getenv("PIXI_PROJECT_ROOT"),
     )
     var ret = avformat.avformat_open_input(
         ctx_ptr,
@@ -1106,7 +1104,7 @@ def test_av_pkt_dump_log2():
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
-        os.getenv("PIXI_PROJECT_ROOT"),
+        getenv("PIXI_PROJECT_ROOT"),
     )
     var ret = avformat.avformat_open_input(
         ctx_ptr,
@@ -1145,7 +1143,7 @@ def test_av_index_search_timestamp():
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
-        os.getenv("PIXI_PROJECT_ROOT"),
+        getenv("PIXI_PROJECT_ROOT"),
     )
     var ret = avformat.avformat_open_input(
         ctx_ptr,
@@ -1182,7 +1180,7 @@ def test_avformat_index_get_entries_count():
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
-        os.getenv("PIXI_PROJECT_ROOT"),
+        getenv("PIXI_PROJECT_ROOT"),
     )
     var ret = avformat.avformat_open_input(
         ctx_ptr,
@@ -1216,7 +1214,7 @@ def test_avformat_index_get_entry():
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
-        os.getenv("PIXI_PROJECT_ROOT"),
+        getenv("PIXI_PROJECT_ROOT"),
     )
     var ret = avformat.avformat_open_input(
         ctx_ptr,
@@ -1255,7 +1253,7 @@ def test_avformat_index_get_entry_from_timestamp():
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
-        os.getenv("PIXI_PROJECT_ROOT"),
+        getenv("PIXI_PROJECT_ROOT"),
     )
     var ret = avformat.avformat_open_input(
         ctx_ptr,
@@ -1310,7 +1308,7 @@ def test_avformat_queue_attached_pictures():
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
-        os.getenv("PIXI_PROJECT_ROOT"),
+        getenv("PIXI_PROJECT_ROOT"),
     )
     var ret = avformat.avformat_open_input(
         ctx_ptr,

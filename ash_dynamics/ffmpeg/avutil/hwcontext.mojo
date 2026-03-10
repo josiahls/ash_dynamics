@@ -1,8 +1,8 @@
 "See https://www.ffmpeg.org/doxygen/8.0/hwcontext_8h.html."
-from ffi import c_char, c_int, c_uchar
+from std.ffi import c_char, c_int, c_uchar
 from ash_dynamics.primitives._clib import ExternalFunction
 
-from reflection import get_type_name
+from std.reflection import get_type_name
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 from ash_dynamics.ffmpeg.avutil.avutil import AVMediaType
 from ash_dynamics.ffmpeg.avutil.rational import AVRational

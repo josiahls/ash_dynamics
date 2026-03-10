@@ -1,5 +1,5 @@
 "See https://www.ffmpeg.org/doxygen/8.0/avcodec_8h.html."
-from ffi import (
+from std.ffi import (
     c_int,
     c_float,
     c_char,
@@ -12,7 +12,7 @@ from ffi import (
     external_call,
 )
 from ash_dynamics.primitives._clib import TrivialOptionalField
-from reflection import get_type_name
+from std.reflection import get_type_name
 from ash_dynamics.ffmpeg.avutil.avutil import AVMediaType
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 from ash_dynamics.ffmpeg.avutil.pixfmt import AVPixelFormat
@@ -41,7 +41,7 @@ from ash_dynamics.ffmpeg.avcodec.packet import AVPacket, AVPacketSideData
 from ash_dynamics.ffmpeg.avutil.frame import AVFrameSideData
 from ash_dynamics.ffmpeg.avcodec.codec_desc import AVCodecDescriptor
 from ash_dynamics.ffmpeg.avcodec.codec_par import AVCodecParameters
-from utils import StaticTuple
+from std.utils import StaticTuple
 from ash_dynamics.primitives.mojo_compat import (
     reflection_write_to_but_handle_static_tuples,
 )

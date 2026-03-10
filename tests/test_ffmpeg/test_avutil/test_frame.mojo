@@ -1,11 +1,7 @@
-from testing.suite import TestSuite
-from testing.testing import assert_equal, assert_true
-from memory import memset
-import sys
-import os
-from ffi import c_uchar, c_int, c_char, external_call
-from memory import alloc
-from sys._libc_errno import ErrNo
+from std.testing import TestSuite, assert_equal, assert_true
+from std.memory import memset, alloc
+from std.ffi import c_uchar, c_int, c_char, external_call
+from std.sys._libc_errno import ErrNo
 from ash_dynamics.ffmpeg.avutil.pixfmt import AVPixelFormat
 
 from ash_dynamics.ffmpeg.avutil.frame import (

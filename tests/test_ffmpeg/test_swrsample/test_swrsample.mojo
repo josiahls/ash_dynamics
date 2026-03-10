@@ -1,7 +1,6 @@
-from testing.suite import TestSuite
-from testing.testing import assert_true, assert_equal
-from memory import alloc, memset
-from ffi import c_int, c_uchar, c_long_long, c_double
+from std.testing import TestSuite, assert_true, assert_equal
+from std.memory import alloc, memset
+from std.ffi import c_int, c_uchar, c_long_long, c_double
 from ash_dynamics.ffmpeg import avutil
 from ash_dynamics.ffmpeg.avutil.channel_layout import (
     AVChannelLayout,

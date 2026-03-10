@@ -1,5 +1,5 @@
 "See https://www.ffmpeg.org/doxygen/8.0/pixfmt_8h.html."
-from ffi import c_int
+from std.ffi import c_int
 
 
 # TODO: We could move the comments for each enum to be for the format:

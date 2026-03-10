@@ -1,6 +1,6 @@
 "See https://www.ffmpeg.org/doxygen/8.0/libavformat_2internal_8h_source.html."
-from ffi import c_uint, c_char, c_long_long, c_int
-from utils import StaticTuple
+from std.ffi import c_uint, c_char, c_long_long, c_int
+from std.utils import StaticTuple
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 from ash_dynamics.ffmpeg.avformat.avformat import AVFormatContext
 from ash_dynamics.ffmpeg.avcodec.packet import AVPacket

@@ -1,9 +1,9 @@
 "See https://www.ffmpeg.org/doxygen/8.0/log_8h.html."
-from ffi import c_char, c_int
+from std.ffi import c_char, c_int
 from ash_dynamics.ffmpeg.avutil.opt import AVOption, AVOptionRanges
 
 
-from reflection import get_type_name
+from std.reflection import get_type_name
 
 
 comptime AVClass_item_name_fn = fn(

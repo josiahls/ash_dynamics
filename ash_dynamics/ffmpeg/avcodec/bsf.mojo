@@ -3,8 +3,8 @@
 from ash_dynamics.ffmpeg.avutil.log import AVClass
 from ash_dynamics.ffmpeg.avcodec.codec_par import AVCodecParameters
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
-from ffi import c_int, c_char
-from utils import StaticTuple
+from std.ffi import c_int, c_char
+from std.utils import StaticTuple
 
 
 @fieldwise_init

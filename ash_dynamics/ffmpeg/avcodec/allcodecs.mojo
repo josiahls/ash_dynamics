@@ -2,7 +2,7 @@
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 from ash_dynamics.ffmpeg.avcodec.codec import AVCodec
 
-from ffi import external_call
+from std.ffi import external_call
 
 
 fn avcodec_find_decoder(

@@ -1,15 +1,13 @@
-from testing.suite import TestSuite
-from testing.testing import assert_equal
-import os
+from std.testing import TestSuite, assert_equal
+from std.os import getenv
+from std.os.path import join
 from ash_dynamics.image.io import image_read, image_save
 from ash_dynamics.ffmpeg.avutil.pixfmt import AVPixelFormat
 
 
 def test_image_read():
-    var test_data_root = os.getenv("PIXI_PROJECT_ROOT")
-    var root_path = os.path.join(
-        test_data_root, "test_data/testsrc_128x128.png"
-    )
+    var test_data_root = getenv("PIXI_PROJECT_ROOT")
+    var root_path = join(test_data_root, "test_data/testsrc_128x128.png")
     var image = image_read(root_path)
     assert_equal(image.width, 128)
     assert_equal(image.height, 128)
@@ -23,13 +21,9 @@ def test_image_read():
 
 
 def test_image_save():
-    var test_data_root = os.getenv("PIXI_PROJECT_ROOT")
-    var root_path = os.path.join(
-        test_data_root, "test_data/testsrc_128x128.png"
-    )
-    var save_path = os.path.join(
-        test_data_root, "test_data/test_image_save.png"
-    )
+    var test_data_root = getenv("PIXI_PROJECT_ROOT")
+    var root_path = join(test_data_root, "test_data/testsrc_128x128.png")
+    var save_path = join(test_data_root, "test_data/test_image_save.png")
     var image = image_read(root_path)
     image_save(image, save_path)
 
