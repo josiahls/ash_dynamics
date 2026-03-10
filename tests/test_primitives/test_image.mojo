@@ -11,7 +11,7 @@ from numojo.core.layout.ndstrides import NDArrayStrides
 from numojo.core.memory.data_container import DataContainer
 
 
-def test_image_load():
+def test_image_load() raises:
     var test_data_root = os.getenv("PIXI_PROJECT_ROOT")
     var root_path = os.path.join(
         test_data_root, "test_data/testsrc_128x128.png"
@@ -42,7 +42,7 @@ def test_image_load():
     print(array[127, 127])
 
 
-def test_image_save():
+def test_image_save() raises:
     var test_data_root = os.getenv("PIXI_PROJECT_ROOT")
     var root_path = os.path.join(
         test_data_root, "test_data/testsrc_128x128.png"
@@ -64,9 +64,5 @@ def test_image_save():
     assert_equal(image2._data, image._data)
 
 
-def main():
-    # For now do nothing.
-    # pass
-    # TestSuite.discover_tests[__functions_in_module()]().run()
-    test_image_load()
-    # test_image_save()
+def main() raises:
+    TestSuite.discover_tests[__functions_in_module()]().run()
