@@ -11,7 +11,7 @@ from time import perf_counter_ns
 comptime TEST_DIR = Path("tests")
 
 
-def test_file(file: Path) -> TestReport:
+def test_file(file: Path) raises -> TestReport:
     var start = perf_counter_ns()
     print("Running test: ", Text[Color.CYAN](file.name()), end="")
     var result = run("pixi run test_no_config " + String(file) + " 2>&1")
@@ -30,7 +30,7 @@ def test_file(file: Path) -> TestReport:
     return TestReport.passed(name=file.name(), duration_ns=duration_ns)
 
 
-def walk_tests(path: Path, mut test_results: List[TestReport]):
+def walk_tests(path: Path, mut test_results: List[TestReport]) raises:
     for f in path.listdir():
         file = path / f
         if file.is_file() and file.suffix() == ".mojo":
@@ -40,7 +40,7 @@ def walk_tests(path: Path, mut test_results: List[TestReport]):
             walk_tests(file, test_results)
 
 
-def main():
+def main() raises:
     var test_results = List[TestReport]()
     walk_tests(TEST_DIR, test_results)
     var report = TestSuiteReport(
