@@ -1,8 +1,6 @@
-from ffi import c_uchar, c_char, c_int, c_long_long
-from sys._libc_errno import ErrNo
-from pathlib import Path
-import sys
-import os
+from std.ffi import c_uchar, c_char, c_int, c_long_long
+from std.sys._libc_errno import ErrNo
+from std.pathlib import Path
 from ash_dynamics.ffmpeg.avcodec.packet import AVPacket
 from ash_dynamics.ffmpeg import avformat
 from ash_dynamics.ffmpeg import avcodec
@@ -13,7 +11,7 @@ from ash_dynamics.ffmpeg.avformat import AVFormatContext
 from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
 from ash_dynamics.ffmpeg.avcodec.defs import AV_INPUT_BUFFER_PADDING_SIZE
 from ash_dynamics.ffmpeg.avutil.avutil import AV_NOPTS_VALUE
-from memory import memset
+from std.memory import memset
 from ash_dynamics.ffmpeg.avcodec.avcodec import AVCodecContext
 from ash_dynamics.ffmpeg.avutil.frame import AVFrame
 from ash_dynamics.ffmpeg.avutil.error import AVERROR, AVERROR_EOF
@@ -21,7 +19,7 @@ from ash_dynamics.ffmpeg.avutil.pixfmt import AVPixelFormat
 from ash_dynamics.ffmpeg.avutil.rational import AVRational
 from logger.logger import Logger, Level, DEFAULT_LEVEL
 
-from testing import assert_equal
+from std.testing import assert_equal
 
 comptime _logger = Logger[level=DEFAULT_LEVEL]()
 

@@ -1,5 +1,5 @@
 "See https://www.ffmpeg.org/doxygen/8.0/swscale_8h.html."
-from ffi import (
+from std.ffi import (
     c_int,
     c_char,
     c_uchar,
@@ -10,8 +10,8 @@ from ffi import (
     c_float,
     external_call,
 )
-from sys._libc import dup, fclose, fdopen, fflush, FILE_ptr
-from utils import StaticTuple
+from std.sys._libc import dup, fclose, fdopen, fflush, FILE_ptr
+from std.utils import StaticTuple
 from ash_dynamics.primitives._clib import C_Union
 from ash_dynamics.ffmpeg.avutil.frame import AVFrame
 from ash_dynamics.ffmpeg.avcodec.codec import AVCodec

@@ -1,8 +1,7 @@
-from ffi import c_uchar, c_char, c_int
-from sys._libc_errno import ErrNo
-from pathlib import Path
-import sys
-import os
+from std.ffi import c_uchar, c_char, c_int
+from std.sys._libc_errno import ErrNo
+from std.pathlib import Path
+from std.os import abort
 from ash_dynamics.ffmpeg.avcodec.packet import AVPacket
 from ash_dynamics.ffmpeg.avformat import Avformat
 from ash_dynamics.ffmpeg.avcodec import Avcodec
@@ -13,7 +12,7 @@ from ash_dynamics.ffmpeg.avformat import AVFormatContext
 from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
 from ash_dynamics.ffmpeg.avcodec.defs import AV_INPUT_BUFFER_PADDING_SIZE
 from ash_dynamics.ffmpeg.avutil.avutil import AV_NOPTS_VALUE
-from memory import memset
+from std.memory import memset
 from ash_dynamics.ffmpeg.avcodec.avcodec import AVCodecContext
 from ash_dynamics.ffmpeg.avutil.frame import AVFrame
 from ash_dynamics.ffmpeg.avutil.error import AVERROR, AVERROR_EOF
@@ -47,7 +46,7 @@ fn decode(
 ) raises -> UnsafePointer[c_uchar, MutExternalOrigin]:
     var ret: c_int = avcodec.avcodec_send_packet(dec_ctx, pkt)
     if ret < 0:
-        os.abort("Error sending a packaet for decoding.")
+        abort("Error sending a packaet for decoding.")
     else:
         print("Packet sent successfully.")
 
@@ -56,7 +55,7 @@ fn decode(
         if ret == AVERROR(ErrNo.EAGAIN.value) or ret == Int32(AVERROR_EOF):
             break
         elif ret < 0:
-            os.abort("Error receiving frame.")
+            abort("Error receiving frame.")
         else:
             print("Frame received successfully.")
 

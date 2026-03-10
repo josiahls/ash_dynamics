@@ -1,5 +1,5 @@
 "See https://www.ffmpeg.org/doxygen/8.0/defs_8h.html."
-from ffi import c_int
+from std.ffi import c_int
 
 
 comptime AV_INPUT_BUFFER_PADDING_SIZE = c_int(64)

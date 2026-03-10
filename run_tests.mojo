@@ -1,11 +1,10 @@
-from subprocess import run
-import os
-import sys
-from utils._ansi import Color, Text
-from testing.suite import TestSuiteReport, TestReport, TestResult
-from reflection import call_location
-from pathlib import Path
-from time import perf_counter_ns
+from std.subprocess import run
+from std.os import abort
+from std.utils._ansi import Color, Text
+from std.testing.suite import TestSuiteReport, TestReport, TestResult
+from std.reflection import call_location
+from std.pathlib import Path
+from std.time import perf_counter_ns
 
 
 comptime TEST_DIR = Path("tests")
@@ -48,4 +47,4 @@ def main() raises:
     )
     print(report)
     if report.failures > 0:
-        os.abort("Tests failed")
+        abort("Tests failed")

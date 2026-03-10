@@ -1,9 +1,8 @@
 "See https://www.ffmpeg.org/doxygen/8.0/error_8h.html."
-from ffi import c_int, c_size_t
+from std.ffi import c_int, c_size_t, external_call
 from ash_dynamics.ffmpeg.avutil.macros import MKTAG
-from utils import Variant
-import os
-from ffi import external_call
+from std.utils import Variant
+from std.os import abort
 
 
 # NOTE: There is a macro conditional: EDOM > 0. Not sure if we need to do this.
@@ -107,5 +106,5 @@ fn av_err2str(err: c_int) -> String:
         AV_ERROR_MAX_STRING_SIZE,
     )
     if ret < 0:
-        os.abort("Failed to get error string for error code: {}".format(err))
+        abort("Failed to get error string for error code: {}".format(err))
     return String(unsafe_from_utf8_ptr=s)

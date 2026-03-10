@@ -1,14 +1,11 @@
-from testing.suite import TestSuite
-from testing.testing import assert_equal
-from memory import memset
-import sys
-import os
-from ffi import c_uchar, c_int, c_char
-from sys._libc_errno import ErrNo
+from std.testing import TestSuite, assert_equal
+from std.memory import memset
+from std.ffi import c_uchar, c_int, c_char
+from std.sys._libc_errno import ErrNo
 
 from ash_dynamics.ffmpeg.avutil.error import AVERROR, AVERROR_EOF
 from ash_dynamics.ffmpeg.avutil.error import FFERRTAG
-from reflection import get_type_name
+from std.reflection import get_type_name
 
 
 def test_FFERRTAG():

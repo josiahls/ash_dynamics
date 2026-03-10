@@ -1,7 +1,6 @@
-from testing.suite import TestSuite
-from testing.testing import assert_equal
+from std.testing import TestSuite, assert_equal
 from ash_dynamics.primitives._clib import C_Union, TrivialOptionalField
-from sys import size_of
+from std.sys import size_of
 
 
 def test_c_union():

@@ -1,10 +1,10 @@
-from reflection import (
+from std.reflection import (
     struct_field_names,
     struct_field_types,
     struct_field_count,
     get_type_name,
 )
-from reflection.type_info import _unqualified_type_name
+from std.reflection.type_info import _unqualified_type_name
 from builtin.constrained import _constrained_field_conforms_to
 
 

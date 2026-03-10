@@ -1,11 +1,9 @@
-from testing.suite import TestSuite
-from testing.testing import assert_equal
-from pathlib import Path
-from memory import memset
-from itertools import count
-import sys
-import os
-from ffi import (
+from std.testing import TestSuite, assert_equal
+from std.pathlib import Path
+from std.memory import memset
+from std.itertools import count
+import std.os
+from std.ffi import (
     c_uchar,
     c_int,
     c_char,
@@ -15,7 +13,7 @@ from ffi import (
     c_double,
     c_ulong_long,
 )
-from sys._libc_errno import ErrNo
+from std.sys._libc_errno import ErrNo
 
 from ash_dynamics.ffmpeg.avcodec.packet import AVPacket
 from ash_dynamics.ffmpeg.avutil.avutil import AV_NOPTS_VALUE
@@ -65,7 +63,7 @@ from ash_dynamics.ffmpeg.swscale import SwsFilter
 from ash_dynamics.ffmpeg import swscale
 from ash_dynamics.ffmpeg import swrsample
 from ash_dynamics.ffmpeg.swrsample import SwrContext
-from utils import StaticTuple
+from std.utils import StaticTuple
 
 
 comptime STREAM_FRAME_RATE = 25
@@ -130,7 +128,7 @@ def alloc_frame(
         frame.unsafe_origin_cast[MutExternalOrigin](), 0
     )
     if ret < 0:
-        os.abort("Failed to allocate frame buffer")
+        std.os.abort("Failed to allocate frame buffer")
 
     return frame
 
@@ -157,7 +155,7 @@ def open_video(
         c[].pix_fmt, c[].width, c[].height
     ).unsafe_origin_cast[MutExternalOrigin]()
     if not ost.frame:
-        os.abort("Failed to allocate video frame")
+        std.os.abort("Failed to allocate video frame")
 
     ost.tmp_frame = UnsafePointer[AVFrame, MutExternalOrigin]()
     if c[].pix_fmt != AVPixelFormat.AV_PIX_FMT_YUV420P._value:
@@ -167,11 +165,11 @@ def open_video(
             c[].height,
         ).unsafe_origin_cast[MutExternalOrigin]()
         if not ost.tmp_frame:
-            os.abort("Failed to allocate temporary video frame")
+            std.os.abort("Failed to allocate temporary video frame")
 
     ret = avcodec.avcodec_parameters_from_context(ost.st[].codecpar, c)
     if ret < 0:
-        os.abort("Failed to copy the stream parameters")
+        std.os.abort("Failed to copy the stream parameters")
 
     _ = c
 
@@ -189,11 +187,11 @@ def add_stream(
 
     codec[] = avcodec.avcodec_find_encoder(codec_id)
     if not codec[]:
-        os.abort("Failed to find encoder")
+        std.os.abort("Failed to find encoder")
 
     ost.tmp_pkt = avcodec.av_packet_alloc()
     if not ost.tmp_pkt:
-        os.abort("Failed to allocate AVPacket")
+        std.os.abort("Failed to allocate AVPacket")
 
     ost.st = avformat.avformat_new_stream(
         oc,
@@ -201,13 +199,13 @@ def add_stream(
         UnsafePointer[AVCodec, ImmutExternalOrigin](),
     )
     if not ost.st:
-        os.abort("Failed to allocate stream")
+        std.os.abort("Failed to allocate stream")
 
     ost.st[].id = c_int(oc[].nb_streams - 1)
 
     c = avcodec.avcodec_alloc_context3(codec[])
     if not c:
-        os.abort("Failed to allocate encoding context")
+        std.os.abort("Failed to allocate encoding context")
 
     ost.enc = c
 
@@ -234,7 +232,7 @@ def add_stream(
         var dst = UnsafePointer(to=c[].ch_layout)
         ret = avutil.av_channel_layout_copy(dst, layout)
         if ret < 0:
-            os.abort("Failed to copy channel layout")
+            std.os.abort("Failed to copy channel layout")
 
         ost.st[].time_base = AVRational(num=1, den=c[].sample_rate)
 
@@ -329,7 +327,7 @@ def get_video_frame(
     _ = c
 
     if avutil.av_frame_make_writable(ost.frame) < 0:
-        os.abort("Failed to make frame writable")
+        std.os.abort("Failed to make frame writable")
 
     if c[].pix_fmt != AVPixelFormat.AV_PIX_FMT_YUV420P._value:
         if not ost.sws_ctx:
@@ -346,7 +344,7 @@ def get_video_frame(
                 UnsafePointer[c_double, ImmutExternalOrigin](),
             )
             if not ost.sws_ctx:
-                os.abort("Failed to initialize conversion context")
+                std.os.abort("Failed to initialize conversion context")
 
             # API wise, this seems problematic no? These are all long longs
             # and we are converting to ints.
@@ -383,7 +381,7 @@ def get_video_frame(
                 ost.frame[].linesize.unsafe_ptr(),
             )
             if res < 0:
-                os.abort("Failed to scale image")
+                std.os.abort("Failed to scale image")
     else:
         fill_yuv_image(
             ost.frame, c_int(ost.next_pts), c_int(c[].width), c_int(c[].height)
@@ -408,7 +406,7 @@ def write_frame(
     var ret = c_int(0)
     ret = avcodec.avcodec_send_frame(c, frame)
     if ret < 0:
-        os.abort("Failed to send frame to encoder")
+        std.os.abort("Failed to send frame to encoder")
     _ = frame
     while ret >= 0:
         ret = avcodec.avcodec_receive_packet(c, pkt)
@@ -417,7 +415,7 @@ def write_frame(
             break
         elif ret < 0:
             print(avutil.av_err2str(ret))
-            os.abort(
+            std.os.abort(
                 "Failed to receive packet from encoder with ret val: {}".format(
                     ret
                 )
@@ -429,7 +427,7 @@ def write_frame(
         log_packet(fmt_ctx, pkt)
         ret = avformat.av_interleaved_write_frame(fmt_ctx, pkt)
         if ret < 0:
-            os.abort("Failed to write output packet")
+            std.os.abort("Failed to write output packet")
 
     # _ = avcodec
     # _ = avformat
@@ -477,7 +475,7 @@ def test_av_mux_example():
     ]()  # NULL, let FFmpeg manage
     var i = c_int(0)
 
-    var test_data_root = os.getenv("PIXI_PROJECT_ROOT")
+    var test_data_root = std.os.getenv("PIXI_PROJECT_ROOT")
     # Currently auto gens frames
     # var input_filename: String = (
     #     "{}/test_data/testsrc_320x180_30fps_2s.h264".format(test_data_root)
@@ -488,8 +486,8 @@ def test_av_mux_example():
         )
     )
     var parent_path_parts = Path(output_filename).parts()[:-1]
-    var parent_path = Path(String(os.sep).join(parent_path_parts))
-    os.makedirs(parent_path, exist_ok=True)
+    var parent_path = Path(String(std.os.sep).join(parent_path_parts))
+    std.os.makedirs(parent_path, exist_ok=True)
 
     # FIXME: Tryout without any flags, just h264 to mp4.
     # ret = avformat.alloc_output_context(oc, output_filename)
@@ -499,7 +497,7 @@ def test_av_mux_example():
         filename=output_filename,
     )
     if not oc or ret < 0:
-        os.abort("Failed to allocate output context")
+        std.os.abort("Failed to allocate output context")
         # Note: The example: mux.c will switch to 'mpeg' on failure. In our case
         # however, we want to be strict about the expected behavior.
 
@@ -539,7 +537,7 @@ def test_av_mux_example():
             AVIO_FLAG_WRITE,
         )
         if ret < 0:
-            os.abort("Failed to open output file: {}".format(ret))
+            std.os.abort("Failed to open output file: {}".format(ret))
             # TODO: Not sure if mojo can access stderror or not?
             # Would be ideal since that would surface the error message to the user.
             # fprintf(stderr, "Could not open '%s': %s\n", filename,
@@ -552,7 +550,7 @@ def test_av_mux_example():
     )
     print("dune writing")
     if ret < 0:
-        os.abort("Failed to write header: {}".format(ret))
+        std.os.abort("Failed to write header: {}".format(ret))
         # TODO: Not sure if mojo can access stderror or not?
         # Would be ideal since that would surface the error message to the user.
         # fprintf(stderr, "Error occurred when opening output file: %s\n",
@@ -575,7 +573,7 @@ def test_av_mux_example():
 
     ret = avformat.av_write_trailer(oc[])
     if ret < 0:
-        os.abort("Failed to write trailer: {}".format(ret))
+        std.os.abort("Failed to write trailer: {}".format(ret))
 
     if oc[]:
         if not (fmt[][].flags & AVFMT_NOFILE) and oc[][].pb:

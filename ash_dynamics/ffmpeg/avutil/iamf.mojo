@@ -1,5 +1,5 @@
 "See https://www.ffmpeg.org/doxygen/8.0/avutil_8h.html."
-from ffi import (
+from std.ffi import (
     c_int,
     c_char,
     c_long_long,
@@ -9,8 +9,7 @@ from ffi import (
     c_uint,
     c_size_t,
 )
-import os
-from utils import StaticTuple
+from std.utils import StaticTuple
 from ash_dynamics.ffmpeg.avutil.log import AVClass
 from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
 from ash_dynamics.primitives._clib import C_Union, ExternalFunction

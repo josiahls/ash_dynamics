@@ -1,7 +1,5 @@
-from testing.suite import TestSuite
-from testing.testing import assert_equal, assert_true
-
-from memory import alloc, memset
+from std.testing import TestSuite, assert_equal, assert_true
+from std.memory import alloc, memset
 
 from ash_dynamics.ffmpeg import avcodec
 from ash_dynamics.ffmpeg.avcodec.codec import AVCodec

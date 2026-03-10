@@ -1,5 +1,5 @@
 "See https://www.ffmpeg.org/doxygen/8.0/rational_8h.html."
-from ffi import c_int, c_long_long
+from std.ffi import c_int, c_long_long
 
 
 @fieldwise_init

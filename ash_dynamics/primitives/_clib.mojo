@@ -1,4 +1,4 @@
-from ffi import (
+from std.ffi import (
     OwnedDLHandle,
     c_char,
     c_int,
@@ -7,11 +7,11 @@ from ffi import (
     c_uint,
     c_ushort,
 )
-from sys.info import size_of
-from utils import StaticTuple
-from sys.intrinsics import _type_is_eq
+from std.sys.info import size_of
+from std.utils import StaticTuple
+from std.sys.intrinsics import _type_is_eq
 from builtin.rebind import downcast
-from reflection import (
+from std.reflection import (
     struct_field_count,
     struct_field_names,
     struct_field_types,

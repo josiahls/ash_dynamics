@@ -1,12 +1,12 @@
 "See https://www.ffmpeg.org/doxygen/8.0/channel__layout_8h.html."
-from ffi import c_int, c_char, c_ulong_long, c_size_t, c_uint, external_call
+from std.ffi import c_int, c_char, c_ulong_long, c_size_t, c_uint, external_call
 from ash_dynamics.primitives._clib import C_Union
-from utils import StaticTuple
+from std.utils import StaticTuple
 
 from ash_dynamics.primitives.mojo_compat import (
     reflection_write_to_but_handle_static_tuples,
 )
-from reflection import get_type_name
+from std.reflection import get_type_name
 
 
 @fieldwise_init("implicit")
