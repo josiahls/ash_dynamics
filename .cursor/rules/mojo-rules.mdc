@@ -3,6 +3,14 @@ description: Rules on how to write new and existing Mojo code
 alwaysApply: true
 ---
 
+# Mojo Stdlib — Use Local Clone First
+
+When working with Mojo standard library modules (imports, APIs, types), **first look at the local stdlib clone** instead of searching the web or guessing:
+
+- **Path**: `third_party/modular/mojo/stdlib`
+- **Usage**: Grep or search this directory to find correct import paths, module structure, and APIs.
+- **Why**: Faster and more accurate than web search; matches the exact version you have.
+
 # Do Not Remove Commented Code
 
 Never remove commented-out code. Leave it in place.
