@@ -11,12 +11,12 @@ from ash_dynamics.ffmpeg.avutil.samplefmt import AVSampleFormat
 from ash_dynamics.ffmpeg.swrsample import swrsample
 
 
-def test_swr_get_class():
+def test_swr_get_class() raises:
     var cls = swrsample.swr_get_class()
     assert_true(Bool(cls))
 
 
-def test_swr_alloc():
+def test_swr_alloc() raises:
     var ctx = swrsample.swr_alloc()
     assert_true(Bool(ctx))
     var ctx_ptr = alloc[UnsafePointer[swrsample.SwrContext, MutExternalOrigin]](
@@ -26,7 +26,7 @@ def test_swr_alloc():
     swrsample.swr_free(ctx_ptr)
 
 
-def test_swr_alloc_and_init():
+def test_swr_alloc_and_init() raises:
     var out_layout = alloc[AVChannelLayout](1)
     var in_layout = alloc[AVChannelLayout](1)
     memset(out_layout, 0, 1)
@@ -63,7 +63,7 @@ def test_swr_alloc_and_init():
     avutil.av_channel_layout_uninit(in_layout)
 
 
-def test_swr_is_initialized():
+def test_swr_is_initialized() raises:
     var ctx = swrsample.swr_alloc()
     assert_equal(
         swrsample.swr_is_initialized(ctx.as_immutable()),
@@ -76,7 +76,7 @@ def test_swr_is_initialized():
     swrsample.swr_free(ctx_ptr)
 
 
-def test_swr_close():
+def test_swr_close() raises:
     var out_layout = alloc[AVChannelLayout](1)
     var in_layout = alloc[AVChannelLayout](1)
     memset(out_layout, 0, 1)
@@ -111,7 +111,7 @@ def test_swr_close():
     avutil.av_channel_layout_uninit(in_layout)
 
 
-def test_swr_convert():
+def test_swr_convert() raises:
     var out_layout = alloc[AVChannelLayout](1)
     var in_layout = alloc[AVChannelLayout](1)
     memset(out_layout, 0, 1)
@@ -161,7 +161,7 @@ def test_swr_convert():
     avutil.av_channel_layout_uninit(in_layout)
 
 
-def test_swr_next_pts():
+def test_swr_next_pts() raises:
     var out_layout = alloc[AVChannelLayout](1)
     var in_layout = alloc[AVChannelLayout](1)
     memset(out_layout, 0, 1)
@@ -199,7 +199,7 @@ def test_swr_next_pts():
     avutil.av_channel_layout_uninit(in_layout)
 
 
-def test_swr_set_compensation():
+def test_swr_set_compensation() raises:
     var out_layout = alloc[AVChannelLayout](1)
     var in_layout = alloc[AVChannelLayout](1)
     memset(out_layout, 0, 1)
@@ -237,7 +237,7 @@ def test_swr_set_compensation():
     avutil.av_channel_layout_uninit(in_layout)
 
 
-def test_swr_set_channel_mapping():
+def test_swr_set_channel_mapping() raises:
     var out_layout = alloc[AVChannelLayout](1)
     var in_layout = alloc[AVChannelLayout](1)
     memset(out_layout, 0, 1)
@@ -281,7 +281,7 @@ def test_swr_set_channel_mapping():
     avutil.av_channel_layout_uninit(in_layout)
 
 
-def test_swr_build_matrix2():
+def test_swr_build_matrix2() raises:
     var out_layout = alloc[AVChannelLayout](1)
     var in_layout = alloc[AVChannelLayout](1)
     memset(out_layout, 0, 1)
@@ -313,7 +313,7 @@ def test_swr_build_matrix2():
     avutil.av_channel_layout_uninit(in_layout)
 
 
-def main():
+def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()
     # test_swr_get_class()
     # test_swr_alloc()

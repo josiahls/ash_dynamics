@@ -3,7 +3,7 @@ from ash_dynamics.primitives._clib import C_Union, TrivialOptionalField
 from std.sys import size_of
 
 
-def test_c_union():
+def test_c_union() raises:
     # Test a single type union's size against its MLIR type
     comptime UInt8Union = C_Union[UInt8]
     var single_type_union_instance: UInt8Union = UInt8(4)
@@ -36,7 +36,7 @@ def test_c_union():
     _ = union_union_instance
 
 
-def test_mlir_unions():
+def test_mlir_unions() raises:
     assert_equal(size_of[__mlir_type[`!pop.union<`, `ui8`, `>`]](), 1)
     assert_equal(size_of[__mlir_type[`!pop.union<`, `ui16`, `>`]](), 2)
     assert_equal(size_of[__mlir_type[`!pop.union<`, `ui32`, `>`]](), 4)
@@ -114,7 +114,7 @@ struct ContainsInactiveField:
     var inactive_field: TrivialOptionalField[False, Int64]
 
 
-def test_trivial_optional_field():
+def test_trivial_optional_field() raises:
     # Test it can be used as a field and value can be accessed when active
     var with_active = ContainsActiveField(TrivialOptionalField[True, Int64](42))
     assert_equal(with_active.active_field[], 42)
@@ -124,5 +124,5 @@ def test_trivial_optional_field():
     assert_equal(size_of[ContainsInactiveField](), 0)
 
 
-def main():
+def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

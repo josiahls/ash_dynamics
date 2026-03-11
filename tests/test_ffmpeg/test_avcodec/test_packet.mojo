@@ -12,7 +12,7 @@ from ash_dynamics.ffmpeg.avutil.rational import AVRational
 from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
 
 
-def test_av_packet_alloc():
+def test_av_packet_alloc() raises:
     var packet = avcodec.av_packet_alloc()
     assert_true(Bool(packet))
     var pkt_ptr = alloc[UnsafePointer[AVPacket, MutExternalOrigin]](1)
@@ -20,7 +20,7 @@ def test_av_packet_alloc():
     avcodec.av_packet_free(pkt_ptr)
 
 
-def test_av_packet_clone():
+def test_av_packet_clone() raises:
     var src = avcodec.av_packet_alloc()
     assert_true(Bool(src))
     var ret = avcodec.av_new_packet(src, 64)
@@ -36,14 +36,14 @@ def test_av_packet_clone():
     avcodec.av_packet_free(clone_ptr)
 
 
-def test_av_packet_free():
+def test_av_packet_free() raises:
     var packet = avcodec.av_packet_alloc()
     var pkt_ptr = alloc[UnsafePointer[AVPacket, MutExternalOrigin]](1)
     pkt_ptr[0] = packet
     avcodec.av_packet_free(pkt_ptr)
 
 
-def test_av_new_packet():
+def test_av_new_packet() raises:
     var packet = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(packet, 128)
     assert_equal(ret, 0)
@@ -54,7 +54,7 @@ def test_av_new_packet():
     avcodec.av_packet_free(pkt_ptr)
 
 
-def test_av_shrink_packet():
+def test_av_shrink_packet() raises:
     var packet = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(packet, 64)
     assert_equal(ret, 0)
@@ -65,7 +65,7 @@ def test_av_shrink_packet():
     avcodec.av_packet_free(pkt_ptr)
 
 
-def test_av_grow_packet():
+def test_av_grow_packet() raises:
     var packet = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(packet, 32)
     assert_equal(ret, 0)
@@ -77,7 +77,7 @@ def test_av_grow_packet():
     avcodec.av_packet_free(pkt_ptr)
 
 
-def test_av_packet_new_side_data():
+def test_av_packet_new_side_data() raises:
     var packet = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(packet, 16)
     assert_equal(ret, 0)
@@ -93,7 +93,7 @@ def test_av_packet_new_side_data():
     avcodec.av_packet_free(pkt_ptr)
 
 
-def test_av_packet_shrink_side_data():
+def test_av_packet_shrink_side_data() raises:
     var packet = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(packet, 16)
     assert_equal(ret, 0)
@@ -114,7 +114,7 @@ def test_av_packet_shrink_side_data():
     avcodec.av_packet_free(pkt_ptr)
 
 
-def test_av_packet_get_side_data():
+def test_av_packet_get_side_data() raises:
     var packet = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(packet, 16)
     assert_equal(ret, 0)
@@ -138,7 +138,7 @@ def test_av_packet_get_side_data():
     avcodec.av_packet_free(pkt_ptr)
 
 
-def test_av_packet_pack_dictionary():
+def test_av_packet_pack_dictionary() raises:
     var size_out = alloc[c_size_t](1)
     size_out[0] = 0
     var data = avcodec.av_packet_pack_dictionary(
@@ -149,7 +149,7 @@ def test_av_packet_pack_dictionary():
     assert_equal(size_out[], 0)
 
 
-def test_av_packet_unpack_dictionary():
+def test_av_packet_unpack_dictionary() raises:
     var dict_ptr = alloc[AVDictionary](0)
     var dict_ptr_ptr = alloc[UnsafePointer[AVDictionary, MutExternalOrigin]](1)
     dict_ptr_ptr[] = dict_ptr
@@ -162,7 +162,7 @@ def test_av_packet_unpack_dictionary():
     assert_equal(ret, 0)
 
 
-def test_av_packet_free_side_data():
+def test_av_packet_free_side_data() raises:
     var packet = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(packet, 16)
     assert_equal(ret, 0)
@@ -179,7 +179,7 @@ def test_av_packet_free_side_data():
     avcodec.av_packet_free(pkt_ptr)
 
 
-def test_av_packet_ref():
+def test_av_packet_ref() raises:
     var src = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(src, 32)
     assert_equal(ret, 0)
@@ -197,7 +197,7 @@ def test_av_packet_ref():
     avcodec.av_packet_free(dst_ptr)
 
 
-def test_av_packet_unref():
+def test_av_packet_unref() raises:
     var packet = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(packet, 32)
     assert_equal(ret, 0)
@@ -207,7 +207,7 @@ def test_av_packet_unref():
     avcodec.av_packet_free(pkt_ptr)
 
 
-def test_av_packet_move_ref():
+def test_av_packet_move_ref() raises:
     var src = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(src, 32)
     assert_equal(ret, 0)
@@ -223,7 +223,7 @@ def test_av_packet_move_ref():
     avcodec.av_packet_free(dst_ptr)
 
 
-def test_av_packet_copy_props():
+def test_av_packet_copy_props() raises:
     var src = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(src, 32)
     assert_equal(ret, 0)
@@ -249,7 +249,7 @@ def test_av_packet_copy_props():
     avcodec.av_packet_free(dst_ptr)
 
 
-def test_av_packet_make_refcounted():
+def test_av_packet_make_refcounted() raises:
     var packet = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(packet, 32)
     assert_equal(ret, 0)
@@ -260,7 +260,7 @@ def test_av_packet_make_refcounted():
     avcodec.av_packet_free(pkt_ptr)
 
 
-def test_av_packet_make_writable():
+def test_av_packet_make_writable() raises:
     var packet = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(packet, 32)
     assert_equal(ret, 0)
@@ -271,7 +271,7 @@ def test_av_packet_make_writable():
     avcodec.av_packet_free(pkt_ptr)
 
 
-def test_av_packet_rescale_ts():
+def test_av_packet_rescale_ts() raises:
     var packet = avcodec.av_packet_alloc()
     var ret = avcodec.av_new_packet(packet, 32)
     assert_equal(ret, 0)
@@ -291,7 +291,7 @@ def test_av_packet_rescale_ts():
     avcodec.av_packet_free(pkt_ptr)
 
 
-def test_av_container_fifo_alloc_avpacket():
+def test_av_container_fifo_alloc_avpacket() raises:
     var fifo = avcodec.av_container_fifo_alloc_avpacket(0)
     assert_true(Bool(fifo))
     var fifo_ptr = alloc[UnsafePointer[AVContainerFifo, MutExternalOrigin]](1)
@@ -300,5 +300,5 @@ def test_av_container_fifo_alloc_avpacket():
     fifo_ptr.free()
 
 
-def main():
+def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

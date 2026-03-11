@@ -117,7 +117,7 @@ def alloc_frame(
     pix_fmt: AVPixelFormat.ENUM_DTYPE,
     width: c_int,
     height: c_int,
-) -> UnsafePointer[AVFrame, MutExternalOrigin]:
+) raises -> UnsafePointer[AVFrame, MutExternalOrigin]:
     var frame = avutil.av_frame_alloc()
 
     frame[].format = pix_fmt
@@ -138,7 +138,7 @@ def open_video(
     video_codec: UnsafePointer[AVCodec, ImmutExternalOrigin],
     mut ost: OutputStream,
     opt_arg: UnsafePointer[AVDictionary, ImmutExternalOrigin],
-):
+) raises:
     var ret: c_int = 0
     var c = ost.enc
     # NOTE: We need to add an override to avcodec_open2 that makes
@@ -181,7 +181,7 @@ def add_stream(
         UnsafePointer[AVCodec, ImmutExternalOrigin], MutExternalOrigin
     ],
     codec_id: AVCodecID.ENUM_DTYPE,
-):
+) raises:
     var i: c_int = 0
     var c = alloc[AVCodecContext](1)
 
@@ -273,7 +273,7 @@ def add_stream(
 def log_packet(
     fmt_ctx: UnsafePointer[AVFormatContext, MutExternalOrigin],
     pkt: UnsafePointer[AVPacket, MutExternalOrigin],
-):
+) raises:
     print(
         "pts:{} dts:{} duration:{} stream_index:{}".format(
             pkt[].pts,
@@ -289,7 +289,7 @@ def fill_yuv_image(
     frame_index: c_int,
     width: c_int,
     height: c_int,
-):
+) raises:
     var x: c_int = 0
     var y: c_int = 0
     var i: c_int = frame_index
@@ -310,7 +310,7 @@ def fill_yuv_image(
 
 def get_video_frame(
     mut ost: OutputStream,
-) -> UnsafePointer[AVFrame, MutExternalOrigin]:
+) raises -> UnsafePointer[AVFrame, MutExternalOrigin]:
     var c = ost.enc
 
     var comparison = avutil.av_compare_ts(
@@ -401,7 +401,7 @@ def write_frame(
     st: UnsafePointer[AVStream, MutExternalOrigin],
     frame: UnsafePointer[AVFrame, MutExternalOrigin],
     pkt: UnsafePointer[AVPacket, MutExternalOrigin],
-) -> c_int:
+) raises -> c_int:
     # TODO: Check pkt. It looks completely invalid.
     var ret = c_int(0)
     ret = avcodec.avcodec_send_frame(c, frame)
@@ -437,7 +437,7 @@ def write_frame(
 def write_video_frame(
     oc: UnsafePointer[AVFormatContext, MutExternalOrigin],
     mut ost: OutputStream,
-) -> c_int:
+) raises -> c_int:
     var ret = write_frame(
         fmt_ctx=oc,
         c=ost.enc,
@@ -448,7 +448,7 @@ def write_video_frame(
     return ret
 
 
-def test_av_mux_example():
+def test_av_mux_example() raises:
     """From: https://www.ffmpeg.org/doxygen/8.0/mux_8c-example.html."""
     var video_st = OutputStream()
     # NOTE: Not interested in audio at the moment.
@@ -585,5 +585,5 @@ def test_av_mux_example():
         avformat.avformat_free_context(oc[])
 
 
-def main():
+def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()
