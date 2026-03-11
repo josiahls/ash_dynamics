@@ -5,6 +5,7 @@ from std.testing.suite import TestSuiteReport, TestReport, TestResult
 from std.reflection import call_location
 from std.pathlib import Path
 from std.time import perf_counter_ns
+from std.algorithm.functional import sync_parallelize
 
 
 comptime TEST_DIR = Path("tests")
@@ -12,9 +13,7 @@ comptime TEST_DIR = Path("tests")
 
 def test_file(file: Path) raises -> TestReport:
     var start = perf_counter_ns()
-    print("Running test: ", Text[Color.CYAN](file.name()), end="")
     var result = run("pixi run test_no_config " + String(file) + " 2>&1")
-    print(Text[Color.MAGENTA](" done"))
     var end = perf_counter_ns()
     var duration_ns = end - start
     if (
@@ -29,19 +28,54 @@ def test_file(file: Path) raises -> TestReport:
     return TestReport.passed(name=file.name(), duration_ns=duration_ns)
 
 
-def walk_tests(path: Path, mut test_results: List[TestReport]) raises:
+def walk_tests(path: Path, mut test_files: List[Path]) raises:
     for f in path.listdir():
         file = path / f
         if file.is_file() and file.suffix() == ".mojo":
-            var result = test_file(file)
-            test_results.append(result^)
+            print("Found test file: ", Text[Color.CYAN](file))
+            test_files.append(file)
         elif file.is_dir():
-            walk_tests(file, test_results)
+            walk_tests(file, test_files)
+
+
+def parallel_exec(
+    test_files: List[Path], mut test_results: List[TestReport]
+) raises:
+    var progress = 0
+    var n_files = len(test_files)
+
+    @parameter
+    fn exec_test(thread_id: Int):
+        var file = test_files[thread_id]
+        try:
+            var test_result = test_file(file)
+            test_results.append(test_result^)
+        except e:
+            var test_result = TestReport.failed(
+                name=file.name(), duration_ns=0, error=Error(e)
+            )
+            test_results.append(test_result^)
+        progress += 1
+        print(
+            # https://web.archive.org/web/20121225024852/http://www.climagic.org/mirrors/VT100_Escape_Codes.html
+            "\33[2K[",
+            "=" * progress,
+            " " * (n_files - progress),
+            "] %",
+            (Float32(progress) / Float32(n_files)) * 100,
+            end="\r",
+            sep="",
+            flush=True,
+        )
+
+    sync_parallelize[exec_test](n_files)
 
 
 def main() raises:
     var test_results = List[TestReport]()
-    walk_tests(TEST_DIR, test_results)
+    var test_files = List[Path]()
+    walk_tests(TEST_DIR, test_files)
+    parallel_exec(test_files, test_results)
     var report = TestSuiteReport(
         reports=test_results^, location=call_location[inline_count=0]()
     )
