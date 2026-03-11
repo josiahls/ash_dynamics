@@ -44,6 +44,9 @@ build_ffmpeg = { cmd = "bash tools/build_ffmpeg.sh", inputs = [
     "third_party/ffmpeg/build/lib/*.so"
 ], depends-on = [ "clone_ffmpeg", "install_libopenh264" ] }
 
+# Same as above, however will run every time.
+build_ffmpeg_clean = { cmd = "FORCE_FFMPEG_BUILD=true bash tools/build_ffmpeg.sh", depends-on = [ "clone_ffmpeg", "install_libopenh264" ] }
+
 ############################ Git Ops ###########################################
 push = "git push --force-with-lease"
 
