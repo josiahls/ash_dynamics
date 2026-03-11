@@ -3,12 +3,28 @@
 
 Robotics simulation and training.
 
+### System Requirements
+
+`ash_dynamics` requires ffmpeg `8.*.*`.
+
+Most recent official release:
+```
+FFmpeg 8.0.1 "Huffman"
+
+libavutil      60.  8.100
+libavcodec     62. 11.100
+libavformat    62.  3.100
+libswscale      9.  1.100
+libswresample   6.  1.100
+```
+Note that as of 2026-03-11, ffmpeg 8.0.1 is not yet released as an installable deb package.
+
 ## Installation
 
 ### Ubuntu
 Note, this will attempt to build ffmpeg from source. 
-This project is build to be binded against ffmpeg 8.0 which has not been released
-yet as an installable deb package.
+This project is build to be binded against ffmpeg 8.0.0 which has not been released
+yet as an installable deb package reference [the debian ffmpeg tracker](https://tracker.debian.org/pkg/ffmpeg).
 ```
 # For encoding video and simulations into h264, the encoder must be installed
 # user side / and separately:
