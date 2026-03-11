@@ -10,7 +10,7 @@ from ash_dynamics.ffmpeg.avutil.channel_layout import (
 from ash_dynamics.ffmpeg import avutil
 
 
-def test_av_channel_name():
+def test_av_channel_name() raises:
     var buf = alloc[c_char](64)
     var ret = avutil.av_channel_name(
         buf.unsafe_origin_cast[MutExternalOrigin](),
@@ -20,7 +20,7 @@ def test_av_channel_name():
     assert_true(ret >= 0)
 
 
-def test_av_channel_description():
+def test_av_channel_description() raises:
     var buf = alloc[c_char](64)
     var ret = avutil.av_channel_description(
         buf.unsafe_origin_cast[MutExternalOrigin](),
@@ -30,7 +30,7 @@ def test_av_channel_description():
     assert_true(ret >= 0)
 
 
-def test_av_channel_from_string():
+def test_av_channel_from_string() raises:
     var ch = avutil.av_channel_from_string(
         "FL".as_c_string_slice()
         .unsafe_ptr()
@@ -40,7 +40,7 @@ def test_av_channel_from_string():
     assert_equal(Int(ch), Int(AVChannel.AV_CHAN_FRONT_LEFT._value))
 
 
-def test_av_channel_layout_custom_init():
+def test_av_channel_layout_custom_init() raises:
     var layout = alloc[AVChannelLayout](1)
     memset(layout, 0, 1)
     var ret = avutil.av_channel_layout_custom_init(
@@ -53,7 +53,7 @@ def test_av_channel_layout_custom_init():
     )
 
 
-def test_av_channel_layout_from_mask():
+def test_av_channel_layout_from_mask() raises:
     var layout = alloc[AVChannelLayout](1)
     memset(layout, 0, 1)
     var ret = avutil.av_channel_layout_from_mask(
@@ -67,7 +67,7 @@ def test_av_channel_layout_from_mask():
     )
 
 
-def test_av_channel_layout_from_string():
+def test_av_channel_layout_from_string() raises:
     var layout = alloc[AVChannelLayout](1)
     memset(layout, 0, 1)
     var ret = avutil.av_channel_layout_from_string(
@@ -84,7 +84,7 @@ def test_av_channel_layout_from_string():
     )
 
 
-def test_av_channel_layout_default():
+def test_av_channel_layout_default() raises:
     var layout = alloc[AVChannelLayout](1)
     memset(layout, 0, 1)
     avutil.av_channel_layout_default(
@@ -96,7 +96,7 @@ def test_av_channel_layout_default():
     )
 
 
-def test_av_channel_layout_standard():
+def test_av_channel_layout_standard() raises:
     var opaque = alloc[OpaquePointer[MutExternalOrigin]](1)
     memset(opaque, 0, 1)
     var layout = avutil.av_channel_layout_standard(
@@ -105,7 +105,7 @@ def test_av_channel_layout_standard():
     assert_true(Bool(layout))
 
 
-def test_av_channel_layout_uninit():
+def test_av_channel_layout_uninit() raises:
     var layout = alloc[AVChannelLayout](1)
     memset(layout, 0, 1)
     var ret = avutil.av_channel_layout_from_mask(
@@ -118,7 +118,7 @@ def test_av_channel_layout_uninit():
     )
 
 
-def test_av_channel_layout_copy():
+def test_av_channel_layout_copy() raises:
     var src = alloc[AVChannelLayout](1)
     memset(src, 0, 1)
     var ret1 = avutil.av_channel_layout_from_mask(
@@ -138,7 +138,7 @@ def test_av_channel_layout_copy():
     avutil.av_channel_layout_uninit(src.unsafe_origin_cast[MutExternalOrigin]())
 
 
-def test_av_channel_layout_describe():
+def test_av_channel_layout_describe() raises:
     var layout = alloc[AVChannelLayout](1)
     memset(layout, 0, 1)
     var ret1 = avutil.av_channel_layout_from_mask(
@@ -158,7 +158,7 @@ def test_av_channel_layout_describe():
     )
 
 
-def test_av_channel_layout_channel_from_index():
+def test_av_channel_layout_channel_from_index() raises:
     var layout = alloc[AVChannelLayout](1)
     memset(layout, 0, 1)
     var ret1 = avutil.av_channel_layout_from_mask(
@@ -176,7 +176,7 @@ def test_av_channel_layout_channel_from_index():
     )
 
 
-def test_av_channel_layout_index_from_channel():
+def test_av_channel_layout_index_from_channel() raises:
     var layout = alloc[AVChannelLayout](1)
     memset(layout, 0, 1)
     var ret1 = avutil.av_channel_layout_from_mask(
@@ -194,7 +194,7 @@ def test_av_channel_layout_index_from_channel():
     )
 
 
-def test_av_channel_layout_index_from_string():
+def test_av_channel_layout_index_from_string() raises:
     var layout = alloc[AVChannelLayout](1)
     memset(layout, 0, 1)
     var ret1 = avutil.av_channel_layout_from_mask(
@@ -215,7 +215,7 @@ def test_av_channel_layout_index_from_string():
     )
 
 
-def test_av_channel_layout_channel_from_string():
+def test_av_channel_layout_channel_from_string() raises:
     var layout = alloc[AVChannelLayout](1)
     memset(layout, 0, 1)
     var ret1 = avutil.av_channel_layout_from_mask(
@@ -236,7 +236,7 @@ def test_av_channel_layout_channel_from_string():
     )
 
 
-def test_av_channel_layout_subset():
+def test_av_channel_layout_subset() raises:
     var layout = alloc[AVChannelLayout](1)
     memset(layout, 0, 1)
     var ret1 = avutil.av_channel_layout_from_mask(
@@ -254,7 +254,7 @@ def test_av_channel_layout_subset():
     )
 
 
-def test_av_channel_layout_check():
+def test_av_channel_layout_check() raises:
     var layout = alloc[AVChannelLayout](1)
     memset(layout, 0, 1)
     var ret1 = avutil.av_channel_layout_from_mask(
@@ -271,7 +271,7 @@ def test_av_channel_layout_check():
     )
 
 
-def test_av_channel_layout_compare():
+def test_av_channel_layout_compare() raises:
     var layout1 = alloc[AVChannelLayout](1)
     var layout2 = alloc[AVChannelLayout](1)
     memset(layout1, 0, 1)
@@ -299,7 +299,7 @@ def test_av_channel_layout_compare():
     )
 
 
-def test_av_channel_layout_ambisonic_order():
+def test_av_channel_layout_ambisonic_order() raises:
     # Stereo is not ambisonic; function returns negative AVERROR. Just check no crash.
     var layout = alloc[AVChannelLayout](1)
     memset(layout, 0, 1)
@@ -317,7 +317,7 @@ def test_av_channel_layout_ambisonic_order():
     )
 
 
-def test_av_channel_layout_retype():
+def test_av_channel_layout_retype() raises:
     var layout = alloc[AVChannelLayout](1)
     memset(layout, 0, 1)
     var ret1 = avutil.av_channel_layout_from_mask(
@@ -336,7 +336,7 @@ def test_av_channel_layout_retype():
     )
 
 
-def main():
+def main() raises:
     # TestSuite.discover_tests[__functions_in_module()]().run()
     test_av_channel_name()
     test_av_channel_description()

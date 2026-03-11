@@ -5,7 +5,7 @@ from ash_dynamics.image.io import image_read, image_save
 from ash_dynamics.ffmpeg.avutil.pixfmt import AVPixelFormat
 
 
-def test_image_read():
+def test_image_read() raises:
     var test_data_root = getenv("PIXI_PROJECT_ROOT")
     var root_path = join(test_data_root, "test_data/testsrc_128x128.png")
     var image = image_read(root_path)
@@ -20,7 +20,7 @@ def test_image_read():
     assert_equal(image.data[49151], 255)
 
 
-def test_image_save():
+def test_image_save() raises:
     var test_data_root = getenv("PIXI_PROJECT_ROOT")
     var root_path = join(test_data_root, "test_data/testsrc_128x128.png")
     var save_path = join(test_data_root, "test_data/test_image_save.png")
@@ -39,6 +39,6 @@ def test_image_save():
     assert_equal(image2.data[49151], 255)
 
 
-def main():
+def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()
     # test_image_save()

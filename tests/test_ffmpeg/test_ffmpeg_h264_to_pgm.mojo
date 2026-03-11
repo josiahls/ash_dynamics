@@ -30,7 +30,7 @@ def pgm_save(
     xsize: c_int,
     ysize: c_int,
     filename: String,
-):
+) raises:
     with open(filename, "w") as f:
         f.write("P5\n{} {}\n255\n".format(xsize, ysize))
         for i in range(ysize):
@@ -73,7 +73,7 @@ fn decode(
             print("Error saving frame: ", e)
 
 
-def test_av_decode_video_example():
+def test_av_decode_video_example() raises:
     """From: https://www.ffmpeg.org/doxygen/8.0/decode_video_8c-example.html."""
     comptime INBUF_SIZE = c_int(4096)
 
@@ -159,5 +159,5 @@ def test_av_decode_video_example():
     avcodec.av_parser_close(parser)
 
 
-def main():
+def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

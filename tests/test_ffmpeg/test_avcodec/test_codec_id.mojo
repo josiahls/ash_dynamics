@@ -20,7 +20,7 @@ from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 from ash_dynamics.ffmpeg.avutil.error import AVERROR, AVERROR_EOF
 
 
-def test_codec_id():
+def test_codec_id() raises:
     # NOTE: May need to have this test adjust depending on FFmpeg versions.
     # Note: This test assumes all of the flags in the xors are true
     assert_equal(AVCodecID.AV_CODEC_ID_MPEG1VIDEO._value, 1)
@@ -81,5 +81,5 @@ def test_codec_id():
     assert_equal(AVCodecID.AV_CODEC_ID_ANULL._value, 0x21001 + 2)
 
 
-def main():
+def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

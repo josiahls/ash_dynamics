@@ -13,7 +13,7 @@ from ash_dynamics.ffmpeg.avutil.buffer import AVBufferRef
 from ash_dynamics.ffmpeg import avutil
 
 
-def test_av_frame_alloc():
+def test_av_frame_alloc() raises:
     var frame = avutil.av_frame_alloc()
     assert_equal(frame[].width, 0)
     assert_equal(frame[].height, 0)
@@ -31,14 +31,14 @@ def test_av_frame_alloc():
     avutil.av_frame_free(frame)
 
 
-def test_av_frame_free():
+def test_av_frame_free() raises:
     var frame_ptr = alloc[UnsafePointer[AVFrame, MutExternalOrigin]](1)
     frame_ptr[] = avutil.av_frame_alloc()
     avutil.av_frame_free(frame_ptr)
     frame_ptr.free()
 
 
-def test_av_frame_ref():
+def test_av_frame_ref() raises:
     var src = avutil.av_frame_alloc()
     var dst = avutil.av_frame_alloc()
     memset(dst, 0, 1)
@@ -60,7 +60,7 @@ def test_av_frame_ref():
     avutil.av_frame_free(dst)
 
 
-def test_av_frame_replace():
+def test_av_frame_replace() raises:
     var src = avutil.av_frame_alloc()
     var dst = avutil.av_frame_alloc()
     src[].width = 320
@@ -76,7 +76,7 @@ def test_av_frame_replace():
     avutil.av_frame_free(dst)
 
 
-def test_av_frame_clone():
+def test_av_frame_clone() raises:
     var src = avutil.av_frame_alloc()
     src[].width = 1280
     src[].height = 720
@@ -93,7 +93,7 @@ def test_av_frame_clone():
     clone_ptr.free()
 
 
-def test_av_frame_unref():
+def test_av_frame_unref() raises:
     var frame = avutil.av_frame_alloc()
     frame[].width = 100
     avutil.av_frame_unref(frame)
@@ -101,7 +101,7 @@ def test_av_frame_unref():
     avutil.av_frame_free(frame)
 
 
-def test_av_frame_move_ref():
+def test_av_frame_move_ref() raises:
     var src = avutil.av_frame_alloc()
     var dst = avutil.av_frame_alloc()
     src[].width = 800
@@ -117,7 +117,7 @@ def test_av_frame_move_ref():
     avutil.av_frame_free(dst)
 
 
-def test_av_frame_get_buffer():
+def test_av_frame_get_buffer() raises:
     var frame = avutil.av_frame_alloc()
     frame[].width = 64
     frame[].height = 64
@@ -155,7 +155,7 @@ def test_av_frame_get_buffer():
     avutil.av_frame_free(frame)
 
 
-def test_av_frame_is_writable():
+def test_av_frame_is_writable() raises:
     var frame = avutil.av_frame_alloc()
     # A frame without a buffer is not writable.
     assert_equal(
@@ -165,7 +165,7 @@ def test_av_frame_is_writable():
     avutil.av_frame_free(frame)
 
 
-def test_av_frame_make_writable():
+def test_av_frame_make_writable() raises:
     var frame = avutil.av_frame_alloc()
     frame[].width = 64
     frame[].height = 64
@@ -180,7 +180,7 @@ def test_av_frame_make_writable():
     avutil.av_frame_free(frame)
 
 
-def test_av_frame_copy():
+def test_av_frame_copy() raises:
     var src = avutil.av_frame_alloc()
     var dst = avutil.av_frame_alloc()
     src[].width = 64
@@ -200,7 +200,7 @@ def test_av_frame_copy():
     avutil.av_frame_free(dst)
 
 
-def test_av_frame_copy_props():
+def test_av_frame_copy_props() raises:
     var src = avutil.av_frame_alloc()
     var dst = avutil.av_frame_alloc()
     src[].pts = 42
@@ -216,7 +216,7 @@ def test_av_frame_copy_props():
     avutil.av_frame_free(dst)
 
 
-def test_av_frame_get_plane_buffer():
+def test_av_frame_get_plane_buffer() raises:
     var frame = avutil.av_frame_alloc()
     frame[].width = 64
     frame[].height = 64
@@ -227,7 +227,7 @@ def test_av_frame_get_plane_buffer():
     avutil.av_frame_free(frame)
 
 
-def test_av_frame_new_side_data():
+def test_av_frame_new_side_data() raises:
     var frame = avutil.av_frame_alloc()
     var sd = avutil.av_frame_new_side_data(
         frame,
@@ -239,7 +239,7 @@ def test_av_frame_new_side_data():
     avutil.av_frame_free(frame)
 
 
-def test_av_frame_new_side_data_from_buf():
+def test_av_frame_new_side_data_from_buf() raises:
     var frame = avutil.av_frame_alloc()
     var buf = avutil.av_buffer_alloc(128)
     var sd = avutil.av_frame_new_side_data_from_buf(
@@ -252,7 +252,7 @@ def test_av_frame_new_side_data_from_buf():
     avutil.av_frame_free(frame)
 
 
-def test_av_frame_get_side_data():
+def test_av_frame_get_side_data() raises:
     var frame = avutil.av_frame_alloc()
     _ = avutil.av_frame_new_side_data(
         frame,
@@ -267,7 +267,7 @@ def test_av_frame_get_side_data():
     avutil.av_frame_free(frame)
 
 
-def test_av_frame_remove_side_data():
+def test_av_frame_remove_side_data() raises:
     var frame = avutil.av_frame_alloc()
     _ = avutil.av_frame_new_side_data(
         frame,
@@ -283,7 +283,7 @@ def test_av_frame_remove_side_data():
     avutil.av_frame_free(frame)
 
 
-def test_av_frame_apply_cropping():
+def test_av_frame_apply_cropping() raises:
     var frame = avutil.av_frame_alloc()
     frame[].width = 64
     frame[].height = 64
@@ -302,21 +302,21 @@ def test_av_frame_apply_cropping():
     avutil.av_frame_free(frame)
 
 
-def test_av_frame_side_data_name():
+def test_av_frame_side_data_name() raises:
     var name = avutil.av_frame_side_data_name(
         AVFrameSideDataType.AV_FRAME_DATA_PANSCAN._value
     )
     assert_true(Bool(name))
 
 
-def test_av_frame_side_data_desc():
+def test_av_frame_side_data_desc() raises:
     var desc = avutil.av_frame_side_data_desc(
         AVFrameSideDataType.AV_FRAME_DATA_PANSCAN._value
     )
     assert_true(Bool(desc))
 
 
-def test_av_frame_side_data_free():
+def test_av_frame_side_data_free() raises:
     var sd = AVFrameSideData.alloc_triple_ptr()
     var nb_sd = alloc[c_int](1)
     nb_sd[] = 0
@@ -338,7 +338,7 @@ def test_av_frame_side_data_free():
     # nb_sd.free()
 
 
-def test_av_frame_side_data_new():
+def test_av_frame_side_data_new() raises:
     var sd = AVFrameSideData.alloc_triple_ptr()
 
     var nb_sd = alloc[c_int](1)
@@ -359,7 +359,7 @@ def test_av_frame_side_data_new():
     assert_equal(nb_sd[], 0)
 
 
-def test_av_frame_side_data_add():
+def test_av_frame_side_data_add() raises:
     var sd = AVFrameSideData.alloc_triple_ptr()
     var nb_sd = alloc[c_int](1)
     nb_sd[] = 0
@@ -378,7 +378,7 @@ def test_av_frame_side_data_add():
     avutil.av_frame_side_data_free(sd, nb_sd)
 
 
-def test_av_frame_side_data_clone():
+def test_av_frame_side_data_clone() raises:
     var src_sd = AVFrameSideData.alloc_triple_ptr()
     var src_nb_sd = alloc[c_int](1)
     src_nb_sd[] = 0
@@ -409,7 +409,7 @@ def test_av_frame_side_data_clone():
     )
 
 
-def test_av_frame_side_data_get_c():
+def test_av_frame_side_data_get_c() raises:
     var sd = AVFrameSideData.alloc_triple_ptr()
     var nb_sd = alloc[c_int](1)
     nb_sd[] = 0
@@ -435,7 +435,7 @@ def test_av_frame_side_data_get_c():
     )
 
 
-def test_av_frame_side_data_remove():
+def test_av_frame_side_data_remove() raises:
     var sd = AVFrameSideData.alloc_triple_ptr()
     var nb_sd = alloc[c_int](1)
     nb_sd[] = 0
@@ -457,7 +457,7 @@ def test_av_frame_side_data_remove():
     avutil.av_freep(sd)
 
 
-def test_av_frame_side_data_remove_by_props():
+def test_av_frame_side_data_remove_by_props() raises:
     var sd = AVFrameSideData.alloc_triple_ptr()
     var nb_sd = alloc[c_int](1)
     nb_sd[] = 0
@@ -483,7 +483,7 @@ def test_av_frame_side_data_remove_by_props():
     avutil.av_freep(sd)
 
 
-def main():
+def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()
 
     # test_av_frame_alloc()

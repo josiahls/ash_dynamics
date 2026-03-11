@@ -8,7 +8,7 @@ from ash_dynamics.ffmpeg.avutil.error import FFERRTAG
 from std.reflection import get_type_name
 
 
-def test_FFERRTAG():
+def test_FFERRTAG() raises:
     """Check:
     Basic 0,1,2,3 values make sense.
     That 'B' and named StaticStrings compile into the variant.
@@ -19,7 +19,7 @@ def test_FFERRTAG():
     assert_equal(FFERRTAG(0, "B", s, f), -1179861504)
 
 
-def test_AVERROR():
+def test_AVERROR() raises:
     assert_equal(AVERROR(ErrNo.ENOENT.value), -2)
     assert_equal(AVERROR(ErrNo.EIO.value), -5)
     assert_equal(AVERROR(ErrNo.ENOMEM.value), -12)
@@ -29,7 +29,7 @@ def test_AVERROR():
     assert_equal(AVERROR(ErrNo.EPERM.value), -1)
 
 
-def test_AVERROR_EOF():
+def test_AVERROR_EOF() raises:
     # 00100000010001100100111101000101, 20464F45
     # print(hex(ord('E')))
     # print(hex(ord('O')))
@@ -39,5 +39,5 @@ def test_AVERROR_EOF():
     assert_equal(AVERROR_EOF, -541478725)
 
 
-def main():
+def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

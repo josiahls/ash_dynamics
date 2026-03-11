@@ -24,6 +24,6 @@
 #     sync_parallelize[parallel_fn](2)
 
 
-def main():
+def main() raises:
     pass
     # TestSuite.discover_tests[__functions_in_module()]().run()

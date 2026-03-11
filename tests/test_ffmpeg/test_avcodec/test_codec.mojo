@@ -6,14 +6,14 @@ from ash_dynamics.ffmpeg.avcodec.codec import AVCodec
 from ash_dynamics.ffmpeg.avcodec.codec_id import AVCodecID
 
 
-def test_avcodec_find_encoder():
+def test_avcodec_find_encoder() raises:
     var codec = avcodec.avcodec_find_encoder(
         AVCodecID.AV_CODEC_ID_H264._value,
     )
     assert_true(Bool(codec))
 
 
-def test_av_codec_iterate():
+def test_av_codec_iterate() raises:
     var opaque = alloc[OpaquePointer[MutExternalOrigin]](1)
     memset(opaque, 0, 1)
     var count = 0
@@ -27,19 +27,19 @@ def test_av_codec_iterate():
     assert_true(count > 0)
 
 
-def test_avcodec_find_decoder_by_name():
+def test_avcodec_find_decoder_by_name() raises:
     var name = String("h264")
     var codec = avcodec.avcodec_find_decoder_by_name(name)
     assert_true(Bool(codec))
 
 
-def test_avcodec_find_encoder_by_name():
+def test_avcodec_find_encoder_by_name() raises:
     var name = String("mpeg4")
     var codec = avcodec.avcodec_find_encoder_by_name(name)
     assert_true(Bool(codec))
 
 
-def test_av_codec_is_encoder():
+def test_av_codec_is_encoder() raises:
     var encoder = avcodec.avcodec_find_encoder(
         AVCodecID.AV_CODEC_ID_H264._value,
     )
@@ -58,7 +58,7 @@ def test_av_codec_is_encoder():
     assert_equal(is_enc, 0)
 
 
-def test_av_codec_is_decoder():
+def test_av_codec_is_decoder() raises:
     var decoder = avcodec.avcodec_find_decoder(
         AVCodecID.AV_CODEC_ID_H264._value,
     )
@@ -77,7 +77,7 @@ def test_av_codec_is_decoder():
     assert_equal(is_dec, 0)
 
 
-def test_av_get_profile_name():
+def test_av_get_profile_name() raises:
     var codec = avcodec.avcodec_find_decoder(
         AVCodecID.AV_CODEC_ID_H264._value,
     )
@@ -94,7 +94,7 @@ def test_av_get_profile_name():
     _ = name_main
 
 
-def test_avcodec_get_hw_config():
+def test_avcodec_get_hw_config() raises:
     var codec = avcodec.avcodec_find_decoder(
         AVCodecID.AV_CODEC_ID_H264._value,
     )
@@ -106,5 +106,5 @@ def test_avcodec_get_hw_config():
     _ = config
 
 
-def main():
+def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

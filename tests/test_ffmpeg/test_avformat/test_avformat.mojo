@@ -27,7 +27,7 @@ from ash_dynamics.ffmpeg.avutil.avutil import AVMediaType
 from ash_dynamics.ffmpeg.avutil.frame import AVFrame
 
 
-def test_AVOutputFormat():
+def test_AVOutputFormat() raises:
     var short_name = "mp4"
 
     var fmt = avformat.av_guess_format(short_name=short_name)
@@ -51,7 +51,7 @@ def test_AVOutputFormat():
     _ = fmt
 
 
-def test_alloc_output_context():
+def test_alloc_output_context() raises:
     var ctx = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
 
     var filename = String("some/path/to/test.mp4")
@@ -114,7 +114,7 @@ def test_alloc_output_context():
     _ = ret
 
 
-def test_avformat_get_class():
+def test_avformat_get_class() raises:
     var av_class = avformat.avformat_get_class()
     assert_equal(
         String(unsafe_from_utf8_ptr=av_class[].class_name), "AVFormatContext"
@@ -126,31 +126,31 @@ def test_avformat_get_class():
     _ = av_class
 
 
-def test_avformat_version():
+def test_avformat_version() raises:
     var ver = avformat.avformat_version()
     assert_true(ver > 0)
 
 
-def test_avformat_configuration():
+def test_avformat_configuration() raises:
     var cfg = avformat.avformat_configuration()
     assert_true(Bool(cfg))
     _ = String(unsafe_from_utf8_ptr=cfg)
 
 
-def test_avformat_license():
+def test_avformat_license() raises:
     var lic = avformat.avformat_license()
     assert_true(Bool(lic))
     _ = String(unsafe_from_utf8_ptr=lic)
 
 
-def test_avformat_network_init_deinit():
+def test_avformat_network_init_deinit() raises:
     var ret = avformat.avformat_network_init()
     assert_equal(ret, 0)
     var ret2 = avformat.avformat_network_deinit()
     assert_equal(ret2, 0)
 
 
-def test_av_muxer_iterate():
+def test_av_muxer_iterate() raises:
     var opaque = alloc[OpaquePointer[MutExternalOrigin]](1)
     memset(opaque, 0, 1)
     var count = 0
@@ -164,7 +164,7 @@ def test_av_muxer_iterate():
     assert_true(count > 0)
 
 
-def test_av_demuxer_iterate():
+def test_av_demuxer_iterate() raises:
     var opaque = alloc[OpaquePointer[MutExternalOrigin]](1)
     memset(opaque, 0, 1)
     var count = 0
@@ -178,13 +178,13 @@ def test_av_demuxer_iterate():
     assert_true(count > 0)
 
 
-def test_avformat_alloc_free_context():
+def test_avformat_alloc_free_context() raises:
     var ctx = avformat.avformat_alloc_context()
     assert_true(Bool(ctx))
     avformat.avformat_free_context(ctx)
 
 
-def test_av_find_input_format():
+def test_av_find_input_format() raises:
     var name = "mp4"
     var fmt = avformat.av_find_input_format(
         name,
@@ -195,7 +195,7 @@ def test_av_find_input_format():
     )
 
 
-def test_av_disposition_from_string_to_string():
+def test_av_disposition_from_string_to_string() raises:
     var disp_str = "default"
     var disp = avformat.av_disposition_from_string(
         disp_str,
@@ -206,7 +206,7 @@ def test_av_disposition_from_string_to_string():
     assert_equal(String(unsafe_from_utf8_ptr=back), "default")
 
 
-def test_av_match_ext():
+def test_av_match_ext() raises:
     var filename = "test.mp4"
     var ext = "mp4,mov,m4a"
     var ret = avformat.av_match_ext(
@@ -222,7 +222,7 @@ def test_av_match_ext():
     assert_equal(ret2, 0)
 
 
-def test_avformat_get_riff_mov_tags():
+def test_avformat_get_riff_mov_tags() raises:
     var riff_video = avformat.avformat_get_riff_video_tags()
     var riff_audio = avformat.avformat_get_riff_audio_tags()
     var mov_video = avformat.avformat_get_mov_video_tags()
@@ -233,7 +233,7 @@ def test_avformat_get_riff_mov_tags():
     assert_true(Bool(mov_audio))
 
 
-def test_av_codec_get_id_and_tag():
+def test_av_codec_get_id_and_tag() raises:
     var tags = avformat.avformat_get_riff_video_tags()
     var table = alloc[UnsafePointer[AVCodecTag, ImmutExternalOrigin]](2)
     table[0] = tags
@@ -254,7 +254,7 @@ def test_av_codec_get_id_and_tag():
     assert_equal(Int(tag_out), Int(tag))
 
 
-def test_av_filename_number_test():
+def test_av_filename_number_test() raises:
     var valid = "frame_%03d.png"
     var ret = avformat.av_filename_number_test(
         valid,
@@ -267,7 +267,7 @@ def test_av_filename_number_test():
     assert_equal(ret2, 0)
 
 
-def test_av_stream_get_parser():
+def test_av_stream_get_parser() raises:
     var ctx = avformat.avformat_alloc_context()
     var st = avformat.avformat_new_stream(
         ctx,
@@ -280,7 +280,7 @@ def test_av_stream_get_parser():
     avformat.avformat_free_context(ctx)
 
 
-def test_av_find_default_stream_index():
+def test_av_find_default_stream_index() raises:
     var ctx = avformat.avformat_alloc_context()
     var idx = avformat.av_find_default_stream_index(
         ctx,
@@ -289,7 +289,7 @@ def test_av_find_default_stream_index():
     avformat.avformat_free_context(ctx)
 
 
-def test_av_hex_dump():
+def test_av_hex_dump() raises:
     var buf = alloc[c_uchar](16)
     for i in range(16):
         buf[i] = c_uchar(i)
@@ -305,7 +305,7 @@ def test_av_hex_dump():
     buf.free()
 
 
-def test_av_dump_format():
+def test_av_dump_format() raises:
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
@@ -333,19 +333,19 @@ def test_av_dump_format():
         avformat.avformat_close_input(ctx_ptr)
 
 
-def test_av_stream_get_class():
+def test_av_stream_get_class() raises:
     var cls = avformat.av_stream_get_class()
     assert_true(Bool(cls))
     _ = String(unsafe_from_utf8_ptr=cls[].class_name)
 
 
-def test_av_stream_group_get_class():
+def test_av_stream_group_get_class() raises:
     var cls = avformat.av_stream_group_get_class()
     assert_true(Bool(cls))
     _ = String(unsafe_from_utf8_ptr=cls[].class_name)
 
 
-def test_avformat_stream_group_name():
+def test_avformat_stream_group_name() raises:
     var name = avformat.avformat_stream_group_name(
         AVStreamGroupParamsType.AV_STREAM_GROUP_PARAMS_TILE_GRID.value,
     )
@@ -353,7 +353,7 @@ def test_avformat_stream_group_name():
     assert_equal(String(unsafe_from_utf8_ptr=name), "Tile Grid")
 
 
-def test_avformat_stream_group_create_new_stream_add_stream():
+def test_avformat_stream_group_create_new_stream_add_stream() raises:
     var ctx = avformat.avformat_alloc_context()
     assert_true(Bool(ctx))
     var stg = avformat.avformat_stream_group_create(
@@ -379,7 +379,7 @@ def test_avformat_stream_group_create_new_stream_add_stream():
     avformat.avformat_free_context(ctx)
 
 
-def test_av_new_program():
+def test_av_new_program() raises:
     var ctx = avformat.avformat_alloc_context()
     assert_true(Bool(ctx))
     var prog = avformat.av_new_program(
@@ -390,7 +390,7 @@ def test_av_new_program():
     avformat.avformat_free_context(ctx)
 
 
-def test_av_guess_codec():
+def test_av_guess_codec() raises:
     var short_name = "mp4"
     var fmt = avformat.av_guess_format(short_name)
     assert_true(Bool(fmt))
@@ -407,7 +407,7 @@ def test_av_guess_codec():
     )
 
 
-def test_avformat_query_codec():
+def test_avformat_query_codec() raises:
     var short_name = "mp4"
     var short_ptr = short_name.as_c_string_slice().unsafe_ptr().as_immutable()
     var fmt = avformat.av_guess_format(short_name)
@@ -420,7 +420,7 @@ def test_avformat_query_codec():
     assert_true(ret >= 0)
 
 
-def test_av_codec_get_tag2():
+def test_av_codec_get_tag2() raises:
     var tags = avformat.avformat_get_riff_video_tags()
     var table = alloc[UnsafePointer[AVCodecTag, ImmutExternalOrigin]](2)
     table[0] = tags
@@ -437,7 +437,7 @@ def test_av_codec_get_tag2():
     assert_equal(Int(tag_out[]), 0x34363248)
 
 
-def test_av_get_frame_filename():
+def test_av_get_frame_filename() raises:
     var buf = alloc[c_char](256)
     memset(buf, 0, 256)
     var path = "frame_%03d.png"
@@ -451,7 +451,7 @@ def test_av_get_frame_filename():
     assert_equal(String(unsafe_from_utf8_ptr=buf), "frame_042.png")
 
 
-def test_av_get_frame_filename2():
+def test_av_get_frame_filename2() raises:
     var buf = alloc[c_char](256)
     memset(buf, 0, 256)
     var path = "frame_%03d.png"
@@ -466,7 +466,7 @@ def test_av_get_frame_filename2():
     assert_equal(String(unsafe_from_utf8_ptr=buf), "frame_042.png")
 
 
-def test_avformat_match_stream_specifier():
+def test_avformat_match_stream_specifier() raises:
     var ctx = avformat.avformat_alloc_context()
     var st = avformat.avformat_new_stream(
         ctx,
@@ -483,7 +483,7 @@ def test_avformat_match_stream_specifier():
     avformat.avformat_free_context(ctx)
 
 
-def test_av_url_split():
+def test_av_url_split() raises:
     var proto = alloc[c_char](256)
     var auth = alloc[c_char](256)
     var host = alloc[c_char](256)
@@ -512,7 +512,7 @@ def test_av_url_split():
     assert_equal(port[], 443)
 
 
-def test_avformat_find_stream_info():
+def test_avformat_find_stream_info() raises:
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
@@ -541,7 +541,7 @@ def test_avformat_find_stream_info():
     avformat.avformat_close_input(ctx_ptr)
 
 
-def test_av_find_best_stream():
+def test_av_find_best_stream() raises:
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
@@ -581,7 +581,7 @@ def test_av_find_best_stream():
     avformat.avformat_close_input(ctx_ptr)
 
 
-def test_av_read_frame():
+def test_av_read_frame() raises:
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
@@ -613,7 +613,7 @@ def test_av_read_frame():
     avformat.avformat_close_input(ctx_ptr)
 
 
-def test_av_get_packet():
+def test_av_get_packet() raises:
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
@@ -648,7 +648,7 @@ def test_av_get_packet():
     avformat.avformat_close_input(ctx_ptr)
 
 
-def test_av_append_packet():
+def test_av_append_packet() raises:
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
@@ -689,7 +689,7 @@ def test_av_append_packet():
     avformat.avformat_close_input(ctx_ptr)
 
 
-def test_av_hex_dump_log():
+def test_av_hex_dump_log() raises:
     var buf = alloc[c_uchar](16)
     for i in range(16):
         buf[i] = c_uchar(i)
@@ -701,7 +701,7 @@ def test_av_hex_dump_log():
     )
 
 
-def test_av_guess_frame_rate():
+def test_av_guess_frame_rate() raises:
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
@@ -740,7 +740,7 @@ def test_av_guess_frame_rate():
     avformat.avformat_close_input(ctx_ptr)
 
 
-def test_av_guess_sample_aspect_ratio():
+def test_av_guess_sample_aspect_ratio() raises:
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
@@ -782,7 +782,7 @@ def test_av_guess_sample_aspect_ratio():
     avformat.avformat_close_input(ctx_ptr)
 
 
-def test_av_probe_input_format():
+def test_av_probe_input_format() raises:
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
         getenv("PIXI_PROJECT_ROOT"),
     )
@@ -826,7 +826,7 @@ def test_av_probe_input_format():
     _ = score_ret
 
 
-def test_av_probe_input_buffer2():
+def test_av_probe_input_buffer2() raises:
     var pb_ptr = alloc[UnsafePointer[AVIOContext, MutExternalOrigin]](1)
     memset(pb_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
@@ -856,7 +856,7 @@ def test_av_probe_input_buffer2():
     _ = fmt_ptr
 
 
-def test_av_probe_input_buffer():
+def test_av_probe_input_buffer() raises:
     var pb_ptr = alloc[UnsafePointer[AVIOContext, MutExternalOrigin]](1)
     memset(pb_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
@@ -886,7 +886,7 @@ def test_av_probe_input_buffer():
     _ = fmt_ptr
 
 
-def test_av_seek_frame():
+def test_av_seek_frame() raises:
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
@@ -922,7 +922,7 @@ def test_av_seek_frame():
     avformat.avformat_close_input(ctx_ptr)
 
 
-def test_avformat_seek_file():
+def test_avformat_seek_file() raises:
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
@@ -960,7 +960,7 @@ def test_avformat_seek_file():
     avformat.avformat_close_input(ctx_ptr)
 
 
-def test_avformat_flush():
+def test_avformat_flush() raises:
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
@@ -983,7 +983,7 @@ def test_avformat_flush():
     avformat.avformat_close_input(ctx_ptr)
 
 
-def test_av_read_play_pause():
+def test_av_read_play_pause() raises:
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
@@ -1007,7 +1007,7 @@ def test_av_read_play_pause():
     avformat.avformat_close_input(ctx_ptr)
 
 
-def test_av_find_program_from_stream():
+def test_av_find_program_from_stream() raises:
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
@@ -1043,7 +1043,7 @@ def test_av_find_program_from_stream():
     _ = prog
 
 
-def test_av_program_add_stream_index():
+def test_av_program_add_stream_index() raises:
     var ctx = avformat.avformat_alloc_context()
     var prog = avformat.av_new_program(
         ctx,
@@ -1058,7 +1058,7 @@ def test_av_program_add_stream_index():
     avformat.avformat_free_context(ctx)
 
 
-def test_av_pkt_dump2():
+def test_av_pkt_dump2() raises:
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
@@ -1100,7 +1100,7 @@ def test_av_pkt_dump2():
     avformat.avformat_close_input(ctx_ptr)
 
 
-def test_av_pkt_dump_log2():
+def test_av_pkt_dump_log2() raises:
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
@@ -1139,7 +1139,7 @@ def test_av_pkt_dump_log2():
     avformat.avformat_close_input(ctx_ptr)
 
 
-def test_av_index_search_timestamp():
+def test_av_index_search_timestamp() raises:
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
@@ -1176,7 +1176,7 @@ def test_av_index_search_timestamp():
     _ = idx
 
 
-def test_avformat_index_get_entries_count():
+def test_avformat_index_get_entries_count() raises:
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
@@ -1210,7 +1210,7 @@ def test_avformat_index_get_entries_count():
     avformat.avformat_close_input(ctx_ptr)
 
 
-def test_avformat_index_get_entry():
+def test_avformat_index_get_entry() raises:
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
@@ -1249,7 +1249,7 @@ def test_avformat_index_get_entry():
     avformat.avformat_close_input(ctx_ptr)
 
 
-def test_avformat_index_get_entry_from_timestamp():
+def test_avformat_index_get_entry_from_timestamp() raises:
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
@@ -1286,7 +1286,7 @@ def test_avformat_index_get_entry_from_timestamp():
     _ = entry
 
 
-def test_av_add_index_entry():
+def test_av_add_index_entry() raises:
     var ctx = avformat.avformat_alloc_context()
     var st = avformat.avformat_new_stream(
         ctx,
@@ -1304,7 +1304,7 @@ def test_av_add_index_entry():
     avformat.avformat_free_context(ctx)
 
 
-def test_avformat_queue_attached_pictures():
+def test_avformat_queue_attached_pictures() raises:
     var ctx_ptr = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     memset(ctx_ptr, 0, 1)
     var path = String("{}/test_data/testsrc_320x180_30fps_2s.h264").format(
@@ -1329,7 +1329,7 @@ def test_avformat_queue_attached_pictures():
     avformat.avformat_close_input(ctx_ptr)
 
 
-def test_av_get_output_timestamp():
+def test_av_get_output_timestamp() raises:
     var ctx = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     var filename = String("some/path/to/test.mp4")
     var ret = avformat.alloc_output_context(ctx=ctx, filename=filename)
@@ -1348,7 +1348,7 @@ def test_av_get_output_timestamp():
     wall.free()
 
 
-def test_avformat_write_header_trailer():
+def test_avformat_write_header_trailer() raises:
     var ctx = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     var fmt = avformat.av_guess_format(short_name="null")
     if not Bool(fmt):
@@ -1392,7 +1392,7 @@ def test_avformat_write_header_trailer():
     avformat.avformat_free_context(ctx[])
 
 
-def test_av_sdp_create():
+def test_av_sdp_create() raises:
     var ac = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     ac[0] = avformat.avformat_alloc_context()
     assert_true(Bool(ac[0]))
@@ -1410,7 +1410,7 @@ def test_av_sdp_create():
     ac.free()
 
 
-def test_avformat_init_output():
+def test_avformat_init_output() raises:
     var ctx = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     var fmt = avformat.av_guess_format(short_name="null")
     if not Bool(fmt):
@@ -1454,7 +1454,7 @@ def test_avformat_init_output():
     avformat.avformat_free_context(ctx[])
 
 
-def test_av_write_frame():
+def test_av_write_frame() raises:
     var ctx = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     var fmt = avformat.av_guess_format(short_name="null")
     if not Bool(fmt):
@@ -1504,7 +1504,7 @@ def test_av_write_frame():
     avformat.avformat_free_context(ctx[])
 
 
-def test_av_interleaved_write_frame():
+def test_av_interleaved_write_frame() raises:
     var ctx = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     var fmt = avformat.av_guess_format(short_name="null")
     if not Bool(fmt):
@@ -1554,7 +1554,7 @@ def test_av_interleaved_write_frame():
     avformat.avformat_free_context(ctx[])
 
 
-def test_av_write_uncoded_frame_query():
+def test_av_write_uncoded_frame_query() raises:
     var ctx = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     var fmt = avformat.av_guess_format(short_name="null")
     if not Bool(fmt):
@@ -1591,7 +1591,7 @@ def test_av_write_uncoded_frame_query():
     avformat.avformat_free_context(ctx[])
 
 
-def test_av_write_uncoded_frame():
+def test_av_write_uncoded_frame() raises:
     var ctx = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     var short_name = Optional(String("null"))
     var fmt = avformat.av_guess_format(short_name=short_name)
@@ -1643,7 +1643,7 @@ def test_av_write_uncoded_frame():
     avformat.avformat_free_context(ctx[])
 
 
-def test_av_interleaved_write_uncoded_frame():
+def test_av_interleaved_write_uncoded_frame() raises:
     var ctx = alloc[UnsafePointer[AVFormatContext, MutExternalOrigin]](1)
     var short_name = Optional(String("null"))
     var fmt = avformat.av_guess_format(short_name=short_name)
@@ -1695,5 +1695,5 @@ def test_av_interleaved_write_uncoded_frame():
     avformat.avformat_free_context(ctx[])
 
 
-def main():
+def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

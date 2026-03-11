@@ -17,7 +17,7 @@ from ash_dynamics.ffmpeg.avutil.samplefmt import AVSampleFormat
 from ash_dynamics.ffmpeg.avutil.channel_layout import AV_CHANNEL_LAYOUT_STEREO
 
 
-def test_codec_id():
+def test_codec_id() raises:
     var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264._value)
     var ctx = avcodec.avcodec_alloc_context3(codec)
     var ctx_ptr = alloc[UnsafePointer[AVCodecContext, MutExternalOrigin]](1)
@@ -26,22 +26,22 @@ def test_codec_id():
     ctx_ptr.free()
 
 
-def test_avcodec_version():
+def test_avcodec_version() raises:
     var ver = avcodec.avcodec_version()
     assert_true(ver >= 0)
 
 
-def test_avcodec_configuration():
+def test_avcodec_configuration() raises:
     var cfg = avcodec.avcodec_configuration()
     assert_true(Bool(cfg))
 
 
-def test_avcodec_license():
+def test_avcodec_license() raises:
     var lic = avcodec.avcodec_license()
     assert_true(Bool(lic))
 
 
-def test_avcodec_alloc_context3():
+def test_avcodec_alloc_context3() raises:
     var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264._value)
     assert_true(Bool(codec))
     var ctx = avcodec.avcodec_alloc_context3(codec)
@@ -51,7 +51,7 @@ def test_avcodec_alloc_context3():
     avcodec.avcodec_free_context(ctx_ptr)
 
 
-def test_avcodec_free_context():
+def test_avcodec_free_context() raises:
     var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264._value)
     var ctx = avcodec.avcodec_alloc_context3(codec)
     var ctx_ptr = alloc[UnsafePointer[AVCodecContext, MutExternalOrigin]](1)
@@ -59,17 +59,17 @@ def test_avcodec_free_context():
     avcodec.avcodec_free_context(ctx_ptr)
 
 
-def test_avcodec_get_class():
+def test_avcodec_get_class() raises:
     var cls = avcodec.avcodec_get_class()
     assert_true(Bool(cls))
 
 
-def test_avcodec_get_subtitle_rect_class():
+def test_avcodec_get_subtitle_rect_class() raises:
     var cls = avcodec.avcodec_get_subtitle_rect_class()
     assert_true(Bool(cls))
 
 
-def test_avcodec_parameters_from_context():
+def test_avcodec_parameters_from_context() raises:
     var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264._value)
     var ctx = avcodec.avcodec_alloc_context3(codec)
     ctx[].width = 320
@@ -98,7 +98,7 @@ def test_avcodec_parameters_from_context():
     avcodec.avcodec_free_context(ctx_ptr)
 
 
-def test_avcodec_parameters_to_context():
+def test_avcodec_parameters_to_context() raises:
     var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264._value)
     var ctx = avcodec.avcodec_alloc_context3(codec)
     var par = alloc[AVCodecParameters](1)
@@ -119,7 +119,7 @@ def test_avcodec_parameters_to_context():
     avcodec.avcodec_free_context(ctx_ptr)
 
 
-def test_avcodec_open2():
+def test_avcodec_open2() raises:
     var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264._value)
     var ctx = avcodec.avcodec_alloc_context3(codec)
     # var dict = alloc[AVDictionary](0)
@@ -133,13 +133,13 @@ def test_avcodec_open2():
     avcodec.avcodec_free_context(ctx_ptr)
 
 
-def test_avsubtitle_free():
+def test_avsubtitle_free() raises:
     var sub = alloc[AVSubtitle](1)
     memset(sub, 0, 1)
     avcodec.avsubtitle_free(sub)
 
 
-def test_avcodec_send_packet():
+def test_avcodec_send_packet() raises:
     var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264._value)
     var ctx = avcodec.avcodec_alloc_context3(codec)
     var dict = UnsafePointer[AVDictionary, MutExternalOrigin]()
@@ -154,7 +154,7 @@ def test_avcodec_send_packet():
     avcodec.avcodec_free_context(ctx_ptr)
 
 
-def test_avcodec_receive_frame():
+def test_avcodec_receive_frame() raises:
     var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264._value)
     var ctx = avcodec.avcodec_alloc_context3(codec)
     var dict = UnsafePointer[AVDictionary, MutExternalOrigin]()
@@ -172,7 +172,7 @@ def test_avcodec_receive_frame():
     avcodec.avcodec_free_context(ctx_ptr)
 
 
-def test_avcodec_send_frame():
+def test_avcodec_send_frame() raises:
     var codec = avcodec.avcodec_find_encoder(AVCodecID.AV_CODEC_ID_H264._value)
     var ctx = avcodec.avcodec_alloc_context3(codec)
     ctx[].width = 320
@@ -191,7 +191,7 @@ def test_avcodec_send_frame():
     avcodec.avcodec_free_context(ctx_ptr)
 
 
-def test_avcodec_receive_packet():
+def test_avcodec_receive_packet() raises:
     var codec = avcodec.avcodec_find_encoder(AVCodecID.AV_CODEC_ID_H264._value)
     var ctx = avcodec.avcodec_alloc_context3(codec)
     ctx[].width = 320
@@ -213,7 +213,7 @@ def test_avcodec_receive_packet():
     avcodec.avcodec_free_context(ctx_ptr)
 
 
-def test_avcodec_align_dimensions():
+def test_avcodec_align_dimensions() raises:
     var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264._value)
     var ctx = avcodec.avcodec_alloc_context3(codec)
     ctx[].width = 321
@@ -233,7 +233,7 @@ def test_avcodec_align_dimensions():
     avcodec.avcodec_free_context(ctx_ptr)
 
 
-def test_avcodec_align_dimensions2():
+def test_avcodec_align_dimensions2() raises:
     var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264._value)
     var ctx = avcodec.avcodec_alloc_context3(codec)
     ctx[].width = 321
@@ -255,7 +255,7 @@ def test_avcodec_align_dimensions2():
     avcodec.avcodec_free_context(ctx_ptr)
 
 
-def test_avcodec_default_get_buffer2():
+def test_avcodec_default_get_buffer2() raises:
     var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264._value)
     var ctx = avcodec.avcodec_alloc_context3(codec)
     ctx[].width = 320
@@ -279,7 +279,7 @@ def test_avcodec_default_get_buffer2():
     avcodec.avcodec_free_context(ctx_ptr)
 
 
-def test_avcodec_default_get_encode_buffer():
+def test_avcodec_default_get_encode_buffer() raises:
     var codec = avcodec.avcodec_find_encoder(AVCodecID.AV_CODEC_ID_H264._value)
     var ctx = avcodec.avcodec_alloc_context3(codec)
     ctx[].width = 320
@@ -301,7 +301,7 @@ def test_avcodec_default_get_encode_buffer():
     avcodec.avcodec_free_context(ctx_ptr)
 
 
-def test_avcodec_default_get_format():
+def test_avcodec_default_get_format() raises:
     var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264._value)
     var ctx = avcodec.avcodec_alloc_context3(codec)
     var fmt_list = alloc[AVPixelFormat.ENUM_DTYPE](2)
@@ -317,7 +317,7 @@ def test_avcodec_default_get_format():
     avcodec.avcodec_free_context(ctx_ptr)
 
 
-def test_av_parser_parse2():
+def test_av_parser_parse2() raises:
     var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264._value)
     var parser = avcodec.av_parser_init(AVCodecID.AV_CODEC_ID_H264._value)
     var ctx = avcodec.avcodec_alloc_context3(codec)
@@ -345,7 +345,7 @@ def test_av_parser_parse2():
     avcodec.avcodec_free_context(ctx_ptr)
 
 
-def test_avcodec_fill_audio_frame():
+def test_avcodec_fill_audio_frame() raises:
     var frame = avutil.av_frame_alloc()
     frame[].format = AVSampleFormat.AV_SAMPLE_FMT_S16._value
     frame[].nb_samples = 1024
@@ -371,7 +371,7 @@ def test_avcodec_fill_audio_frame():
     avutil.av_frame_free(frame_ptr)
 
 
-def test_av_parser_iterate():
+def test_av_parser_iterate() raises:
     var opaque = alloc[OpaquePointer[MutExternalOrigin]](1)
     memset(opaque, 0, 1)
     var count = 0
@@ -385,25 +385,25 @@ def test_av_parser_iterate():
     assert_true(count > 0)
 
 
-def test_av_parser_init():
+def test_av_parser_init() raises:
     var parser = avcodec.av_parser_init(AVCodecID.AV_CODEC_ID_H264._value)
     assert_true(Bool(parser))
     avcodec.av_parser_close(parser)
 
 
-def test_av_parser_close():
+def test_av_parser_close() raises:
     var parser = avcodec.av_parser_init(AVCodecID.AV_CODEC_ID_H264._value)
     avcodec.av_parser_close(parser)
 
 
-def test_avcodec_pix_fmt_to_codec_tag():
+def test_avcodec_pix_fmt_to_codec_tag() raises:
     var tag = avcodec.avcodec_pix_fmt_to_codec_tag(
         AVPixelFormat.AV_PIX_FMT_YUV420P._value,
     )
     _ = tag
 
 
-def test_avcodec_find_best_pix_fmt_of_list():
+def test_avcodec_find_best_pix_fmt_of_list() raises:
     var list = alloc[AVPixelFormat.ENUM_DTYPE](4)
     list[0] = AVPixelFormat.AV_PIX_FMT_YUV420P._value
     list[1] = AVPixelFormat.AV_PIX_FMT_YUV422P._value
@@ -420,7 +420,7 @@ def test_avcodec_find_best_pix_fmt_of_list():
     assert_equal(best, AVPixelFormat.AV_PIX_FMT_YUV420P._value)
 
 
-def test_avcodec_string():
+def test_avcodec_string() raises:
     var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264._value)
     var ctx = avcodec.avcodec_alloc_context3(codec)
     var dict = UnsafePointer[AVDictionary, MutExternalOrigin]()
@@ -440,7 +440,7 @@ def test_avcodec_string():
     avcodec.avcodec_free_context(ctx_ptr)
 
 
-def test_avcodec_flush_buffers():
+def test_avcodec_flush_buffers() raises:
     var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264._value)
     var ctx = avcodec.avcodec_alloc_context3(codec)
     var dict = UnsafePointer[AVDictionary, MutExternalOrigin]()
@@ -453,7 +453,7 @@ def test_avcodec_flush_buffers():
     avcodec.avcodec_free_context(ctx_ptr)
 
 
-def test_av_get_audio_frame_duration():
+def test_av_get_audio_frame_duration() raises:
     var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_MP3._value)
     if not Bool(codec):
         return
@@ -468,7 +468,7 @@ def test_av_get_audio_frame_duration():
     avcodec.avcodec_free_context(ctx_ptr)
 
 
-def test_avcodec_is_open():
+def test_avcodec_is_open() raises:
     var codec = avcodec.avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264._value)
     var ctx = avcodec.avcodec_alloc_context3(codec)
     var open_before = avcodec.avcodec_is_open(
@@ -488,5 +488,5 @@ def test_avcodec_is_open():
     avcodec.avcodec_free_context(ctx_ptr)
 
 
-def main():
+def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

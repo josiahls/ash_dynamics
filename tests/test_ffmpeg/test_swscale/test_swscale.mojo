@@ -13,71 +13,71 @@ from ash_dynamics.ffmpeg.avutil.pixfmt import (
 )
 
 
-def test_swscale_version():
+def test_swscale_version() raises:
     var v = sws.swscale_version()
     assert_true(v > 0)
 
 
-def test_swscale_configuration():
+def test_swscale_configuration() raises:
     var cfg = sws.swscale_configuration()
     assert_true(Bool(cfg))
 
 
-def test_swscale_license():
+def test_swscale_license() raises:
     var lic = sws.swscale_license()
     assert_true(Bool(lic))
 
 
-def test_sws_get_class():
+def test_sws_get_class() raises:
     var cls = sws.sws_get_class()
     assert_true(Bool(cls))
 
 
-def test_sws_test_format():
+def test_sws_test_format() raises:
     var ret = sws.sws_test_format(AVPixelFormat.AV_PIX_FMT_YUV420P._value, 0)
     assert_true(ret >= 0)
 
 
-def test_sws_test_colorspace():
+def test_sws_test_colorspace() raises:
     var ret = sws.sws_test_colorspace(AVColorSpace.AVCOL_SPC_BT709._value, 0)
     assert_true(ret >= 0)
 
 
-def test_sws_test_primaries():
+def test_sws_test_primaries() raises:
     var ret = sws.sws_test_primaries(AVColorPrimaries.AVCOL_PRI_BT709._value, 0)
     assert_true(ret >= 0)
 
 
-def test_sws_test_transfer():
+def test_sws_test_transfer() raises:
     var ret = sws.sws_test_transfer(
         AVColorTransferCharacteristic.AVCOL_TRC_BT709._value, 0
     )
     assert_true(ret >= 0)
 
 
-def test_sws_isSupportedInput():
+def test_sws_isSupportedInput() raises:
     var ret = sws.sws_isSupportedInput(AVPixelFormat.AV_PIX_FMT_YUV420P._value)
     assert_true(ret >= 0)
 
 
-def test_sws_isSupportedOutput():
+def test_sws_isSupportedOutput() raises:
     var ret = sws.sws_isSupportedOutput(AVPixelFormat.AV_PIX_FMT_YUV420P._value)
     assert_true(ret >= 0)
 
 
-def test_sws_isSupportedEndiannessConversion():
+def test_sws_isSupportedEndiannessConversion() raises:
     var ret = sws.sws_isSupportedEndiannessConversion(
         AVPixelFormat.AV_PIX_FMT_YUV420P._value
     )
     assert_true(ret >= 0)
 
 
-def test_sws_getCoefficients():
+def test_sws_getCoefficients() raises:
     var coeffs = sws.sws_getCoefficients(5)
     assert_true(Bool(coeffs))
 
 
-def test_sws_getContext_and_free():
+def test_sws_getContext_and_free() raises:
     var ctx = sws.sws_getContext(
         640,
         480,
@@ -94,39 +94,39 @@ def test_sws_getContext_and_free():
     sws.sws_freeContext(ctx)
 
 
-def test_sws_getDefaultFilter_and_free():
+def test_sws_getDefaultFilter_and_free() raises:
     var f = sws.sws_getDefaultFilter(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0)
     assert_true(Bool(f))
     sws.sws_freeFilter(f)
 
 
-def test_sws_allocVec_and_free():
+def test_sws_allocVec_and_free() raises:
     var v = sws.sws_allocVec(16)
     assert_true(Bool(v))
     sws.sws_freeVec(v)
 
 
-def test_sws_getGaussianVec():
+def test_sws_getGaussianVec() raises:
     var v = sws.sws_getGaussianVec(1.0, 1.0)
     assert_true(Bool(v))
     sws.sws_freeVec(v)
 
 
-def test_sws_scaleVec():
+def test_sws_scaleVec() raises:
     var v = sws.sws_allocVec(8)
     assert_true(Bool(v))
     sws.sws_scaleVec(v, 2.0)
     sws.sws_freeVec(v)
 
 
-def test_sws_normalizeVec():
+def test_sws_normalizeVec() raises:
     var v = sws.sws_allocVec(8)
     assert_true(Bool(v))
     sws.sws_normalizeVec(v, 1.0)
     sws.sws_freeVec(v)
 
 
-def test_sws_test_frame():
+def test_sws_test_frame() raises:
     var frame = avutil.av_frame_alloc()
     frame[].width = 640
     frame[].height = 480
@@ -138,7 +138,7 @@ def test_sws_test_frame():
     avutil.av_frame_free(frame)
 
 
-def test_sws_scale_frame():
+def test_sws_scale_frame() raises:
     var src = avutil.av_frame_alloc()
     src[].width = 640
     src[].height = 480
@@ -178,7 +178,7 @@ def test_sws_scale_frame():
     avutil.av_frame_free(dst)
 
 
-def test_sws_scale():
+def test_sws_scale() raises:
     var src_frame = avutil.av_frame_alloc()
     src_frame[].width = 64
     src_frame[].height = 48
@@ -242,7 +242,7 @@ def test_sws_scale():
     avutil.av_frame_free(dst_frame)
 
 
-def test_sws_is_noop():
+def test_sws_is_noop() raises:
     var src = avutil.av_frame_alloc()
     src[].width = 64
     src[].height = 48
@@ -262,7 +262,7 @@ def test_sws_is_noop():
     avutil.av_frame_free(dst)
 
 
-def test_sws_frame_setup():
+def test_sws_frame_setup() raises:
     var ctx = sws.sws_getContext(
         64,
         48,
@@ -297,7 +297,7 @@ def test_sws_frame_setup():
     avutil.av_frame_free(dst)
 
 
-def main():
+def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()
     # test_swscale_version()
     # test_swscale_configuration()
