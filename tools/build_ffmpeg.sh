@@ -14,8 +14,9 @@
 cd ./third_party/ffmpeg
 
 BUILD_PATH=$(pwd)/build
+FORCE_FFMPEG_BUILD=${FORCE_FFMPEG_BUILD:-false}
 
-if [ ! -d ${BUILD_PATH} ]; then
+if [ ! -d ${BUILD_PATH} ] || [ "${FORCE_FFMPEG_BUILD}" = true ]; then
     echo $(ls -la)
     echo "Building ffmpeg in ${BUILD_PATH}"
     # For put the built dir in the same directory. Eventually change to the default
