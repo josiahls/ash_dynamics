@@ -20,13 +20,14 @@ stdlib-dev = {features = ["stdlib-dev"]}
 mojo = "==0.26.2.0.dev2026031005,<0.27"
 pre-commit = ">=4.5.0,<5"
 
+
 [activation.env]
 #ASH_DYNAMICS_INCLUDES = " -I . -I third_party/lightbug_http -I third_party/NuMojo"
 ASH_DYNAMICS_INCLUDES = " -I . -I third_party/NuMojo"
 ASH_DYNAMICS_SO_INSTALL_PREFIX = "$PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib"
 LIBRARY_PATH = "$PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib:$LIBRARY_PATH"
 LD_LIBRARY_PATH = "$PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib:$LD_LIBRARY_PATH"
-ASH_DYNAMICS_LINKERS = " -Xlinker $PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib/libavutil.so -Xlinker $PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib/libavcodec.so -Xlinker $PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib/libswresample.so -Xlinker $PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib/libswscale.so -Xlinker $PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib/libavformat.so"
+ASH_DYNAMICS_LINKERS = " -Xlinker -L -Xlinker $LD_LIBRARY_PATH -Xlinker -lavutil -Xlinker -lavcodec -Xlinker -lswresample -Xlinker -lswscale -Xlinker -lavformat"
 MOJO_ENABLE_STACK_TRACE_ON_ERROR="1"
 LOGGING_LEVEL="DEBUG"
 
