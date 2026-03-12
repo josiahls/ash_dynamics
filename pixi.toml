@@ -67,6 +67,9 @@ cmd = "bash tools/clone_ffmpeg.sh"
 [tasks.install_libopenh264]
 cmd = "bash tools/install_libopenh264.sh"
 
+[tasks.clone_mav]
+cmd = "bash tools/clone_mav.sh"
+
 ############################### Env setup ######################################
 
 [tasks.configure_lldb]
@@ -79,7 +82,7 @@ cmd = "bash tools/generate_test_videos.sh"
 ############################### Core API #######################################
 [tasks.configure]
 cmd = "bash tools/configure.sh"
-depends-on = [ "install_pre_commit_hooks", "clone_lightbug_http", "build_ffmpeg", "generate_test_videos", "install_libopenh264", "clone_numojo" ]
+depends-on = [ "install_pre_commit_hooks", "clone_lightbug_http", "build_ffmpeg", "generate_test_videos", "install_libopenh264", "clone_numojo", "clone_mav" ]
 
 [tasks.package]
 cmd = "pixi run mojo package $ASH_DYNAMICS_INCLUDES ash_dynamics"
