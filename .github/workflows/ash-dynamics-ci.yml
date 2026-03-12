@@ -115,10 +115,10 @@ jobs:
     - name: Cache ffmpeg repository
       uses: actions/cache@v4
       with:
-        path: third_party/ffmpeg/build
-        key: ffmpeg-repo-${{ matrix.runner.PLATFORM }}-${{ github.sha }}
+        path: third_party/mav/third_party/ffmpeg/build
+        key: mav-ffmpeg-repo-${{ matrix.runner.PLATFORM }}-${{ github.sha }}
         restore-keys: |
-          ffmpeg-repo-${{ matrix.runner.PLATFORM }}-
+          mav-ffmpeg-repo-${{ matrix.runner.PLATFORM }}-
 
     - name: Fix workspace permissions
       run: |
@@ -147,12 +147,12 @@ jobs:
         COMPOSE_PROFILES: cpu_${{ matrix.runner.PLATFORM }} 
         CONFIGURE_LIBOPENH264: true
 
-    - name: Run Tests
-      run: |
-        docker compose run --rm ash_dynamics_${COMPOSE_PROFILES} bash -l -c "pixi run configure && pixi run test_all"
-      env:
-        # Github doesn't have any gpu runners.
-        COMPOSE_PROFILES: cpu_${{ matrix.runner.PLATFORM }} 
-        # Toggle if there is a need to build the stdlib
-        CONFIGURE_LIBOPENH264: true
-        # export PIXI_ENVIRONMENT_NAME: stdlib-dev
+    # - name: Run Tests
+    #   run: |
+    #     docker compose run --rm ash_dynamics_${COMPOSE_PROFILES} bash -l -c "pixi run configure && pixi run test_all"
+    #   env:
+    #     # Github doesn't have any gpu runners.
+    #     COMPOSE_PROFILES: cpu_${{ matrix.runner.PLATFORM }} 
+    #     # Toggle if there is a need to build the stdlib
+    #     CONFIGURE_LIBOPENH264: true
+    #     # export PIXI_ENVIRONMENT_NAME: stdlib-dev

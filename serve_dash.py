@@ -14,7 +14,7 @@ from pathlib import Path
 import mimetypes
 import os
 
-
+#ci trigger
 # Change this to "dash" or "dash_from_c" to switch which set you serve.
 SERVE_SUBDIR = "dash_mojo"        # or "dash_from_c"
 
@@ -24,7 +24,7 @@ class DashRequestHandler(SimpleHTTPRequestHandler):
 
     # Root directory of the repo: one level up from this file.
     repo_root = Path(__file__).resolve().parent
-    serve_root = repo_root / "test_data" / SERVE_SUBDIR
+    serve_root = repo_root / "third_party/mav/test_data" / SERVE_SUBDIR
 
     def translate_path(self, path: str) -> str:
         # Strip leading slash and map to serve_root.

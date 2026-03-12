@@ -2,23 +2,7 @@ from std.ffi import c_uchar, c_char, c_int
 from std.sys._libc_errno import ErrNo
 from std.pathlib import Path
 from std.os import abort
-from ash_dynamics.ffmpeg.avcodec.packet import AVPacket
-from ash_dynamics.ffmpeg.avformat import Avformat
-from ash_dynamics.ffmpeg.avcodec import Avcodec
-from ash_dynamics.ffmpeg.avutil import Avutil
-from ash_dynamics.ffmpeg.swscale import Swscale
-from ash_dynamics.ffmpeg.swrsample import Swrsample
-from ash_dynamics.ffmpeg.avformat import AVFormatContext
-from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
-from ash_dynamics.ffmpeg.avcodec.defs import AV_INPUT_BUFFER_PADDING_SIZE
-from ash_dynamics.ffmpeg.avutil.avutil import AV_NOPTS_VALUE
-from std.memory import memset
-from ash_dynamics.ffmpeg.avcodec.avcodec import AVCodecContext
-from ash_dynamics.ffmpeg.avutil.frame import AVFrame
-from ash_dynamics.ffmpeg.avutil.error import AVERROR, AVERROR_EOF
-from ash_dynamics.ffmpeg.avutil.pixfmt import AVPixelFormat
-
-
+from mav.ffmpeg.avutil.pixfmt import AVPixelFormat
 from ash_dynamics.image.io import image_save, image_read, ImageData
 
 
@@ -34,44 +18,6 @@ struct ImageInfo:
         self.height = 0
         self.format = AVPixelFormat.AV_PIX_FMT_NONE._value
         self.n_color_spaces = 0
-
-
-fn decode(
-    mut avcodec: Avcodec,
-    dec_ctx: UnsafePointer[AVCodecContext, origin=MutExternalOrigin],
-    frame: UnsafePointer[AVFrame, origin=MutExternalOrigin],
-    pkt: UnsafePointer[AVPacket, origin=MutExternalOrigin],
-    filename: String,
-    mut image_info: ImageInfo,
-) raises -> UnsafePointer[c_uchar, MutExternalOrigin]:
-    var ret: c_int = avcodec.avcodec_send_packet(dec_ctx, pkt)
-    if ret < 0:
-        abort("Error sending a packaet for decoding.")
-    else:
-        print("Packet sent successfully.")
-
-    while ret >= 0:
-        ret = avcodec.avcodec_receive_frame(dec_ctx, frame)
-        if ret == AVERROR(ErrNo.EAGAIN.value) or ret == Int32(AVERROR_EOF):
-            break
-        elif ret < 0:
-            abort("Error receiving frame.")
-        else:
-            print("Frame received successfully.")
-
-        image_info.width = frame[].width
-        image_info.height = frame[].height
-        image_info.format = dec_ctx[].pix_fmt
-        image_info.n_color_spaces = dec_ctx[].color_range
-
-        out_data = alloc[c_uchar](
-            Int(frame[].linesize[0]) * Int(frame[].height)
-        )
-        out_data[] = frame[].data[0][]
-
-        return out_data
-
-    raise Error("Error decoding image.")
 
 
 struct Image(Movable, Writable):
