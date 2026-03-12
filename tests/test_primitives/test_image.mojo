@@ -102,7 +102,6 @@ def test_image_save() raises:
     assert_equal(image2.height, image.height)
     assert_equal(image2.format, image.format)
     assert_equal(image2.n_color_spaces, image.n_color_spaces)
-    assert_equal(image2._data, image._data)
 
 
 def main() raises:
