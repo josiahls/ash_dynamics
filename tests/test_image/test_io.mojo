@@ -2,7 +2,7 @@ from std.testing import TestSuite, assert_equal
 from std.os import getenv
 from std.os.path import join
 from ash_dynamics.image.io import image_read, image_save
-from ash_dynamics.ffmpeg.avutil.pixfmt import AVPixelFormat
+from mav.ffmpeg.avutil.pixfmt import AVPixelFormat
 
 
 def test_image_read() raises:

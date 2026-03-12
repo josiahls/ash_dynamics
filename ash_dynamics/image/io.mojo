@@ -1,23 +1,23 @@
 from std.ffi import c_uchar, c_char, c_int, c_long_long
 from std.sys._libc_errno import ErrNo
 from std.pathlib import Path
-from ash_dynamics.ffmpeg.avcodec.packet import AVPacket
-from ash_dynamics.ffmpeg import avformat
-from ash_dynamics.ffmpeg import avcodec
-from ash_dynamics.ffmpeg import avutil
-from ash_dynamics.ffmpeg import swscale
-from ash_dynamics.ffmpeg import swrsample
-from ash_dynamics.ffmpeg.avformat import AVFormatContext
-from ash_dynamics.ffmpeg.avutil.dict import AVDictionary
-from ash_dynamics.ffmpeg.avcodec.defs import AV_INPUT_BUFFER_PADDING_SIZE
-from ash_dynamics.ffmpeg.avutil.avutil import AV_NOPTS_VALUE
+from mav.ffmpeg.avcodec.packet import AVPacket
+from mav.ffmpeg import avformat
+from mav.ffmpeg import avcodec
+from mav.ffmpeg import avutil
+from mav.ffmpeg import swscale
+from mav.ffmpeg import swrsample
+from mav.ffmpeg.avformat import AVFormatContext
+from mav.ffmpeg.avutil.dict import AVDictionary
+from mav.ffmpeg.avcodec.defs import AV_INPUT_BUFFER_PADDING_SIZE
+from mav.ffmpeg.avutil.avutil import AV_NOPTS_VALUE
 from std.memory import memset
-from ash_dynamics.ffmpeg.avcodec.avcodec import AVCodecContext
-from ash_dynamics.ffmpeg.avutil.frame import AVFrame
-from ash_dynamics.ffmpeg.avutil.error import AVERROR, AVERROR_EOF
-from ash_dynamics.ffmpeg.avutil.pixfmt import AVPixelFormat
-from ash_dynamics.ffmpeg.avutil.rational import AVRational
-from logger.logger import Logger, Level, DEFAULT_LEVEL
+from mav.ffmpeg.avcodec.avcodec import AVCodecContext
+from mav.ffmpeg.avutil.frame import AVFrame
+from mav.ffmpeg.avutil.error import AVERROR, AVERROR_EOF
+from mav.ffmpeg.avutil.pixfmt import AVPixelFormat
+from mav.ffmpeg.avutil.rational import AVRational
+from std.logger.logger import Logger, Level, DEFAULT_LEVEL
 
 from std.testing import assert_equal
 

@@ -22,6 +22,9 @@ pre-commit = ">=4.5.0,<5"
 # Pin to LGPL build (no libx264/libx265) to avoid GPL copyleft
 ffmpeg = { version = "==8.0.1", build = "*lgpl*" }
 openh264 = "==2.6.0"
+# ffmpeg has zlib version restrictions, thus can conflict with git.
+git = ">=2.53.0"
+openssh = ">=9.0"
 
 
 [activation.env]
@@ -39,17 +42,6 @@ install_pre_commit_hooks = { cmd = [
     "pre-commit", "install"
 ], outputs = [".git/hooks/pre-commit"]}
 
-# Note: This should be in the third_party setup directory, but pixi's support
-# for outputs in its written out form isn't supported.
-build_ffmpeg = { cmd = "bash tools/build_ffmpeg.sh", inputs = [
-    "tools/build_ffmpeg.sh",
-], outputs = [
-    "third_party/ffmpeg/build/lib/*.so"
-], depends-on = [ "clone_ffmpeg", "install_libopenh264" ] }
-
-# Same as above, however will run every time.
-build_ffmpeg_clean = { cmd = "FORCE_FFMPEG_BUILD=true bash tools/build_ffmpeg.sh", depends-on = [ "clone_ffmpeg", "install_libopenh264" ] }
-
 ############################ Git Ops ###########################################
 push = "git push --force-with-lease"
 
@@ -64,14 +56,12 @@ cmd = "bash tools/clone_lightbug_http.sh"
 [tasks.clone_numojo]
 cmd = "bash tools/clone_numojo.sh"
 
-[tasks.clone_ffmpeg]
-cmd = "bash tools/clone_ffmpeg.sh"
-
-[tasks.install_libopenh264]
-cmd = "bash tools/install_libopenh264.sh"
-
 [tasks.clone_mav]
 cmd = "bash tools/clone_mav.sh"
+
+[tasks.configure_mav]
+cmd = "cd third_party/mav && pixi shell && pixi run configure"
+depends-on = [ "clone_mav" ]
 
 ############################### Env setup ######################################
 
@@ -85,7 +75,7 @@ cmd = "bash tools/generate_test_videos.sh"
 ############################### Core API #######################################
 [tasks.configure]
 cmd = "bash tools/configure.sh"
-depends-on = [ "install_pre_commit_hooks", "clone_lightbug_http", "build_ffmpeg", "generate_test_videos", "install_libopenh264", "clone_numojo", "clone_mav" ]
+depends-on = [ "install_pre_commit_hooks", "clone_lightbug_http", "generate_test_videos", "clone_numojo", "configure_mav" ]
 
 [tasks.package]
 cmd = "pixi run mojo package $ASH_DYNAMICS_INCLUDES ash_dynamics"
@@ -122,6 +112,11 @@ depends-on = [ { task = "build_valgrind", args = ["{{ file }}"] } ]
 
 [tasks.debug]
 cmd = "pixi run mojo debug ./$(tools/mojo_build_ex.sh {{ file }})"
+args = ["file"]
+depends-on = [ "configure_lldb" ]
+
+[tasks.idebug]
+cmd = "pixi run mojo debug --vscode ./$(tools/mojo_build_ex.sh {{ file }})"
 args = ["file"]
 depends-on = [ "configure_lldb" ]
 

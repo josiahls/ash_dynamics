@@ -1,5 +1,4 @@
 from std.testing import TestSuite, assert_equal
-from ash_dynamics.primitives._clib import C_Union, TrivialOptionalField
 from std.sys import size_of
 from std.ffi import c_uchar
 from ash_dynamics.primitives.image import Image
