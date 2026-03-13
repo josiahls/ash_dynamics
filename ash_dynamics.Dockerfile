@@ -22,31 +22,16 @@ RUN apt-get update && apt-get install -y \
     python3.11-distutils \
     python3.11-venv \
     cmake \
-    git \
     gdb \
     libglib2.0-dev \
     graphviz \
     libxext6 \
     libsm6 \
-    libxrender1 \
-    xvfb \
     nano \
     tree \
-    gh \
     wget \
-    libosmesa6-dev \
-    libgl1-mesa-glx \
-    libgl1-mesa-dri \
-    libosmesa6 \
-    mesa-utils \
-    libgl1-mesa-dev \
-    xvfb \
-    x11vnc \
-    fluxbox \
-    xorg-dev \
     llvm \
     clang \
-    x11-apps \
     ruby-full zlib1g-dev \ 
     gnupg \ 
     ffmpeg \
@@ -61,14 +46,6 @@ RUN addgroup --gid $CONTAINER_UID $CONTAINER_GROUP && \
     adduser --uid $CONTAINER_UID --gid $CONTAINER_UID $CONTAINER_USER --disabled-password && \
     echo "$CONTAINER_USER ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/$CONTAINER_USER && \
     chmod 0440 /etc/sudoers.d/$CONTAINER_USER
-
-RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg
-RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-
-RUN apt-get update \
-    && apt-get install -y gh \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
 
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1 && update-alternatives --config python
 RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3.11 get-pip.py
