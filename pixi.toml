@@ -19,15 +19,17 @@ stdlib-dev = {features = ["stdlib-dev"]}
 [dependencies]
 mojo = "==0.26.2.0.dev2026031005,<0.27"
 pre-commit = ">=4.5.0,<5"
+# Pin to LGPL build (no libx264/libx265) to avoid GPL copyleft
+ffmpeg = { version = "==8.0.1", build = "*lgpl*" }
+openh264 = "==2.6.0"
 
 
 [activation.env]
 #ASH_DYNAMICS_INCLUDES = " -I . -I third_party/lightbug_http -I third_party/NuMojo"
 ASH_DYNAMICS_INCLUDES = " -I . -I third_party/NuMojo"
-ASH_DYNAMICS_SO_INSTALL_PREFIX = "$PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib"
-LIBRARY_PATH = "$PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib:$LIBRARY_PATH"
-LD_LIBRARY_PATH = "$PIXI_PROJECT_ROOT/third_party/ffmpeg/build/lib:$LD_LIBRARY_PATH"
-ASH_DYNAMICS_LINKERS = " -Xlinker -L -Xlinker $LD_LIBRARY_PATH -Xlinker -lavutil -Xlinker -lavcodec -Xlinker -lswresample -Xlinker -lswscale -Xlinker -lavformat"
+LIBRARY_PATH = "$CONDA_PREFIX/lib:$LIBRARY_PATH"
+LD_LIBRARY_PATH = "$CONDA_PREFIX/lib:$LD_LIBRARY_PATH"
+ASH_DYNAMICS_LINKERS = " -Xlinker -lavutil -Xlinker -lavcodec -Xlinker -lswresample -Xlinker -lswscale -Xlinker -lavformat"
 MOJO_ENABLE_STACK_TRACE_ON_ERROR="1"
 LOGGING_LEVEL="DEBUG"
 
@@ -132,9 +134,6 @@ depends-on = [
 
 [tasks.test_all]
 cmd = "pixi run mojo run run_tests.mojo"
-
-
-
 
 ########################## Mojo Standard Library ###############################
 [feature.stdlib-dev.activation.env]
