@@ -43,6 +43,7 @@ jobs:
     needs: check-changes
     if: needs.check-changes.outputs.should-build == 'true'
     runs-on: ${{ matrix.runner.RUNNER_NAME }}
+    timeout-minutes: 20
     strategy:
       max-parallel: 4
       matrix:
@@ -89,8 +90,9 @@ jobs:
 
   test:
     needs: [check-changes, build]
-    if: always() && (needs.build.result == 'success' || needs.check-changes.outputs.should-build == 'false')
+    if: ${{ !cancelled() }} && (needs.build.result == 'success' || needs.check-changes.outputs.should-build == 'false')
     runs-on: ${{ matrix.runner.RUNNER_NAME }}
+    timeout-minutes: 10
     strategy:
       max-parallel: 2
       matrix:
